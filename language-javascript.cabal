@@ -1,0 +1,26 @@
+Name:                language-javascript
+Version:             0.0.1
+Synopsis:            Parser for JavaScript
+-- Description:         
+Homepage:            https://github.com/alanz/language-javascript
+License:             BSD3
+License-file:        LICENSE
+Author:              Alan Zimmerman
+Maintainer:          alan.zimm@gmail.com
+Copyright:           (c) 2010 Alan Zimmerman
+Category:            Language
+Build-type:          Simple
+-- Extra-source-files:  
+Cabal-version:       >=1.2
+
+Library
+  Build-depends:     base             >= 4       && < 5
+                   , array            >= 0.3     && < 0.5
+                   , mtl              >= 1.1     && < 2
+  hs-source-dirs: src
+  Exposed-modules:     Language.JavaScript.Parser.Parser
+                       Language.JavaScript.Parser.Lexer
+  -- Other-modules:       
+  Build-tools:         happy, alex
+
+  

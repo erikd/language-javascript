@@ -1,0 +1,12 @@
+/dist/build/Language/JavaScript/Parser/ParserMonad.hi
+/dist/build/Language/JavaScript/Parser/ParserMonad.o
+/dist/build/autogen/Paths_language_javascript.hs
+/dist/build/autogen/cabal_macros.h
+/dist/package.conf.inplace
+/dist/setup-config
+/language-javascript.cabal~
+/src/Language/JavaScript/Parser/Lexer.x~
+/src/Language/JavaScript/Parser/Parser.y~
+/src/Language/JavaScript/Parser/ParserMonad.hs~
+/dist/build/Language/JavaScript/Parser/Lexer.hs
+/dist/build/Language/JavaScript/Parser/Parser.hs
