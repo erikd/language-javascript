@@ -2,8 +2,11 @@
 {
 module Language.JavaScript.Parser.Parser where
 
+import Control.Monad.Error.Class (throwError)
 import Data.Char
 import Language.JavaScript.Parser.Lexer
+import Language.JavaScript.Parser.ParserMonad
+import Language.JavaScript.Parser.SrcLocation
 
 }
 
@@ -16,20 +19,24 @@ import Language.JavaScript.Parser.Lexer
 
 
 %token 
-      let             { TokenLet }
-      in              { TokenIn }
-      int             { TokenInt $$ }
-      var             { TokenVar $$ }
-      '='             { TokenEq }
-      '+'             { TokenPlus }
-      '-'             { TokenMinus }
-      '*'             { TokenTimes }
-      '/'             { TokenDiv }
-      '('             { TokenOB }
-      ')'             { TokenCB }
+
+      let             { TokenLet {} }
+      in              { TokenIn {} }
+      int             { TokenInt {} {-$$-} }
+      var             { TokenVar {} {-$$-} }
+      '='             { TokenEq {} }
+      '+'             { TokenPlus {} }
+      '-'             { TokenMinus {} }
+      '*'             { TokenTimes {} }
+      '/'             { TokenDiv {} }
+      '('             { TokenOB {} }
+      ')'             { TokenCB {} }
 
 %%
 
+Foo : '(' '+' ')' {}
+
+{-
 Exp   : let var '=' Exp in Exp  { Let $2 $4 $6 }
       | Exp1                    { Exp1 $1 }
 
@@ -45,12 +52,13 @@ Factor
       : int                     { Int $1 }
       | var                     { Var $1 }
       | '(' Exp ')'             { Brack $2 }
-
+-}
 
 {
 
-parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError :: Token -> P a 
+parseError = throwError . UnexpectedToken 
+
 
 data Exp  
       = Let String Exp Exp
@@ -76,47 +84,6 @@ data Factor
       deriving Show
 
 
-
-data Token
-      = TokenLet
-      | TokenIn
-      | TokenInt Int
-      | TokenVar String
-      | TokenEq
-      | TokenPlus
-      | TokenMinus
-      | TokenTimes
-      | TokenDiv
-      | TokenOB
-      | TokenCB
- deriving Show
-
-lexer :: String -> [Token]
-lexer [] = []
-lexer (c:cs) 
-      | isSpace c = lexer cs
-      | isAlpha c = lexVar (c:cs)
-      | isDigit c = lexNum (c:cs)
-lexer ('=':cs) = TokenEq : lexer cs
-lexer ('+':cs) = TokenPlus : lexer cs
-lexer ('-':cs) = TokenMinus : lexer cs
-lexer ('*':cs) = TokenTimes : lexer cs
-lexer ('/':cs) = TokenDiv : lexer cs
-lexer ('(':cs) = TokenOB : lexer cs
-lexer (')':cs) = TokenCB : lexer cs
-
-lexNum cs = TokenInt (read num) : lexer rest
-      where (num,rest) = span isDigit cs
-
-lexVar cs =
-   case span isAlpha cs of
-      ("let",rest) -> TokenLet : lexer rest
-      ("in",rest)  -> TokenIn : lexer rest
-      (var,rest)   -> TokenVar var : lexer rest
-
-
-
-main = getContents >>= print . parse . lexer
 
 }
 

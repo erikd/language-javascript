@@ -1,25 +1,31 @@
 {
   
-module Language.JavaScript.Parser.Lexer (Token(..), alexScanTokens) where
+module Language.JavaScript.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-}) where
   
 import Language.JavaScript.Parser.ParserMonad
-
+import Language.JavaScript.Parser.SrcLocation
 }
 
-%wrapper "basic"
+--%wrapper "basic"
 
 $digit = 0-9			-- digits
 $alpha = [a-zA-Z]		-- alphabetic characters
 
 tokens :-
 
-  $white+				{ \s -> White }
-  "--".*				{ \s -> Comment }
-  let					{ \s -> Let }
-  in					{ \s -> In }
-  $digit+				{ \s -> Int (read s) }
-  [\=\+\-\*\/\(\)]			{ \s -> Sym (head s) }
-  $alpha [$alpha $digit \_ \']*		{ \s -> Var s }
+<0> {
+     "let" { symbolToken TokenLet }
+     "in"  { symbolToken TokenIn }
+     "var" { symbolToken TokenVar } --TODO: use real value
+     "="   {symbolToken TokenEq }
+     "+"   {symbolToken TokenPlus }
+     "-"   {symbolToken TokenMinus }
+     "*"   {symbolToken TokenTimes }
+     "/"   {symbolToken TokenDiv }
+     "("   {symbolToken TokenOB }
+     ")"  {symbolToken TokenCB }
+}
+
 
 {
 -- Each right-hand side has type :: String -> Token

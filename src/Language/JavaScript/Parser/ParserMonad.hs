@@ -47,11 +47,20 @@ module Language.JavaScript.Parser.ParserMonad
    , Token (..)  
    , endOfFileToken
    , lexicalError  
+   -- -----------  
+   , AlexInput(..)  
+   , alexGetChar  
+   , alexInputPrevChar  
+   -- ----------  
+   , symbolToken  
+   , StartCode  
+   , Action  
    ) where
 
 --import Language.Python.Common.SrcLocation (SrcLocation (..), SrcSpan (..), Span (..))
 --import Language.Python.Common.Token (Token (..))
 --import Language.Python.Common.ParseError (ParseError (..))
+import Language.JavaScript.Parser.SrcLocation
 import Control.Applicative ((<$>))
 import Control.Monad.State.Class
 import Control.Monad.State.Strict as State
@@ -63,26 +72,29 @@ import Control.Monad.Trans as Trans
 import Data.Data
 
 -- The token type:
-data Token =
-        White		|
-        Comment		|
-	Let 		|
-	In  		|
-	Sym Char	|
-	Var String	|
-	Int Int		|
-	Err 
-           -- Special cases
-        | EOFToken -- { token_span :: !SrcSpan }                          -- ^ End of file 
 
-	--deriving (Eq,Show)
-        deriving (Eq,Ord,Show{-,Typeable,Data-})
+data Token
+      =  TokenLet { token_span :: !SrcSpan }
+      | TokenIn { token_span :: !SrcSpan }
+      | TokenInt {-Int-} { token_span :: !SrcSpan }
+      | TokenVar {-String-} { token_span :: !SrcSpan }
+      | TokenEq { token_span :: !SrcSpan }
+      | TokenPlus { token_span :: !SrcSpan }
+      | TokenMinus { token_span :: !SrcSpan }
+      | TokenTimes { token_span :: !SrcSpan }
+      | TokenDiv { token_span :: !SrcSpan }
+      | TokenOB { token_span :: !SrcSpan }
+      | TokenCB { token_span :: !SrcSpan }
+      -- Special cases
+      | EOFToken { token_span :: !SrcSpan }                          -- ^ End of file 
+ deriving (Eq,Ord,Show{-,Typeable,Data-})
 
 
 endOfFileToken :: Token
 --endOfFileToken = EOFToken SpanEmpty
-endOfFileToken = EOFToken -- SpanEmpty
+endOfFileToken = EOFToken SpanEmpty
 
+{-
 -- | Source location spanning a contiguous section of a file.
 data SrcSpan
     -- | A span which starts and ends on the same line.
@@ -109,7 +121,7 @@ data SrcSpan
     -- | No span information.
   | SpanEmpty 
    deriving (Eq,Ord,Show,Typeable,Data)
-
+-}
 
 data ParseError  
    = UnexpectedToken Token           -- ^ An error from the parser. Token found where it should not be. Note: tokens contain their own source span.
@@ -120,20 +132,6 @@ data ParseError
 instance Error ParseError where
    noMsg = StrError ""
    strMsg = StrError 
-
-data SrcLocation = 
-   Sloc { sloc_filename :: !String
-        , sloc_row :: {-# UNPACK #-} !Int
-        , sloc_column :: {-# UNPACK #-} !Int 
-        } 
-   | NoLocation
-   deriving (Eq,Ord,Show{-,Typeable,Data-})
-
-lexicalError :: P a
-lexicalError = do
-  location <- getLocation
-  c <- liftM head getInput
-  throwError $ UnexpectedChar c location
 
 
 internalError :: String -> P a 
@@ -295,3 +293,45 @@ getComments :: P [Token]
 getComments = reverse <$> gets comments
 
 -}
+
+-- ---------------------------------------------------------------------
+-- From Language.Python.Common.LexerUtils
+
+-- Functionality required by Alex 
+
+type AlexInput = (SrcLocation, String)
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar _ = error "alexInputPrevChar not used"
+
+alexGetChar :: AlexInput -> Maybe (Char, AlexInput)
+alexGetChar (loc, input) 
+   | null input  = Nothing
+   | otherwise = Just (nextChar, (nextLoc, rest))
+   where
+   nextChar = head input
+   rest = tail input 
+   nextLoc = moveChar nextChar loc
+
+moveChar :: Char -> SrcLocation -> SrcLocation 
+moveChar '\n' = incLine 1 
+moveChar '\t' = incTab 
+moveChar '\r' = id 
+moveChar _    = incColumn 1 
+
+lexicalError :: P a
+lexicalError = do
+  location <- getLocation
+  c <- liftM head getInput
+  throwError $ UnexpectedChar c location
+
+readOctNoO :: String -> Integer
+readOctNoO (zero:rest) = read (zero:'O':rest)
+
+-- ---------------------------------------------------------------------
+
+type StartCode = Int
+type Action = SrcSpan -> Int -> String -> P Token 
+
+symbolToken :: (SrcSpan -> Token) -> Action 
+symbolToken mkToken location _ _ = return (mkToken location)
