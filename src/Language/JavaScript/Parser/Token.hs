@@ -143,7 +143,8 @@ data Token
    -- ++AZ++ to make the grammar work, for now
      | TokenLet { token_span :: !SrcSpan }
      | TokenIn { token_span :: !SrcSpan }
-     | TokenInt { token_span :: !SrcSpan }
+     | TokenInt { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }                 
+       -- ^ Literal: integer.
      | TokenVar { token_span :: !SrcSpan } --TODO: use real value
      | TokenEq { token_span :: !SrcSpan }
      | TokenPlus { token_span :: !SrcSpan }

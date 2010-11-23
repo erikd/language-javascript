@@ -12,13 +12,17 @@ import Language.JavaScript.Parser.Token
 
 $digit = 0-9			-- digits
 $alpha = [a-zA-Z]		-- alphabetic characters
+$digit    = 0-9
+$non_zero_digit = 1-9
 
 tokens :-
 
 <0> {
      "let" { symbolToken TokenLet }
+
      "in"  { symbolToken TokenIn }
-     "9"  { symbolToken TokenInt } --TODO: use real value
+     -- "9"  { symbolToken TokenInt } --TODO: use real value\
+     $non_zero_digit $digit* { token TokenInt read }  
      "var" { symbolToken TokenVar } --TODO: use real value
      "="   {symbolToken TokenEq }
      "+"   {symbolToken TokenPlus }
