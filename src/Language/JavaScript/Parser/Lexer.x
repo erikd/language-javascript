@@ -2,8 +2,10 @@
   
 module Language.JavaScript.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-}) where
   
+import Language.JavaScript.Parser.LexerUtils
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
+import Language.JavaScript.Parser.Token
 }
 
 --%wrapper "basic"
@@ -16,6 +18,7 @@ tokens :-
 <0> {
      "let" { symbolToken TokenLet }
      "in"  { symbolToken TokenIn }
+     "9"  { symbolToken TokenInt } --TODO: use real value
      "var" { symbolToken TokenVar } --TODO: use real value
      "="   {symbolToken TokenEq }
      "+"   {symbolToken TokenPlus }
@@ -23,7 +26,7 @@ tokens :-
      "*"   {symbolToken TokenTimes }
      "/"   {symbolToken TokenDiv }
      "("   {symbolToken TokenOB }
-     ")"  {symbolToken TokenCB }
+     ")"   {symbolToken TokenCB }
 }
 
 

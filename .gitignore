@@ -4,3 +4,8 @@
 /src/Language/JavaScript/Parser/Parser.y~
 /src/Language/JavaScript/Parser/ParserMonad.hs~
 
+/src/Language/JavaScript/Parser/LexerUtils.hs~
+/src/Language/JavaScript/Parser/ParseError.hs~
+/src/Language/JavaScript/Parser/ParserUtils.hs~
+/src/Language/JavaScript/Parser/StringEscape.hs~
+/src/Language/JavaScript/Parser/Token.hs~
