@@ -9,3 +9,4 @@
 /src/Language/JavaScript/Parser/ParserUtils.hs~
 /src/Language/JavaScript/Parser/StringEscape.hs~
 /src/Language/JavaScript/Parser/Token.hs~
+/src/Language/JavaScript/Parser/AST.hs~

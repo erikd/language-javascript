@@ -15,7 +15,65 @@ $alpha = [a-zA-Z]		-- alphabetic characters
 $digit    = 0-9
 $non_zero_digit = 1-9
 
+@reservedid = 
+         break|case|catch|const|continue|
+         debugger|default|delete|do|
+         else|enum|
+         false|finally|for|function|
+         if|in|instanceof|
+         new|null|
+         return|
+         switch|
+         this|throw|true|try|typeof|
+         var|void|
+         while|with
+
 tokens :-
+
+<0> {
+     ";"	{ symbolToken  SemiColonToken}
+     ","	{ symbolToken  CommaToken}
+     "?"	{ symbolToken  HookToken}
+     ":"	{ symbolToken  ColonToken}
+     "||"	{ symbolToken  OrToken}
+     "&&"	{ symbolToken  AndToken}
+     "|"	{ symbolToken  BitwiseOrToken}
+
+     -- "^"	{ symbolToken  "BITWISE_XOR"}
+     -- "&"	{ symbolToken  "BITWISE_AND"}
+     -- "==="	{ symbolToken  "STRICT_EQ"}
+     -- "=="	{ symbolToken  "EQ"}
+     -- "="	{ symbolToken  "ASSIGN"}
+     -- "!=="	{ symbolToken  "STRICT_NE"}
+     -- "!="	{ symbolToken  "NE"}
+     -- "<<"	{ symbolToken  "LSH"}
+     -- "<="	{ symbolToken  "LE"}
+     -- "<"	{ symbolToken  "LT"}
+     -- ">>>"	{ symbolToken  "URSH"}
+     -- ">>"	{ symbolToken  "RSH"}
+     -- ">="	{ symbolToken  "GE"}
+     -- ">"	{ symbolToken  "GT"}
+     -- "++"	{ symbolToken  "INCREMENT"}
+     -- "--"	{ symbolToken  "DECREMENT"}
+     -- "+"	{ symbolToken  "PLUS"}
+     -- "-"	{ symbolToken  "MINUS"}
+     -- "*"	{ symbolToken  "MUL"}
+     -- "/"	{ symbolToken  "DIV"}
+     -- "%"	{ symbolToken  "MOD"}
+     -- "!"	{ symbolToken  "NOT"}
+     -- "~"	{ symbolToken  "BITWISE_NOT"}
+     -- "."	{ symbolToken  "DOT"}
+     -- "["	{ symbolToken  "LEFT_BRACKET"}
+     -- "]"	{ symbolToken  "RIGHT_BRACKET"}
+     -- "{"	{ symbolToken  "LEFT_CURLY"}
+     -- "}"	{ symbolToken  "RIGHT_CURLY"}
+     -- "("	{ symbolToken  "LEFT_PAREN"}
+     -- ")"	{ symbolToken  "RIGHT_PAREN"}
+     -- "@*/"	{ symbolToken  "CONDCOMMENT_END"
+
+}
+
+
 
 <0> {
      "let" { symbolToken TokenLet }

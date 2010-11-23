@@ -45,10 +45,14 @@ data Token
    -- Literals
    | StringToken { token_span :: !SrcSpan, token_literal :: !String }                   -- ^ Literal: string.
    | ByteStringToken { token_span :: !SrcSpan, token_literal :: !String }    -- ^ Literal: byte string.
-   | IntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }                 -- ^ Literal: integer.
-   | LongIntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }             -- ^ Literal: long integer. /Version 2 only/.
-   | FloatToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                     -- ^ Literal: floating point.
-   | ImaginaryToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                 -- ^ Literal: imaginary number.
+   | IntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }                 
+     -- ^ Literal: integer.
+   | LongIntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }             
+     -- ^ Literal: long integer. /Version 2 only/.
+   | FloatToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                     
+     -- ^ Literal: floating point.
+   | ImaginaryToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                 
+     -- ^ Literal: imaginary number.
 
    -- Keywords
    | DefToken { token_span :: !SrcSpan }                          -- ^ Keyword: \'def\'. 
@@ -129,7 +133,7 @@ data Token
    | GreaterThanEqualsToken { token_span :: !SrcSpan }            -- ^ Operator: greater-than-or-equals \'>=\'.
    | LessThanEqualsToken { token_span :: !SrcSpan }               -- ^ Operator: less-than-or-equals \'<=\'.
    | ExponentToken { token_span :: !SrcSpan }                     -- ^ Operator: exponential \'**\'.
-   | BinaryOrToken { token_span :: !SrcSpan }                     -- ^ Operator: binary-or \'|\'.
+   | BitwiseOrToken { token_span :: !SrcSpan }                    -- ^ Operator: bitwise-or \'|\'.
    | XorToken { token_span :: !SrcSpan }                          -- ^ Operator: binary-xor \'^\'.
    | BinaryAndToken { token_span :: !SrcSpan }                    -- ^ Operator: binary-and \'&\'.
    | ShiftLeftToken { token_span :: !SrcSpan }                    -- ^ Operator: binary-shift-left \'<<\'.
@@ -139,6 +143,7 @@ data Token
    | TildeToken { token_span :: !SrcSpan }                        -- ^ Operator: tilde \'~\'.
    | NotEqualsToken { token_span :: !SrcSpan }                    -- ^ Operator: not-equals \'!=\'.
    | NotEqualsV2Token { token_span :: !SrcSpan }                  -- ^ Operator: not-equals \'<>\'. Version 2 only.
+   | HookToken { token_span :: !SrcSpan }                         -- ^ Operator: hook \'?\'.
 
    -- ++AZ++ to make the grammar work, for now
      | TokenLet { token_span :: !SrcSpan }
@@ -287,7 +292,7 @@ classifyToken token =
       GreaterThanEqualsToken {} -> Operator 
       LessThanEqualsToken {} -> Operator 
       ExponentToken {} -> Operator 
-      BinaryOrToken {} -> Operator 
+      -- BinaryOrToken {} -> Operator 
       XorToken {} -> Operator 
       BinaryAndToken {} -> Operator 
       ShiftLeftToken {} -> Operator 
@@ -388,7 +393,7 @@ tokenString token =
       GreaterThanEqualsToken {} -> ">="
       LessThanEqualsToken {} -> "<="
       ExponentToken {} -> "**"
-      BinaryOrToken {} -> "|"
+      -- BinaryOrToken {} -> "|"
       XorToken {} -> "^"
       BinaryAndToken {} -> "&"
       ShiftLeftToken {} -> "<<"
