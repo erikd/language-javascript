@@ -1,19 +1,28 @@
 {
   
-module Language.JavaScript.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-}) where
+module Language.JavaScript.Parser.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-},initStartCodeStack) where
   
 import Language.JavaScript.Parser.LexerUtils
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
+import qualified Data.Map as Map
+
 }
 
 --%wrapper "basic"
 
+-- character sets
+$lf = \n  -- line feed
+$cr = \r  -- carriage return
 $digit = 0-9			-- digits
 $alpha = [a-zA-Z]		-- alphabetic characters
 $digit    = 0-9
 $non_zero_digit = 1-9
+$ident_letter = [a-zA-Z_]
+@eol_pattern = $lf | $cr $lf | $cr $lf  
+
+
 
 @reservedid = 
          break|case|catch|const|continue|
@@ -29,6 +38,16 @@ $non_zero_digit = 1-9
          while|with
 
 tokens :-
+
+-- beginning of file
+<bof> {
+   @eol_pattern                         ;
+   -- @eol_pattern                         { endOfLine lexToken }
+   -- ()                                   { indentation lexToken dedent BOF }
+}
+
+<0> $ident_letter($ident_letter|$digit)*  { \loc len str -> keywordOrIdent (take len str) loc }
+
 
 <0> {
      ";"	{ symbolToken  SemiColonToken}
@@ -92,7 +111,13 @@ tokens :-
 }
 
 
+
 {
+
+-- The lexer starts off in the beginning of file state (bof)
+initStartCodeStack :: [Int]
+initStartCodeStack = [bof,0]
+
 -- Each right-hand side has type :: String -> Token
 
 lexToken :: P Token
@@ -153,6 +178,30 @@ lexCont cont = do
 --       ("let",rest) -> TokenLet : lexer rest
 --       ("in",rest)  -> TokenIn : lexer rest
 --       (var,rest)   -> TokenVar var : lexer rest
+         
+-- ---------------------------------------------------------------------         
+         
+-- a keyword or an identifier (the syntax overlaps)
+keywordOrIdent :: String -> SrcSpan -> P Token
+keywordOrIdent str location
+   = return $ case Map.lookup str keywords of
+         Just symbol -> symbol location
+         Nothing -> IdentifierToken location str  
+
+-- mapping from strings to keywords
+keywords :: Map.Map String (SrcSpan -> Token) 
+keywords = Map.fromList keywordNames 
+
+keywordNames :: [(String, SrcSpan -> Token)]
+keywordNames =
+   [ ("False", FalseToken), ("class", ClassToken), ("finally", FinallyToken), ("is", IsToken), ("return", ReturnToken)
+   , ("None", NoneToken), ("continue", ContinueToken), ("for", ForToken), ("lambda", LambdaToken), ("try", TryToken)
+   , ("True", TrueToken), ("def", DefToken), ("from", FromToken), ("nonlocal", NonLocalToken), ("while", WhileToken)
+   , ("and", AndToken), ("del", DeleteToken), ("global", GlobalToken), ("not", NotToken), ("with", WithToken)
+   , ("as", AsToken), ("elif", ElifToken), ("if", IfToken), ("or", OrToken), ("yield", YieldToken)
+   , ("assert", AssertToken), ("else", ElseToken), ("import", ImportToken), ("pass", PassToken)
+   , ("break", BreakToken), ("except", ExceptToken), ("in", InToken), ("raise", RaiseToken)
+   ]
 
 }
 

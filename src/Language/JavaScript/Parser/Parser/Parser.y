@@ -1,17 +1,19 @@
 
 {
-module Language.JavaScript.Parser.Parser where
+module Language.JavaScript.Parser.Parser.Parser (parse) where
 
 import Control.Monad.Error.Class (throwError)
 import Data.Char
-import Language.JavaScript.Parser.Lexer
+import Language.JavaScript.Parser.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
+import qualified Language.JavaScript.Parser.AST as AST
 
 }
 
 -- The name of the generated function to be exported from the module
-%name parse
+%name parse Id
+
 %tokentype { Token }
 %error { parseError }
 %monad { P } { thenP } { returnP }
@@ -19,6 +21,17 @@ import Language.JavaScript.Parser.SrcLocation
 
 
 %token 
+
+     ';'	{ SemiColonToken {} }
+     ','	{ CommaToken {} }
+     '?'	{ HookToken {} }
+     ':'	{ ColonToken {} }
+     '||'	{ OrToken {} }
+     '&&'	{ AndToken {} }
+     '|'	{ BitwiseOrToken {}}
+
+     'ident'    { IdentifierToken {} }
+
 
       let             { TokenLet {} }
       in              { TokenIn {} }
@@ -33,6 +46,8 @@ import Language.JavaScript.Parser.SrcLocation
       ')'             { TokenCB {} }
 
 %%
+
+Id : 'ident' { AST.JSIdentifier (token_literal $1) }
 
 Foo : '(' '+' ')' {}
 

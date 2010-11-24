@@ -10,3 +10,7 @@
 /src/Language/JavaScript/Parser/StringEscape.hs~
 /src/Language/JavaScript/Parser/Token.hs~
 /src/Language/JavaScript/Parser/AST.hs~
+/build.sh~
+/src/Language/JavaScript/Parser/Parser.hs~
+/src/Language/JavaScript/Parser/Parser/Lexer.x~
+/src/Language/JavaScript/Parser/Parser/Parser.y~

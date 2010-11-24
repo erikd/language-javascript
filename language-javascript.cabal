@@ -17,9 +17,11 @@ Library
   Build-depends:     base             >= 4       && < 5
                    , array            >= 0.3     && < 0.5
                    , mtl              >= 1.1     && < 2
+                   , containers       >= 0.2     && < 0.5
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser.Parser
-                       Language.JavaScript.Parser.Lexer
+                       Language.JavaScript.Parser.Parser.Lexer
+                       Language.JavaScript.Parser.Parser.Parser
   -- Other-modules:       
   Build-tools:         happy, alex
 
