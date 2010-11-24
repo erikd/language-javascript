@@ -1,3 +1,6 @@
+#!/bin/sh
 
-cabal clean && cabal configure && cabal build
+# do a clean build of all, including the tests
+cabal clean && cabal configure -fbuildtests && cabal build && cabal haddock
+
 

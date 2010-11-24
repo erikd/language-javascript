@@ -14,3 +14,5 @@
 /src/Language/JavaScript/Parser/Parser.hs~
 /src/Language/JavaScript/Parser/Parser/Lexer.x~
 /src/Language/JavaScript/Parser/Parser/Parser.y~
+/.ghci~
+/runtests.hs~

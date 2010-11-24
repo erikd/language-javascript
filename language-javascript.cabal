@@ -10,8 +10,16 @@ Maintainer:          alan.zimm@gmail.com
 Copyright:           (c) 2010 Alan Zimmerman
 Category:            Language
 Build-type:          Simple
+homepage:            http://github.com/alanz/language-javascript
+bug-reports:         http://github.com/alanz//language-javascript/issues
 -- Extra-source-files:  
-Cabal-version:       >=1.2
+--Cabal-version:       >=1.2
+Cabal-version:   >= 1.6
+
+
+flag buildtests
+  description: Build the executable to run unit tests
+  default: False
 
 Library
   Build-depends:     base             >= 4       && < 5
@@ -22,7 +30,29 @@ Library
   Exposed-modules:     Language.JavaScript.Parser.Parser
                        Language.JavaScript.Parser.Parser.Lexer
                        Language.JavaScript.Parser.Parser.Parser
-  -- Other-modules:       
+                       Language.JavaScript.Parser.AST
+  Other-modules:       Language.JavaScript.Parser.LexerUtils
+                       Language.JavaScript.Parser.ParseError
+                       Language.JavaScript.Parser.ParserMonad
+                       -- Language.JavaScript.Parser.ParserUtils
+                       Language.JavaScript.Parser.SrcLocation
+                       Language.JavaScript.Parser.StringEscape
+                       Language.JavaScript.Parser.Token
   Build-tools:         happy, alex
 
-  
+executable             runtests
+    if flag(buildtests)
+        Buildable: True
+        cpp-options:   -DTEST
+        build-depends: QuickCheck >= 2 && < 3,
+                       HUnit,
+                       test-framework-hunit,
+                       test-framework
+        hs-source-dirs: . src ./dist/build
+    else
+        Buildable: False
+    main-is:         runtests.hs
+
+source-repository head
+  type:     git
+  location: git://github.com/alanz/language-javascript.git

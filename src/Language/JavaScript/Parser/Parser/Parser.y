@@ -47,11 +47,12 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 %%
 
-Id : 'ident' { AST.JSIdentifier (token_literal $1) }
-
-Foo : '(' '+' ')' {}
+-- Id : 'ident' { AST.JSIdentifier (token_literal $1) }
+Id : ';' { AST.JSIdentifier ";" }
 
 {-
+Foo : '(' '+' ')' {}
+
 Exp   : let var '=' Exp in Exp  { Let $2 $4 $6 }
       | Exp1                    { Exp1 $1 }
 

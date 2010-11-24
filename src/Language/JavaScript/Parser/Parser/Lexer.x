@@ -24,18 +24,18 @@ $ident_letter = [a-zA-Z_]
 
 
 
-@reservedid = 
-         break|case|catch|const|continue|
-         debugger|default|delete|do|
-         else|enum|
-         false|finally|for|function|
-         if|in|instanceof|
-         new|null|
-         return|
-         switch|
-         this|throw|true|try|typeof|
-         var|void|
-         while|with
+-- @reservedid = 
+--          break|case|catch|const|continue|
+--          debugger|default|delete|do|
+--          else|enum|
+--          false|finally|for|function|
+--          if|in|instanceof|
+--          new|null|
+--          return|
+--          switch|
+--          this|throw|true|try|typeof|
+--          var|void|
+--          while|with
 
 tokens :-
 
@@ -50,66 +50,64 @@ tokens :-
 
 
 <0> {
-     ";"	{ symbolToken  SemiColonToken}
-     ","	{ symbolToken  CommaToken}
-     "?"	{ symbolToken  HookToken}
-     ":"	{ symbolToken  ColonToken}
-     "||"	{ symbolToken  OrToken}
-     "&&"	{ symbolToken  AndToken}
-     "|"	{ symbolToken  BitwiseOrToken}
+        ";"	{ symbolToken  SemiColonToken}
+--      ","	{ symbolToken  CommaToken}
+--      "?"	{ symbolToken  HookToken}
+--      ":"	{ symbolToken  ColonToken}
+--      "||"	{ symbolToken  OrToken}
+--      "&&"	{ symbolToken  AndToken}
+--      "|"	{ symbolToken  BitwiseOrToken}
 
-     -- "^"	{ symbolToken  "BITWISE_XOR"}
-     -- "&"	{ symbolToken  "BITWISE_AND"}
-     -- "==="	{ symbolToken  "STRICT_EQ"}
-     -- "=="	{ symbolToken  "EQ"}
-     -- "="	{ symbolToken  "ASSIGN"}
-     -- "!=="	{ symbolToken  "STRICT_NE"}
-     -- "!="	{ symbolToken  "NE"}
-     -- "<<"	{ symbolToken  "LSH"}
-     -- "<="	{ symbolToken  "LE"}
-     -- "<"	{ symbolToken  "LT"}
-     -- ">>>"	{ symbolToken  "URSH"}
-     -- ">>"	{ symbolToken  "RSH"}
-     -- ">="	{ symbolToken  "GE"}
-     -- ">"	{ symbolToken  "GT"}
-     -- "++"	{ symbolToken  "INCREMENT"}
-     -- "--"	{ symbolToken  "DECREMENT"}
-     -- "+"	{ symbolToken  "PLUS"}
-     -- "-"	{ symbolToken  "MINUS"}
-     -- "*"	{ symbolToken  "MUL"}
-     -- "/"	{ symbolToken  "DIV"}
-     -- "%"	{ symbolToken  "MOD"}
-     -- "!"	{ symbolToken  "NOT"}
-     -- "~"	{ symbolToken  "BITWISE_NOT"}
-     -- "."	{ symbolToken  "DOT"}
-     -- "["	{ symbolToken  "LEFT_BRACKET"}
-     -- "]"	{ symbolToken  "RIGHT_BRACKET"}
-     -- "{"	{ symbolToken  "LEFT_CURLY"}
-     -- "}"	{ symbolToken  "RIGHT_CURLY"}
-     -- "("	{ symbolToken  "LEFT_PAREN"}
-     -- ")"	{ symbolToken  "RIGHT_PAREN"}
-     -- "@*/"	{ symbolToken  "CONDCOMMENT_END"
-
+--      -- "^"	{ symbolToken  "BITWISE_XOR"}
+--      -- "&"	{ symbolToken  "BITWISE_AND"}
+--      -- "==="	{ symbolToken  "STRICT_EQ"}
+--      -- "=="	{ symbolToken  "EQ"}
+--      -- "="	{ symbolToken  "ASSIGN"}
+--      -- "!=="	{ symbolToken  "STRICT_NE"}
+--      -- "!="	{ symbolToken  "NE"}
+--      -- "<<"	{ symbolToken  "LSH"}
+--      -- "<="	{ symbolToken  "LE"}
+--      -- "<"	{ symbolToken  "LT"}
+--      -- ">>>"	{ symbolToken  "URSH"}
+--      -- ">>"	{ symbolToken  "RSH"}
+--      -- ">="	{ symbolToken  "GE"}
+--      -- ">"	{ symbolToken  "GT"}
+--      -- "++"	{ symbolToken  "INCREMENT"}
+--      -- "--"	{ symbolToken  "DECREMENT"}
+--      -- "+"	{ symbolToken  "PLUS"}
+--      -- "-"	{ symbolToken  "MINUS"}
+--      -- "*"	{ symbolToken  "MUL"}
+--      -- "/"	{ symbolToken  "DIV"}
+--      -- "%"	{ symbolToken  "MOD"}
+--      -- "!"	{ symbolToken  "NOT"}
+--      -- "~"	{ symbolToken  "BITWISE_NOT"}
+--      -- "."	{ symbolToken  "DOT"}
+--      -- "["	{ symbolToken  "LEFT_BRACKET"}
+--      -- "]"	{ symbolToken  "RIGHT_BRACKET"}
+--      -- "{"	{ symbolToken  "LEFT_CURLY"}
+--      -- "}"	{ symbolToken  "RIGHT_CURLY"}
+--      -- "("	{ symbolToken  "LEFT_PAREN"}
+--      -- ")"	{ symbolToken  "RIGHT_PAREN"}
+--      -- "@*/"	{ symbolToken  "CONDCOMMENT_END"
 }
 
 
 
-<0> {
-     "let" { symbolToken TokenLet }
+-- <0> {
+--      "let" { symbolToken TokenLet }
 
-     "in"  { symbolToken TokenIn }
-     -- "9"  { symbolToken TokenInt } --TODO: use real value\
-     $non_zero_digit $digit* { token TokenInt read }  
-     "var" { symbolToken TokenVar } --TODO: use real value
-     "="   {symbolToken TokenEq }
-     "+"   {symbolToken TokenPlus }
-     "-"   {symbolToken TokenMinus }
-     "*"   {symbolToken TokenTimes }
-     "/"   {symbolToken TokenDiv }
-     "("   {symbolToken TokenOB }
-     ")"   {symbolToken TokenCB }
-}
-
+--      "in"  { symbolToken TokenIn }
+--      -- "9"  { symbolToken TokenInt } --TODO: use real value\
+--      $non_zero_digit $digit* { token TokenInt read }  
+--      "var" { symbolToken TokenVar } --TODO: use real value
+--      "="   {symbolToken TokenEq }
+--      "+"   {symbolToken TokenPlus }
+--      "-"   {symbolToken TokenMinus }
+--      "*"   {symbolToken TokenTimes }
+--      "/"   {symbolToken TokenDiv }
+--      "("   {symbolToken TokenOB }
+--      ")"   {symbolToken TokenCB }
+-- }
 
 
 {
