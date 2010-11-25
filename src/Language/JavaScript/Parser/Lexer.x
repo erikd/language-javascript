@@ -50,7 +50,7 @@ tokens :-
    -- ()                                   { indentation lexToken dedent BOF }
 }
 
--- <0> $ident_letter($ident_letter|$digit)*  { \loc len str -> keywordOrIdent (take len str) loc }
+<0> $ident_letter($ident_letter|$digit)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
 
 <0> {
@@ -158,29 +158,6 @@ lexCont cont = do
          -}
          _other -> cont tok
 
--- lexer :: String -> [Token]
--- lexer [] = []
--- lexer (c:cs) 
---       | isSpace c = lexer cs
---       | isAlpha c = lexVar (c:cs)
---       | isDigit c = lexNum (c:cs)
--- lexer ('=':cs) = TokenEq : lexer cs
--- lexer ('+':cs) = TokenPlus : lexer cs
--- lexer ('-':cs) = TokenMinus : lexer cs
--- lexer ('*':cs) = TokenTimes : lexer cs
--- lexer ('/':cs) = TokenDiv : lexer cs
--- lexer ('(':cs) = TokenOB : lexer cs
--- lexer (')':cs) = TokenCB : lexer cs
-
--- lexNum cs = TokenInt (read num) : lexer rest
---       where (num,rest) = span isDigit cs
-
--- lexVar cs =
---    case span isAlpha cs of
---       ("let",rest) -> TokenLet : lexer rest
---       ("in",rest)  -> TokenIn : lexer rest
---       (var,rest)   -> TokenVar var : lexer rest
-         
 -- ---------------------------------------------------------------------         
          
 -- a keyword or an identifier (the syntax overlaps)
@@ -196,13 +173,17 @@ keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, SrcSpan -> Token)]
 keywordNames =
-   [ {- ("False", FalseToken), ("class", ClassToken), ("finally", FinallyToken), ("is", IsToken), ("return", ReturnToken)
-   , ("None", NoneToken), ("continue", ContinueToken), ("for", ForToken), ("lambda", LambdaToken), ("try", TryToken)
-   , ("True", TrueToken), ("def", DefToken), ("from", FromToken), ("nonlocal", NonLocalToken), ("while", WhileToken)
-   , ("and", AndToken), ("del", DeleteToken), ("global", GlobalToken), ("not", NotToken), ("with", WithToken)
-   , ("as", AsToken), ("elif", ElifToken), ("if", IfToken), ("or", OrToken), ("yield", YieldToken)
-   , ("assert", AssertToken), ("else", ElseToken), ("import", ImportToken), ("pass", PassToken)
-   , ("break", BreakToken), ("except", ExceptToken), ("in", InToken), ("raise", RaiseToken) -}
+   [ 
+    ("break",BreakToken),("case",CaseToken),("catch",CatchToken),("const",ConstToken),
+    ("continue",ContinueToken),("debugger",DebuggerToken),("default",DefaultToken),
+    ("delete",DeleteToken),("do",DoToken),("else",ElseToken),("enum",EnumToken),
+    ("false",FalseToken),("finally",FinallyToken),("for",ForToken),
+    ("function",FunctionToken),("if",IfToken),("in",InToken),
+    ("instanceof",InstanceofToken),("new",NewToken),("null",NullToken),
+    ("return",ReturnToken),("switch",SwitchToken),("this",ThisToken),
+    ("throw",ThrowToken),("true",TrueToken),("try",TryToken),
+    ("typeof",TypeofToken),("var",VarToken),("void",VoidToken),
+    ("while",WhileToken),("with",WithToken)
    ]
 
 }

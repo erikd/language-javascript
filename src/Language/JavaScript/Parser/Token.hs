@@ -55,6 +55,37 @@ data Token
      -- ^ Literal: imaginary number.
 
    -- Keywords
+   | BreakToken { token_span :: !SrcSpan }
+   | CaseToken { token_span :: !SrcSpan }
+   | CatchToken { token_span :: !SrcSpan }
+   | ConstToken { token_span :: !SrcSpan }
+   | ContinueToken { token_span :: !SrcSpan }
+   | DebuggerToken { token_span :: !SrcSpan }
+   | DefaultToken { token_span :: !SrcSpan }
+   | DeleteToken { token_span :: !SrcSpan }
+   | DoToken { token_span :: !SrcSpan }
+   | ElseToken { token_span :: !SrcSpan }
+   | EnumToken { token_span :: !SrcSpan }
+   | FalseToken { token_span :: !SrcSpan }
+   | FinallyToken { token_span :: !SrcSpan }
+   | ForToken { token_span :: !SrcSpan }
+   | FunctionToken { token_span :: !SrcSpan }
+   | IfToken { token_span :: !SrcSpan }
+   | InToken { token_span :: !SrcSpan }
+   | InstanceofToken { token_span :: !SrcSpan }
+   | NewToken { token_span :: !SrcSpan }
+   | NullToken { token_span :: !SrcSpan }
+   | ReturnToken { token_span :: !SrcSpan }
+   | SwitchToken { token_span :: !SrcSpan }
+   | ThisToken { token_span :: !SrcSpan }
+   | ThrowToken { token_span :: !SrcSpan }
+   | TrueToken { token_span :: !SrcSpan }
+   | TryToken { token_span :: !SrcSpan }
+   | TypeofToken { token_span :: !SrcSpan }
+   | VarToken { token_span :: !SrcSpan }
+   | VoidToken { token_span :: !SrcSpan }
+   | WhileToken { token_span :: !SrcSpan }
+   | WithToken { token_span :: !SrcSpan }
 
    -- Delimiters
    -- Operators
@@ -96,23 +127,6 @@ data Token
    | LeftParenToken { token_span :: !SrcSpan }
    | RightParenToken { token_span :: !SrcSpan }
    | CondcommentEndToken { token_span :: !SrcSpan }
-
-   -- ++AZ++ to make the grammar work, for now
-     | TokenLet { token_span :: !SrcSpan }
-     | TokenIn { token_span :: !SrcSpan }
-     | TokenInt { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }                 
-       -- ^ Literal: integer.
-     | TokenVar { token_span :: !SrcSpan } --TODO: use real value
-     | TokenEq { token_span :: !SrcSpan }
-     | TokenPlus { token_span :: !SrcSpan }
-     | TokenMinus { token_span :: !SrcSpan }
-     | TokenTimes { token_span :: !SrcSpan }
-     | TokenDiv { token_span :: !SrcSpan }
-     | TokenOB { token_span :: !SrcSpan }
-     | TokenCB { token_span :: !SrcSpan }
-   -- ++AZ++ end
-
-
 
    -- Special cases
    | EOFToken { token_span :: !SrcSpan }                          -- ^ End of file 
