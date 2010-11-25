@@ -1,10 +1,10 @@
 
 {
-module Language.JavaScript.Parser.Parser.Parser (parse) where
+module Language.JavaScript.Parser.Grammar (parse) where
 
 import Control.Monad.Error.Class (throwError)
 import Data.Char
-import Language.JavaScript.Parser.Parser.Lexer
+import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import qualified Language.JavaScript.Parser.AST as AST

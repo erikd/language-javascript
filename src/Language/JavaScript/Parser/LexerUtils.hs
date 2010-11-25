@@ -150,6 +150,7 @@ openParen mkToken loc _len _str = do
    pushParen token 
    return token 
 
+{-
 closeParen :: (SrcSpan -> Token) -> Action
 closeParen mkToken loc _len _str = do
   let token = mkToken loc
@@ -163,12 +164,15 @@ closeParen mkToken loc _len _str = do
    -- XXX fix these error messages
    err1 = "Lexical error ! unmatched closing paren"
    err2 = "Lexical error ! unmatched closing paren"
+-}
 
+{-
 matchParen :: Token -> Token -> Bool
 matchParen (LeftRoundBracketToken {}) (RightRoundBracketToken {}) = True
 matchParen (LeftBraceToken {}) (RightBraceToken {}) = True
 matchParen (LeftSquareBracketToken {}) (RightSquareBracketToken {}) = True
 matchParen _ _ = False
+-}
 
 -- -----------------------------------------------------------------------------
 -- Functionality required by Alex 

@@ -8,8 +8,8 @@ module Language.JavaScript.Parser.Parser (
    ) where
 
 import Language.JavaScript.Parser.ParseError
-import Language.JavaScript.Parser.Parser.Parser
-import Language.JavaScript.Parser.Parser.Lexer
+import Language.JavaScript.Parser.Grammar
+import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad 
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token

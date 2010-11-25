@@ -1,6 +1,6 @@
 {
   
-module Language.JavaScript.Parser.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-},initStartCodeStack) where
+module Language.JavaScript.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-},initStartCodeStack) where
   
 import Language.JavaScript.Parser.LexerUtils
 import Language.JavaScript.Parser.ParserMonad
@@ -56,44 +56,42 @@ tokens :-
 <0> {
       \;	{ symbolToken  SemiColonToken}
       ","	{ symbolToken  CommaToken}
-
---      "?"	{ symbolToken  HookToken}
---      ":"	{ symbolToken  ColonToken}
---      "||"	{ symbolToken  OrToken}
---      "&&"	{ symbolToken  AndToken}
---      "|"	{ symbolToken  BitwiseOrToken}
-
---      -- "^"	{ symbolToken  "BITWISE_XOR"}
---      -- "&"	{ symbolToken  "BITWISE_AND"}
---      -- "==="	{ symbolToken  "STRICT_EQ"}
---      -- "=="	{ symbolToken  "EQ"}
---      -- "="	{ symbolToken  "ASSIGN"}
---      -- "!=="	{ symbolToken  "STRICT_NE"}
---      -- "!="	{ symbolToken  "NE"}
---      -- "<<"	{ symbolToken  "LSH"}
---      -- "<="	{ symbolToken  "LE"}
---      -- "<"	{ symbolToken  "LT"}
---      -- ">>>"	{ symbolToken  "URSH"}
---      -- ">>"	{ symbolToken  "RSH"}
---      -- ">="	{ symbolToken  "GE"}
---      -- ">"	{ symbolToken  "GT"}
---      -- "++"	{ symbolToken  "INCREMENT"}
---      -- "--"	{ symbolToken  "DECREMENT"}
---      -- "+"	{ symbolToken  "PLUS"}
---      -- "-"	{ symbolToken  "MINUS"}
---      -- "*"	{ symbolToken  "MUL"}
---      -- "/"	{ symbolToken  "DIV"}
---      -- "%"	{ symbolToken  "MOD"}
---      -- "!"	{ symbolToken  "NOT"}
---      -- "~"	{ symbolToken  "BITWISE_NOT"}
---      -- "."	{ symbolToken  "DOT"}
---      -- "["	{ symbolToken  "LEFT_BRACKET"}
---      -- "]"	{ symbolToken  "RIGHT_BRACKET"}
---      -- "{"	{ symbolToken  "LEFT_CURLY"}
---      -- "}"	{ symbolToken  "RIGHT_CURLY"}
---      -- "("	{ symbolToken  "LEFT_PAREN"}
---      -- ")"	{ symbolToken  "RIGHT_PAREN"}
---      -- "@*/"	{ symbolToken  "CONDCOMMENT_END"
+     "?"	{ symbolToken  HookToken}
+     ":"	{ symbolToken  ColonToken}
+     "||"	{ symbolToken  OrToken}
+     "&&"	{ symbolToken  AndToken}
+     "|"	{ symbolToken  BitwiseOrToken}
+     "^"	{ symbolToken  BitwiseXorToken}
+     "&"	{ symbolToken  BitwiseAndToken}
+     "==="	{ symbolToken  StrictEqToken}
+     "=="	{ symbolToken  EqToken}
+     "="	{ symbolToken  AssignToken}
+     "!=="	{ symbolToken  StrictNeToken}
+     "!="	{ symbolToken  NeToken}
+     "<<"	{ symbolToken  LshToken}
+     "<="	{ symbolToken  LeToken}
+     "<"	{ symbolToken  LtToken}
+     ">>>"	{ symbolToken  UrshToken}
+     ">>"	{ symbolToken  RshToken}
+     ">="	{ symbolToken  GeToken}
+     ">"	{ symbolToken  GtToken}
+     "++"	{ symbolToken  IncrementToken}
+     "--"	{ symbolToken  DecrementToken}
+     "+"	{ symbolToken  PlusToken}
+     "-"	{ symbolToken  MinusToken}
+     "*"	{ symbolToken  MulToken}
+     "/"	{ symbolToken  DivToken}
+     "%"	{ symbolToken  ModToken}
+     "!"	{ symbolToken  NotToken}
+     "~"	{ symbolToken  BitwiseNotToken}
+     "."	{ symbolToken  DotToken}
+     "["	{ symbolToken  LeftBracketToken}
+     "]"	{ symbolToken  RightBracketToken}
+     "{"	{ symbolToken  LeftCurlyToken}
+     "}"	{ symbolToken  RightCurlyToken}
+     "("	{ symbolToken  LeftParenToken}
+     ")"	{ symbolToken  RightParenToken}
+     "@*/"	{ symbolToken  CondcommentEndToken}
 }
 
 
@@ -198,13 +196,13 @@ keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, SrcSpan -> Token)]
 keywordNames =
-   [ ("False", FalseToken), ("class", ClassToken), ("finally", FinallyToken), ("is", IsToken), ("return", ReturnToken)
+   [ {- ("False", FalseToken), ("class", ClassToken), ("finally", FinallyToken), ("is", IsToken), ("return", ReturnToken)
    , ("None", NoneToken), ("continue", ContinueToken), ("for", ForToken), ("lambda", LambdaToken), ("try", TryToken)
    , ("True", TrueToken), ("def", DefToken), ("from", FromToken), ("nonlocal", NonLocalToken), ("while", WhileToken)
    , ("and", AndToken), ("del", DeleteToken), ("global", GlobalToken), ("not", NotToken), ("with", WithToken)
    , ("as", AsToken), ("elif", ElifToken), ("if", IfToken), ("or", OrToken), ("yield", YieldToken)
    , ("assert", AssertToken), ("else", ElseToken), ("import", ImportToken), ("pass", PassToken)
-   , ("break", BreakToken), ("except", ExceptToken), ("in", InToken), ("raise", RaiseToken)
+   , ("break", BreakToken), ("except", ExceptToken), ("in", InToken), ("raise", RaiseToken) -}
    ]
 
 }

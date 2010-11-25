@@ -28,8 +28,8 @@ Library
                    , containers       >= 0.2     && < 0.5
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser.Parser
-                       Language.JavaScript.Parser.Parser.Lexer
-                       Language.JavaScript.Parser.Parser.Parser
+                       Language.JavaScript.Parser.Lexer
+                       Language.JavaScript.Parser.Grammar
                        Language.JavaScript.Parser.AST
   Other-modules:       Language.JavaScript.Parser.LexerUtils
                        Language.JavaScript.Parser.ParseError

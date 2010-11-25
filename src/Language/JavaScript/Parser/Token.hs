@@ -17,11 +17,11 @@ module Language.JavaScript.Parser.Token (
    Token (..),
    -- * String conversion
    debugTokenString,
-   tokenString,
+   -- tokenString,
    -- * Classification
    hasLiteral,
    TokenClass (..),
-   classifyToken
+   -- classifyToken
    ) where
 
 --import Language.JavaScript.Parser.Pretty
@@ -55,95 +55,47 @@ data Token
      -- ^ Literal: imaginary number.
 
    -- Keywords
-   | DefToken { token_span :: !SrcSpan }                          -- ^ Keyword: \'def\'. 
-   | WhileToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'while\'.
-   | IfToken { token_span :: !SrcSpan }                           -- ^ Keyword: \'if\'.
-   | TrueToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'True\'.
-   | FalseToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'False\'.
-   | ReturnToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'Return\'.
-   | TryToken { token_span :: !SrcSpan }                          -- ^ Keyword: \'try\'.
-   | ExceptToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'except\'.
-   | RaiseToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'raise\'.
-   | InToken { token_span :: !SrcSpan }                           -- ^ Keyword: \'in\'.
-   | IsToken { token_span :: !SrcSpan }                           -- ^ Keyword: \'is\'.
-   | LambdaToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'lambda\'.
-   | ClassToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'class\'.
-   | FinallyToken { token_span :: !SrcSpan }                      -- ^ Keyword: \'finally\'.
-   | NoneToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'None\'. 
-   | ForToken { token_span :: !SrcSpan }                          -- ^ Keyword: \'for\'.
-   | FromToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'from\'.
-   | GlobalToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'global\'.
-   | WithToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'with\'.
-   | AsToken { token_span :: !SrcSpan }                           -- ^ Keyword: \'as\'.
-   | ElifToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'elif\'.
-   | YieldToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'yield\'.
-   | AssertToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'assert\'.
-   | ImportToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'import\'.
-   | PassToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'pass\'.
-   | BreakToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'break\'.
-   | ContinueToken { token_span :: !SrcSpan }                     -- ^ Keyword: \'continue\'.
-   | DeleteToken { token_span :: !SrcSpan }                       -- ^ Keyword: \'del\'.
-   | ElseToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'else\'.
-   | NotToken { token_span :: !SrcSpan }                          -- ^ Keyword: \'not\'.
-   | AndToken { token_span :: !SrcSpan }                          -- ^ Keyword: boolean conjunction \'and\'.
-   | OrToken { token_span :: !SrcSpan }                           -- ^ Keyword: boolean disjunction \'or\'.
-   -- Version 3.x only:
-   | NonLocalToken { token_span :: !SrcSpan }                     -- ^ Keyword: \'nonlocal\' (Python 3.x only)
-   -- Version 2.x only:
-   | PrintToken { token_span :: !SrcSpan }                        -- ^ Keyword: \'print\'. (Python 2.x only)
-   | ExecToken { token_span :: !SrcSpan }                         -- ^ Keyword: \'exec\'. (Python 2.x only)
 
    -- Delimiters
-   | AtToken { token_span :: !SrcSpan }                           -- ^ Delimiter: at sign \'\@\'. 
-   | LeftRoundBracketToken { token_span :: !SrcSpan }             -- ^ Delimiter: left round bracket \'(\'.
-   | RightRoundBracketToken { token_span :: !SrcSpan }            -- ^ Delimiter: right round bracket \')\'.
-   | LeftSquareBracketToken { token_span :: !SrcSpan }            -- ^ Delimiter: left square bracket \'[\'.
-   | RightSquareBracketToken { token_span :: !SrcSpan }           -- ^ Delimiter: right square bracket \']\'.
-   | LeftBraceToken { token_span :: !SrcSpan }                    -- ^ Delimiter: left curly bracket \'{\'.
-   | RightBraceToken { token_span :: !SrcSpan }                   -- ^ Delimiter: right curly bracket \'}\'.
-   | DotToken { token_span :: !SrcSpan }                          -- ^ Delimiter: dot (full stop) \'.\'.
-   | CommaToken { token_span :: !SrcSpan }                        -- ^ Delimiter: comma \',\'.
-   | SemiColonToken { token_span :: !SrcSpan }                    -- ^ Delimiter: semicolon \';\'.
-   | ColonToken { token_span :: !SrcSpan }                        -- ^ Delimiter: colon \':\'.
-   | EllipsisToken { token_span :: !SrcSpan }                     -- ^ Delimiter: ellipses (three dots) \'...\'.
-   | RightArrowToken { token_span :: !SrcSpan }                   -- ^ Delimiter: right facing arrow \'->\'.
-   | AssignToken { token_span :: !SrcSpan }                       -- ^ Delimiter: assignment \'=\'.
-   | PlusAssignToken { token_span :: !SrcSpan }                   -- ^ Delimiter: plus assignment \'+=\'.
-   | MinusAssignToken { token_span :: !SrcSpan }                  -- ^ Delimiter: minus assignment \'-=\'.
-   | MultAssignToken { token_span :: !SrcSpan }                   -- ^ Delimiter: multiply assignment \'*=\'
-   | DivAssignToken { token_span :: !SrcSpan }                    -- ^ Delimiter: divide assignment \'/=\'.
-   | ModAssignToken { token_span :: !SrcSpan }                    -- ^ Delimiter: modulus assignment \'%=\'.
-   | PowAssignToken { token_span :: !SrcSpan }                    -- ^ Delimiter: power assignment \'**=\'.
-   | BinAndAssignToken { token_span :: !SrcSpan }                 -- ^ Delimiter: binary-and assignment \'&=\'.
-   | BinOrAssignToken { token_span :: !SrcSpan }                  -- ^ Delimiter: binary-or assignment \'|=\'.
-   | BinXorAssignToken { token_span :: !SrcSpan }                 -- ^ Delimiter: binary-xor assignment \'^=\'.
-   | LeftShiftAssignToken { token_span :: !SrcSpan }              -- ^ Delimiter: binary-left-shift assignment \'<<=\'.
-   | RightShiftAssignToken { token_span :: !SrcSpan }             -- ^ Delimiter: binary-right-shift assignment \'>>=\'.
-   | FloorDivAssignToken { token_span :: !SrcSpan }               -- ^ Delimiter: floor-divide assignment \'//=\'.
-   | BackQuoteToken { token_span :: !SrcSpan }                    -- ^ Delimiter: back quote character \'`\'.
-
    -- Operators
-   | PlusToken { token_span :: !SrcSpan }                         -- ^ Operator: plus \'+\'.
-   | MinusToken { token_span :: !SrcSpan }                        -- ^ Operator: minus: \'-\'.
-   | MultToken { token_span :: !SrcSpan }                         -- ^ Operator: multiply \'*\'.
-   | DivToken { token_span :: !SrcSpan }                          -- ^ Operator: divide \'/\'.
-   | GreaterThanToken { token_span :: !SrcSpan }                  -- ^ Operator: greater-than \'>\'.
-   | LessThanToken { token_span :: !SrcSpan }                     -- ^ Operator: less-than \'<\'.
-   | EqualityToken { token_span :: !SrcSpan }                     -- ^ Operator: equals \'==\'.
-   | GreaterThanEqualsToken { token_span :: !SrcSpan }            -- ^ Operator: greater-than-or-equals \'>=\'.
-   | LessThanEqualsToken { token_span :: !SrcSpan }               -- ^ Operator: less-than-or-equals \'<=\'.
-   | ExponentToken { token_span :: !SrcSpan }                     -- ^ Operator: exponential \'**\'.
-   | BitwiseOrToken { token_span :: !SrcSpan }                    -- ^ Operator: bitwise-or \'|\'.
-   | XorToken { token_span :: !SrcSpan }                          -- ^ Operator: binary-xor \'^\'.
-   | BinaryAndToken { token_span :: !SrcSpan }                    -- ^ Operator: binary-and \'&\'.
-   | ShiftLeftToken { token_span :: !SrcSpan }                    -- ^ Operator: binary-shift-left \'<<\'.
-   | ShiftRightToken { token_span :: !SrcSpan }                   -- ^ Operator: binary-shift-right \'>>\'.
-   | ModuloToken { token_span :: !SrcSpan }                       -- ^ Operator: modulus \'%\'.
-   | FloorDivToken { token_span :: !SrcSpan }                     -- ^ Operator: floor-divide \'//\'.
-   | TildeToken { token_span :: !SrcSpan }                        -- ^ Operator: tilde \'~\'.
-   | NotEqualsToken { token_span :: !SrcSpan }                    -- ^ Operator: not-equals \'!=\'.
-   | NotEqualsV2Token { token_span :: !SrcSpan }                  -- ^ Operator: not-equals \'<>\'. Version 2 only.
-   | HookToken { token_span :: !SrcSpan }                         -- ^ Operator: hook \'?\'.
+   | SemiColonToken { token_span :: !SrcSpan }
+   | CommaToken { token_span :: !SrcSpan }
+   | HookToken { token_span :: !SrcSpan }
+   | ColonToken { token_span :: !SrcSpan }
+   | OrToken { token_span :: !SrcSpan }
+   | AndToken { token_span :: !SrcSpan }
+   | BitwiseOrToken { token_span :: !SrcSpan }
+   | BitwiseXorToken { token_span :: !SrcSpan }
+   | BitwiseAndToken { token_span :: !SrcSpan }
+   | StrictEqToken { token_span :: !SrcSpan }
+   | EqToken { token_span :: !SrcSpan }
+   | AssignToken { token_span :: !SrcSpan }
+   | StrictNeToken { token_span :: !SrcSpan }
+   | NeToken { token_span :: !SrcSpan }
+   | LshToken { token_span :: !SrcSpan }
+   | LeToken { token_span :: !SrcSpan }
+   | LtToken { token_span :: !SrcSpan }
+   | UrshToken { token_span :: !SrcSpan }
+   | RshToken { token_span :: !SrcSpan }
+   | GeToken { token_span :: !SrcSpan }
+   | GtToken { token_span :: !SrcSpan }
+   | IncrementToken { token_span :: !SrcSpan }
+   | DecrementToken { token_span :: !SrcSpan }
+   | PlusToken { token_span :: !SrcSpan }
+   | MinusToken { token_span :: !SrcSpan }
+   | MulToken { token_span :: !SrcSpan }
+   | DivToken { token_span :: !SrcSpan }
+   | ModToken { token_span :: !SrcSpan }
+   | NotToken { token_span :: !SrcSpan }
+   | BitwiseNotToken { token_span :: !SrcSpan }
+   | DotToken { token_span :: !SrcSpan }
+   | LeftBracketToken { token_span :: !SrcSpan }
+   | RightBracketToken { token_span :: !SrcSpan }
+   | LeftCurlyToken { token_span :: !SrcSpan }
+   | RightCurlyToken { token_span :: !SrcSpan }
+   | LeftParenToken { token_span :: !SrcSpan }
+   | RightParenToken { token_span :: !SrcSpan }
+   | CondcommentEndToken { token_span :: !SrcSpan }
 
    -- ++AZ++ to make the grammar work, for now
      | TokenLet { token_span :: !SrcSpan }
@@ -206,6 +158,7 @@ data TokenClass
    | Assignment
    deriving (Show, Eq, Ord)
 
+{-
 classifyToken :: Token -> TokenClass 
 classifyToken token = 
    case token of
@@ -304,9 +257,11 @@ classifyToken token =
       NotEqualsV2Token {} -> Operator 
       LineJoinToken {} -> Layout 
       EOFToken {} -> Layout  -- maybe a spurious classification.
+-}
 
 -- | Produce a string from a token which is suitable for printing as Python concrete syntax.
 -- /Invisible/ tokens yield an empty string.
+{-
 tokenString :: Token -> String
 tokenString token = 
    case token of
@@ -405,3 +360,6 @@ tokenString token =
       NotEqualsV2Token {} -> "<>"
       LineJoinToken {} -> "\\"
       EOFToken {} -> ""
+-}
+
+-- EOF
