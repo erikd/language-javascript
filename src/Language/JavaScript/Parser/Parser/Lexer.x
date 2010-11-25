@@ -39,19 +39,24 @@ $ident_letter = [a-zA-Z_]
 
 tokens :-
 
+-- <0> {
+--    @eol_pattern     { bolEndOfLine lexToken bol }  
+-- }
+
 -- beginning of file
 <bof> {
-   @eol_pattern                         ;
-   -- @eol_pattern                         { endOfLine lexToken }
+   -- @eol_pattern                         ;
+   @eol_pattern                         { endOfLine lexToken }
    -- ()                                   { indentation lexToken dedent BOF }
 }
 
-<0> $ident_letter($ident_letter|$digit)*  { \loc len str -> keywordOrIdent (take len str) loc }
+-- <0> $ident_letter($ident_letter|$digit)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
 
 <0> {
-        ";"	{ symbolToken  SemiColonToken}
---      ","	{ symbolToken  CommaToken}
+      \;	{ symbolToken  SemiColonToken}
+      ","	{ symbolToken  CommaToken}
+
 --      "?"	{ symbolToken  HookToken}
 --      ":"	{ symbolToken  ColonToken}
 --      "||"	{ symbolToken  OrToken}
@@ -114,7 +119,8 @@ tokens :-
 
 -- The lexer starts off in the beginning of file state (bof)
 initStartCodeStack :: [Int]
-initStartCodeStack = [bof,0]
+--initStartCodeStack = [bof,0]
+initStartCodeStack = [0]
 
 -- Each right-hand side has type :: String -> Token
 

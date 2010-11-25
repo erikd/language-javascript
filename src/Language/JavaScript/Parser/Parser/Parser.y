@@ -22,33 +22,33 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 %token 
 
-     ';'	{ SemiColonToken {} }
+     --';'	{ SemiColonToken {} }
      ','	{ CommaToken {} }
-     '?'	{ HookToken {} }
-     ':'	{ ColonToken {} }
-     '||'	{ OrToken {} }
-     '&&'	{ AndToken {} }
-     '|'	{ BitwiseOrToken {}}
+     -- '?'	{ HookToken {} }
+     -- ':'	{ ColonToken {} }
+     -- '||'	{ OrToken {} }
+     -- '&&'	{ AndToken {} }
+     -- '|'	{ BitwiseOrToken {}}
 
-     'ident'    { IdentifierToken {} }
+     -- 'ident'    { IdentifierToken {} }
 
 
-      let             { TokenLet {} }
-      in              { TokenIn {} }
-      int             { TokenInt {} {-$$-} }
-      var             { TokenVar {} {-$$-} }
-      '='             { TokenEq {} }
-      '+'             { TokenPlus {} }
-      '-'             { TokenMinus {} }
-      '*'             { TokenTimes {} }
-      '/'             { TokenDiv {} }
-      '('             { TokenOB {} }
-      ')'             { TokenCB {} }
+     --  let             { TokenLet {} }
+     --  in              { TokenIn {} }
+     --  int             { TokenInt {} {-$$-} }
+     --  var             { TokenVar {} {-$$-} }
+     --  '='             { TokenEq {} }
+     --  '+'             { TokenPlus {} }
+     --  '-'             { TokenMinus {} }
+     --  '*'             { TokenTimes {} }
+     --  '/'             { TokenDiv {} }
+     --  '('             { TokenOB {} }
+     --  ')'             { TokenCB {} }
 
 %%
 
 -- Id : 'ident' { AST.JSIdentifier (token_literal $1) }
-Id : ';' { AST.JSIdentifier ";" }
+Id : ',' { AST.JSIdentifier "," }
 
 {-
 Foo : '(' '+' ')' {}

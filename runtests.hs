@@ -16,9 +16,9 @@ testSuite = testGroup "Parser"
     ]
 
 --srcHelloWorld = "Hello"
-srcHelloWorld = ";"
+srcHelloWorld = ","
 caseHelloWorld =  
-  "Done Empty JSFunction (JSIdentifier \"Hello\") [JSIdentifier \"a\"] (JSFunctionBody [])"
+  "Right (JSIdentifier \",\")"
   @=? (show $ parseStmt srcHelloWorld "src")
   
 
