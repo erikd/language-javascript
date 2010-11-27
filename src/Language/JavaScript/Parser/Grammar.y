@@ -228,7 +228,7 @@ ElementList : Elision AssignmentExpression                    {return [(AST.JSEl
 --                        | <Member Expression> '[' <Expression> ']'
 --                        | <Member Expression> '.' Identifier
 --                        | 'new' <Member Expression> <Arguments>
-MemberExpression : PrimaryExpression { $1 {- MemberExpression -}} -- TODO : uncomment rest, restore $1
+MemberExpression : PrimaryExpression { [$1] {- MemberExpression -}} -- TODO : uncomment rest, restore $1
                  -- | FunctionExpression
                  -- | MemberExpression '[' Expression ']'
                  -- | MemberExpression '.' Identifier { [AST.JSMemberDot ($1++[$3])] } 
@@ -285,34 +285,33 @@ PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
 --                      | '-' <Unary Expression>
 --                      | '~' <Unary Expression>
 --                      | '!' <Unary Expression>
-UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} } -- TODO: uncomment the rest
-                {-
-                | 'delete' UnaryExpression { return ((AST.JSUnary "delete "):$2)}
-                | 'void'   UnaryExpression { return ((AST.JSUnary "void "):$2)}
-                | 'typeof' UnaryExpression { return ((AST.JSUnary "typeof "):$2)}
-                | '++'     UnaryExpression { return ((AST.JSUnary "++"):$2)}
-                | '--'     UnaryExpression { return ((AST.JSUnary "--"):$2)}
-                | '+'      UnaryExpression { return ((AST.JSUnary "+"):$2)}
-                | '-'      UnaryExpression { return ((AST.JSUnary "-"):$2)}
-                | '~'      UnaryExpression { return ((AST.JSUnary "~"):$2)}
-                | '!'      UnaryExpression { return ((AST.JSUnary "!"):$2)}
--}
+UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} } 
+                | 'delete' UnaryExpression { ((AST.JSUnary "delete "):$2)}
+                | 'void'   UnaryExpression { ((AST.JSUnary "void "):$2)}
+                | 'typeof' UnaryExpression { ((AST.JSUnary "typeof "):$2)}
+                | '++'     UnaryExpression { ((AST.JSUnary "++"):$2) } 
+                | '--'     UnaryExpression { ((AST.JSUnary "--"):$2)}
+                | '+'      UnaryExpression { ((AST.JSUnary "+"):$2)}
+                | '-'      UnaryExpression { ((AST.JSUnary "-"):$2)}
+                | '~'      UnaryExpression { ((AST.JSUnary "~"):$2)}
+                | '!'      UnaryExpression { ((AST.JSUnary "!"):$2)}
+
 
 -- <Multiplicative Expression> ::= <Unary Expression>
 --                               | <Unary Expression> '*' <Multiplicative Expression> 
 --                               | <Unary Expression> '/' <Multiplicative Expression>                               
 --                               | <Unary Expression> '%' <Multiplicative Expression> 
-MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}} -- TODO : restore next
-                         -- | UnaryExpression '*' MultiplicativeExpression { [(AST.JSExpressionBinary "*" $1 $3)]}
-                         -- | UnaryExpression '/' MultiplicativeExpression { [(AST.JSExpressionBinary "/" $1 $3)]}
-                         -- | UnaryExpression '%' MultiplicativeExpression { [(AST.JSExpressionBinary "%" $1 $3)]}
+MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}} 
+                         | UnaryExpression '*' MultiplicativeExpression { [(AST.JSExpressionBinary "*" $1 $3)]}
+                         | UnaryExpression '/' MultiplicativeExpression { [(AST.JSExpressionBinary "/" $1 $3)]}
+                         | UnaryExpression '%' MultiplicativeExpression { [(AST.JSExpressionBinary "%" $1 $3)]}
 
 -- <Additive Expression> ::= <Additive Expression>'+'<Multiplicative Expression> 
 --                         | <Additive Expression>'-'<Multiplicative Expression>  
 --                         | <Multiplicative Expression> 
-AdditiveExpression : {-AdditiveExpression '+' MultiplicativeExpression { [(AST.JSExpressionBinary "+" $1 $3)]}
+AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [(AST.JSExpressionBinary "+" $1 $3)]}
                    | AdditiveExpression '-' MultiplicativeExpression { [(AST.JSExpressionBinary "-" $1 $3)]}
-                   | -}MultiplicativeExpression { $1 {- AdditiveExpression -} } -- TODO: restore rest
+                   | MultiplicativeExpression { $1 {- AdditiveExpression -} } 
 
 
 
@@ -320,10 +319,10 @@ AdditiveExpression : {-AdditiveExpression '+' MultiplicativeExpression { [(AST.J
 --                      | <Shift Expression> '>>' <Additive Expression>
 --                      | <Shift Expression> '>>>' <Additive Expression>
 --                      | <Additive Expression>
-ShiftExpression : {-ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressionBinary "<<" $1 $3)]}
+ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressionBinary "<<" $1 $3)]}
                 | ShiftExpression '>>'  AdditiveExpression { [(AST.JSExpressionBinary ">>" $1 $3)]}
                 | ShiftExpression '>>>' AdditiveExpression { [(AST.JSExpressionBinary ">>>" $1 $3)]}
-                | -} AdditiveExpression { $1 {- ShiftExpression -}} -- TODO: restore rest
+                | AdditiveExpression { $1 {- ShiftExpression -}} 
 
 -- <Relational Expression>::= <Shift Expression> 
 --                          | <Relational Expression> '<' <Shift Expression> 
@@ -332,71 +331,69 @@ ShiftExpression : {-ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressio
 --                          | <Relational Expression> '>=' <Shift Expression> 
 --                          | <Relational Expression> 'instanceof' <Shift Expression> 
 RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}} -- TODO: restore rest
-{-
                      | RelationalExpression '<'  ShiftExpression { [(AST.JSExpressionBinary "<" $1 $3)]}
                      | RelationalExpression '>'  ShiftExpression { [(AST.JSExpressionBinary ">" $1 $3)]}
                      | RelationalExpression '<=' ShiftExpression { [(AST.JSExpressionBinary "<=" $1 $3)]}
                      | RelationalExpression '>=' ShiftExpression { [(AST.JSExpressionBinary ">=" $1 $3)]}
                      | RelationalExpression 'instanceof' ShiftExpression { [(AST.JSExpressionBinary " instanceof " $1 $3)]}
--}
+
 
 -- <Equality Expression> ::= <Relational Expression>
 --                         | <Equality Expression> '==' <Relational Expression>
 --                         | <Equality Expression> '!=' <Relational Expression>
 --                         | <Equality Expression> '===' <Relational Expression>
 --                         | <Equality Expression> '!==' <Relational Expression>
-EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} } -- TODO: restore rest
-{-
+EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} } 
                    | EqualityExpression '=='  RelationalExpression { [(AST.JSExpressionBinary "==" $1 $3)]}
                    | EqualityExpression '!='  RelationalExpression { [(AST.JSExpressionBinary "!=" $1 $3)]}
                    | EqualityExpression '===' RelationalExpression { [(AST.JSExpressionBinary "===" $1 $3)]}
                    | EqualityExpression '!==' RelationalExpression { [(AST.JSExpressionBinary "!==" $1 $3)]}
--}
+
 
 -- <Bitwise And Expression> ::= <Equality Expression>
 --                            | <Bitwise And Expression> '&' <Equality Expression>
 BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} } -- TODO: restore rest
-                     -- | BitwiseAndExpression '&' EqualityExpression { [(AST.JSExpressionBinary "&" $1 $3)]}
+                     | BitwiseAndExpression '&' EqualityExpression { [(AST.JSExpressionBinary "&" $1 $3)]}
 
 -- <Bitwise XOr Expression> ::= <Bitwise And Expression>
 --                            | <Bitwise XOr Expression> '^' <Bitwise And Expression>
 BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} } -- TODO: restore rest
-                     -- | BitwiseXOrExpression '^' BitwiseAndExpression { [(AST.JSExpressionBinary "^" $1 $3)]}
+                     | BitwiseXOrExpression '^' BitwiseAndExpression { [(AST.JSExpressionBinary "^" $1 $3)]}
 
 -- <Bitwise Or Expression> ::= <Bitwise XOr Expression>
 --                           | <Bitwise Or Expression> '|' <Bitwise XOr Expression>
 BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} } -- TODO: restore rest
-                    -- | BitwiseOrExpression '|' BitwiseXOrExpression { [(AST.JSExpressionBinary "|" $1 $3)]}
+                    | BitwiseOrExpression '|' BitwiseXOrExpression { [(AST.JSExpressionBinary "|" $1 $3)]}
 
 -- <Logical And Expression> ::= <Bitwise Or Expression>
 --                            | <Logical And Expression> '&&' <Bitwise Or Expression>
 LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} } -- TODO: restore rest
-                     -- | LogicalAndExpression '&&' BitwiseOrExpression { [(AST.JSExpressionBinary "&&" $1 $3)]}
+                     | LogicalAndExpression '&&' BitwiseOrExpression { [(AST.JSExpressionBinary "&&" $1 $3)]}
 
 -- <Logical Or Expression> ::= <Logical And Expression>
 --                           | <Logical Or Expression> '||' <Logical And Expression>
-LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} } -- TODO: restore rest
-                    -- | LogicalOrExpression '||' LogicalAndExpression { [(AST.JSExpressionBinary "||" $1 $3)]}
+LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} } 
+                    | LogicalOrExpression '||' LogicalAndExpression { [(AST.JSExpressionBinary "||" $1 $3)]}
 
 -- <Conditional Expression> ::= <Logical Or Expression> 
 --                            | <Logical Or Expression> '?' <Assignment Expression> ':' <Assignment Expression>
 ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
-                    {- TODO: Restore rest
                     | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression 
-                      { AST.JSExpressionTernary $1 $3 $5 } -}
-
+                      { [AST.JSExpressionTernary $1 $3 $5] } 
+                    
+  
 -- <Assignment Expression> ::= <Conditional Expression>
 --                           | <Left Hand Side Expression> <Assignment Operator> <Assignment Expression> 
 AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}} -- TODO: restore rest
-                     -- | LeftHandSideExpression AssignmentOperator AssignmentExpression
-                     --   { [(AST.JSElement "assignmentExpression" ($1++$2++$3))]}
+                     | LeftHandSideExpression AssignmentOperator AssignmentExpression 
+                       { [(AST.JSElement "assignmentExpression" ($1++[$2]++$3))] }
                        
 -- <Assignment Operator> ::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
 
 -- <Expression> ::= <Assignment Expression>
 --                | <Expression> ',' <Assignment Expression>
-Expression : AssignmentExpression { $1 {- Expression -} } -- TODO: restore rest
+Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } -- TODO: restore rest
            -- | Expression ',' AssignmentExpression
 
 -- <Statement> ::= <Block>
@@ -523,6 +520,14 @@ Statement : {- Block
 
 parseError :: Token -> P a 
 parseError = throwError . UnexpectedToken 
+
+{-
+flattenExpression :: [[AST.JSNode]] -> [AST.JSNode]
+flattenExpression val = flatten $ intersperse litComma val
+                        where
+                          litComma :: [AST.JSNode]
+                          litComma = [(AST.JSLiteral ",")]
+-}
 
 }
 
