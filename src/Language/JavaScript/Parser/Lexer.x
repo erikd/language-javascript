@@ -41,7 +41,9 @@ $short_str_char = [^ \n \r ' \" \\]
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 @HexDigit = $digit | [a-fA-F]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
+$RegExpChars = [$alpha $digit \$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
+$NonTerminator = $StringChars1 # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
 
@@ -60,6 +62,7 @@ tokens :-
 <0> "0x" @HexDigit+ { mkString hexIntegerToken }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
+<0> "/" ($RegExpChars | "\\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
 -- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
 --              |  {Non Zero Digits}+ '.' {Digit}* 

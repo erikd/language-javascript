@@ -29,6 +29,15 @@ testSuite = testGroup "Parser"
       
     , testCase "LiteralString1"    (testLiteral "\"hello\\nworld\"" "Right (JSStringLiteral '\"' \"hello\\\\nworld\")")  
     , testCase "LiteralString2"    (testLiteral "'hello\\nworld'"  "Right (JSStringLiteral '\\'' \"hello\\\\nworld\")")
+      
+    , testCase "LiteralThis"       (testPE "this"  "Right (JSLiteral \"this\")")
+      
+    , testCase "LiteralRegex1"     (testPE "/blah/"  "Right (JSRegEx \"/blah/\")")
+    , testCase "LiteralRegex2"     (testPE "/$/g"    "Right (JSRegEx \"/$/g\")")
+      
+    , testCase "Identifier1"       (testPE "_$"      "Right (JSIdentifier \"_$\")")
+    , testCase "Identifier2"       (testPE "this_"   "Right (JSIdentifier \"this_\")")
+      
     ]
 
 srcHelloWorld = "Hello"
@@ -41,5 +50,8 @@ caseHelloWorld =
 -- Test utilities
 
 testLiteral literal expected = expected @=? (show $ parseUsing parseLiteral literal "src")
+
+testPE str expected = expected @=? (show $ parseUsing parsePrimaryExpression str "src")
+
 
 -- EOF

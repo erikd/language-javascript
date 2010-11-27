@@ -1,5 +1,5 @@
 {
-module Language.JavaScript.Parser.Grammar (parse, parseLiteral) where
+module Language.JavaScript.Parser.Grammar (parse, parseLiteral, parsePrimaryExpression) where
 
 import Control.Monad.Error.Class (throwError)
 import Data.Char
@@ -11,8 +11,9 @@ import qualified Language.JavaScript.Parser.AST as AST
 }
 
 -- The name of the generated function to be exported from the module
-%name parse        Id
-%name parseLiteral Literal
+%name parse                  PrimaryExpression
+%name parseLiteral           Literal
+%name parsePrimaryExpression PrimaryExpression
 
 %tokentype { Token }
 %error { parseError }
@@ -98,11 +99,10 @@ import qualified Language.JavaScript.Parser.AST as AST
      'decimal'    { DecimalToken {} }
      'hexinteger' { HexIntegerToken {} }
      'string'     { StringToken {} }
+     'regex'      { RegExToken {} }
 
 %%
 
-Id : 'ident' { AST.JSIdentifier (token_literal $1) }
---Id : ',' { AST.JSIdentifier "," }
 
 -- --------------------------------------------------------------------
 -- Start of GOLD Grammar for Javascript, used as a base
@@ -166,6 +166,7 @@ NumericLiteral : 'decimal'    { AST.JSDecimal (token_literal $1)}
 StringLiteral : 'string'  {AST.JSStringLiteral (token_delimiter $1) (token_literal $1)}
 
 -- <Regular Expression Literal> ::= RegExp 
+RegularExpressionLiteral : 'regex' {AST.JSRegEx (token_literal $1)}
 
 -- <Primary Expression> ::= 'this'
 --                        | Identifier
@@ -174,6 +175,15 @@ StringLiteral : 'string'  {AST.JSStringLiteral (token_delimiter $1) (token_liter
 --                        | <Object Literal>
 --                        | '(' <Expression> ')'
 --                        | <Regular Expression Literal>
+PrimaryExpression : 'this'     { AST.JSLiteral "this" }
+                  | Identifier { $1 }
+                  | Literal    { $1 }
+                  -- | ArrayLiteral
+                  -- | ObjectLiteral
+                  -- | '(' Expression ')'
+                  | RegularExpressionLiteral { $1 }
+                  
+Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
 
 -- <Array Literal> ::= '[' ']'
 --                   | '[' <Elision> ']'
@@ -396,62 +406,10 @@ StringLiteral : 'string'  {AST.JSStringLiteral (token_delimiter $1) (token_liter
 -- <Source Element> ::= <Statement>
 --                    | <Function Declaration>
 
-    
-
-
-
-
-
-{-
-Foo : '(' '+' ')' {}
-
-Exp   : let var '=' Exp in Exp  { Let $2 $4 $6 }
-      | Exp1                    { Exp1 $1 }
-
-Exp1  : Exp1 '+' Term           { Plus $1 $3 }
-      | Exp1 '-' Term           { Minus $1 $3 }
-      | Term                    { Term $1 }
-
-Term  : Term '*' Factor         { Times $1 $3 }
-      | Term '/' Factor         { Div $1 $3 }
-      | Factor                  { Factor $1 }
-
-Factor			  
-      : int                     { Int $1 }
-      | var                     { Var $1 }
-      | '(' Exp ')'             { Brack $2 }
--}
-
 {
 
 parseError :: Token -> P a 
 parseError = throwError . UnexpectedToken 
-
-
-data Exp  
-      = Let String Exp Exp
-      | Exp1 Exp1
-      deriving Show
-
-data Exp1 
-      = Plus Exp1 Term 
-      | Minus Exp1 Term 
-      | Term Term
-      deriving Show
-
-data Term 
-      = Times Term Factor 
-      | Div Term Factor 
-      | Factor Factor
-      deriving Show
-
-data Factor 
-      = Int Int 
-      | Var String 
-      | Brack Exp
-      deriving Show
-
-
 
 }
 

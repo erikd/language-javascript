@@ -61,7 +61,8 @@ data Token
      -- ^ Literal: Hexadecimal Integer
    | StringToken { token_span :: !SrcSpan, token_literal :: !String, token_delimiter :: !Char }                   
      -- ^ Literal: string, delimited by either single or double quotes
-     
+   | RegExToken { token_span :: !SrcSpan, token_literal :: !String  }
+     -- ^ Literal: Regular Expression
 
    -- Keywords
    | BreakToken { token_span :: !SrcSpan }
