@@ -106,7 +106,8 @@ tokens :-
      "&"	{ symbolToken  BitwiseAndToken}
      "==="	{ symbolToken  StrictEqToken}
      "=="	{ symbolToken  EqToken}
-     "="	{ symbolToken  AssignToken}
+     "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
+      	        { symbolToken  AssignToken}
      "!=="	{ symbolToken  StrictNeToken}
      "!="	{ symbolToken  NeToken}
      "<<"	{ symbolToken  LshToken}

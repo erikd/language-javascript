@@ -38,6 +38,13 @@ testSuite = testGroup "Parser"
     , testCase "Identifier1"       (testPE "_$"      "Right (JSIdentifier \"_$\")")
     , testCase "Identifier2"       (testPE "this_"   "Right (JSIdentifier \"this_\")")
       
+    , testCase "ArrayLiteral1"     (testPE "[]"      "Right (JSArrayLiteral [])")
+    , testCase "ArrayLiteral2"     (testPE "[,]"     "Right (JSArrayLiteral [JSElision []])")
+    , testCase "ArrayLiteral3"     (testPE "[,,]"    "Right (JSArrayLiteral [JSElision [],JSElision []])")
+      
+    , testCase "Statement1"        (testStmt "x"    "Right (JSIdentifier \"x\")")
+    , testCase "Statement2"        (testStmt "null" "Right (JSLiteral \"null\")")
+
     ]
 
 srcHelloWorld = "Hello"
@@ -52,6 +59,8 @@ caseHelloWorld =
 testLiteral literal expected = expected @=? (show $ parseUsing parseLiteral literal "src")
 
 testPE str expected = expected @=? (show $ parseUsing parsePrimaryExpression str "src")
+
+testStmt str expected = expected @=? (show $ parseUsing parseStatement str "src")
 
 
 -- EOF
