@@ -13,8 +13,11 @@ main = defaultMain [testSuite]
 testSuite :: Test
 testSuite = testGroup "Parser"
     [ 
-      testCase "helloWorld"       caseHelloWorld  
-    , testCase "LiteralNull"      caseLiteralNull  
+      testCase "helloWorld"        caseHelloWorld  
+    , testCase "LiteralNull"       (testLiteral "null"     "Right (JSLiteral \"null\")")
+    , testCase "LiteralFalse"      (testLiteral "false"    "Right (JSLiteral \"false\")")
+    , testCase "LiteralTrue"       (testLiteral "true"     "Right (JSLiteral \"true\")")
+    , testCase "LiteralHexInteger" (testLiteral "0x1234fF" "Right (JSHexInteger \"0x1234fF\")")
     ]
 
 srcHelloWorld = "Hello"
@@ -22,8 +25,10 @@ caseHelloWorld =
   "Right (JSIdentifier \"Hello\")"
   @=? (show $ parseStmt srcHelloWorld "src")
   
-caseLiteralNull =
-  "Right (NullToken {token_span = SpanCoLinear {span_filename = \"src\", span_row = 1, span_start_column = 1, span_end_column = 4}})"
-  @=? (show $ parseUsing parseLiteral "null" "src")
+
+-- ---------------------------------------------------------------------
+-- Test utilities
+
+testLiteral literal expected = expected @=? (show $ parseUsing parseLiteral literal "src")
 
 -- EOF

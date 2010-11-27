@@ -132,6 +132,12 @@ mkString :: (SrcSpan -> String -> Token) -> Action
 mkString toToken loc len str = do
    return $ toToken loc (take len str)
 
+decimalToken :: SrcSpan -> String -> Token
+decimalToken loc str = DecimalToken loc str
+
+hexIntegerToken :: SrcSpan -> String -> Token
+hexIntegerToken loc str = HexIntegerToken loc str
+
 stringToken :: SrcSpan -> String -> Token
 stringToken loc str = StringToken loc str
 

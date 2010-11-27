@@ -13,7 +13,7 @@ data JSNode = JSArguments [[JSNode]]
               | JSCase JSNode JSNode
               | JSCatch JSNode [JSNode] JSNode
               | JSContinue [JSNode]
-              | JSDecimal Integer   
+              | JSDecimal String -- Was Integer   
               | JSDefault JSNode
               | JSDoWhile JSNode JSNode JSNode
               | JSElement String [JSNode]
@@ -33,7 +33,7 @@ data JSNode = JSArguments [[JSNode]]
               | JSFunction JSNode [JSNode] JSNode -- name, parameter list, body
               | JSFunctionBody [JSNode]
               | JSFunctionExpression [JSNode] JSNode -- name, parameter list, body                
-              | JSHexInteger Integer  
+              | JSHexInteger String -- Was Integer  
               | JSIdentifier String
               | JSIf JSNode JSNode  
               | JSIfElse JSNode JSNode JSNode 

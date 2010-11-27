@@ -22,22 +22,48 @@ $non_zero_digit = 1-9
 $ident_letter = [a-zA-Z_]
 @eol_pattern = $lf | $cr $lf | $cr $lf  
 
+-- From GOLD Parser
+-- {ID Head}      = {Letter} + [_] + [$]
+@IDHead = $alpha | [_] | [\$]
+
+-- {ID Tail}      = {Alphanumeric} + [_] + [$]
+@IDTail = $alpha | $digit | [_] | [\$]
+
+-- {String Chars1} = {Printable} + {HT} - ["\] 
+-- {String Chars2} = {Printable} + {HT} - [\''] 
+-- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
+@HexDigit = $digit | [a-fA-F]
+-- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
+-- {Non Terminator} = {String Chars1} - {CR} - {LF}
+-- {Non Zero Digits}={Digit}-[0]
 
 
--- @reservedid = 
---          break|case|catch|const|continue|
---          debugger|default|delete|do|
---          else|enum|
---          false|finally|for|function|
---          if|in|instanceof|
---          new|null|
---          return|
---          switch|
---          this|throw|true|try|typeof|
---          var|void|
---          while|with
-
+-- ! ------------------------------------------------- Terminals
 tokens :-
+
+-- Identifier    = {ID Head}{ID Tail}*
+<0> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
+
+-- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"' | '' ( {String Chars2} | '\' {Printable} )* ''
+
+-- HexIntegerLiteral = '0x' {Hex Digit}+
+<0> "0x" @HexDigit+ { mkString hexIntegerToken }
+
+-- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
+
+-- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
+--              |  {Non Zero Digits}+ '.' {Digit}* 
+--              | '0' '.' {Digit}+ ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
+--              | {Non Zero Digits}+ {Digit}* 
+--              | '0' 
+--              | '0' '.' {Digit}+
+<0> $non_zero_digit+ '.' $digit* ('e'|'E') $non_zero_digit+ $digit* { mkString decimalToken }
+--<0> $non_zero_digit+ '.' $digit* ('e'|'E') $non_zero_digit+ $digit* { symbolToken DecimalToken }
+
+-- Comment Start = '/*'
+-- Comment End   = '*/'
+-- Comment Line  = '//'
+
 
 -- <0> {
 --    @eol_pattern     { bolEndOfLine lexToken bol }  
@@ -49,8 +75,6 @@ tokens :-
    @eol_pattern                         { endOfLine lexToken }
    -- ()                                   { indentation lexToken dedent BOF }
 }
-
-<0> $ident_letter($ident_letter|$digit)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
 
 <0> {
@@ -190,3 +214,7 @@ keywordNames =
 
 
 
+-- Set emacs mode
+-- Local Variables: 
+-- mode:haskell
+-- End:             

@@ -53,6 +53,14 @@ data Token
      -- ^ Literal: floating point.
    | ImaginaryToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                 
      -- ^ Literal: imaginary number.
+     
+   -- Javascript Literals  
+     
+   | DecimalToken { token_span :: !SrcSpan, token_literal :: !String  }
+     -- ^ Literal: Decimal 
+   | HexIntegerToken { token_span :: !SrcSpan, token_literal :: !String  }
+     -- ^ Literal: Hexadecimal Integer
+     
 
    -- Keywords
    | BreakToken { token_span :: !SrcSpan }

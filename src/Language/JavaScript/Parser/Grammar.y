@@ -1,4 +1,3 @@
-
 {
 module Language.JavaScript.Parser.Grammar (parse, parseLiteral) where
 
@@ -95,7 +94,9 @@ import qualified Language.JavaScript.Parser.AST as AST
      'with'       { WithToken {} }
      
      
-     'ident'    { IdentifierToken {} }
+     'ident'      { IdentifierToken {} }
+     'decimal'    { DecimalToken {} }
+     'hexinteger' { HexIntegerToken {} }
 
 %%
 
@@ -147,17 +148,20 @@ Id : 'ident' { AST.JSIdentifier (token_literal $1) }
 --             | StringLiteral
 Literal : NullLiteral     {$1}
         | BooleanLiteral  {$1}
-        -- | NumericLiteral
+        | NumericLiteral  {$1}
         -- | StringLiteral
 
 
-NullLiteral : 'null' { $1 }
+NullLiteral : 'null' { AST.JSLiteral "null" }
 
-BooleanLiteral : 'true' { $1 }
-               | 'false' { $1 }
+BooleanLiteral : 'true' { AST.JSLiteral "true" }
+               | 'false' { AST.JSLiteral "false" }
 
 -- <Numeric Literal> ::= DecimalLiteral
 --                     | HexIntegerLiteral
+NumericLiteral : 'decimal'    { AST.JSDecimal (token_literal $1)}
+               | 'hexinteger' { AST.JSHexInteger (token_literal $1)}
+
 
 -- <Regular Expression Literal> ::= RegExp 
 
@@ -449,4 +453,7 @@ data Factor
 
 }
 
-
+-- Set emacs mode
+-- Local Variables: 
+-- mode:haskell
+-- End:             
