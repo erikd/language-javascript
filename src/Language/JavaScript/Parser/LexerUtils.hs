@@ -139,10 +139,15 @@ hexIntegerToken :: SrcSpan -> String -> Token
 hexIntegerToken loc str = HexIntegerToken loc str
 
 stringToken :: SrcSpan -> String -> Token
-stringToken loc str = StringToken loc str
+stringToken loc str = StringToken loc str1 delimiter 
+  where
+    str1 = init $ tail str
+    delimiter = head str
 
+{-
 rawStringToken :: SrcSpan -> String -> Token
 rawStringToken loc str = StringToken loc str
+-}
 
 byteStringToken :: SrcSpan -> String -> Token
 byteStringToken loc str = ByteStringToken loc $ str

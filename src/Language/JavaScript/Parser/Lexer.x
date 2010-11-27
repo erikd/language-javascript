@@ -15,6 +15,9 @@ import qualified Data.Map as Map
 -- character sets
 $lf = \n  -- line feed
 $cr = \r  -- carriage return
+$ht = \t  -- horizontal tab
+$sq = '   -- single quote
+$dq = \"  -- double quote
 $digit = 0-9			-- digits
 $alpha = [a-zA-Z]		-- alphabetic characters
 $digit    = 0-9
@@ -31,6 +34,10 @@ $ident_letter = [a-zA-Z_]
 
 -- {String Chars1} = {Printable} + {HT} - ["\] 
 -- {String Chars2} = {Printable} + {HT} - [\''] 
+$StringChars1 = [$printable $ht] # [$dq \\] 
+$StringChars2 = [$printable $ht] # [$sq \\] 
+$short_str_char = [^ \n \r ' \" \\]
+
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 @HexDigit = $digit | [a-fA-F]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
@@ -44,7 +51,10 @@ tokens :-
 -- Identifier    = {ID Head}{ID Tail}*
 <0> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
--- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"' | '' ( {String Chars2} | '\' {Printable} )* ''
+-- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"' 
+--                | '' ( {String Chars2} | '\' {Printable} )* ''
+<0>  $dq ( $StringChars1 | \\ $printable )* $dq
+   | $sq ( $StringChars2 | \\ $printable )* $sq { mkString stringToken }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
 <0> "0x" @HexDigit+ { mkString hexIntegerToken }
@@ -57,8 +67,12 @@ tokens :-
 --              | {Non Zero Digits}+ {Digit}* 
 --              | '0' 
 --              | '0' '.' {Digit}+
-<0> $non_zero_digit+ '.' $digit* ('e'|'E') $non_zero_digit+ $digit* { mkString decimalToken }
---<0> $non_zero_digit+ '.' $digit* ('e'|'E') $non_zero_digit+ $digit* { symbolToken DecimalToken }
+<0> $non_zero_digit+ "." $digit* ("e"|"E") $non_zero_digit+ $digit* 
+    | $non_zero_digit+ "." $digit*       
+    | "0." $digit+  ("e"|"E") $non_zero_digit+ $digit* 
+    | $non_zero_digit+ $digit*
+    | "0"
+    | "0." $digit+                    { mkString decimalToken }
 
 -- Comment Start = '/*'
 -- Comment End   = '*/'

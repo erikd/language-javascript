@@ -97,6 +97,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'ident'      { IdentifierToken {} }
      'decimal'    { DecimalToken {} }
      'hexinteger' { HexIntegerToken {} }
+     'string'     { StringToken {} }
 
 %%
 
@@ -149,7 +150,7 @@ Id : 'ident' { AST.JSIdentifier (token_literal $1) }
 Literal : NullLiteral     {$1}
         | BooleanLiteral  {$1}
         | NumericLiteral  {$1}
-        -- | StringLiteral
+        | StringLiteral   {$1}
 
 
 NullLiteral : 'null' { AST.JSLiteral "null" }
@@ -162,6 +163,7 @@ BooleanLiteral : 'true' { AST.JSLiteral "true" }
 NumericLiteral : 'decimal'    { AST.JSDecimal (token_literal $1)}
                | 'hexinteger' { AST.JSHexInteger (token_literal $1)}
 
+StringLiteral : 'string'  {AST.JSStringLiteral (token_delimiter $1) (token_literal $1)}
 
 -- <Regular Expression Literal> ::= RegExp 
 

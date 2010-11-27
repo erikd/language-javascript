@@ -43,7 +43,6 @@ data Token
    | IdentifierToken { token_span :: !SrcSpan, token_literal :: !String }            -- ^ Identifier.
 
    -- Literals
-   | StringToken { token_span :: !SrcSpan, token_literal :: !String }                   -- ^ Literal: string.
    | ByteStringToken { token_span :: !SrcSpan, token_literal :: !String }    -- ^ Literal: byte string.
    | IntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }                 
      -- ^ Literal: integer.
@@ -60,6 +59,8 @@ data Token
      -- ^ Literal: Decimal 
    | HexIntegerToken { token_span :: !SrcSpan, token_literal :: !String  }
      -- ^ Literal: Hexadecimal Integer
+   | StringToken { token_span :: !SrcSpan, token_literal :: !String, token_delimiter :: !Char }                   
+     -- ^ Literal: string, delimited by either single or double quotes
      
 
    -- Keywords
