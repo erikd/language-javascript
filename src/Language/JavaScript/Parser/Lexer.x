@@ -120,7 +120,7 @@ tokens :-
      "==="	{ symbolToken  StrictEqToken}
      "=="	{ symbolToken  EqToken}
      "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
-      	        { symbolToken  AssignToken}
+      	        { mkString assignToken}
      "!=="	{ symbolToken  StrictNeToken}
      "!="	{ symbolToken  NeToken}
      "<<"	{ symbolToken  LshToken}

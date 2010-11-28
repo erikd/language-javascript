@@ -138,6 +138,9 @@ decimalToken loc str = DecimalToken loc str
 hexIntegerToken :: SrcSpan -> String -> Token
 hexIntegerToken loc str = HexIntegerToken loc str
 
+assignToken :: SrcSpan -> String -> Token
+assignToken loc str = AssignToken loc str
+
 regExToken :: SrcSpan -> String -> Token
 regExToken loc str = RegExToken loc str
 

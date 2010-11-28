@@ -110,7 +110,7 @@ data Token
    | BitwiseAndToken { token_span :: !SrcSpan }
    | StrictEqToken { token_span :: !SrcSpan }
    | EqToken { token_span :: !SrcSpan }
-   | AssignToken { token_span :: !SrcSpan }
+   | AssignToken { token_span :: !SrcSpan, token_literal :: !String }
    | StrictNeToken { token_span :: !SrcSpan }
    | NeToken { token_span :: !SrcSpan }
    | LshToken { token_span :: !SrcSpan }

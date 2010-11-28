@@ -247,35 +247,35 @@ MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} -- TODO : 
 -- <New Expression> ::= <Member Expression>
 --                    | new <New Expression>
 NewExpression : MemberExpression {$1 {- NewExpression -}} -- TODO: uncomment next
-              -- | 'new' NewExpression { (AST.JSLiteral "new"):$2 }
+              | 'new' NewExpression { (AST.JSLiteral "new"):$2 }
 
 -- <Call Expression> ::= <Member Expression> <Arguments>
 --                     | <Call Expression> <Arguments> 
 --                     | <Call Expression> '[' <Expression> ']'
 --                     | <Call Expression> '.' Identifier
-{-
-CallExpression : MemberExpression Arguments { $1++[$2] {- CallExpression -} } 
-               -- | <Call Expression> <Arguments> -- TODO: finish this
-               -- | <Call Expression> '[' <Expression> ']'
-               -- | <Call Expression> '.' Identifier
--}
+CallExpression :: { [AST.JSNode] }
+CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression -} } 
+               | CallExpression Arguments          { ($1++[(AST.JSCallExpression "()" [$2])]) }
+               | CallExpression '[' Expression ']' { ($1++[(AST.JSCallExpression "[]" [$3])]) }
+               | CallExpression '.' Identifier     { ($1++[(AST.JSCallExpression "."  [$3])]) }
+
 
 -- <Arguments> ::= '(' ')'
 --               | '(' <Argument List> ')'
-Arguments : '(' ')' { AST.JSArguments [] } -- TODO: restore rest
-          -- | '(' ArgumentList ')' { AST.JSArguments $2 }
+Arguments : '(' ')'               { (AST.JSArguments []) } 
+          | '(' ArgumentList ')'  { (AST.JSArguments $2) }
 
 -- <Argument List> ::= <Assignment Expression>
 --                   | <Argument List> ',' <Assignment Expression>
-{-
-ArgumentList : AssignmentExpression { $1 {- ArgumentList -}}
-             | ArgumentList ',' AssignmentExpression { $1++$3 }
--}
+ArgumentList :: { [[AST.JSNode]] }
+ArgumentList : AssignmentExpression { [$1] {- ArgumentList -}}
+             | ArgumentList ',' AssignmentExpression { $1++[$3] {- ArgumentList2 -} }
+
 
 -- <Left Hand Side Expression> ::= <New Expression> 
 --                               | <Call Expression>
 LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
-                       -- | CallExpression { $1 {- LeftHandSideExpression12 -}} -- TODO: restore rest
+                       | CallExpression { $1 {- LeftHandSideExpression12 -}} 
 
 -- <Postfix Expression> ::= <Left Hand Side Expression>
 --                        | <Postfix Expression> '++'
@@ -393,6 +393,7 @@ ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
   
 -- <Assignment Expression> ::= <Conditional Expression>
 --                           | <Left Hand Side Expression> <Assignment Operator> <Assignment Expression> 
+AssignmentExpression :: { [AST.JSNode] }
 AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}} 
                      | LeftHandSideExpression AssignmentOperator AssignmentExpression 
                        { [(AST.JSElement "assignmentExpression" ($1++[$2]++$3))] }

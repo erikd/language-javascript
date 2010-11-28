@@ -107,6 +107,29 @@ testSuite = testGroup "Parser"
     , testCase "MemberExpression1" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"],JSIdentifier \"z\"]])")
       
     , testCase "MemberExpression1" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new \",JSIdentifier \"x\",JSArguments []])")
+      
+    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new\",JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"]])")
+      
+    , testCase "CallExpression1" (testStmt "x()"     "Right (JSExpression [JSIdentifier \"x\",JSArguments []])")
+    , testCase "CallExpression2" (testStmt "x()()"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"()\" [JSArguments []]])")
+    , testCase "CallExpression3" (testStmt "x()[4]"  "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"[]\" [JSExpression [JSDecimal \"4\"]]])")
+    , testCase "CallExpression4" (testStmt "x().x"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \".\" [JSIdentifier \"x\"]])")
+    , testCase "CallExpression5" (testStmt "x(a,b=2).x"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [[JSIdentifier \"a\"],[JSElement \"assignmentExpression\" [JSIdentifier \"b\",JSOperator \"=\",JSDecimal \"2\"]]],JSCallExpression \".\" [JSIdentifier \"x\"]])")
+          
+    , testCase "AssignExpression1" (testStmt "x=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]])")
+    , testCase "AssignExpression1" (testStmt "x*=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"*=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x/=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"/=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x%=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"%=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x+=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"+=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x-=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"-=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x<<=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"<<=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x>>=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \">>=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x>>>=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \">>>=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x&=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"&=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x^=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"^=\",JSDecimal \"1\"]])")      
+    , testCase "AssignExpression1" (testStmt "x|=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"|=\",JSDecimal \"1\"]])")      
+    
+      
     ]
 
 srcHelloWorld = "Hello"
