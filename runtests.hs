@@ -41,6 +41,14 @@ testSuite = testGroup "Parser"
     , testCase "ArrayLiteral1"     (testPE "[]"      "Right (JSArrayLiteral [])")
     , testCase "ArrayLiteral2"     (testPE "[,]"     "Right (JSArrayLiteral [JSElision []])")
     , testCase "ArrayLiteral3"     (testPE "[,,]"    "Right (JSArrayLiteral [JSElision [],JSElision []])")
+    , testCase "ArrayLiteral4"     (testPE "[,,x]"   "Right (JSArrayLiteral [JSElementList [JSElision [],JSElision [],JSIdentifier \"x\"]])")
+    , testCase "ArrayLiteral5"     (testPE "[,,x]"   "Right (JSArrayLiteral [JSElementList [JSElision [],JSElision [],JSIdentifier \"x\"]])")
+    , testCase "ArrayLiteral6"     (testPE "[,x,,x]" "Right (JSArrayLiteral [JSElementList [JSElementList [JSElision [],JSIdentifier \"x\"],JSElision [],JSIdentifier \"x\"]])")
+    , testCase "ArrayLiteral7"     (testPE "[x]"     "Right (JSArrayLiteral [JSIdentifier \"x\"])")
+      
+    , testCase "ObjectLiteral2"    (testPE "{x:1}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]])")
+    , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]])")
+      
       
     , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")
     , testCase "Statement2"        (testStmt "null"     "Right (JSExpression [JSLiteral \"null\"])")
@@ -84,6 +92,8 @@ testSuite = testGroup "Parser"
     , testCase "Statement16"       (testStmt "~y"     "Right (JSExpression [JSUnary \"~\",JSIdentifier \"y\"])")      
     , testCase "Statement16"       (testStmt "!y"     "Right (JSExpression [JSUnary \"!\",JSIdentifier \"y\"])")      
       
+    , testCase "Statement17"       (testStmt "y++"     "Right (JSExpression [JSExpressionPostfix \"++\" [JSIdentifier \"y\"]])")
+    , testCase "Statement17"       (testStmt "y--"     "Right (JSExpression [JSExpressionPostfix \"--\" [JSIdentifier \"y\"]])")      
       
     ]
 

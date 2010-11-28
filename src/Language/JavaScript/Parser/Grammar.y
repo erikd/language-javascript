@@ -182,7 +182,7 @@ PrimaryExpression : 'this'     { AST.JSLiteral "this" }
                   | Identifier { $1 }
                   | Literal    { $1 }
                   | ArrayLiteral { $1 }
-                  -- | ObjectLiteral
+                  | ObjectLiteral { $1 }
                   -- | '(' Expression ')'
                   | RegularExpressionLiteral { $1 }
                   
@@ -192,14 +192,14 @@ Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
 --                   | '[' <Elision> ']'
 --                   | '[' <Element List> ']'
 --                   | '[' <Element List> ',' <Elision> ']'
-ArrayLiteral : '[' ']' { AST.JSArrayLiteral [] }
-             | '[' Elision ']' { AST.JSArrayLiteral $2 }
-             -- | '[' <Element List> ']' --TODO : uncomment this
-             -- | '[' <Element List> ',' <Elision> ']'
+ArrayLiteral : '[' ']'                         { AST.JSArrayLiteral [] }
+             | '[' Elision ']'                 { AST.JSArrayLiteral $2 }
+             | '[' ElementList ']'             { AST.JSArrayLiteral $2 }
+             | '[' ElementList ',' Elision ']' { AST.JSArrayLiteral ($2++$4) }
 
 -- <Elision> ::= ','
 --             | <Elision> ','
-Elision :  ',' { [(AST.JSElision [])] }
+Elision :  ','        { [(AST.JSElision [])] }
         | Elision ',' { $1 ++ [(AST.JSElision [])] }
 
 
@@ -207,21 +207,29 @@ Elision :  ',' { [(AST.JSElision [])] }
 --                  | <Element List> ',' <Elision>  <Assignment Expression>
 --                  | <Element List> ',' <Assignment Expression>
 --                  | <Assignment Expression>
-{-
-ElementList : Elision AssignmentExpression                    {return [(AST.JSElementList ($1++$2)) ] }
-            | ElementList ',' Elision  AssignmentExpression   {return [(AST.JSElementList ($1++$3++$4))] }
-            | ElementList ',' AssignmentExpression            {return [(AST.JSElementList ($1++$3))] }
+ElementList : Elision AssignmentExpression                    { [(AST.JSElementList ($1++$2)) ] }
+            | ElementList ',' Elision  AssignmentExpression   { [(AST.JSElementList ($1++$3++$4))] }
+            | ElementList ',' AssignmentExpression            { [(AST.JSElementList ($1++$3))] }
             | AssignmentExpression                            { $1 }
--}
 
 -- <Object Literal> ::= '{' <Property Name and Value List> '}'
+ObjectLiteral :: { AST.JSNode }
+ObjectLiteral : '{' PropertyNameandValueList '}' { AST.JSObjectLiteral $2 }
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
+PropertyNameandValueList :: { [ AST.JSNode ] }
+PropertyNameandValueList : PropertyName ':' AssignmentExpression { [(AST.JSPropertyNameandValue $1 $3)] }
+                         | PropertyNameandValueList ',' PropertyName ':' AssignmentExpression 
+                           { ($1 ++ [(AST.JSPropertyNameandValue $3 $5)])  } 
+
 
 -- <Property Name> ::= Identifier
 --                   | StringLiteral
 --                   | <Numeric Literal>
+PropertyName : Identifier     { $1 {- PropertyName1 -}}
+             | StringLiteral  { $1 {- PropertyName2 -}}
+             | NumericLiteral { $1 {- PropertyName3 -}}
 
 -- <Member Expression > ::= <Primary Expression>
 --                        | <Function Expression>
@@ -271,10 +279,9 @@ LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
 --                        | <Postfix Expression> '++'
 --                        | <Postfix Expression> '--'
 PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} } 
-{- TODO: restore this
                   | PostfixExpression '++' {[(AST.JSExpressionPostfix "++" $1)]}
                   | PostfixExpression '--' {[(AST.JSExpressionPostfix "--" $1)]}
--}
+
 -- <Unary Expression> ::= <Postfix Expression>
 --                      | 'delete' <Unary Expression>
 --                      | 'void' <Unary Expression>
@@ -384,7 +391,7 @@ ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
   
 -- <Assignment Expression> ::= <Conditional Expression>
 --                           | <Left Hand Side Expression> <Assignment Operator> <Assignment Expression> 
-AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}} -- TODO: restore rest
+AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}} 
                      | LeftHandSideExpression AssignmentOperator AssignmentExpression 
                        { [(AST.JSElement "assignmentExpression" ($1++[$2]++$3))] }
                        
