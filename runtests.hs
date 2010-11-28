@@ -49,6 +49,7 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral2"    (testPE "{x:1}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]])")
     , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]])")
       
+    , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
       
     , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")
     , testCase "Statement2"        (testStmt "null"     "Right (JSExpression [JSLiteral \"null\"])")
@@ -82,9 +83,9 @@ testSuite = testGroup "Parser"
     , testCase "Statement15"       (testStmt "x/y"     "Right (JSExpression [JSExpressionBinary \"/\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
     , testCase "Statement15"       (testStmt "x%y"     "Right (JSExpression [JSExpressionBinary \"%\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
       
-    -- , testCase "Statement16"       (testStmt "delete y"     "")      
-    -- , testCase "Statement16"       (testStmt "void y"     "")      
-    -- , testCase "Statement16"       (testStmt "typeof y"     "")      
+    , testCase "Statement16"       (testStmt "delete y"  "Right (JSExpression [JSUnary \"delete \",JSIdentifier \"y\"])")      
+    , testCase "Statement16"       (testStmt "void y"    "Right (JSExpression [JSUnary \"void \",JSIdentifier \"y\"])")      
+    , testCase "Statement16"       (testStmt "typeof y"  "Right (JSExpression [JSUnary \"typeof \",JSIdentifier \"y\"])")    
     , testCase "Statement16"       (testStmt "++y"    "Right (JSExpression [JSUnary \"++\",JSIdentifier \"y\"])")      
     , testCase "Statement16"       (testStmt "--y"    "Right (JSExpression [JSUnary \"--\",JSIdentifier \"y\"])")      
     , testCase "Statement16"       (testStmt "+y"     "Right (JSExpression [JSUnary \"+\",JSIdentifier \"y\"])")      
@@ -95,6 +96,17 @@ testSuite = testGroup "Parser"
     , testCase "Statement17"       (testStmt "y++"     "Right (JSExpression [JSExpressionPostfix \"++\" [JSIdentifier \"y\"]])")
     , testCase "Statement17"       (testStmt "y--"     "Right (JSExpression [JSExpressionPostfix \"--\" [JSIdentifier \"y\"]])")      
       
+      -- Member Expressions
+    , testCase "MemberExpression1" (testStmt "function(){}"    "Right (JSExpression [JSFunctionExpression [] (JSFunctionBody [])])")
+    , testCase "MemberExpression1" (testStmt "function(a){}"    "Right (JSExpression [JSFunctionExpression [JSIdentifier \"a\"] (JSFunctionBody [])])")
+    , testCase "MemberExpression1" (testStmt "function(a,b){}"  "Right (JSExpression [JSFunctionExpression [JSIdentifier \"a\",JSIdentifier \"b\"] (JSFunctionBody [])])")
+      
+    , testCase "MemberExpression1" (testStmt "x[y]"  "Right (JSExpression [JSMemberSquare (JSExpression [JSIdentifier \"y\"]) [JSIdentifier \"x\"]])")
+    , testCase "MemberExpression1" (testStmt "x[y][z]"  "Right (JSExpression [JSMemberSquare (JSExpression [JSIdentifier \"z\"]) [JSMemberSquare (JSExpression [JSIdentifier \"y\"]) [JSIdentifier \"x\"]]])")
+    , testCase "MemberExpression1" (testStmt "x.y"      "Right (JSExpression [JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"]])")
+    , testCase "MemberExpression1" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"],JSIdentifier \"z\"]])")
+      
+    , testCase "MemberExpression1" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new \",JSIdentifier \"x\",JSArguments []])")
     ]
 
 srcHelloWorld = "Hello"

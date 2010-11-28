@@ -47,8 +47,21 @@ $NonTerminator = $StringChars1 # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
 
+-- WhiteSpace ::
+--      <TAB>
+--      <VT>
+--      <FF>
+--      <SP>
+--      <NBSP>
+--      <USP>
+-- TODO: bring in NBSP and USP
+$white_char   = [\ \f\v\t]
+
 -- ! ------------------------------------------------- Terminals
 tokens :-
+
+-- Skip Whitespace
+<0> $white_char+   ;
 
 -- Identifier    = {ID Head}{ID Tail}*
 <0> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }

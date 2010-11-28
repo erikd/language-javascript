@@ -178,13 +178,14 @@ RegularExpressionLiteral : 'regex' {AST.JSRegEx (token_literal $1)}
 --                        | <Object Literal>
 --                        | '(' <Expression> ')'
 --                        | <Regular Expression Literal>
-PrimaryExpression : 'this'     { AST.JSLiteral "this" }
-                  | Identifier { $1 }
-                  | Literal    { $1 }
-                  | ArrayLiteral { $1 }
-                  | ObjectLiteral { $1 }
-                  -- | '(' Expression ')'
-                  | RegularExpressionLiteral { $1 }
+PrimaryExpression :: { AST.JSNode }
+PrimaryExpression : 'this'                   { AST.JSLiteral "this" }
+                  | Identifier               { $1 {- PrimaryExpression1 -}}
+                  | Literal                  { $1 {- PrimaryExpression2 -}}
+                  | ArrayLiteral             { $1 {- PrimaryExpression3 -}}
+                  | ObjectLiteral            { $1 {- PrimaryExpression4 -}}
+                  | '(' Expression ')'       { AST.JSExpressionParen $2 }
+                  | RegularExpressionLiteral { $1 {- PrimaryExpression5 -}}
                   
 Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
 
@@ -210,7 +211,7 @@ Elision :  ','        { [(AST.JSElision [])] }
 ElementList : Elision AssignmentExpression                    { [(AST.JSElementList ($1++$2)) ] }
             | ElementList ',' Elision  AssignmentExpression   { [(AST.JSElementList ($1++$3++$4))] }
             | ElementList ',' AssignmentExpression            { [(AST.JSElementList ($1++$3))] }
-            | AssignmentExpression                            { $1 }
+            | AssignmentExpression                            { $1 {- ElementList -}}
 
 -- <Object Literal> ::= '{' <Property Name and Value List> '}'
 ObjectLiteral :: { AST.JSNode }
@@ -236,11 +237,12 @@ PropertyName : Identifier     { $1 {- PropertyName1 -}}
 --                        | <Member Expression> '[' <Expression> ']'
 --                        | <Member Expression> '.' Identifier
 --                        | 'new' <Member Expression> <Arguments>
-MemberExpression : PrimaryExpression { [$1] {- MemberExpression -}} -- TODO : uncomment rest, restore $1
-                 -- | FunctionExpression
-                 -- | MemberExpression '[' Expression ']'
-                 -- | MemberExpression '.' Identifier { [AST.JSMemberDot ($1++[$3])] } 
-                 -- | 'new' MemberExpression Arguments { (((AST.JSLiteral "new "):$2)++[$3])}
+MemberExpression :: { [AST.JSNode] }
+MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} -- TODO : uncomment rest, restore $1
+                 | FunctionExpression  { [$1] {- MemberExpression -}}
+                 | MemberExpression '[' Expression ']' { [AST.JSMemberSquare $3 $1] }
+                 | MemberExpression '.' Identifier { [AST.JSMemberDot ($1++[$3])] } 
+                 | 'new' MemberExpression Arguments { (((AST.JSLiteral "new "):$2)++[$3])}
 
 -- <New Expression> ::= <Member Expression>
 --                    | new <New Expression>
@@ -507,23 +509,41 @@ Statement : {- Block
 
 -- <Function Expression> ::= 'function' '(' ')' '{' <Function Body> '}'
 --                         | 'function' '(' <Formal Parameter List> ')' '{' <Function Body> '}'
+FunctionExpression :: { AST.JSNode }
+FunctionExpression : 'function' '(' ')' '{' FunctionBody '}'                      { (AST.JSFunctionExpression [] $5) }
+                   | 'function' '(' FormalParameterList ')' '{' FunctionBody '}'  { (AST.JSFunctionExpression $3 $6) }
 
 
 -- <Formal Parameter List> ::= Identifier
 --                           | <Formal Parameter List> ',' Identifier
+FormalParameterList :: { [AST.JSNode] }
+FormalParameterList : Identifier                          { [$1] {- FormalParameterList -}}
+                    | FormalParameterList ',' Identifier  { ($1++[$3]) }
 
 -- <Function Body> ::= <Source Elements>
 --                   | 
+FunctionBody :: { AST.JSNode }
+FunctionBody : SourceElements { (AST.JSFunctionBody [$1]) }
+             |                { (AST.JSFunctionBody []) } 
 
 -- <Program> ::= <Source Elements>
+Program : SourceElements { $1 {- Program -}}
 
 -- <Source Elements> ::= <Source Element>
 --                     | <Source Elements>  <Source Element>
+SourceElements :: { AST.JSNode }
+SourceElements : SourceElement                { (AST.JSSourceElements [$1]) }
+               | SourceElements SourceElement { (combineSourceElements $1 $2) }
 
 -- <Source Element> ::= <Statement>
 --                    | <Function Declaration>
+SourceElement :: { AST.JSNode }
+SourceElement : Statement            { $1 {- SourceElement1 -} }
+              -- | FunctionDeclaration  { $1 {- SourceElement2 -} } -- TODO: restore
 
 {
+combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
+combineSourceElements (AST.JSSourceElements xs) x = (AST.JSSourceElements (xs++[x]) )
 
 parseError :: Token -> P a 
 parseError = throwError . UnexpectedToken 
