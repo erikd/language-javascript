@@ -111,6 +111,7 @@ data Token
    | StrictEqToken { token_span :: !SrcSpan }
    | EqToken { token_span :: !SrcSpan }
    | AssignToken { token_span :: !SrcSpan, token_literal :: !String }
+   | SimpleAssignToken { token_span :: !SrcSpan }
    | StrictNeToken { token_span :: !SrcSpan }
    | NeToken { token_span :: !SrcSpan }
    | LshToken { token_span :: !SrcSpan }

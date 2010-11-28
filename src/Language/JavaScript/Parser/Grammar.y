@@ -35,7 +35,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      '&'	{ BitwiseAndToken {} }
      '==='	{ StrictEqToken {} }
      '=='	{ EqToken {} }
-     -- '='	{ AssignToken {} }
+     '='	{ SimpleAssignToken {} }
      '!=='	{ StrictNeToken {} }
      '!='	{ NeToken {} }
      '<<'	{ LshToken {} }
@@ -400,12 +400,16 @@ AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}}
                        
 -- <Assignment Operator> ::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
+                   | '='      { AST.JSOperator "=" }
 
 -- <Expression> ::= <Assignment Expression>
 --                | <Expression> ',' <Assignment Expression>
 Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } -- TODO: restore rest
            -- | Expression ',' AssignmentExpression
 
+ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
+              |            { []   {- ExpressionOpt -}}
+                           
 -- <Statement> ::= <Block>
 --               | <Variable Statement>
 --               | <Empty Statement>
@@ -421,41 +425,50 @@ Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } -- TO
 --               | <Throw Statement>
 --               | <Try Statement>
 --               | <Expression> 
-Statement : {- Block
-          | <Variable Statement>
-          | <Empty Statement>
-          | <If Statement>
-          | <If Else Statement>
-          | <Iteration Statement>
-          | <Continue Statement>
-          | <Break Statement>
-          | <Return Statement>
-          | <With Statement>
-          | <Labelled Statement>
-          | <Switch Statement>
-          | <Throw Statement>
-          | <Try Statement>
-          | -} Expression { $1 {- Statement -}}
+Statement : Block              { $1 {- Statement1 -}}
+          -- | <Variable Statement>
+          | EmptyStatement     { $1 {- Statement3 -}}
+          | IfStatement        { $1 {- Statement4 -}}
+          | IfElseStatement    { $1 {- Statement5 -}}
+          | IterationStatement { $1 {- Statement6 -}}
+          -- | <Continue Statement>
+          -- | <Break Statement>
+          -- | <Return Statement>
+          -- | <With Statement>
+          -- | <Labelled Statement>
+          -- | <Switch Statement>
+          -- | <Throw Statement>
+          -- | <Try Statement>
+          | Expression { $1 {- Statement -}}
 
--- <Block > ::= '{' '}'
---            | '{' <Statement List> '}'
+Block : '{' '}'               { (AST.JSBlock (AST.JSStatementList [])) }
+      | '{' StatementList '}' { (AST.JSBlock (AST.JSStatementList [$2])) }
 
--- <Statement List> ::= <Statement>
---                    | <Statement List> <Statement>
+StatementList :: { AST.JSNode }
+StatementList : Statement               { (AST.JSStatementList [$1]) }
+              | StatementList Statement { (combineStatements $1 $2) }
 
 -- <Variable Statement> ::= var <Variable Declaration List> ';'
 -- <Variable Declaration List> ::= <Variable Declaration>
 --                               | <Variable Declaration List> ',' <Variable Declaration>
+VariableDeclarationList :: { [AST.JSNode] }
+VariableDeclarationList : VariableDeclaration { [$1] {- VariableDeclarationList -}}
+                        | VariableDeclarationList ',' VariableDeclaration { ($1 ++ [$3]) {- VariableDeclarationList -}}
 
--- <Variable Declaration> ::= Identifier
---                          | Identifier <Initializer>
+VariableDeclaration :: { AST.JSNode }
+VariableDeclaration : Identifier              { (AST.JSVarDecl $1 [])}
+                    | Identifier Initializer  { (AST.JSVarDecl $1 $2)}
 
 -- <Initializer> ::= '=' <Assignment Expression>
+Initializer : '=' AssignmentExpression { $2 {- Initializer -}}
 
--- <Empty Statement> ::= ';'
+EmptyStatement : ';' { (AST.JSLiteral ";") }
 
 -- <If Statement> ::= 'if' '(' <Expression> ')' <Statement> 
+IfStatement : 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
+
 -- <If Else Statement> ::= 'if' '(' <Expression> ')' <Statement> 'else' <Statement>
+IfElseStatement : 'if' '(' Expression ')' Statement 'else' Statement { (AST.JSIfElse $3 $5 $7) }
 
 -- <Iteration Statement> ::= 'do' <Statement> 'while' '(' <Expression> ')' ';'
 --                         | 'while' '(' <Expression> ')' <Statement> 
@@ -463,6 +476,16 @@ Statement : {- Block
 --                         | 'for' '(' 'var' <Variable Declaration List> ';' <Expression> ';' <Expression> ')' <Statement> 
 --                         | 'for' '(' <Left Hand Side Expression> in <Expression> ')' <Statement> 
 --                         | 'for' '(' 'var' <Variable Declaration> in <Expression> ')' <Statement> 
+IterationStatement :: { AST.JSNode }
+IterationStatement : 'do' Statement 'while' '(' Expression ')' ';' { (AST.JSDoWhile $2 $5 (AST.JSLiteral ";")) } -- TODO: sort out autosemi
+                   | 'while' '(' Expression ')' Statement { (AST.JSWhile $3 $5) }
+                   | 'for' '(' ExpressionOpt ';' ExpressionOpt ';' ExpressionOpt ')' Statement { (AST.JSFor $3 $5 $7 $9) }
+                   | 'for' '(' 'var' VariableDeclarationList ';' ExpressionOpt ';' ExpressionOpt ')' Statement 
+                     { (AST.JSForVar $4 $6 $8 $10) }
+                   | 'for' '(' LeftHandSideExpression 'in' Expression ')' Statement 
+                     { (AST.JSForIn $3 $5 $7) }
+                   | 'for' '(' 'var' VariableDeclaration 'in' Expression ')' Statement
+                     { (AST.JSForVarIn $4 $6 $8) }
 
 -- <Continue Statement> ::= 'continue' ';'
 --                        | 'continue' Identifier ';'
@@ -545,6 +568,10 @@ SourceElement : Statement            { $1 {- SourceElement1 -} }
 {
 combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElements (AST.JSSourceElements xs) x = (AST.JSSourceElements (xs++[x]) )
+
+combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
+combineStatements (AST.JSStatementList xs) (AST.JSStatementList ys) = (AST.JSStatementList (xs++ys) )
+combineStatements (AST.JSStatementList xs) y = (AST.JSStatementList (xs++[y]) )
 
 parseError :: Token -> P a 
 parseError = throwError . UnexpectedToken 

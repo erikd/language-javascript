@@ -130,6 +130,28 @@ testSuite = testGroup "Parser"
     , testCase "AssignExpression1" (testStmt "x|=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"|=\",JSDecimal \"1\"]])")      
     
       
+    , testCase "Block1" (testStmt "{}"     "Right (JSBlock (JSStatementList []))")
+    , testCase "Block2" (testStmt "{x=1}"  "Right (JSBlock (JSStatementList [JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]]]))")
+    , testCase "Block3" (testStmt "{x=1;y=2}"   "Right (JSBlock (JSStatementList [JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\",JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]]]]))")
+      
+    , testCase "If1" (testStmt "if (1) {}"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [])))")      
+      
+    , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [])) (JSBlock (JSStatementList [])))")
+      
+    , testCase "DoWhile1" (testStmt "do {x=1} while (true);"   "Right (JSDoWhile (JSBlock (JSStatementList [JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
+    , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
+      
+    , testCase "For1"   (testStmt "for(;;);"             "Right (JSFor [] [] [] (JSLiteral \";\"))")
+    , testCase "For2"   (testStmt "for(x=1;x<10;x++);"   "Right (JSFor [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]] [JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"10\"]]] [JSExpression [JSExpressionPostfix \"++\" [JSIdentifier \"x\"]]] (JSLiteral \";\"))")
+      
+    , testCase "ForVar1"   (testStmt "for(var x;;);"            "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [] [] (JSLiteral \";\"))")
+    , testCase "ForVar2"   (testStmt "for(var x=1;;);"          "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"]] [] [] (JSLiteral \";\"))")      
+    , testCase "ForVar2"   (testStmt "for(var x;y;z){}"         "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [JSExpression [JSIdentifier \"y\"]] [JSExpression [JSIdentifier \"z\"]] (JSBlock (JSStatementList [])))")      
+      
+    , testCase "ForIn1"   (testStmt "for(x in 5){}"         "Right (JSForIn [JSIdentifier \"x\"] (JSExpression [JSDecimal \"5\"]) (JSBlock (JSStatementList [])))")
+    
+    , testCase "ForVarIn1" (testStmt "for(var x in 5){}"    "Right (JSForVarIn (JSVarDecl (JSIdentifier \"x\") []) (JSExpression [JSDecimal \"5\"]) (JSBlock (JSStatementList [])))")
+      
     ]
 
 srcHelloWorld = "Hello"

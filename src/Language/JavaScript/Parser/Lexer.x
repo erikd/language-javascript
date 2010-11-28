@@ -119,8 +119,9 @@ tokens :-
      "&"	{ symbolToken  BitwiseAndToken}
      "==="	{ symbolToken  StrictEqToken}
      "=="	{ symbolToken  EqToken}
-     "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
+     "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
       	        { mkString assignToken}
+     "="        { symbolToken  SimpleAssignToken}
      "!=="	{ symbolToken  StrictNeToken}
      "!="	{ symbolToken  NeToken}
      "<<"	{ symbolToken  LshToken}
