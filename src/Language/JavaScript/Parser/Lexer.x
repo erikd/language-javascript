@@ -25,6 +25,12 @@ $non_zero_digit = 1-9
 $ident_letter = [a-zA-Z_]
 @eol_pattern = $lf | $cr $lf | $cr $lf  
 
+$any_char = [\x00-\xff]
+
+$eol_char = [$lf $cr] -- any end of line character
+$not_eol_char = ~$eol_char -- anything but an end of line character
+
+
 -- From GOLD Parser
 -- {ID Head}      = {Letter} + [_] + [$]
 @IDHead = $alpha | [_] | [\$]
@@ -62,6 +68,13 @@ tokens :-
 
 -- Skip Whitespace
 <0> $white_char+   ;
+
+-- Skip one line comment
+<0> "//"($not_eol_char)*   ;
+
+-- Skip multi-line comments. Note: may not nest
+<0> "/*"($any_char)*"*/"  ;	
+
 
 -- Identifier    = {ID Head}{ID Tail}*
 <0> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
@@ -214,6 +227,7 @@ lexCont cont = do
          -}
          _other -> cont tok
 
+         
 -- ---------------------------------------------------------------------         
          
 -- a keyword or an identifier (the syntax overlaps)

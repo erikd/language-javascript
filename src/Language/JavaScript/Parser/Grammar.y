@@ -11,7 +11,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 }
 
 -- The name of the generated function to be exported from the module
-%name parse                  PrimaryExpression
+%name parse                  Program
 %name parseLiteral           Literal
 %name parsePrimaryExpression PrimaryExpression
 %name parseStatement         Statement
@@ -566,6 +566,10 @@ Finally : 'finally' Block { (AST.JSFinally $2) }
 
 -- <Function Declaration> ::= 'function' Identifier '(' <Formal Parameter List> ')' '{' <Function Body> '}'
 --                          | 'function' Identifier '(' ')' '{' <Function Body> '}'
+FunctionDeclaration : 'function' Identifier '(' FormalParameterList ')' '{' FunctionBody '}'
+                      { (AST.JSFunction $2 $4 $7) }
+                    | 'function' Identifier '(' ')' '{' FunctionBody '}'
+                      { (AST.JSFunction $2 [] $6) }
 
 -- <Function Expression> ::= 'function' '(' ')' '{' <Function Body> '}'
 --                         | 'function' '(' <Formal Parameter List> ')' '{' <Function Body> '}'
@@ -599,7 +603,7 @@ SourceElements : SourceElement                { (AST.JSSourceElements [$1]) }
 --                    | <Function Declaration>
 SourceElement :: { AST.JSNode }
 SourceElement : Statement            { $1 {- SourceElement1 -} }
-              -- | FunctionDeclaration  { $1 {- SourceElement2 -} } -- TODO: restore
+              | FunctionDeclaration  { $1 {- SourceElement2 -} } -- TODO: restore
 
 {
 combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode

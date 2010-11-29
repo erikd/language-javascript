@@ -181,11 +181,18 @@ testSuite = testGroup "Parser"
     , testCase "Try3" (testStmt "try{}catch(a){}finally{}"   "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [] (JSBlock (JSStatementList [])),JSFinally (JSBlock (JSStatementList []))])")
     -- TODO: add syntax extensions tests to Try  
       
+    , testCase "Function1" (testProg "function a(){}"      "Right (JSSourceElements [JSFunction (JSIdentifier \"a\") [] (JSFunctionBody [])])")
+    , testCase "Function2" (testProg "function a(b,c){}"   "Right (JSSourceElements [JSFunction (JSIdentifier \"a\") [JSIdentifier \"b\",JSIdentifier \"c\"] (JSFunctionBody [])])")
+      
+    , testCase "Comment1" (testProg "//blah\nx=1;//foo\na"   "Right (JSSourceElements [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
+      
+    , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElements [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
+      
     ]
 
 srcHelloWorld = "Hello"
 caseHelloWorld =  
-  "Right (JSIdentifier \"Hello\")"
+  "Right (JSSourceElements [JSExpression [JSIdentifier \"Hello\"]])"
   @=? (show $ parseStmt srcHelloWorld "src")
   
 
@@ -197,6 +204,8 @@ testLiteral literal expected = expected @=? (show $ parseUsing parseLiteral lite
 testPE str expected = expected @=? (show $ parseUsing parsePrimaryExpression str "src")
 
 testStmt str expected = expected @=? (show $ parseUsing parseStatement str "src")
+
+testProg str expected = expected @=? (show $ parseUsing parse str "src")
 
 
 -- EOF
