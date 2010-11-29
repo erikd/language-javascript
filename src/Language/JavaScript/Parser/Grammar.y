@@ -238,7 +238,7 @@ PropertyName : Identifier     { $1 {- PropertyName1 -}}
 --                        | <Member Expression> '.' Identifier
 --                        | 'new' <Member Expression> <Arguments>
 MemberExpression :: { [AST.JSNode] }
-MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} -- TODO : uncomment rest, restore $1
+MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} 
                  | FunctionExpression  { [$1] {- MemberExpression -}}
                  | MemberExpression '[' Expression ']' { [AST.JSMemberSquare $3 $1] }
                  | MemberExpression '.' Identifier { [AST.JSMemberDot ($1++[$3])] } 
@@ -246,7 +246,7 @@ MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} -- TODO : 
 
 -- <New Expression> ::= <Member Expression>
 --                    | new <New Expression>
-NewExpression : MemberExpression {$1 {- NewExpression -}} -- TODO: uncomment next
+NewExpression : MemberExpression {$1 {- NewExpression -}} 
               | 'new' NewExpression { (AST.JSLiteral "new"):$2 }
 
 -- <Call Expression> ::= <Member Expression> <Arguments>
@@ -339,7 +339,7 @@ ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressionB
 --                          | <Relational Expression> '<=' <Shift Expression> 
 --                          | <Relational Expression> '>=' <Shift Expression> 
 --                          | <Relational Expression> 'instanceof' <Shift Expression> 
-RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}} -- TODO: restore rest
+RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}} 
                      | RelationalExpression '<'  ShiftExpression { [(AST.JSExpressionBinary "<" $1 $3)]}
                      | RelationalExpression '>'  ShiftExpression { [(AST.JSExpressionBinary ">" $1 $3)]}
                      | RelationalExpression '<=' ShiftExpression { [(AST.JSExpressionBinary "<=" $1 $3)]}
@@ -361,22 +361,22 @@ EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
 
 -- <Bitwise And Expression> ::= <Equality Expression>
 --                            | <Bitwise And Expression> '&' <Equality Expression>
-BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} } -- TODO: restore rest
+BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} } 
                      | BitwiseAndExpression '&' EqualityExpression { [(AST.JSExpressionBinary "&" $1 $3)]}
 
 -- <Bitwise XOr Expression> ::= <Bitwise And Expression>
 --                            | <Bitwise XOr Expression> '^' <Bitwise And Expression>
-BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} } -- TODO: restore rest
+BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} } 
                      | BitwiseXOrExpression '^' BitwiseAndExpression { [(AST.JSExpressionBinary "^" $1 $3)]}
 
 -- <Bitwise Or Expression> ::= <Bitwise XOr Expression>
 --                           | <Bitwise Or Expression> '|' <Bitwise XOr Expression>
-BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} } -- TODO: restore rest
+BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} } 
                     | BitwiseOrExpression '|' BitwiseXOrExpression { [(AST.JSExpressionBinary "|" $1 $3)]}
 
 -- <Logical And Expression> ::= <Bitwise Or Expression>
 --                            | <Logical And Expression> '&&' <Bitwise Or Expression>
-LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} } -- TODO: restore rest
+LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} } 
                      | LogicalAndExpression '&&' BitwiseOrExpression { [(AST.JSExpressionBinary "&&" $1 $3)]}
 
 -- <Logical Or Expression> ::= <Logical And Expression>
@@ -404,8 +404,9 @@ AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
 
 -- <Expression> ::= <Assignment Expression>
 --                | <Expression> ',' <Assignment Expression>
-Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } -- TODO: restore rest
-           -- | Expression ',' AssignmentExpression
+Expression :: { AST.JSNode }
+Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } 
+           | Expression ',' AssignmentExpression  { flattenExpression $1 $3 }
 
 ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
               |            { []   {- ExpressionOpt -}}
@@ -549,17 +550,26 @@ LabelledStatement : Identifier ':' Statement { (AST.JSLabelled $1 $3) }
 -- <Throw Statement> ::= 'throw' <Expression>
 ThrowStatement : 'throw' Expression { (AST.JSThrow $2) }
 
+-- Note: worked in updated syntax as per https://developer.mozilla.org/en/JavaScript/Reference/Statements/try...catch
+--   i.e., 0 or more catches, then an optional finally
 -- <Try Statement> ::= 'try' <Block> <Catch>
 --                   | 'try' <Block> <Finally>
 --                   | 'try' <Block> <Catch> <Finally>
--- TODO: add syntax extensions
-TryStatement : 'try' Block Catch         { (AST.JSTry $2 [$3])    {- TryStatement1 -} }
-             | 'try' Block Finally       { (AST.JSTry $2 [$3])    {- TryStatement2 -} }
-             | 'try' Block Catch Finally { (AST.JSTry $2 [$3,$4]) {- TryStatement3 -} }
+TryStatement : 'try' Block Catches         { (AST.JSTry $2 $3)         {- TryStatement1 -} }
+             | 'try' Block Finally         { (AST.JSTry $2 [$3])       {- TryStatement2 -} }
+             | 'try' Block Catches Finally { (AST.JSTry $2 ($3++[$4])) {- TryStatement3 -} }
 
+Catches :: { [AST.JSNode] }
+Catches : Catch         { [$1]       {- Catches 1 -} }
+        | Catches Catch { ($1++[$2]) {- Catches 2 -} }
+
+-- Note: worked in updated syntax as per https://developer.mozilla.org/en/JavaScript/Reference/Statements/try...catch
 -- <Catch> ::= 'catch' '(' Identifier ')' <Block>
--- TODO: syntax extensions
-Catch : 'catch' '(' Identifier ')' Block { (AST.JSCatch $3 [] $5) }
+--   becomes
+-- <Catch> ::= 'catch' '(' Identifier ')' <Block>
+--           | 'catch' '(' Identifier 'if' ConditionalExpression ')' <Block>
+Catch : 'catch' '(' Identifier ')' Block                 { (AST.JSCatch $3 [] $5) }
+      | 'catch' '(' Identifier 'if' ConditionalExpression ')' Block  { (AST.JSCatch $3 $5 $7) }
 
 -- <Finally> ::= 'finally' <Block>
 Finally : 'finally' Block { (AST.JSFinally $2) }
@@ -603,7 +613,7 @@ SourceElements : SourceElement                { (AST.JSSourceElements [$1]) }
 --                    | <Function Declaration>
 SourceElement :: { AST.JSNode }
 SourceElement : Statement            { $1 {- SourceElement1 -} }
-              | FunctionDeclaration  { $1 {- SourceElement2 -} } -- TODO: restore
+              | FunctionDeclaration  { $1 {- SourceElement2 -} } 
 
 {
 combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
@@ -616,13 +626,13 @@ combineStatements (AST.JSStatementList xs) y = (AST.JSStatementList (xs++[y]) )
 parseError :: Token -> P a 
 parseError = throwError . UnexpectedToken 
 
-{-
-flattenExpression :: [[AST.JSNode]] -> [AST.JSNode]
-flattenExpression val = flatten $ intersperse litComma val
+
+flattenExpression :: AST.JSNode -> [AST.JSNode] -> AST.JSNode
+flattenExpression (AST.JSExpression xs) e = AST.JSExpression (xs++litComma++e)
                         where
                           litComma :: [AST.JSNode]
                           litComma = [(AST.JSLiteral ",")]
--}
+
 
 }
 
