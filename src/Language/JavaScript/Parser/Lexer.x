@@ -55,7 +55,7 @@ $NonTerminator = $StringChars1 # [$cr $lf]
 --      <NBSP>
 --      <USP>
 -- TODO: bring in NBSP and USP
-$white_char   = [\ \f\v\t]
+$white_char   = [\ \f\v\t\r\n]
 
 -- ! ------------------------------------------------- Terminals
 tokens :-

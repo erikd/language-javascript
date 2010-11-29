@@ -426,20 +426,20 @@ ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
 --               | <Try Statement>
 --               | <Expression> 
 Statement : Block              { $1 {- Statement1 -}}
-          -- | <Variable Statement>
+          | VariableStatement  { $1 {- Statement2 -}}
           | EmptyStatement     { $1 {- Statement3 -}}
           | IfStatement        { $1 {- Statement4 -}}
           | IfElseStatement    { $1 {- Statement5 -}}
           | IterationStatement { $1 {- Statement6 -}}
-          -- | <Continue Statement>
-          -- | <Break Statement>
-          -- | <Return Statement>
-          -- | <With Statement>
-          -- | <Labelled Statement>
-          -- | <Switch Statement>
-          -- | <Throw Statement>
-          -- | <Try Statement>
-          | Expression { $1 {- Statement -}}
+          | ContinueStatement  { $1 {- Statement7 -}}
+          | BreakStatement     { $1 {- Statement8 -}}
+          | ReturnStatement    { $1 {- Statement9 -}}
+          | WithStatement      { $1 {- Statement10 -}}
+          | LabelledStatement  { $1 {- Statement11 -}}
+          | SwitchStatement    { $1 {- Statement12 -}}
+          | ThrowStatement     { $1 {- Statement13 -}}
+          | TryStatement       { $1 {- Statement14 -}}
+          | Expression         { $1 {- Statement15 -}}
 
 Block : '{' '}'               { (AST.JSBlock (AST.JSStatementList [])) }
       | '{' StatementList '}' { (AST.JSBlock (AST.JSStatementList [$2])) }
@@ -449,6 +449,9 @@ StatementList : Statement               { (AST.JSStatementList [$1]) }
               | StatementList Statement { (combineStatements $1 $2) }
 
 -- <Variable Statement> ::= var <Variable Declaration List> ';'
+VariableStatement : 'var'   VariableDeclarationList ';' { AST.JSVariables "var" $2 }
+                  | 'const' VariableDeclarationList ';' { AST.JSVariables "const" $2 }
+
 -- <Variable Declaration List> ::= <Variable Declaration>
 --                               | <Variable Declaration List> ',' <Variable Declaration>
 VariableDeclarationList :: { [AST.JSNode] }
@@ -489,16 +492,24 @@ IterationStatement : 'do' Statement 'while' '(' Expression ')' ';' { (AST.JSDoWh
 
 -- <Continue Statement> ::= 'continue' ';'
 --                        | 'continue' Identifier ';'
+ContinueStatement : 'continue' ';'             { (AST.JSContinue [AST.JSLiteral ";"]) } 
+                  | 'continue' Identifier ';'  { (AST.JSContinue [$2,AST.JSLiteral ";"]) } 
 
 -- <Break Statement> ::= 'break' ';'
 --                        | 'break' Identifier ';'
+BreakStatement : 'break' ';'             { (AST.JSBreak [] [AST.JSLiteral ";"]) } 
+               | 'break' Identifier ';'  { (AST.JSBreak [$2] [AST.JSLiteral ";"]) } 
 
 -- <Return Statement> ::= 'return' ';'
 --                        | 'return' <Expression> ';'
+ReturnStatement : 'return' ';'             { (AST.JSReturn [AST.JSLiteral ";"]) } 
+                | 'return' Expression ';'  { (AST.JSReturn [$2,AST.JSLiteral ";"]) } 
 
 -- <With Statement> ::= 'with' '(' <Expression> ')' <Statement> ';'
+WithStatement : 'with' '(' Expression ')' Statement ';'  { (AST.JSWith $3 [$5,AST.JSLiteral ";"]) }
 
 -- <Switch Statement> ::= 'switch' '(' <Expression> ')' <Case Block>  
+SwitchStatement : 'switch' '(' Expression ')' CaseBlock { (AST.JSSwitch $3 $5) } 
 
 -- <Case Block> ::= '{' '}'
 --                | '{' <Case Clauses> '}'
@@ -506,27 +517,52 @@ IterationStatement : 'do' Statement 'while' '(' Expression ')' ';' { (AST.JSDoWh
 --                | '{' <Case Clauses> <Default Clause> <Case Clauses> '}'
 --                | '{' <Default Clause> <Case Clauses> '}'
 --                | '{' <Default Clause> '}'
+CaseBlock :: { [AST.JSNode] }
+CaseBlock : '{' '}'                                       { [] }
+          | '{' CaseClauses '}'                           { $2            {- CaseBlock2 -}}
+          | '{' CaseClauses DefaultClause '}'             { ($2++[$3])    {- CaseBlock3 -}}
+          | '{' CaseClauses DefaultClause CaseClauses '}' { ($2++($3:$4)) {- CaseBlock4 -}}
+          | '{' DefaultClause CaseClauses '}'             { ($2:$3)       {- CaseBlock5 -}}
+          | '{' DefaultClause '}'                         { [$2]          {- CaseBlock6 -}}
 
 -- <Case Clauses> ::= <Case Clause>
 --                  | <Case Clauses> <Case Clause>
+CaseClauses :: { [AST.JSNode] }
+CaseClauses : CaseClause               { [$1] {- CaseClauses1 -}}
+            | CaseClauses CaseClause   { ($1++[$2]) {- CaseClauses2 -}}
 
 -- <Case Clause> ::= 'case' <Expression> ':' <Statement List>
 --                 | 'case' <Expression> ':'
+CaseClause :: { AST.JSNode }
+CaseClause : 'case' Expression ':' StatementList  { (AST.JSCase $2 $4) }
+           | 'case' Expression ':'                { (AST.JSCase $2 (AST.JSStatementList [])) }
 
 -- <Default Clause> ::= 'default' ':' 
 --                    | 'default' ':' <Statement List>
+DefaultClause :: { AST.JSNode }
+DefaultClause : 'default' ':'                { (AST.JSDefault (AST.JSStatementList [])) }
+              | 'default' ':' StatementList  { (AST.JSDefault $3) }
 
 -- <Labelled Statement> ::= Identifier ':' <Statement> 
+LabelledStatement : Identifier ':' Statement { (AST.JSLabelled $1 $3) }
 
 -- <Throw Statement> ::= 'throw' <Expression>
+ThrowStatement : 'throw' Expression { (AST.JSThrow $2) }
 
 -- <Try Statement> ::= 'try' <Block> <Catch>
 --                   | 'try' <Block> <Finally>
 --                   | 'try' <Block> <Catch> <Finally>
+-- TODO: add syntax extensions
+TryStatement : 'try' Block Catch         { (AST.JSTry $2 [$3])    {- TryStatement1 -} }
+             | 'try' Block Finally       { (AST.JSTry $2 [$3])    {- TryStatement2 -} }
+             | 'try' Block Catch Finally { (AST.JSTry $2 [$3,$4]) {- TryStatement3 -} }
 
 -- <Catch> ::= 'catch' '(' Identifier ')' <Block>
+-- TODO: syntax extensions
+Catch : 'catch' '(' Identifier ')' Block { (AST.JSCatch $3 [] $5) }
 
 -- <Finally> ::= 'finally' <Block>
+Finally : 'finally' Block { (AST.JSFinally $2) }
 
 -- <Function Declaration> ::= 'function' Identifier '(' <Formal Parameter List> ')' '{' <Function Body> '}'
 --                          | 'function' Identifier '(' ')' '{' <Function Body> '}'
