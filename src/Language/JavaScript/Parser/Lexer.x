@@ -10,7 +10,10 @@ import qualified Data.Map as Map
 
 }
 
+-- Not using a wrapper, rolling own below.
 --%wrapper "basic"
+-- %wrapper "monad" 
+-- %wrapper "monad-bytestring" 
 
 -- character sets
 $lf = \n  -- line feed

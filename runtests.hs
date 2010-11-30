@@ -196,7 +196,7 @@ testSuite = testGroup "Parser"
 srcHelloWorld = "Hello"
 caseHelloWorld =  
   "Right (JSSourceElements [JSExpression [JSIdentifier \"Hello\"]])"
-  @=? (show $ parseStmt srcHelloWorld "src")
+  @=? (show $ parse srcHelloWorld "src")
   
 
 -- ---------------------------------------------------------------------
@@ -208,7 +208,7 @@ testPE str expected = expected @=? (show $ parseUsing parsePrimaryExpression str
 
 testStmt str expected = expected @=? (show $ parseUsing parseStatement str "src")
 
-testProg str expected = expected @=? (show $ parseUsing parse str "src")
+testProg str expected = expected @=? (show $ parseUsing parseProgram str "src")
 
 
 -- EOF

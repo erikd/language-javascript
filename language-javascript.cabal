@@ -27,7 +27,8 @@ Library
                    , mtl              >= 1.1     && < 2
                    , containers       >= 0.2     && < 0.5
   hs-source-dirs: src
-  Exposed-modules:     Language.JavaScript.Parser.Parser
+  Exposed-modules:     Language.JavaScript.Parser
+                       Language.JavaScript.Parser.Parser
                        Language.JavaScript.Parser.Lexer
                        Language.JavaScript.Parser.Grammar
                        Language.JavaScript.Parser.AST

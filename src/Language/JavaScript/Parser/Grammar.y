@@ -1,5 +1,5 @@
 {
-module Language.JavaScript.Parser.Grammar (parse, parseLiteral, parsePrimaryExpression,parseStatement) where
+module Language.JavaScript.Parser.Grammar (parseProgram, parseLiteral, parsePrimaryExpression,parseStatement) where
 
 import Control.Monad.Error.Class (throwError)
 import Data.Char
@@ -11,7 +11,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 }
 
 -- The name of the generated function to be exported from the module
-%name parse                  Program
+%name parseProgram           Program
 %name parseLiteral           Literal
 %name parsePrimaryExpression PrimaryExpression
 %name parseStatement         Statement
