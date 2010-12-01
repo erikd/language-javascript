@@ -426,7 +426,7 @@ ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
 --               | <Throw Statement>
 --               | <Try Statement>
 --               | <Expression> 
-Statement : Block              { $1 {- Statement1 -}}
+Statement : StatementBlock     { $1 {- Statement1 -}}
           | VariableStatement  { $1 {- Statement2 -}}
           | EmptyStatement     { $1 {- Statement3 -}}
           | IfStatement        { $1 {- Statement4 -}}
@@ -441,6 +441,9 @@ Statement : Block              { $1 {- Statement1 -}}
           | ThrowStatement     { $1 {- Statement13 -}}
           | TryStatement       { $1 {- Statement14 -}}
           | Expression         { $1 {- Statement15 -}}
+
+StatementBlock : '{' '}'               { (AST.JSLiteral ";") }
+               | '{' StatementList '}' { (AST.JSBlock (AST.JSStatementList [$2])) }
 
 Block : '{' '}'               { (AST.JSBlock (AST.JSStatementList [])) }
       | '{' StatementList '}' { (AST.JSBlock (AST.JSStatementList [$2])) }
@@ -601,13 +604,18 @@ FunctionBody : SourceElements { (AST.JSFunctionBody [$1]) }
              |                { (AST.JSFunctionBody []) } 
 
 -- <Program> ::= <Source Elements>
-Program : SourceElements { $1 {- Program -}}
+Program : SourceElementsTop { $1 {- Program -}}
 
 -- <Source Elements> ::= <Source Element>
 --                     | <Source Elements>  <Source Element>
 SourceElements :: { AST.JSNode }
 SourceElements : SourceElement                { (AST.JSSourceElements [$1]) }
                | SourceElements SourceElement { (combineSourceElements $1 $2) }
+
+SourceElementsTop :: { AST.JSNode }
+SourceElementsTop : SourceElement                   { (AST.JSSourceElementsTop [$1]) }
+                  | SourceElementsTop SourceElement { (combineSourceElementsTop $1 $2) }
+
 
 -- <Source Element> ::= <Statement>
 --                    | <Function Declaration>
@@ -618,6 +626,9 @@ SourceElement : Statement            { $1 {- SourceElement1 -} }
 {
 combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElements (AST.JSSourceElements xs) x = (AST.JSSourceElements (xs++[x]) )
+
+combineSourceElementsTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
+combineSourceElementsTop (AST.JSSourceElementsTop xs) x = (AST.JSSourceElementsTop (xs++[x]) )
 
 combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineStatements (AST.JSStatementList xs) (AST.JSStatementList ys) = (AST.JSStatementList (xs++ys) )

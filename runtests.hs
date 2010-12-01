@@ -130,13 +130,13 @@ testSuite = testGroup "Parser"
     , testCase "AssignExpression1" (testStmt "x|=1"   "Right (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"|=\",JSDecimal \"1\"]])")      
     
       
-    , testCase "Block1" (testStmt "{}"     "Right (JSBlock (JSStatementList []))")
+    , testCase "Block1" (testStmt "{}"     "Right (JSLiteral \";\")")
     , testCase "Block2" (testStmt "{x=1}"  "Right (JSBlock (JSStatementList [JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]]]))")
     , testCase "Block3" (testStmt "{x=1;y=2}"   "Right (JSBlock (JSStatementList [JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\",JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]]]]))")
       
-    , testCase "If1" (testStmt "if (1) {}"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [])))")      
+    , testCase "If1" (testStmt "if (1) {}"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSLiteral \";\"))")      
       
-    , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [])) (JSBlock (JSStatementList [])))")
+    , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSLiteral \";\") (JSLiteral \";\"))")
       
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"   "Right (JSDoWhile (JSBlock (JSStatementList [JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
@@ -146,11 +146,11 @@ testSuite = testGroup "Parser"
       
     , testCase "ForVar1"   (testStmt "for(var x;;);"            "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [] [] (JSLiteral \";\"))")
     , testCase "ForVar2"   (testStmt "for(var x=1;;);"          "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"]] [] [] (JSLiteral \";\"))")      
-    , testCase "ForVar2"   (testStmt "for(var x;y;z){}"         "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [JSExpression [JSIdentifier \"y\"]] [JSExpression [JSIdentifier \"z\"]] (JSBlock (JSStatementList [])))")      
+    , testCase "ForVar2"   (testStmt "for(var x;y;z){}"         "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [JSExpression [JSIdentifier \"y\"]] [JSExpression [JSIdentifier \"z\"]] (JSLiteral \";\"))")      
       
-    , testCase "ForIn1"   (testStmt "for(x in 5){}"         "Right (JSForIn [JSIdentifier \"x\"] (JSExpression [JSDecimal \"5\"]) (JSBlock (JSStatementList [])))")
+    , testCase "ForIn1"   (testStmt "for(x in 5){}"         "Right (JSForIn [JSIdentifier \"x\"] (JSExpression [JSDecimal \"5\"]) (JSLiteral \";\"))")
     
-    , testCase "ForVarIn1" (testStmt "for(var x in 5){}"    "Right (JSForVarIn (JSVarDecl (JSIdentifier \"x\") []) (JSExpression [JSDecimal \"5\"]) (JSBlock (JSStatementList [])))")
+    , testCase "ForVarIn1" (testStmt "for(var x in 5){}"    "Right (JSForVarIn (JSVarDecl (JSIdentifier \"x\") []) (JSExpression [JSDecimal \"5\"]) (JSLiteral \";\"))")
       
     , testCase "Var1" (testStmt "var x=1;"        "Right (JSVariables \"var\" [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"]])")
     , testCase "Var2" (testStmt "const x=1,y=2;"  "Right (JSVariables \"const\" [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"],JSVarDecl (JSIdentifier \"y\") [JSDecimal \"2\"]])")
@@ -164,7 +164,7 @@ testSuite = testGroup "Parser"
     , testCase "Return1" (testStmt "return;"       "Right (JSReturn [JSLiteral \";\"])")
     , testCase "Return2" (testStmt "return x;"     "Right (JSReturn [JSExpression [JSIdentifier \"x\"],JSLiteral \";\"])")
     
-    , testCase "With1" (testStmt "with (x) {};"    "Right (JSWith (JSExpression [JSIdentifier \"x\"]) [JSBlock (JSStatementList []),JSLiteral \";\"])")
+    , testCase "With1" (testStmt "with (x) {};"    "Right (JSWith (JSExpression [JSIdentifier \"x\"]) [JSLiteral \";\",JSLiteral \";\"])")
       
     , testCase "Labelled1" (testStmt "abc:x=1"    "Right (JSLabelled (JSIdentifier \"abc\") (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]))")
       
@@ -184,18 +184,18 @@ testSuite = testGroup "Parser"
     , testCase "Try5" (testStmt "try{}catch(a){}catch(b){}"            "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [] (JSBlock (JSStatementList [])),JSCatch (JSIdentifier \"b\") [] (JSBlock (JSStatementList []))])")
     , testCase "Try6" (testStmt "try{}catch(a if true){}catch(b){}"     "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [JSLiteral \"true\"] (JSBlock (JSStatementList [])),JSCatch (JSIdentifier \"b\") [] (JSBlock (JSStatementList []))])")
       
-    , testCase "Function1" (testProg "function a(){}"      "Right (JSSourceElements [JSFunction (JSIdentifier \"a\") [] (JSFunctionBody [])])")
-    , testCase "Function2" (testProg "function a(b,c){}"   "Right (JSSourceElements [JSFunction (JSIdentifier \"a\") [JSIdentifier \"b\",JSIdentifier \"c\"] (JSFunctionBody [])])")
+    , testCase "Function1" (testProg "function a(){}"      "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"a\") [] (JSFunctionBody [])])")
+    , testCase "Function2" (testProg "function a(b,c){}"   "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"a\") [JSIdentifier \"b\",JSIdentifier \"c\"] (JSFunctionBody [])])")
       
-    , testCase "Comment1" (testProg "//blah\nx=1;//foo\na"   "Right (JSSourceElements [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
+    , testCase "Comment1" (testProg "//blah\nx=1;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
       
-    , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElements [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
+    , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
       
     ]
 
 srcHelloWorld = "Hello"
 caseHelloWorld =  
-  "Right (JSSourceElements [JSExpression [JSIdentifier \"Hello\"]])"
+  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"Hello\"]])"
   @=? (show $ parse srcHelloWorld "src")
   
 
