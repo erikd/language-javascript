@@ -1,7 +1,7 @@
 Name:                language-javascript
 Version:             0.0.1
 Synopsis:            Parser for JavaScript
--- Description:         
+Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
 Homepage:            https://github.com/alanz/language-javascript
 License:             BSD3
 License-file:        LICENSE
@@ -12,8 +12,10 @@ Category:            Language
 Build-type:          Simple
 homepage:            http://github.com/alanz/language-javascript
 bug-reports:         http://github.com/alanz//language-javascript/issues
--- Extra-source-files:  
---Cabal-version:       >=1.2
+Extra-source-files:  README
+                     .ghci
+                     buildall.sh
+
 Cabal-version:   >= 1.6
 
 
