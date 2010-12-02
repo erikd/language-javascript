@@ -1,14 +1,14 @@
 {-# OPTIONS  #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      : Language.Python.Common.ParserMonad 
+-- Module      : Language.JavaScript.ParserMonad 
+-- Based on language-python version by Bernie Pope
 -- Copyright   : (c) 2009 Bernie Pope 
 -- License     : BSD-style
--- Maintainer  : bjpop@csse.unimelb.edu.au
 -- Stability   : experimental
 -- Portability : ghc
 --
--- Monad support for Python parser and lexer. 
+-- Monad support for JavaScript parser and lexer. 
 -----------------------------------------------------------------------------
 
 module Language.JavaScript.Parser.ParserMonad 

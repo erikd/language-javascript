@@ -443,10 +443,10 @@ Statement : StatementBlock     { $1 {- Statement1 -}}
           | Expression         { $1 {- Statement15 -}}
 
 StatementBlock : '{' '}'               { (AST.JSLiteral ";") }
-               | '{' StatementList '}' { (AST.JSBlock (AST.JSStatementList [$2])) }
+               | '{' StatementList '}' { (if ($2 == AST.JSStatementList [AST.JSLiteral ";"]) then (AST.JSLiteral ";") else (AST.JSBlock $2)) }
 
 Block : '{' '}'               { (AST.JSBlock (AST.JSStatementList [])) }
-      | '{' StatementList '}' { (AST.JSBlock (AST.JSStatementList [$2])) }
+      | '{' StatementList '}' { (AST.JSBlock $2) }
 
 StatementList :: { AST.JSNode }
 StatementList : Statement               { (AST.JSStatementList [$1]) }
@@ -636,7 +636,6 @@ combineStatements (AST.JSStatementList xs) y = (AST.JSStatementList (xs++[y]) )
 
 parseError :: Token -> P a 
 parseError = throwError . UnexpectedToken 
-
 
 flattenExpression :: AST.JSNode -> [AST.JSNode] -> AST.JSNode
 flattenExpression (AST.JSExpression xs) e = AST.JSExpression (xs++litComma++e)

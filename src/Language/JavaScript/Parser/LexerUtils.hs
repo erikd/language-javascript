@@ -1,13 +1,13 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      : Language.Python.Common.LexerUtils 
+-- Module      : Language.JavaScript.LexerUtils 
+-- Based on language-python version by Bernie Pope
 -- Copyright   : (c) 2009 Bernie Pope 
 -- License     : BSD-style
--- Maintainer  : bjpop@csse.unimelb.edu.au
 -- Stability   : experimental
 -- Portability : ghc
 --
--- Various utilities to support the Python lexer. 
+-- Various utilities to support the JavaScript lexer. 
 -----------------------------------------------------------------------------
 
 module Language.JavaScript.Parser.LexerUtils where

@@ -47,8 +47,8 @@ parse input srcName =
 -- Return comments in addition to the parsed statements.
 parseUsing :: 
       P AST.JSNode
-      -> String -- ^ The input stream (python statement source code). 
-      -> String -- ^ The name of the python source (filename or input device). 
+      -> String -- ^ The input stream (Javascript source code). 
+      -> String -- ^ The name of the Javascript source (filename or input device). 
       -> Either ParseError AST.JSNode 
          -- ^ An error or maybe the abstract syntax tree (AST) of zero or more Javascript statements, plus comments.
 parseUsing p input srcName = 
