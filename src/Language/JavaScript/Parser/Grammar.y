@@ -146,6 +146,17 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 -- ! ------------------------------------------------- Rules
 
+
+
+
+-- ---------------------------------------------------------------------
+-- Sort out automatically inserted semi-colons
+
+AutoSemi : ';' { AST.JSLiteral ";"}
+         |     { AST.JSLiteral ""}
+           
+-- ---------------------------------------------------------------------
+
 -- <Literal> ::= <Null Literal>
 --             | <Boolean Literal>
 --             | <Numeric Literal>
@@ -471,6 +482,7 @@ Initializer : '=' AssignmentExpression { $2 {- Initializer -}}
 
 EmptyStatement : ';' { (AST.JSLiteral ";") }
 
+
 -- <If Statement> ::= 'if' '(' <Expression> ')' <Statement> 
 IfStatement : 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
 
@@ -484,7 +496,7 @@ IfElseStatement : 'if' '(' Expression ')' Statement 'else' Statement { (AST.JSIf
 --                         | 'for' '(' <Left Hand Side Expression> in <Expression> ')' <Statement> 
 --                         | 'for' '(' 'var' <Variable Declaration> in <Expression> ')' <Statement> 
 IterationStatement :: { AST.JSNode }
-IterationStatement : 'do' Statement 'while' '(' Expression ')' ';' { (AST.JSDoWhile $2 $5 (AST.JSLiteral ";")) } -- TODO: sort out autosemi
+IterationStatement : 'do' Statement 'while' '(' Expression ')' AutoSemi { (AST.JSDoWhile $2 $5 $7) } 
                    | 'while' '(' Expression ')' Statement { (AST.JSWhile $3 $5) }
                    | 'for' '(' ExpressionOpt ';' ExpressionOpt ';' ExpressionOpt ')' Statement { (AST.JSFor $3 $5 $7 $9) }
                    | 'for' '(' 'var' VariableDeclarationList ';' ExpressionOpt ';' ExpressionOpt ')' Statement 
@@ -496,21 +508,21 @@ IterationStatement : 'do' Statement 'while' '(' Expression ')' ';' { (AST.JSDoWh
 
 -- <Continue Statement> ::= 'continue' ';'
 --                        | 'continue' Identifier ';'
-ContinueStatement : 'continue' ';'             { (AST.JSContinue [AST.JSLiteral ";"]) } 
-                  | 'continue' Identifier ';'  { (AST.JSContinue [$2,AST.JSLiteral ";"]) } 
+ContinueStatement : 'continue' AutoSemi             { (AST.JSContinue [$2]) } 
+                  | 'continue' Identifier AutoSemi  { (AST.JSContinue [$2,$3]) } 
 
 -- <Break Statement> ::= 'break' ';'
 --                        | 'break' Identifier ';'
-BreakStatement : 'break' ';'             { (AST.JSBreak [] [AST.JSLiteral ";"]) } 
-               | 'break' Identifier ';'  { (AST.JSBreak [$2] [AST.JSLiteral ";"]) } 
+BreakStatement : 'break' AutoSemi             { (AST.JSBreak [] [$2]) } 
+               | 'break' Identifier AutoSemi  { (AST.JSBreak [$2] [$3]) } 
 
 -- <Return Statement> ::= 'return' ';'
 --                        | 'return' <Expression> ';'
-ReturnStatement : 'return' ';'             { (AST.JSReturn [AST.JSLiteral ";"]) } 
-                | 'return' Expression ';'  { (AST.JSReturn [$2,AST.JSLiteral ";"]) } 
+ReturnStatement : 'return' AutoSemi             { (AST.JSReturn [$2]) } 
+                | 'return' Expression AutoSemi  { (AST.JSReturn [$2,$3]) } 
 
 -- <With Statement> ::= 'with' '(' <Expression> ')' <Statement> ';'
-WithStatement : 'with' '(' Expression ')' Statement ';'  { (AST.JSWith $3 [$5,AST.JSLiteral ";"]) }
+WithStatement : 'with' '(' Expression ')' Statement AutoSemi  { (AST.JSWith $3 [$5,$6]) }
 
 -- <Switch Statement> ::= 'switch' '(' <Expression> ')' <Case Block>  
 SwitchStatement : 'switch' '(' Expression ')' CaseBlock { (AST.JSSwitch $3 $5) } 

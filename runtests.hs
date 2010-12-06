@@ -194,7 +194,7 @@ testSuite = testGroup "Parser"
     , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
       
     -- , testCase "min_100_animals" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "")
-    , testCase "min_100_animals" (testProg "Animal=function(){return this.name};" "")
+    , testCase "min_100_animals" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\",JSIdentifier \"name\"]],JSLiteral \"\"]]])]],JSLiteral \";\"])")
     ]
 
 srcHelloWorld = "Hello"
