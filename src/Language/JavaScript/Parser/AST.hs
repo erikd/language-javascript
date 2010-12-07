@@ -39,7 +39,7 @@ data JSNode = JSArguments [[JSNode]]
               | JSIfElse JSNode JSNode JSNode 
               | JSLabelled JSNode JSNode  
               | JSLiteral String  
-              | JSMemberDot [JSNode]  
+              | JSMemberDot [JSNode] JSNode
               | JSMemberSquare JSNode [JSNode]  
               | JSObjectLiteral [JSNode]  
               | JSOperator String  

@@ -252,7 +252,7 @@ MemberExpression :: { [AST.JSNode] }
 MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} 
                  | FunctionExpression  { [$1] {- MemberExpression -}}
                  | MemberExpression '[' Expression ']' { [AST.JSMemberSquare $3 $1] }
-                 | MemberExpression '.' Identifier { [AST.JSMemberDot ($1++[$3])] } 
+                 | MemberExpression '.' Identifier { [AST.JSMemberDot $1 $3] } 
                  | 'new' MemberExpression Arguments { (((AST.JSLiteral "new "):$2)++[$3])}
 
 -- <New Expression> ::= <Member Expression>

@@ -103,12 +103,12 @@ testSuite = testGroup "Parser"
       
     , testCase "MemberExpression1" (testStmt "x[y]"  "Right (JSExpression [JSMemberSquare (JSExpression [JSIdentifier \"y\"]) [JSIdentifier \"x\"]])")
     , testCase "MemberExpression1" (testStmt "x[y][z]"  "Right (JSExpression [JSMemberSquare (JSExpression [JSIdentifier \"z\"]) [JSMemberSquare (JSExpression [JSIdentifier \"y\"]) [JSIdentifier \"x\"]]])")
-    , testCase "MemberExpression1" (testStmt "x.y"      "Right (JSExpression [JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"]])")
-    , testCase "MemberExpression1" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"],JSIdentifier \"z\"]])")
+    , testCase "MemberExpression1" (testStmt "x.y"      "Right (JSExpression [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
+    , testCase "MemberExpression1" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")] (JSIdentifier \"z\")])")
       
     , testCase "MemberExpression1" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new \",JSIdentifier \"x\",JSArguments []])")
       
-    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new\",JSMemberDot [JSIdentifier \"x\",JSIdentifier \"y\"]])")
+    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new\",JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
       
     , testCase "CallExpression1" (testStmt "x()"     "Right (JSExpression [JSIdentifier \"x\",JSArguments []])")
     , testCase "CallExpression2" (testStmt "x()()"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"()\" [JSArguments []]])")
@@ -194,13 +194,14 @@ testSuite = testGroup "Parser"
     , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
       
     -- , testCase "min_100_animals" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "")
-    , testCase "min_100_animals" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\",JSIdentifier \"name\"]],JSLiteral \"\"]]])]],JSLiteral \";\"])")
+    , testCase "min_100_animals" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])]],JSLiteral \";\"])")
     ]
 
 srcHelloWorld = "Hello"
 caseHelloWorld =  
-  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"Hello\"]])"
-  @=? (show $ parse srcHelloWorld "src")
+  "JSSourceElementsTop [JSExpression [JSIdentifier \"Hello\"]]"
+  -- @=? (show $ parse srcHelloWorld "src")
+  @=? (show $ readJs srcHelloWorld)
   
 
 -- ---------------------------------------------------------------------

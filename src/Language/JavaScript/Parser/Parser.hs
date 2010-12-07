@@ -1,6 +1,7 @@
 module Language.JavaScript.Parser.Parser (
    -- * Parsing 
-   parse
+     parse
+   , readJs
    -- * Parsing expressions
    -- parseExpr
    , parseUsing
@@ -41,6 +42,12 @@ parse input srcName =
      initLoc = initialSrcLocation srcName
      state = initialState initLoc input initStartCodeStack
 
+readJs :: String -> AST.JSNode
+readJs input = do
+  case (parse input "src") of
+    Left msg -> error (show msg)
+    Right p -> p  
+
 
 -- | Parse one compound statement, or a sequence of simple statements. 
 -- Generally used for interactive input, such as from the command line of an interpreter. 
@@ -56,3 +63,4 @@ parseUsing p input srcName =
    where
      initLoc = initialSrcLocation srcName
      state = initialState initLoc input initStartCodeStack
+
