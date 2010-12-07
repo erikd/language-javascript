@@ -40,7 +40,7 @@ data JSNode = JSArguments [[JSNode]]
               | JSLabelled JSNode JSNode  
               | JSLiteral String  
               | JSMemberDot [JSNode] JSNode
-              | JSMemberSquare JSNode [JSNode]  
+              | JSMemberSquare [JSNode] JSNode
               | JSObjectLiteral [JSNode]  
               | JSOperator String  
               | JSPropertyNameandValue JSNode [JSNode]

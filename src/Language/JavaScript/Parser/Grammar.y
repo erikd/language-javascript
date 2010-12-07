@@ -219,10 +219,10 @@ Elision :  ','        { [(AST.JSElision [])] }
 --                  | <Element List> ',' <Elision>  <Assignment Expression>
 --                  | <Element List> ',' <Assignment Expression>
 --                  | <Assignment Expression>
-ElementList : Elision AssignmentExpression                    { [(AST.JSElementList ($1++$2)) ] }
-            | ElementList ',' Elision  AssignmentExpression   { [(AST.JSElementList ($1++$3++$4))] }
-            | ElementList ',' AssignmentExpression            { [(AST.JSElementList ($1++$3))] }
-            | AssignmentExpression                            { $1 {- ElementList -}}
+ElementList : Elision AssignmentExpression                     { [(AST.JSElementList ($1++$2)) ] }
+            | ElementList ',' Elision AssignmentExpression { [(AST.JSElementList ($1++[(AST.JSElision [])]++$3++$4))] }
+            | ElementList ',' AssignmentExpression         { [(AST.JSElementList ($1++[(AST.JSElision [])]++$3))] }
+            | AssignmentExpression                             { $1 {- ElementList -}}
 
 -- <Object Literal> ::= '{' <Property Name and Value List> '}'
 ObjectLiteral :: { AST.JSNode }
@@ -251,14 +251,14 @@ PropertyName : Identifier     { $1 {- PropertyName1 -}}
 MemberExpression :: { [AST.JSNode] }
 MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} 
                  | FunctionExpression  { [$1] {- MemberExpression -}}
-                 | MemberExpression '[' Expression ']' { [AST.JSMemberSquare $3 $1] }
+                 | MemberExpression '[' Expression ']' { [AST.JSMemberSquare $1 $3] }
                  | MemberExpression '.' Identifier { [AST.JSMemberDot $1 $3] } 
                  | 'new' MemberExpression Arguments { (((AST.JSLiteral "new "):$2)++[$3])}
 
 -- <New Expression> ::= <Member Expression>
 --                    | new <New Expression>
 NewExpression : MemberExpression {$1 {- NewExpression -}} 
-              | 'new' NewExpression { (AST.JSLiteral "new"):$2 }
+              | 'new' NewExpression { (AST.JSLiteral "new "):$2 }
 
 -- <Call Expression> ::= <Member Expression> <Arguments>
 --                     | <Call Expression> <Arguments> 
@@ -464,8 +464,8 @@ StatementList : Statement               { (AST.JSStatementList [$1]) }
               | StatementList Statement { (combineStatements $1 $2) }
 
 -- <Variable Statement> ::= var <Variable Declaration List> ';'
-VariableStatement : 'var'   VariableDeclarationList ';' { AST.JSVariables "var" $2 }
-                  | 'const' VariableDeclarationList ';' { AST.JSVariables "const" $2 }
+VariableStatement : 'var'   VariableDeclarationList AutoSemi { AST.JSVariables "var" $2 }
+                  | 'const' VariableDeclarationList AutoSemi { AST.JSVariables "const" $2 }
 
 -- <Variable Declaration List> ::= <Variable Declaration>
 --                               | <Variable Declaration List> ',' <Variable Declaration>
