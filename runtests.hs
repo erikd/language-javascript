@@ -35,7 +35,8 @@ testSuite = testGroup "Parser"
     , testCase "LiteralRegex1"     (testPE "/blah/"  "Right (JSRegEx \"/blah/\")")
     , testCase "LiteralRegex2"     (testPE "/$/g"    "Right (JSRegEx \"/$/g\")")
     , testCase "LiteralRegex3"     (testPE "/\\n/g"  "Right (JSRegEx \"/\\\\n/g\")")
-      
+    , testCase "LiteralRegex4"     (testPE "/^\"(?:\\.|[^\"])*\"|^'(?:[^']|\\.)*'/" "Right (JSRegEx \"/^\\\"(?:\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\.)*'/\")")
+
     , testCase "Identifier1"       (testPE "_$"      "Right (JSIdentifier \"_$\")")
     , testCase "Identifier2"       (testPE "this_"   "Right (JSIdentifier \"this_\")")
       
@@ -50,6 +51,8 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral2"    (testPE "{x:1}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]])")
     , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]])")
       
+    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSPropertyNameandValue (JSIdentifier \"load\") [JSFunction (JSIdentifier \"load\") [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]),JSExpression [JSDecimal \"1\"]]])]])")
+
     , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
       
     , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")
@@ -140,6 +143,7 @@ testSuite = testGroup "Parser"
     , testCase "If1" (testStmt "if (1) {}"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSLiteral \";\"))")      
       
     , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSLiteral \";\") (JSLiteral \";\"))")
+    , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]])) (JSLiteral \";\"))")
       
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"   "Right (JSDoWhile (JSBlock (JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
@@ -194,8 +198,13 @@ testSuite = testGroup "Parser"
       
     , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"]],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
       
-    -- , testCase "min_100_animals" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "")
-    , testCase "min_100_animals" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])]],JSLiteral \";\"])")
+    , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new \",JSIdentifier \"Error\",JSArguments [[JSStringLiteral '\\'' \"Must specify an animal name\"]]])])),JSExpression [JSElement \"assignmentExpression\" [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator \"=\",JSIdentifier \"name\"]]]]),JSLiteral \";\",JSExpression [JSElement \"assignmentExpression\" [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator \"=\",JSFunctionExpression [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])]],JSLiteral \";\",JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"o\",JSOperator \"=\",JSLiteral \"new \",JSIdentifier \"Animal\",JSArguments [[JSStringLiteral '\"' \"bob\"]]]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]]])")
+      
+    , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])]],JSLiteral \";\"])")
+      
+    , testCase "min_100_animals3" (testProg "if(a)x=1;y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSBlock (JSStatementList [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]])),JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]]])")
+      
+    , testCase "min_100_animals4" (testProg "if(a)x=a()y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"a\",JSArguments []]]),JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]]])")
       
     , testCase "05_regex"  (testProg "newlines=spaces.match(/\\n/g)" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"newlines\",JSOperator \"=\",JSMemberDot [JSIdentifier \"spaces\"] (JSIdentifier \"match\"),JSArguments [[JSRegEx \"/\\\\n/g\"]]]]])")
       
@@ -204,6 +213,7 @@ testSuite = testGroup "Parser"
     , testCase "05_regex3" (testProg "x=i(/[?|^&(){}\\[\\]+\\-*\\/\\.]/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"i\",JSArguments [[JSRegEx \"/[?|^&(){}\\\\[\\\\]+\\\\-*\\\\/\\\\.]/g\"],[JSStringLiteral '\"' \"\\\\\\\\$&\"]]]]])")
       
     , testCase "05_regex4" (testProg "x=i(/^$/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"i\",JSArguments [[JSRegEx \"/^$/g\"],[JSStringLiteral '\"' \"\\\\\\\\$&\"]]]]])")
+      
       
     ]
 

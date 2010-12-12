@@ -230,10 +230,15 @@ ObjectLiteral : '{' PropertyNameandValueList '}' { AST.JSObjectLiteral $2 }
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
+
+-- Seems we can have function declarations in the value part too                           
 PropertyNameandValueList :: { [ AST.JSNode ] }
 PropertyNameandValueList : PropertyName ':' AssignmentExpression { [(AST.JSPropertyNameandValue $1 $3)] }
+                         | PropertyName ':' FunctionDeclaration { [(AST.JSPropertyNameandValue $1 [$3])] }
                          | PropertyNameandValueList ',' PropertyName ':' AssignmentExpression 
                            { ($1 ++ [(AST.JSPropertyNameandValue $3 $5)])  } 
+                         | PropertyNameandValueList ',' PropertyName ':' FunctionDeclaration 
+                           { ($1 ++ [(AST.JSPropertyNameandValue $3 [$5])])  } 
 
 
 -- <Property Name> ::= Identifier
@@ -437,21 +442,24 @@ ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
 --               | <Throw Statement>
 --               | <Try Statement>
 --               | <Expression> 
-Statement : StatementBlock     { $1 {- Statement1 -}}
-          | VariableStatement  { $1 {- Statement2 -}}
+Statement : StatementNoEmpty   { $1 {- Statement1 -}}
           | EmptyStatement     { $1 {- Statement3 -}}
-          | IfStatement        { $1 {- Statement4 -}}
-          | IfElseStatement    { $1 {- Statement5 -}}
-          | IterationStatement { $1 {- Statement6 -}}
-          | ContinueStatement  { $1 {- Statement7 -}}
-          | BreakStatement     { $1 {- Statement8 -}}
-          | ReturnStatement    { $1 {- Statement9 -}}
-          | WithStatement      { $1 {- Statement10 -}}
-          | LabelledStatement  { $1 {- Statement11 -}}
-          | SwitchStatement    { $1 {- Statement12 -}}
-          | ThrowStatement     { $1 {- Statement13 -}}
-          | TryStatement       { $1 {- Statement14 -}}
-          | Expression         { $1 {- Statement15 -}}
+
+StatementNoEmpty : StatementBlock     { $1 {- StatementNoEmpty1 -}}
+                 | VariableStatement     { $1 {- StatementNoEmpty2 -}}
+                   -- | EmptyStatement     { $1 {- StatementNoEmpty3 -}}
+                   -- | IfStatement        { $1 {- StatementNoEmpty4 -}}
+                 | IfElseStatement    { $1 {- StatementNoEmpty5 -}}
+                 | IterationStatement { $1 {- StatementNoEmpty6 -}}
+                 | ContinueStatement  { $1 {- StatementNoEmpty7 -}}
+                 | BreakStatement     { $1 {- StatementNoEmpty8 -}}
+                 | ReturnStatement    { $1 {- StatementNoEmpty9 -}}
+                 | WithStatement      { $1 {- StatementNoEmpty10 -}}
+                 | LabelledStatement  { $1 {- StatementNoEmpty11 -}}
+                 | SwitchStatement    { $1 {- StatementNoEmpty12 -}}
+                 | ThrowStatement     { $1 {- StatementNoEmpty13 -}}
+                 | TryStatement       { $1 {- StatementNoEmpty14 -}}
+                 | Expression         { $1 {- StatementNoEmpty15 -}}
 
 StatementBlock : '{' '}'               { (AST.JSLiteral ";") }
                | '{' StatementList '}' { (if ($2 == AST.JSStatementList [AST.JSLiteral ";"]) then (AST.JSLiteral ";") else (AST.JSBlock $2)) }
@@ -483,11 +491,43 @@ Initializer : '=' AssignmentExpression { $2 {- Initializer -}}
 EmptyStatement : ';' { (AST.JSLiteral ";") }
 
 
+{-
 -- <If Statement> ::= 'if' '(' <Expression> ')' <Statement> 
 IfStatement : 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
 
 -- <If Else Statement> ::= 'if' '(' <Expression> ')' <Statement> 'else' <Statement>
-IfElseStatement : 'if' '(' Expression ')' Statement 'else' Statement { (AST.JSIfElse $3 $5 $7) }
+IfElseStatement : 'if' '(' Expression ')' StatementSemi 'else' Statement { (AST.JSIfElse $3 $5 $7) }
+-}
+
+{-
+IfElseStatement : 'if' '(' Expression ')' Statement  ';' 'else' Statement  
+                  { (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) $8) }
+                | 'if' '(' Expression ')' Statement  'else' Statement    
+                   { (AST.JSIfElse $3 $5 $7) }
+                | 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
+-}                  
+
+
+IfElseStatement :: { AST.JSNode }
+IfElseStatement : 'if' '(' Expression ')' StatementSemi  IfElseRest 
+                  { (if ($6 /= []) then  
+                       (if (length $6 == 1) then (AST.JSIfElse $3 $5 (head $6)) 
+                                            else (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) (last $6))) 
+                     else (AST.JSIf $3 $5)) }
+
+                  
+IfElseRest :: { [AST.JSNode] }                  
+IfElseRest : -- ';' 'else' Statement { [$3,$3] } -- Horrible, but a type-compliant signal nevertheless
+           {- | -} 'else' Statement     { [$2] }
+           |                      { [] } 
+
+{-
+ElsePart : 'else'      { 1 }
+         | ';' 'else'  { 2 }
+-}
+StatementSemi : StatementNoEmpty ';' { (AST.JSBlock (AST.JSStatementList [$1])) } 
+              | StatementNoEmpty     { $1 {- StatementSemi -}}
+
 
 -- <Iteration Statement> ::= 'do' <Statement> 'while' '(' <Expression> ')' ';'
 --                         | 'while' '(' <Expression> ')' <Statement> 
@@ -591,6 +631,7 @@ Finally : 'finally' Block { (AST.JSFinally $2) }
 
 -- <Function Declaration> ::= 'function' Identifier '(' <Formal Parameter List> ')' '{' <Function Body> '}'
 --                          | 'function' Identifier '(' ')' '{' <Function Body> '}'
+FunctionDeclaration :: { AST.JSNode }
 FunctionDeclaration : 'function' Identifier '(' FormalParameterList ')' '{' FunctionBody '}'
                       { (AST.JSFunction $2 $4 $7) }
                     | 'function' Identifier '(' ')' '{' FunctionBody '}'
