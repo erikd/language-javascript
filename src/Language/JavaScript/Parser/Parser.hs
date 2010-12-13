@@ -2,6 +2,7 @@ module Language.JavaScript.Parser.Parser (
    -- * Parsing 
      parse
    , readJs
+   , parseFile  
    -- * Parsing expressions
    -- parseExpr
    , parseUsing
@@ -47,6 +48,12 @@ readJs input = do
   case (parse input "src") of
     Left msg -> error (show msg)
     Right p -> p  
+
+-- parseFile :: FilePath -> AST.JSNode
+parseFile filename =
+  do 
+     x <- readFile (filename)
+     return $ readJs x
 
 
 -- | Parse one compound statement, or a sequence of simple statements. 

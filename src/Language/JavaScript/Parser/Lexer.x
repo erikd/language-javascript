@@ -50,10 +50,11 @@ $short_str_char = [^ \n \r ' \" \\]
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 @HexDigit = $digit | [a-fA-F]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
---$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
-$RegExpChars = [$printable] # [\\]
+$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
+--$RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
-$NonTerminator = $StringChars1 # [$cr $lf]
+--$NonTerminator = $StringChars1 # [$cr $lf]
+$NonTerminator = [$printable] # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
 
@@ -70,29 +71,32 @@ $white_char   = [\ \f\v\t\r\n]
 -- ! ------------------------------------------------- Terminals
 tokens :-
 
+-- State: 0 is regex allowed, 1 is / or /= allowed
+
 -- Skip Whitespace
-<0> $white_char+   ;
+<0,div> $white_char+   ;
 
 -- Skip one line comment
-<0> "//"($not_eol_char)*   ;
+<0,div> "//"($not_eol_char)*   ;
 
 -- Skip multi-line comments. Note: may not nest
-<0> "/*"($any_char)*"*/"  ;	
+<0,div> "/*"($any_char)*"*/"  ;	
 
 
 -- Identifier    = {ID Head}{ID Tail}*
-<0> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
+<0,div> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"' 
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
-<0>  $dq ( $StringChars1 | \\ $printable )* $dq
-   | $sq ( $StringChars2 | \\ $printable )* $sq { mkString stringToken }
+<0,div>  $dq ( $StringChars1 | \\ $printable )* $dq
+     | $sq ( $StringChars2 | \\ $printable )* $sq { mkString stringToken }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
-<0> "0x" @HexDigit+ { mkString hexIntegerToken }
+<0,div> "0x" @HexDigit+ { mkString hexIntegerToken }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
---<0> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
+--<0,div> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
+-- Note: state 0 only
 <0> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
 -- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
@@ -101,21 +105,13 @@ tokens :-
 --              | {Non Zero Digits}+ {Digit}* 
 --              | '0' 
 --              | '0' '.' {Digit}+
-<0> $non_zero_digit+ "." $digit* ("e"|"E") $non_zero_digit+ $digit* 
+<0,div> $non_zero_digit+ "." $digit* ("e"|"E") $non_zero_digit+ $digit* 
     | $non_zero_digit+ "." $digit*       
     | "0." $digit+  ("e"|"E") $non_zero_digit+ $digit* 
     | $non_zero_digit+ $digit*
     | "0"
     | "0." $digit+                    { mkString decimalToken }
 
--- Comment Start = '/*'
--- Comment End   = '*/'
--- Comment Line  = '//'
-
-
--- <0> {
---    @eol_pattern     { bolEndOfLine lexToken bol }  
--- }
 
 -- beginning of file
 <bof> {
@@ -124,8 +120,13 @@ tokens :-
    -- ()                                   { indentation lexToken dedent BOF }
 }
 
+-- / or /= only allowed in state 1
+<div> {
+     "/="       { mkString assignToken}
+     "/"	{ symbolToken  DivToken}
+    }
 
-<0> {
+<0,div> {
       \;	{ symbolToken  SemiColonToken}
       ","	{ symbolToken  CommaToken}
      "?"	{ symbolToken  HookToken}
@@ -137,7 +138,7 @@ tokens :-
      "&"	{ symbolToken  BitwiseAndToken}
      "==="	{ symbolToken  StrictEqToken}
      "=="	{ symbolToken  EqToken}
-     "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
+     "*=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
       	        { mkString assignToken}
      "="        { symbolToken  SimpleAssignToken}
      "!=="	{ symbolToken  StrictNeToken}
@@ -154,7 +155,6 @@ tokens :-
      "+"	{ symbolToken  PlusToken}
      "-"	{ symbolToken  MinusToken}
      "*"	{ symbolToken  MulToken}
-     "/"	{ symbolToken  DivToken}
      "%"	{ symbolToken  ModToken}
      "!"	{ symbolToken  NotToken}
      "~"	{ symbolToken  BitwiseNotToken}
@@ -170,21 +170,6 @@ tokens :-
 
 
 
--- <0> {
---      "let" { symbolToken TokenLet }
-
---      "in"  { symbolToken TokenIn }
---      -- "9"  { symbolToken TokenInt } --TODO: use real value\
---      $non_zero_digit $digit* { token TokenInt read }  
---      "var" { symbolToken TokenVar } --TODO: use real value
---      "="   {symbolToken TokenEq }
---      "+"   {symbolToken TokenPlus }
---      "-"   {symbolToken TokenMinus }
---      "*"   {symbolToken TokenTimes }
---      "/"   {symbolToken TokenDiv }
---      "("   {symbolToken TokenOB }
---      ")"   {symbolToken TokenCB }
--- }
 
 
 {

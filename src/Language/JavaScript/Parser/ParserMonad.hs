@@ -32,6 +32,7 @@ module Language.JavaScript.Parser.ParserMonad
    , pushStartCode
    , popStartCode
    , getStartCode
+   , setStartCode
    , getIndent
    , pushIndent
    , popIndent
@@ -160,6 +161,11 @@ getStartCode = do
    case oldStack of
      [] -> internalError "fatal error in lexer: start code stack empty on getStartCode"
      code:_ -> return code 
+
+setStartCode :: Int -> P ()
+setStartCode code = do
+  popStartCode
+  pushStartCode code 
 
 pushIndent :: Int -> P () 
 pushIndent indent = do 
