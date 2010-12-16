@@ -326,6 +326,7 @@ UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
 --                               | <Unary Expression> '*' <Multiplicative Expression> 
 --                               | <Unary Expression> '/' <Multiplicative Expression>                               
 --                               | <Unary Expression> '%' <Multiplicative Expression> 
+MultiplicativeExpression :: { [AST.JSNode] }
 MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}} 
                          | UnaryExpression '*' MultiplicativeExpression { [(AST.JSExpressionBinary "*" $1 $3)]}
                          | UnaryExpression '/' MultiplicativeExpression { [(AST.JSExpressionBinary "/" $1 $3)]}
@@ -334,6 +335,7 @@ MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}}
 -- <Additive Expression> ::= <Additive Expression>'+'<Multiplicative Expression> 
 --                         | <Additive Expression>'-'<Multiplicative Expression>  
 --                         | <Multiplicative Expression> 
+AdditiveExpression :: { [AST.JSNode] }
 AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [(AST.JSExpressionBinary "+" $1 $3)]}
                    | AdditiveExpression '-' MultiplicativeExpression { [(AST.JSExpressionBinary "-" $1 $3)]}
                    | MultiplicativeExpression { $1 {- AdditiveExpression -} } 
@@ -344,6 +346,7 @@ AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [(AST.JSE
 --                      | <Shift Expression> '>>' <Additive Expression>
 --                      | <Shift Expression> '>>>' <Additive Expression>
 --                      | <Additive Expression>
+ShiftExpression :: { [AST.JSNode] }
 ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressionBinary "<<" $1 $3)]}
                 | ShiftExpression '>>'  AdditiveExpression { [(AST.JSExpressionBinary ">>" $1 $3)]}
                 | ShiftExpression '>>>' AdditiveExpression { [(AST.JSExpressionBinary ">>>" $1 $3)]}
@@ -355,6 +358,7 @@ ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressionB
 --                          | <Relational Expression> '<=' <Shift Expression> 
 --                          | <Relational Expression> '>=' <Shift Expression> 
 --                          | <Relational Expression> 'instanceof' <Shift Expression> 
+RelationalExpression :: { [AST.JSNode] }
 RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}} 
                      | RelationalExpression '<'  ShiftExpression { [(AST.JSExpressionBinary "<" $1 $3)]}
                      | RelationalExpression '>'  ShiftExpression { [(AST.JSExpressionBinary ">" $1 $3)]}
@@ -368,6 +372,7 @@ RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
 --                         | <Equality Expression> '!=' <Relational Expression>
 --                         | <Equality Expression> '===' <Relational Expression>
 --                         | <Equality Expression> '!==' <Relational Expression>
+EqualityExpression :: { [AST.JSNode] }
 EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} } 
                    | EqualityExpression '=='  RelationalExpression { [(AST.JSExpressionBinary "==" $1 $3)]}
                    | EqualityExpression '!='  RelationalExpression { [(AST.JSExpressionBinary "!=" $1 $3)]}
@@ -377,31 +382,37 @@ EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
 
 -- <Bitwise And Expression> ::= <Equality Expression>
 --                            | <Bitwise And Expression> '&' <Equality Expression>
+BitwiseAndExpression :: { [AST.JSNode] }
 BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} } 
                      | BitwiseAndExpression '&' EqualityExpression { [(AST.JSExpressionBinary "&" $1 $3)]}
 
 -- <Bitwise XOr Expression> ::= <Bitwise And Expression>
 --                            | <Bitwise XOr Expression> '^' <Bitwise And Expression>
+BitwiseXOrExpression :: { [AST.JSNode] }
 BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} } 
                      | BitwiseXOrExpression '^' BitwiseAndExpression { [(AST.JSExpressionBinary "^" $1 $3)]}
 
 -- <Bitwise Or Expression> ::= <Bitwise XOr Expression>
 --                           | <Bitwise Or Expression> '|' <Bitwise XOr Expression>
+BitwiseOrExpression :: { [AST.JSNode] }
 BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} } 
                     | BitwiseOrExpression '|' BitwiseXOrExpression { [(AST.JSExpressionBinary "|" $1 $3)]}
 
 -- <Logical And Expression> ::= <Bitwise Or Expression>
 --                            | <Logical And Expression> '&&' <Bitwise Or Expression>
+LogicalAndExpression :: { [AST.JSNode] }
 LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} } 
                      | LogicalAndExpression '&&' BitwiseOrExpression { [(AST.JSExpressionBinary "&&" $1 $3)]}
 
 -- <Logical Or Expression> ::= <Logical And Expression>
 --                           | <Logical Or Expression> '||' <Logical And Expression>
+LogicalOrExpression :: { [AST.JSNode] }
 LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} } 
                     | LogicalOrExpression '||' LogicalAndExpression { [(AST.JSExpressionBinary "||" $1 $3)]}
 
 -- <Conditional Expression> ::= <Logical Or Expression> 
 --                            | <Logical Or Expression> '?' <Assignment Expression> ':' <Assignment Expression>
+ConditionalExpression :: { [AST.JSNode] }
 ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
                     | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression 
                       { [AST.JSExpressionTernary $1 $3 $5] } 
@@ -415,6 +426,7 @@ AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}}
                        { [(AST.JSElement "assignmentExpression" ($1++[$2]++$3))] }
                        
 -- <Assignment Operator> ::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
+AssignmentOperator :: { AST.JSNode }
 AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
                    | '='      { AST.JSOperator "=" }
 
@@ -424,6 +436,7 @@ Expression :: { AST.JSNode }
 Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } 
            | Expression ',' AssignmentExpression  { flattenExpression $1 $3 }
 
+ExpressionOpt :: { [AST.JSNode] }
 ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
               |            { []   {- ExpressionOpt -}}
                            
@@ -442,9 +455,11 @@ ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
 --               | <Throw Statement>
 --               | <Try Statement>
 --               | <Expression> 
+Statement :: { AST.JSNode }
 Statement : StatementNoEmpty   { $1 {- Statement1 -}}
           | EmptyStatement     { $1 {- Statement3 -}}
 
+StatementNoEmpty :: { AST.JSNode }
 StatementNoEmpty : StatementBlock     { $1 {- StatementNoEmpty1 -}}
                  | VariableStatement     { $1 {- StatementNoEmpty2 -}}
                    -- | EmptyStatement     { $1 {- StatementNoEmpty3 -}}

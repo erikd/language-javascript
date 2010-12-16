@@ -3,7 +3,7 @@
 module Language.JavaScript.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-},initStartCodeStack) where
   
 import Language.JavaScript.Parser.LexerUtils
-import Language.JavaScript.Parser.ParserMonad
+import Language.JavaScript.Parser.ParserMonad hiding (location,input)
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Data.Map as Map
@@ -50,11 +50,11 @@ $short_str_char = [^ \n \r ' \" \\]
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 @HexDigit = $digit | [a-fA-F]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
-$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
---$RegExpChars = [$printable] # [\\]
+--$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
+$RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
---$NonTerminator = $StringChars1 # [$cr $lf]
-$NonTerminator = [$printable] # [$cr $lf]
+$NonTerminator = $StringChars1 # [$cr $lf]
+--$NonTerminator = [$printable] # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
 
@@ -73,31 +73,33 @@ tokens :-
 
 -- State: 0 is regex allowed, 1 is / or /= allowed
 
+<0> () { registerStates lexToken reg divide }
+
 -- Skip Whitespace
-<0,div> $white_char+   ;
+<reg,divide> $white_char+   ;
 
 -- Skip one line comment
-<0,div> "//"($not_eol_char)*   ;
+<reg,divide> "//"($not_eol_char)*   ;
 
 -- Skip multi-line comments. Note: may not nest
-<0,div> "/*"($any_char)*"*/"  ;	
+<reg,divide> "/*"($any_char)*"*/"  ;	
 
 
 -- Identifier    = {ID Head}{ID Tail}*
-<0,div> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
+<reg,divide> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"' 
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
-<0,div>  $dq ( $StringChars1 | \\ $printable )* $dq
+<reg,divide>  $dq ( $StringChars1 | \\ $printable )* $dq
      | $sq ( $StringChars2 | \\ $printable )* $sq { mkString stringToken }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
-<0,div> "0x" @HexDigit+ { mkString hexIntegerToken }
+<reg,divide> "0x" @HexDigit+ { mkString hexIntegerToken }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
---<0,div> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
+--<reg,divide> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 -- Note: state 0 only
-<0> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
+<reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
 -- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
 --              |  {Non Zero Digits}+ '.' {Digit}* 
@@ -105,7 +107,7 @@ tokens :-
 --              | {Non Zero Digits}+ {Digit}* 
 --              | '0' 
 --              | '0' '.' {Digit}+
-<0,div> $non_zero_digit+ "." $digit* ("e"|"E") $non_zero_digit+ $digit* 
+<reg,divide> $non_zero_digit+ "." $digit* ("e"|"E") $non_zero_digit+ $digit* 
     | $non_zero_digit+ "." $digit*       
     | "0." $digit+  ("e"|"E") $non_zero_digit+ $digit* 
     | $non_zero_digit+ $digit*
@@ -121,12 +123,12 @@ tokens :-
 }
 
 -- / or /= only allowed in state 1
-<div> {
+<divide> {
      "/="       { mkString assignToken}
      "/"	{ symbolToken  DivToken}
     }
 
-<0,div> {
+<reg,divide> {
       \;	{ symbolToken  SemiColonToken}
       ","	{ symbolToken  CommaToken}
      "?"	{ symbolToken  HookToken}
@@ -189,7 +191,7 @@ lexToken = do
   case alexScan (location, input) startCode of
     AlexEOF -> return endOfFileToken
     AlexError _ -> lexicalError
-    AlexSkip (nextLocation, rest) len -> do
+    AlexSkip (nextLocation, rest) _len -> do
        setLocation nextLocation 
        setInput rest 
        lexToken
@@ -219,6 +221,17 @@ lexCont cont = do
 
          
 -- ---------------------------------------------------------------------         
+-- These next two functions select between the two lex input states, as called for in
+-- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.   
+setInputElementDiv x = do
+  setStartCode divide
+  x
+
+setInputElementRegExp x = do
+  setStartCode reg
+  x
+
+-- ---------------------------------------------------------------------
          
 -- a keyword or an identifier (the syntax overlaps)
 keywordOrIdent :: String -> SrcSpan -> P Token

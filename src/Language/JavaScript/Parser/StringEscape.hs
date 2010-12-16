@@ -69,8 +69,8 @@ unescapeNumeric n numericDigits readNumeric str
    loop _ acc [] = [numericToChar acc]
    loop 0 acc rest
       = numericToChar acc : unescapeString rest
-   loop n acc (c:cs)
-      | c `elem` numericDigits = loop (n-1) (c:acc) cs
+   loop n1 acc (c:cs)
+      | c `elem` numericDigits = loop (n1-1) (c:acc) cs
       | otherwise = numericToChar acc : unescapeString (c:cs)
    numericToChar :: String -> Char
    numericToChar = toEnum . readNumeric . reverse

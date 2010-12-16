@@ -11,9 +11,9 @@ module Language.JavaScript.Parser.Parser (
 import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.Grammar
 import Language.JavaScript.Parser.Lexer
-import Language.JavaScript.Parser.ParserMonad 
+import Language.JavaScript.Parser.ParserMonad hiding (input)
 import Language.JavaScript.Parser.SrcLocation
-import Language.JavaScript.Parser.Token
+--import Language.JavaScript.Parser.Token
 import qualified Language.JavaScript.Parser.AST as AST
 
 -- | Parse one compound statement, or a sequence of simple statements. 
@@ -49,7 +49,7 @@ readJs input = do
     Left msg -> error (show msg)
     Right p -> p  
 
--- parseFile :: FilePath -> AST.JSNode
+parseFile :: FilePath -> IO AST.JSNode
 parseFile filename =
   do 
      x <- readFile (filename)

@@ -10,34 +10,57 @@
 -- Various utilities to support the JavaScript lexer. 
 -----------------------------------------------------------------------------
 
-module Language.JavaScript.Parser.LexerUtils where
+module Language.JavaScript.Parser.LexerUtils (
+  StartCode
+  , registerStates
+  , Action
+  , AlexInput  
+  , alexGetChar  
+  , alexInputPrevChar  
+  , symbolToken  
+  , mkString  
+  , regExToken  
+  , decimalToken  
+  , endOfLine  
+  , endOfFileToken  
+  , assignToken  
+  , hexIntegerToken  
+  , stringToken  
+  , lexicalError  
+  ) where
 
 import Control.Monad (liftM)
 import Control.Monad.Error.Class (throwError)
-import Data.List (foldl')
---import Data.Map as Map hiding (null, map)
-import Numeric (readHex, readOct)
 import Language.JavaScript.Parser.Token as Token 
-import Language.JavaScript.Parser.ParserMonad hiding (location)
+import Language.JavaScript.Parser.ParserMonad hiding (location,input)
 import Language.JavaScript.Parser.SrcLocation 
+import Prelude hiding (span)
 
 -- Beginning of. BOF = beginning of file, BOL = beginning of line
-data BO = BOF | BOL
+--data BO = BOF | BOL
 
 -- Functions for building tokens 
 
 type StartCode = Int
 type Action = SrcSpan -> Int -> String -> P Token 
 
+{-
 lineJoin :: Action
 lineJoin span _len _str = 
    return $ LineJoinToken $ spanStartPoint span
+-}
 
 endOfLine :: P Token -> Action
 endOfLine lexToken span _len _str = do
    setLastEOL $ spanStartPoint span
    lexToken
 
+
+registerStates lexToken regId divideId _span _len _str = do
+  registerStatesAndStart regId divideId
+  lexToken 
+
+{-
 bolEndOfLine :: P Token -> Int -> Action 
 bolEndOfLine lexToken bol span len inp = do
    pushStartCode bol 
@@ -81,21 +104,26 @@ indentation lexToken dedentCode bo span _len _str = do
                      return indentToken
    where
    indentToken = IndentToken span
+-}
+
 
 symbolToken :: (SrcSpan -> Token) -> Action 
 symbolToken mkToken location _ _ = return (mkToken location)
 
+{-
 token :: (SrcSpan -> String -> a -> Token) -> (String -> a) -> Action 
 token mkToken read location len str 
    = return $ mkToken location literal (read literal) 
    where
    literal = take len str
+-}
 
 -- special tokens for the end of file and end of line
 endOfFileToken :: Token
 endOfFileToken = EOFToken SpanEmpty
-dedentToken = DedentToken SpanEmpty 
+-- dedentToken = DedentToken SpanEmpty 
 
+{-
 newlineToken :: P Token
 newlineToken = do
    loc <- getLastEOL
@@ -127,6 +155,7 @@ readFloatRest :: String -> String
 readFloatRest [] = []
 readFloatRest ['.'] = ".0"
 readFloatRest (c:cs) = c : readFloatRest cs
+-}
 
 mkString :: (SrcSpan -> String -> Token) -> Action
 mkString toToken loc len str = do
@@ -154,20 +183,20 @@ stringToken loc str = StringToken loc str1 delimiter
 rawStringToken :: SrcSpan -> String -> Token
 rawStringToken loc str = StringToken loc str
 -}
-
+{-
 byteStringToken :: SrcSpan -> String -> Token
 byteStringToken loc str = ByteStringToken loc $ str
 
 rawByteStringToken :: SrcSpan -> String -> Token
 rawByteStringToken loc str = ByteStringToken loc $ str
-
+-}
+{-
 openParen :: (SrcSpan -> Token) -> Action
 openParen mkToken loc _len _str = do
    let token = mkToken loc
    pushParen token 
    return token 
 
-{-
 closeParen :: (SrcSpan -> Token) -> Action
 closeParen mkToken loc _len _str = do
   let token = mkToken loc
@@ -220,5 +249,9 @@ lexicalError = do
   c <- liftM head getInput
   throwError $ UnexpectedChar c location
 
+{-
 readOctNoO :: String -> Integer
 readOctNoO (zero:rest) = read (zero:'O':rest)
+-}
+
+-- EOF

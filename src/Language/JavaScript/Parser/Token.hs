@@ -25,7 +25,7 @@ module Language.JavaScript.Parser.Token (
    ) where
 
 --import Language.JavaScript.Parser.Pretty
-import Language.JavaScript.Parser.SrcLocation (SrcSpan (..), SrcLocation (..), Span(getSpan))
+import Language.JavaScript.Parser.SrcLocation (SrcSpan (..), Span(getSpan))
 import Data.Data
 
 -- | Lexical tokens.
@@ -167,7 +167,7 @@ hasLiteral token =
       LongIntegerToken {} -> True 
       FloatToken {}       -> True 
       ImaginaryToken  {}  -> True 
-      other               -> False
+      _other              -> False
 
 -- | Classification of tokens
 data TokenClass

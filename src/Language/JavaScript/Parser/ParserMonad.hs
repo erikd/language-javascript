@@ -29,34 +29,32 @@ module Language.JavaScript.Parser.ParserMonad
    , ParseError (..)
    , ParseState (..)
    , initialState
+   , registerStatesAndStart  
    , pushStartCode
    , popStartCode
    , getStartCode
    , setStartCode
-   , getIndent
-   , pushIndent
-   , popIndent
-   , getIndentStackDepth
-   , getParen
-   , pushParen
-   , popParen
-   , getParenStackDepth
+   -- , getIndent
+   -- , pushIndent
+   -- , popIndent
+   -- , getIndentStackDepth
+   -- , getParen
+   -- , pushParen
+   -- , popParen
+   -- , getParenStackDepth
    , addComment
    , getComments
    , spanError
    ) where
 
-import Language.JavaScript.Parser.SrcLocation (SrcLocation (..), SrcSpan (..), Span (..))
-import Language.JavaScript.Parser.Token (Token (..))
-import Language.JavaScript.Parser.ParseError (ParseError (..))
 import Control.Applicative ((<$>))
+import Control.Monad.Error as Error
 import Control.Monad.State.Class
 import Control.Monad.State.Strict as State
-import Control.Monad.Error as Error
-import Control.Monad.Error.Class
-import Control.Monad.Identity as Identity
-import Control.Monad.Trans as Trans
---import Language.JavaScript.Parser.Pretty
+import Language.JavaScript.Parser.ParseError (ParseError (..))
+import Language.JavaScript.Parser.SrcLocation (SrcLocation (..), SrcSpan (..), Span (..))
+import Language.JavaScript.Parser.Token (Token (..))
+import Prelude hiding (span)
 
 internalError :: String -> P a 
 internalError = throwError . StrError 
@@ -71,10 +69,13 @@ data ParseState =
    , input :: !String         -- the current input
    , previousToken :: !Token  -- the previous token
    , startCodeStack :: [Int]  -- a stack of start codes for the state of the lexer
-   , indentStack :: [Int]     -- a stack of source column positions of indentation levels
-   , parenStack :: [Token]    -- a stack of parens and brackets for indentation handling
+   -- , indentStack :: [Int]     -- a stack of source column positions of indentation levels
+   -- , parenStack :: [Token]    -- a stack of parens and brackets for indentation handling
    , lastEOL :: !SrcSpan      -- location of the most recent end-of-line encountered
    , comments :: [Token]      -- accumulated comments 
+   -- | Capture the lexical states so they can be set by the parser as needed             
+   , divideId :: Int                   
+   , regId :: Int          
    }
    deriving Show
 
@@ -88,10 +89,10 @@ initialState initLoc inp scStack
    , input = inp
    , previousToken = initToken
    , startCodeStack = scStack
-   , indentStack = [1]
-   , parenStack = []
    , lastEOL = SpanEmpty 
    , comments = []
+   , divideId = 0 
+   , regId = 0         
    }
 
 type P a = StateT ParseState (Either ParseError) a
@@ -143,6 +144,14 @@ getLastToken = gets previousToken
 setLastToken :: Token -> P ()
 setLastToken tok = modify $ \s -> s { previousToken = tok } 
 
+-- | Pick up and store the context ids from the lexer
+registerStatesAndStart :: Int -> Int -> P ()
+registerStatesAndStart newRegId newDivideId = do 
+  modify $ \s -> s { regId = newRegId }
+  modify $ \s -> s { divideId = newDivideId }
+  setStartCode newRegId
+  
+
 pushStartCode :: Int -> P () 
 pushStartCode code = do
    oldStack <- gets startCodeStack
@@ -167,6 +176,7 @@ setStartCode code = do
   popStartCode
   pushStartCode code 
 
+{-
 pushIndent :: Int -> P () 
 pushIndent indent = do 
    oldStack <- gets indentStack
@@ -210,6 +220,7 @@ getParen = do
 
 getParenStackDepth :: P Int
 getParenStackDepth = gets (length . parenStack) 
+-}
 
 addComment :: Token -> P ()
 addComment c = do

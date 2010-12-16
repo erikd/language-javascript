@@ -34,8 +34,8 @@ module Language.JavaScript.Parser.SrcLocation (
   startRow
 ) where
 
---import Language.Python.Common.Pretty
 import Data.Data
+import Prelude hiding (span)
 
 -- | A location for a syntactic entity from the source code.
 -- The location is specified by its filename, and starting row
@@ -55,7 +55,7 @@ instance Pretty SrcLocation where
 -- | Types which have a span.
 class Span a where
    getSpan :: a -> SrcSpan
-   getSpan x = SpanEmpty
+   getSpan _x = SpanEmpty
 
 -- | Create a new span which encloses two spanned things.
 spanning :: (Span a, Span b) => a -> b -> SrcSpan
@@ -64,7 +64,7 @@ spanning x y = combineSrcSpans (getSpan x) (getSpan y)
 instance Span a => Span [a] where
    getSpan [] = SpanEmpty
    getSpan [x] = getSpan x 
-   getSpan list@(x:xs) = combineSrcSpans (getSpan x) (getSpan (last list))
+   getSpan list@(x:_xs) = combineSrcSpans (getSpan x) (getSpan (last list))
 
 instance Span a => Span (Maybe a) where
    getSpan Nothing = SpanEmpty
@@ -101,6 +101,7 @@ decColumn n loc
 incColumn :: Int -> SrcLocation -> SrcLocation
 incColumn n loc@(Sloc { sloc_column = col })
    = loc { sloc_column = col + n }
+incColumn _ NoLocation = NoLocation     
 
 -- | Increment the column of a location by one tab stop.
 incTab :: SrcLocation -> SrcLocation
@@ -108,12 +109,13 @@ incTab loc@(Sloc { sloc_column = col })
    = loc { sloc_column = newCol } 
    where
    newCol = col + 8 - (col - 1) `mod` 8
+incTab NoLocation = NoLocation
 
 -- | Increment the line number (row) of a location by one.
 incLine :: Int -> SrcLocation -> SrcLocation
 incLine n loc@(Sloc { sloc_row = row }) 
    = loc { sloc_column = 1, sloc_row = row + n }
-
+incLine _ NoLocation = NoLocation
 {-
 Inspired heavily by compiler/basicTypes/SrcLoc.lhs 
 A SrcSpan delimits a portion of a text file.  
