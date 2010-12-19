@@ -2,7 +2,7 @@ module Language.JavaScript.Parser
        (
          parse
        , readJs  
-       , readFile  
+       , parseFile  
        , JSNode(..)  
        , ParseError(..)  
        -- Source locations  

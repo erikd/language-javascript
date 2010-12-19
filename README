@@ -19,3 +19,11 @@ Running the tests
 ./dist/build/runtests/runtests
 
 
+To debug the grammar
+
+happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar.y 
+
+This generates src/Language/JavaScript/Parser/Grammar.hs, delete this
+when done with the debug version
+
+

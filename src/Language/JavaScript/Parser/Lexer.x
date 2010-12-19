@@ -59,12 +59,16 @@ $short_str_char = [^ \n \r ' \" \\]
 @HexDigit = $digit | [a-fA-F]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
 --$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
-$RegExpChars = [$printable] # [\\]
+--$RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
 $NonTerminator = $StringChars1 # [$cr $lf]
 --$NonTerminator = [$printable] # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
+-- ~ (LineTerminator | MUL | BSLASH | DIV)
+$RegExpFirstChar = [$printable] # [ $cr $lf \* \\ \/]
+-- ~ ( LineTerminator | BSLASH | DIV )
+$RegExpChars = [$printable] # [ $cr $lf \\ \/]
 
 -- WhiteSpace ::
 --      <TAB>
@@ -105,9 +109,13 @@ tokens :-
 <reg,divide> "0x" @HexDigit+ { mkString hexIntegerToken }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
---<reg,divide> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
--- Note: state 0 only
-<reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
+-- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
+
+-- Based on the Jint version
+<reg> "/" ($RegExpFirstChar | "\" $NonTerminator)  ($RegExpChars | "\" $NonTerminator)* "/" ("g"|"i"|"m")* { mkString regExToken }
+
+
+
 
 -- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
 --              |  {Non Zero Digits}+ '.' {Digit}* 

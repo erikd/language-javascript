@@ -244,6 +244,7 @@ PropertyNameandValueList : PropertyName ':' AssignmentExpression { [(AST.JSPrope
                            { ($1 ++ [(AST.JSPropertyNameandValue $3 $5)])  } 
                          | PropertyNameandValueList ',' PropertyName ':' FunctionDeclaration 
                            { ($1 ++ [(AST.JSPropertyNameandValue $3 [$5])])  } 
+                         |    { [] }  
 
 
 -- <Property Name> ::= Identifier
@@ -548,6 +549,7 @@ ElsePart : 'else'      { 1 }
 -}
 StatementSemi : StatementNoEmpty ';' { (AST.JSBlock (AST.JSStatementList [$1])) } 
               | StatementNoEmpty     { $1 {- StatementSemi -}}
+              | ';'                  { AST.JSLiteral ";" }  
 
 
 -- <Iteration Statement> ::= 'do' <Statement> 'while' '(' <Expression> ')' ';'
