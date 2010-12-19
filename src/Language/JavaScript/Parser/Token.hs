@@ -19,7 +19,7 @@ module Language.JavaScript.Parser.Token (
    debugTokenString,
    -- tokenString,
    -- * Classification
-   hasLiteral,
+   -- hasLiteral,
    TokenClass (..),
    -- classifyToken
    ) where
@@ -30,29 +30,12 @@ import Data.Data
 
 -- | Lexical tokens.
 data Token 
-   -- Whitespace
-   = IndentToken { token_span :: !SrcSpan }                       -- ^ Indentation: increase.
-   | DedentToken { token_span :: !SrcSpan }                       -- ^ Indentation: decrease.
-   | NewlineToken { token_span :: !SrcSpan }                      -- ^ Newline.
-   | LineJoinToken { token_span :: !SrcSpan }                     -- ^ Line join (backslash at end of line).
-
    -- Comment
-   | CommentToken { token_span :: !SrcSpan, token_literal :: !String } -- ^ Single line comment.
+   = CommentToken { token_span :: !SrcSpan, token_literal :: !String } -- ^ Single line comment.
 
    -- Identifiers 
    | IdentifierToken { token_span :: !SrcSpan, token_literal :: !String }            -- ^ Identifier.
 
-   -- Literals
-   | ByteStringToken { token_span :: !SrcSpan, token_literal :: !String }    -- ^ Literal: byte string.
-   | IntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }                 
-     -- ^ Literal: integer.
-   | LongIntegerToken { token_span :: !SrcSpan, token_literal :: !String, token_integer :: !Integer }             
-     -- ^ Literal: long integer. /Version 2 only/.
-   | FloatToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                     
-     -- ^ Literal: floating point.
-   | ImaginaryToken { token_span :: !SrcSpan, token_literal :: !String, token_double :: !Double }                 
-     -- ^ Literal: imaginary number.
-     
    -- Javascript Literals  
      
    | DecimalToken { token_span :: !SrcSpan, token_literal :: !String  }
@@ -154,20 +137,6 @@ debugTokenString token =
    render (text (show $ toConstr token) <+> pretty (token_span token) <+>
           if hasLiteral token then text (token_literal token) else empty)
    -}
-
--- | Test if a token contains its literal source text.
-hasLiteral :: Token -> Bool
-hasLiteral token =
-   case token of
-      CommentToken {}     -> True 
-      IdentifierToken {}  -> True 
-      StringToken {}      -> True 
-      ByteStringToken {}  -> True 
-      IntegerToken {}     -> True 
-      LongIntegerToken {} -> True 
-      FloatToken {}       -> True 
-      ImaginaryToken  {}  -> True 
-      _other              -> False
 
 -- | Classification of tokens
 data TokenClass

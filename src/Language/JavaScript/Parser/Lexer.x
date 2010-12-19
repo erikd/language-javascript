@@ -1,7 +1,15 @@
 {
   
-module Language.JavaScript.Parser.Lexer (Token(..),lexCont {-, alexScanTokens-},initStartCodeStack) where
+module Language.JavaScript.Parser.Lexer (
+    Token(..)
+    , lexCont 
+    {-, alexScanTokens-}
+    , initStartCodeStack
+    , setInputElementDiv 
+    , setInputElementRegExp  
+    ) where
   
+import Control.Monad
 import Language.JavaScript.Parser.LexerUtils
 import Language.JavaScript.Parser.ParserMonad hiding (location,input)
 import Language.JavaScript.Parser.SrcLocation
@@ -176,6 +184,74 @@ tokens :-
 
 {
 
+{-   
+This part for dealing with with div vs regexp ambiguity is inspired by the lexer in http://jint.codeplex.com/
+
+        private bool AreRegularExpressionsEnabled()
+        {
+        	if (last == null)
+        	{
+        		return true;
+        	}
+        	switch (last.Type)
+        	{
+        	// identifier
+        		case Identifier:
+        	// literals
+        		case NULL:
+        		case TRUE:
+        		case FALSE:
+        		case THIS:
+        		case OctalIntegerLiteral:
+        		case DecimalLiteral:
+        		case HexIntegerLiteral:
+        		case StringLiteral:
+        	// member access ending 
+        		case RBRACK:
+        	// function call or nested expression ending
+        		case RPAREN:
+        			return false;
+        	// otherwise OK
+        		default:
+        			return true;
+        	}
+        }
+
+i.e.
+  allow regexp unless previous token is 
+     case Identifier:
+     case NULL:
+     case TRUE:
+     case FALSE:
+     case THIS:
+     case OctalIntegerLiteral:
+     case DecimalLiteral:
+     case HexIntegerLiteral:
+     case StringLiteral:
+     case RBRACK:
+     case RPAREN:
+
+
+-}
+  
+  
+--classifyToken :: Token -> Int
+classifyToken token = 
+   case token of
+      IdentifierToken {} -> divide
+      NullToken {} -> divide
+      TrueToken {} -> divide
+      FalseToken {} -> divide
+      ThisToken {} -> divide
+      -- OctalToken {} -> divide -- May have to extend parser to cope with these
+      DecimalToken {} -> divide
+      HexIntegerToken {} -> divide
+      StringToken {} -> divide
+      RightCurlyToken {} -> divide
+      RightParenToken {} -> divide
+      _other      -> reg
+
+
 -- The lexer starts off in the beginning of file state (bof)
 initStartCodeStack :: [Int]
 --initStartCodeStack = [bof,0]
@@ -188,7 +264,9 @@ lexToken = do
   location <- getLocation
   input <- getInput
   startCode <- getStartCode
-  case alexScan (location, input) startCode of
+  lt <- getLastToken
+  case alexScan (location, input) (classifyToken lt) of
+  --vcase alexScan (location, input) startCode of
     AlexEOF -> return endOfFileToken
     AlexError _ -> lexicalError
     AlexSkip (nextLocation, rest) _len -> do
@@ -223,12 +301,17 @@ lexCont cont = do
 -- ---------------------------------------------------------------------         
 -- These next two functions select between the two lex input states, as called for in
 -- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.   
-setInputElementDiv x = do
+setInputElementDiv :: P ()
+setInputElementDiv = do
   setStartCode divide
-  x
-
-setInputElementRegExp x = do
+  
+setInputElementRegExp :: P ()
+setInputElementRegExp = do
   setStartCode reg
+  
+--goDiv :: Action -> Action
+goDiv x = do
+  setInputElementDiv
   x
 
 -- ---------------------------------------------------------------------

@@ -1,5 +1,10 @@
 {
-module Language.JavaScript.Parser.Grammar (parseProgram, parseLiteral, parsePrimaryExpression,parseStatement) where
+module Language.JavaScript.Parser.Grammar (
+    parseProgram
+  , parseLiteral
+  , parsePrimaryExpression
+  , parseStatement
+  ) where
 
 import Control.Monad.Error.Class (throwError)
 import Data.Char
@@ -296,7 +301,7 @@ LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
 -- <Postfix Expression> ::= <Left Hand Side Expression>
 --                        | <Postfix Expression> '++'
 --                        | <Postfix Expression> '--'
-PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} } 
+PostfixExpression : LeftHandSideExpression {% do { setInputDiv; return ($1)} {- PostfixExpression -} }  -- monadic call
                   | PostfixExpression '++' {[(AST.JSExpressionPostfix "++" $1)]}
                   | PostfixExpression '--' {[(AST.JSExpressionPostfix "--" $1)]}
 
@@ -310,7 +315,8 @@ PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
 --                      | '-' <Unary Expression>
 --                      | '~' <Unary Expression>
 --                      | '!' <Unary Expression>
-UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} } 
+UnaryExpression :: { [AST.JSNode] }
+UnaryExpression : PostfixExpression {% do { setInputDiv; return ($1)} {- UnaryExpression -} } -- Monadic call
                 | 'delete' UnaryExpression { ((AST.JSUnary "delete "):$2)}
                 | 'void'   UnaryExpression { ((AST.JSUnary "void "):$2)}
                 | 'typeof' UnaryExpression { ((AST.JSUnary "typeof "):$2)}
@@ -327,7 +333,7 @@ UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
 --                               | <Unary Expression> '/' <Multiplicative Expression>                               
 --                               | <Unary Expression> '%' <Multiplicative Expression> 
 MultiplicativeExpression :: { [AST.JSNode] }
-MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}} 
+MultiplicativeExpression : UnaryExpression {% do { setInputDiv; return ($1)} {- MultiplicativeExpression -}} -- Monadic call
                          | UnaryExpression '*' MultiplicativeExpression { [(AST.JSExpressionBinary "*" $1 $3)]}
                          | UnaryExpression '/' MultiplicativeExpression { [(AST.JSExpressionBinary "/" $1 $3)]}
                          | UnaryExpression '%' MultiplicativeExpression { [(AST.JSExpressionBinary "%" $1 $3)]}
@@ -338,7 +344,7 @@ MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}}
 AdditiveExpression :: { [AST.JSNode] }
 AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [(AST.JSExpressionBinary "+" $1 $3)]}
                    | AdditiveExpression '-' MultiplicativeExpression { [(AST.JSExpressionBinary "-" $1 $3)]}
-                   | MultiplicativeExpression { $1 {- AdditiveExpression -} } 
+                   | MultiplicativeExpression {% do { setInputReg; return ($1)} {- (goRegExp $1)-} {- AdditiveExpression -} } 
 
 
 
@@ -692,6 +698,7 @@ SourceElement : Statement            { $1 {- SourceElement1 -} }
               | FunctionDeclaration  { $1 {- SourceElement2 -} } 
 
 {
+
 combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElements (AST.JSSourceElements xs) x = (AST.JSSourceElements (xs++[x]) )
 

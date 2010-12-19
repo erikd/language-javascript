@@ -34,6 +34,8 @@ module Language.JavaScript.Parser.ParserMonad
    , popStartCode
    , getStartCode
    , setStartCode
+   , setInputReg  
+   , setInputDiv  
    -- , getIndent
    -- , pushIndent
    -- , popIndent
@@ -80,7 +82,8 @@ data ParseState =
    deriving Show
 
 initToken :: Token
-initToken = NewlineToken SpanEmpty 
+--initToken = NewlineToken SpanEmpty 
+initToken = CommentToken SpanEmpty ""
 
 initialState :: SrcLocation -> String -> [Int] -> ParseState
 initialState initLoc inp scStack
@@ -149,8 +152,16 @@ registerStatesAndStart :: Int -> Int -> P ()
 registerStatesAndStart newRegId newDivideId = do 
   modify $ \s -> s { regId = newRegId }
   modify $ \s -> s { divideId = newDivideId }
-  setStartCode newRegId
+  -- setStartCode newRegId
+  setInputReg
+
+setInputReg = do
+  code <- gets regId  
+  setStartCode code
   
+setInputDiv = do
+  code <- gets divideId
+  setStartCode code
 
 pushStartCode :: Int -> P () 
 pushStartCode code = do

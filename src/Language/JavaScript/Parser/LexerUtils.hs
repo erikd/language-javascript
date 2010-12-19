@@ -55,9 +55,9 @@ endOfLine lexToken span _len _str = do
    setLastEOL $ spanStartPoint span
    lexToken
 
-
-registerStates lexToken regId divideId _span _len _str = do
-  registerStatesAndStart regId divideId
+registerStates :: P Token -> Int -> Int -> Action
+registerStates lexToken newRegId newDivideId _span _len _str = do
+  registerStatesAndStart newRegId newDivideId
   lexToken 
 
 {-
