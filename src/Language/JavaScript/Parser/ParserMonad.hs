@@ -29,21 +29,6 @@ module Language.JavaScript.Parser.ParserMonad
    , ParseError (..)
    , ParseState (..)
    , initialState
-   , registerStatesAndStart  
-   , pushStartCode
-   , popStartCode
-   , getStartCode
-   , setStartCode
-   , setInputReg  
-   , setInputDiv  
-   -- , getIndent
-   -- , pushIndent
-   -- , popIndent
-   -- , getIndentStackDepth
-   -- , getParen
-   -- , pushParen
-   -- , popParen
-   -- , getParenStackDepth
    , addComment
    , getComments
    , spanError
@@ -70,14 +55,8 @@ data ParseState =
    { location :: !SrcLocation -- position at current input location
    , input :: !String         -- the current input
    , previousToken :: !Token  -- the previous token
-   , startCodeStack :: [Int]  -- a stack of start codes for the state of the lexer
-   -- , indentStack :: [Int]     -- a stack of source column positions of indentation levels
-   -- , parenStack :: [Token]    -- a stack of parens and brackets for indentation handling
    , lastEOL :: !SrcSpan      -- location of the most recent end-of-line encountered
    , comments :: [Token]      -- accumulated comments 
-   -- | Capture the lexical states so they can be set by the parser as needed             
-   , divideId :: Int                   
-   , regId :: Int          
    }
    deriving Show
 
@@ -91,11 +70,11 @@ initialState initLoc inp scStack
    { location = initLoc 
    , input = inp
    , previousToken = initToken
-   , startCodeStack = scStack
+   -- , startCodeStack = scStack
    , lastEOL = SpanEmpty 
    , comments = []
-   , divideId = 0 
-   , regId = 0         
+   -- , divideId = 0 
+   -- , regId = 0         
    }
 
 type P a = StateT ParseState (Either ParseError) a
@@ -146,92 +125,6 @@ getLastToken = gets previousToken
 
 setLastToken :: Token -> P ()
 setLastToken tok = modify $ \s -> s { previousToken = tok } 
-
--- | Pick up and store the context ids from the lexer
-registerStatesAndStart :: Int -> Int -> P ()
-registerStatesAndStart newRegId newDivideId = do 
-  modify $ \s -> s { regId = newRegId }
-  modify $ \s -> s { divideId = newDivideId }
-  -- setStartCode newRegId
-  setInputReg
-
-setInputReg = do
-  code <- gets regId  
-  setStartCode code
-  
-setInputDiv = do
-  code <- gets divideId
-  setStartCode code
-
-pushStartCode :: Int -> P () 
-pushStartCode code = do
-   oldStack <- gets startCodeStack
-   modify $ \s -> s { startCodeStack = code : oldStack }
-
-popStartCode :: P ()
-popStartCode = do
-   oldStack <- gets startCodeStack
-   case oldStack of
-     [] -> internalError "fatal error in lexer: attempt to pop empty start code stack"
-     _:rest -> modify $ \s -> s { startCodeStack = rest }
-
-getStartCode :: P Int
-getStartCode = do 
-   oldStack <- gets startCodeStack
-   case oldStack of
-     [] -> internalError "fatal error in lexer: start code stack empty on getStartCode"
-     code:_ -> return code 
-
-setStartCode :: Int -> P ()
-setStartCode code = do
-  popStartCode
-  pushStartCode code 
-
-{-
-pushIndent :: Int -> P () 
-pushIndent indent = do 
-   oldStack <- gets indentStack
-   modify $ \s -> s { indentStack = indent : oldStack }
-
-popIndent :: P ()
-popIndent = do 
-   oldStack <- gets indentStack
-   case oldStack of
-     [] -> internalError "fatal error in lexer: attempt to pop empty indentation stack"
-     _:rest -> modify $ \s -> s { indentStack = rest }
-
-getIndent :: P Int
-getIndent = do
-   oldStack <- gets indentStack 
-   case oldStack of
-     [] -> internalError "fatal error in lexer: indent stack empty on getIndent"
-     indent:_ -> return indent 
-
-getIndentStackDepth :: P Int
-getIndentStackDepth = gets (length . indentStack)
-
-pushParen :: Token -> P () 
-pushParen symbol = do
-   oldStack <- gets parenStack 
-   modify $ \s -> s { parenStack = symbol : oldStack }
-
-popParen :: P ()
-popParen = do
-   oldStack <- gets parenStack
-   case oldStack of
-      [] -> internalError "fatal error in lexer: attempt to pop empty paren stack"
-      _:rest -> modify $ \s -> s { parenStack = rest }  
-
-getParen :: P (Maybe Token)
-getParen = do
-   oldStack <- gets parenStack
-   case oldStack of
-      [] -> return Nothing 
-      symbol:_ -> return $ Just symbol
-
-getParenStackDepth :: P Int
-getParenStackDepth = gets (length . parenStack) 
--}
 
 addComment :: Token -> P ()
 addComment c = do

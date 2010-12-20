@@ -148,21 +148,6 @@ data SrcSpan
   | SpanEmpty 
    deriving (Eq,Ord,Show,Typeable,Data)
 
-{-
-instance Pretty SrcSpan where
-   pretty span@(SpanCoLinear {}) = prettyMultiSpan span
-   pretty span@(SpanMultiLine {}) = prettyMultiSpan span
-   pretty span@(SpanPoint {})
-      = text (span_filename span) <> colon <+>
-        parens (pretty (span_row span) <> comma <> pretty (span_column span))
-   pretty SpanEmpty = empty
-
-prettyMultiSpan :: SrcSpan -> Doc 
-prettyMultiSpan span 
-  = text (span_filename span) <> colon <+>
-    parens (pretty (startRow span) <> comma <> pretty (startCol span)) <> char '-' <>
-    parens (pretty (endRow span) <> comma <> pretty (endCol span))
--}
 
 instance Span SrcLocation where
    getSpan loc@(Sloc {})

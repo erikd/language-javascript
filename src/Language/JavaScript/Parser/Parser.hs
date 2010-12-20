@@ -13,7 +13,6 @@ import Language.JavaScript.Parser.Grammar
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad hiding (input)
 import Language.JavaScript.Parser.SrcLocation
---import Language.JavaScript.Parser.Token
 import qualified Language.JavaScript.Parser.AST as AST
 
 -- | Parse one compound statement, or a sequence of simple statements. 
@@ -27,7 +26,7 @@ parseStmtKeepComments input srcName =
    execParserKeepComments parseProgram state 
    where
      initLoc = initialSrcLocation srcName
-     state = initialState initLoc input initStartCodeStack
+     state = initialState initLoc input [0] -- initStartCodeStack
 
 
 -- | Parse one compound statement, or a sequence of simple statements. 
@@ -41,7 +40,7 @@ parse input srcName =
    execParser parseProgram state 
    where
      initLoc = initialSrcLocation srcName
-     state = initialState initLoc input initStartCodeStack
+     state = initialState initLoc input [0] -- initStartCodeStack
 
 readJs :: String -> AST.JSNode
 readJs input = do
@@ -69,5 +68,5 @@ parseUsing p input srcName =
    execParser p state 
    where
      initLoc = initialSrcLocation srcName
-     state = initialState initLoc input initStartCodeStack
+     state = initialState initLoc input [0] -- initStartCodeStack
 

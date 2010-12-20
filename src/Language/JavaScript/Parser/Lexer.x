@@ -3,10 +3,6 @@
 module Language.JavaScript.Parser.Lexer (
     Token(..)
     , lexCont 
-    {-, alexScanTokens-}
-    , initStartCodeStack
-    , setInputElementDiv 
-    , setInputElementRegExp  
     ) where
   
 import Control.Monad
@@ -85,7 +81,7 @@ tokens :-
 
 -- State: 0 is regex allowed, 1 is / or /= allowed
 
-<0> () { registerStates lexToken reg divide }
+<0> () ; -- { registerStates lexToken reg divide }
 
 -- Skip Whitespace
 <reg,divide> $white_char+   ;
@@ -193,56 +189,12 @@ tokens :-
 {
 
 {-   
-This part for dealing with with div vs regexp ambiguity is inspired by the lexer in http://jint.codeplex.com/
+-- The next function select between the two lex input states, as called for in
+-- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.   
 
-        private bool AreRegularExpressionsEnabled()
-        {
-        	if (last == null)
-        	{
-        		return true;
-        	}
-        	switch (last.Type)
-        	{
-        	// identifier
-        		case Identifier:
-        	// literals
-        		case NULL:
-        		case TRUE:
-        		case FALSE:
-        		case THIS:
-        		case OctalIntegerLiteral:
-        		case DecimalLiteral:
-        		case HexIntegerLiteral:
-        		case StringLiteral:
-        	// member access ending 
-        		case RBRACK:
-        	// function call or nested expression ending
-        		case RPAREN:
-        			return false;
-        	// otherwise OK
-        		default:
-        			return true;
-        	}
-        }
-
-i.e.
-  allow regexp unless previous token is 
-     case Identifier:
-     case NULL:
-     case TRUE:
-     case FALSE:
-     case THIS:
-     case OctalIntegerLiteral:
-     case DecimalLiteral:
-     case HexIntegerLiteral:
-     case StringLiteral:
-     case RBRACK:
-     case RPAREN:
-
+The method is inspired by the lexer in http://jint.codeplex.com/
 
 -}
-  
-  
 --classifyToken :: Token -> Int
 classifyToken token = 
    case token of
@@ -260,18 +212,13 @@ classifyToken token =
       _other      -> reg
 
 
--- The lexer starts off in the beginning of file state (bof)
-initStartCodeStack :: [Int]
---initStartCodeStack = [bof,0]
-initStartCodeStack = [0]
-
 -- Each right-hand side has type :: String -> Token
 
 lexToken :: P Token
 lexToken = do
   location <- getLocation
   input <- getInput
-  startCode <- getStartCode
+  -- startCode <- getStartCode
   lt <- getLastToken
   case alexScan (location, input) (classifyToken lt) of
   --vcase alexScan (location, input) startCode of
@@ -305,22 +252,6 @@ lexCont cont = do
          -}
          _other -> cont tok
 
-         
--- ---------------------------------------------------------------------         
--- These next two functions select between the two lex input states, as called for in
--- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.   
-setInputElementDiv :: P ()
-setInputElementDiv = do
-  setStartCode divide
-  
-setInputElementRegExp :: P ()
-setInputElementRegExp = do
-  setStartCode reg
-  
---goDiv :: Action -> Action
-goDiv x = do
-  setInputElementDiv
-  x
 
 -- ---------------------------------------------------------------------
          

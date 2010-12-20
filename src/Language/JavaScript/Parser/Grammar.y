@@ -302,7 +302,7 @@ LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
 -- <Postfix Expression> ::= <Left Hand Side Expression>
 --                        | <Postfix Expression> '++'
 --                        | <Postfix Expression> '--'
-PostfixExpression : LeftHandSideExpression {% do { setInputDiv; return ($1)} {- PostfixExpression -} }  -- monadic call
+PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} } 
                   | PostfixExpression '++' {[(AST.JSExpressionPostfix "++" $1)]}
                   | PostfixExpression '--' {[(AST.JSExpressionPostfix "--" $1)]}
 
@@ -317,7 +317,7 @@ PostfixExpression : LeftHandSideExpression {% do { setInputDiv; return ($1)} {- 
 --                      | '~' <Unary Expression>
 --                      | '!' <Unary Expression>
 UnaryExpression :: { [AST.JSNode] }
-UnaryExpression : PostfixExpression {% do { setInputDiv; return ($1)} {- UnaryExpression -} } -- Monadic call
+UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} } 
                 | 'delete' UnaryExpression { ((AST.JSUnary "delete "):$2)}
                 | 'void'   UnaryExpression { ((AST.JSUnary "void "):$2)}
                 | 'typeof' UnaryExpression { ((AST.JSUnary "typeof "):$2)}
@@ -334,7 +334,7 @@ UnaryExpression : PostfixExpression {% do { setInputDiv; return ($1)} {- UnaryEx
 --                               | <Unary Expression> '/' <Multiplicative Expression>                               
 --                               | <Unary Expression> '%' <Multiplicative Expression> 
 MultiplicativeExpression :: { [AST.JSNode] }
-MultiplicativeExpression : UnaryExpression {% do { setInputDiv; return ($1)} {- MultiplicativeExpression -}} -- Monadic call
+MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}} 
                          | UnaryExpression '*' MultiplicativeExpression { [(AST.JSExpressionBinary "*" $1 $3)]}
                          | UnaryExpression '/' MultiplicativeExpression { [(AST.JSExpressionBinary "/" $1 $3)]}
                          | UnaryExpression '%' MultiplicativeExpression { [(AST.JSExpressionBinary "%" $1 $3)]}
@@ -345,7 +345,7 @@ MultiplicativeExpression : UnaryExpression {% do { setInputDiv; return ($1)} {- 
 AdditiveExpression :: { [AST.JSNode] }
 AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [(AST.JSExpressionBinary "+" $1 $3)]}
                    | AdditiveExpression '-' MultiplicativeExpression { [(AST.JSExpressionBinary "-" $1 $3)]}
-                   | MultiplicativeExpression {% do { setInputReg; return ($1)} {- (goRegExp $1)-} {- AdditiveExpression -} } 
+                   | MultiplicativeExpression { $1 {- (goRegExp $1)-} {- AdditiveExpression -} } 
 
 
 
