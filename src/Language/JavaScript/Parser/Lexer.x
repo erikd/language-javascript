@@ -61,8 +61,8 @@ $short_str_char = [^ \n \r ' \" \\]
 --$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
 --$RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
-$NonTerminator = $StringChars1 # [$cr $lf]
---$NonTerminator = [$printable] # [$cr $lf]
+--$NonTerminator = $StringChars1 # [$cr $lf]
+$NonTerminator = [$printable] # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
 -- ~ (LineTerminator | MUL | BSLASH | DIV)

@@ -372,7 +372,10 @@ RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
                      | RelationalExpression '<=' ShiftExpression { [(AST.JSExpressionBinary "<=" $1 $3)]}
                      | RelationalExpression '>=' ShiftExpression { [(AST.JSExpressionBinary ">=" $1 $3)]}
                      | RelationalExpression 'instanceof' ShiftExpression { [(AST.JSExpressionBinary " instanceof " $1 $3)]}
-
+                       -- Strictly speaking should have all the NoIn variants of expressions,    
+                       -- but we assume syntax is checked so no problem. Cross fingers.    
+                     | RelationalExpression 'in' ShiftExpression { [(AST.JSExpressionBinary " in " $1 $3)]}
+                       
 
 -- <Equality Expression> ::= <Relational Expression>
 --                         | <Equality Expression> '==' <Relational Expression>
