@@ -41,7 +41,7 @@ Library
                        Language.JavaScript.Parser.StringEscape
                        Language.JavaScript.Parser.Token
   Build-tools:         happy, alex
-  ghc-options:         -Wall
+  -- ghc-options:         -Wall
 
 executable             runtests
     if flag(buildtests)
