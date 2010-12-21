@@ -27,3 +27,16 @@ This generates src/Language/JavaScript/Parser/Grammar.hs, delete this
 when done with the debug version
 
 
+UTF8/Unicode version 
+
+This requires https://github.com/jyp/Alex, in particular the utf8
+branch, to generate the Lexer.hs file
+
+$ git clone https://github.com/jyp/Alex.git
+$ cd Alex
+$ git checkout utf8
+$ cabal install
+
+This will put a utf8 enabled alex in ~/.cabal/bin
+
+
