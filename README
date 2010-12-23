@@ -39,4 +39,16 @@ $ cabal install
 
 This will put a utf8 enabled alex in ~/.cabal/bin
 
+To switch back to the standard version, 
+
+$ cabal install --reinstall alex
+
+Changes
+
+0.0.2 Multiline comments were processed in greedy form, now end of
+comment recognised properly. Thanks to Tony Morris for reporting this.
+
+0.0.1 Initial release
+
+EOF
 

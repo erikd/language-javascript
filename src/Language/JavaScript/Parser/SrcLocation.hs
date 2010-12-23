@@ -17,9 +17,9 @@ module Language.JavaScript.Parser.SrcLocation (
   SrcLocation (..),
   SrcSpan (..),
   Span (..),
-  spanning,
+  -- spanning,
   mkSrcSpan,
-  combineSrcSpans,
+  -- combineSrcSpans,
   initialSrcLocation,
   spanStartPoint,
   -- * Modification
@@ -27,11 +27,11 @@ module Language.JavaScript.Parser.SrcLocation (
   decColumn,
   incLine,
   incTab,
-  endCol,
+  -- endCol,
   -- * Projection of components of a span
-  endRow,
-  startCol,
-  startRow
+  -- endRow,
+  -- startCol,
+  -- startRow
 ) where
 
 import Data.Data

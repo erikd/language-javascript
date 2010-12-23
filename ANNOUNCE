@@ -1,0 +1,12 @@
+I am pleased to announce version 0.0.2 of language-javascript, a parser for ECMAScript.
+
+Changes in language-javascript 0.0.2 vs. 0.0.1:
+
+  * Multiline comments were processed in greedy form, now end of
+    comment recognised properly. Thanks to Tony Morris for reporting this.
+
+Distributions can be obtained from hackage
+
+  http://hackage.haskell.org/package/language-javascript
+
+language-javascript is distributed under a BSD-style license.

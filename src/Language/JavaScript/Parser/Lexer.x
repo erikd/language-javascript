@@ -66,6 +66,9 @@ $RegExpFirstChar = [$printable] # [ $cr $lf \* \\ \/]
 -- ~ ( LineTerminator | BSLASH | DIV )
 $RegExpChars = [$printable] # [ $cr $lf \\ \/]
 
+$MultiLineNotAsteriskChar               = [$any_char] # [\*]
+$MultiLineNotForwardSlashOrAsteriskChar = [$any_char] # [\* \/]
+
 -- WhiteSpace ::
 --      <TAB>
 --      <VT>
@@ -89,8 +92,27 @@ tokens :-
 -- Skip one line comment
 <reg,divide> "//"($not_eol_char)*   ;
 
+
+-- ---------------------------------------------------------------------
+-- Comment definition from the ECMAScript spec, ver 3
+
+-- MultiLineComment ::
+--        /* MultiLineCommentChars(opt) */
+-- MultiLineCommentChars ::
+--        MultiLineNotAsteriskChar MultiLineCommentChars(opt)
+--        * PostAsteriskCommentChars(opt)
+-- PostAsteriskCommentChars ::
+--        MultiLineNotForwardSlashOrAsteriskChar MultiLineCommentChars(opt)
+--        * PostAsteriskCommentChars(opt)
+-- MultiLineNotAsteriskChar ::
+--        SourceCharacter but not asterisk *
+-- MultiLineNotForwardSlashOrAsteriskChar ::
+--        SourceCharacter but not forward-slash / or asterisk *
+
 -- Skip multi-line comments. Note: may not nest
-<reg,divide> "/*"($any_char)*"*/"  ;	
+-- <reg,divide> "/*"($any_char)*"*/"  ;	
+<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;	
+
 
 
 -- Identifier    = {ID Head}{ID Tail}*

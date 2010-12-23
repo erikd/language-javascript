@@ -149,8 +149,8 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- Comment End   = '*/'
 -- Comment Line  = '//'
 
--- ! ------------------------------------------------- Rules
 
+-- ! ------------------------------------------------- Rules
 
 
 
