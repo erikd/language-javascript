@@ -23,110 +23,112 @@ module Language.JavaScript.Parser.Token (
    ) where
 
 --import Language.JavaScript.Parser.Pretty
-import Language.JavaScript.Parser.SrcLocation (SrcSpan (..), Span(getSpan))
+import Language.JavaScript.Parser.SrcLocation (AlexSpan (..),SrcSpan (..), Span(getSpan))
 import Data.Data
 
 -- | Lexical tokens.
 data Token 
    -- Comment
-   = CommentToken { token_span :: !SrcSpan, token_literal :: !String } -- ^ Single line comment.
+   = CommentToken { token_span :: !AlexSpan, token_literal :: !String } -- ^ Single line comment.
 
    -- Identifiers 
-   | IdentifierToken { token_span :: !SrcSpan, token_literal :: !String }            -- ^ Identifier.
+   | IdentifierToken { token_span :: !AlexSpan, token_literal :: !String }            -- ^ Identifier.
 
    -- Javascript Literals  
      
-   | DecimalToken { token_span :: !SrcSpan, token_literal :: !String  }
+   | DecimalToken { token_span :: !AlexSpan, token_literal :: !String  }
      -- ^ Literal: Decimal 
-   | HexIntegerToken { token_span :: !SrcSpan, token_literal :: !String  }
+   | HexIntegerToken { token_span :: !AlexSpan, token_literal :: !String  }
      -- ^ Literal: Hexadecimal Integer
-   | StringToken { token_span :: !SrcSpan, token_literal :: !String, token_delimiter :: !Char }                   
+   | StringToken { token_span :: !AlexSpan, token_literal :: !String, token_delimiter :: !Char }                   
      -- ^ Literal: string, delimited by either single or double quotes
-   | RegExToken { token_span :: !SrcSpan, token_literal :: !String  }
+   | RegExToken { token_span :: !AlexSpan, token_literal :: !String  }
      -- ^ Literal: Regular Expression
 
    -- Keywords
-   | BreakToken { token_span :: !SrcSpan }
-   | CaseToken { token_span :: !SrcSpan }
-   | CatchToken { token_span :: !SrcSpan }
-   | ConstToken { token_span :: !SrcSpan }
-   | ContinueToken { token_span :: !SrcSpan }
-   | DebuggerToken { token_span :: !SrcSpan }
-   | DefaultToken { token_span :: !SrcSpan }
-   | DeleteToken { token_span :: !SrcSpan }
-   | DoToken { token_span :: !SrcSpan }
-   | ElseToken { token_span :: !SrcSpan }
-   | EnumToken { token_span :: !SrcSpan }
-   | FalseToken { token_span :: !SrcSpan }
-   | FinallyToken { token_span :: !SrcSpan }
-   | ForToken { token_span :: !SrcSpan }
-   | FunctionToken { token_span :: !SrcSpan }
-   | IfToken { token_span :: !SrcSpan }
-   | InToken { token_span :: !SrcSpan }
-   | InstanceofToken { token_span :: !SrcSpan }
-   | NewToken { token_span :: !SrcSpan }
-   | NullToken { token_span :: !SrcSpan }
-   | ReturnToken { token_span :: !SrcSpan }
-   | SwitchToken { token_span :: !SrcSpan }
-   | ThisToken { token_span :: !SrcSpan }
-   | ThrowToken { token_span :: !SrcSpan }
-   | TrueToken { token_span :: !SrcSpan }
-   | TryToken { token_span :: !SrcSpan }
-   | TypeofToken { token_span :: !SrcSpan }
-   | VarToken { token_span :: !SrcSpan }
-   | VoidToken { token_span :: !SrcSpan }
-   | WhileToken { token_span :: !SrcSpan }
-   | WithToken { token_span :: !SrcSpan }
+   | BreakToken { token_span :: !AlexSpan }
+   | CaseToken { token_span :: !AlexSpan }
+   | CatchToken { token_span :: !AlexSpan }
+   | ConstToken { token_span :: !AlexSpan }
+   | ContinueToken { token_span :: !AlexSpan }
+   | DebuggerToken { token_span :: !AlexSpan }
+   | DefaultToken { token_span :: !AlexSpan }
+   | DeleteToken { token_span :: !AlexSpan }
+   | DoToken { token_span :: !AlexSpan }
+   | ElseToken { token_span :: !AlexSpan }
+   | EnumToken { token_span :: !AlexSpan }
+   | FalseToken { token_span :: !AlexSpan }
+   | FinallyToken { token_span :: !AlexSpan }
+   | ForToken { token_span :: !AlexSpan }
+   | FunctionToken { token_span :: !AlexSpan }
+   | IfToken { token_span :: !AlexSpan }
+   | InToken { token_span :: !AlexSpan }
+   | InstanceofToken { token_span :: !AlexSpan }
+   | NewToken { token_span :: !AlexSpan }
+   | NullToken { token_span :: !AlexSpan }
+   | ReturnToken { token_span :: !AlexSpan }
+   | SwitchToken { token_span :: !AlexSpan }
+   | ThisToken { token_span :: !AlexSpan }
+   | ThrowToken { token_span :: !AlexSpan }
+   | TrueToken { token_span :: !AlexSpan }
+   | TryToken { token_span :: !AlexSpan }
+   | TypeofToken { token_span :: !AlexSpan }
+   | VarToken { token_span :: !AlexSpan }
+   | VoidToken { token_span :: !AlexSpan }
+   | WhileToken { token_span :: !AlexSpan }
+   | WithToken { token_span :: !AlexSpan }
 
    -- Delimiters
    -- Operators
-   | SemiColonToken { token_span :: !SrcSpan }
-   | CommaToken { token_span :: !SrcSpan }
-   | HookToken { token_span :: !SrcSpan }
-   | ColonToken { token_span :: !SrcSpan }
-   | OrToken { token_span :: !SrcSpan }
-   | AndToken { token_span :: !SrcSpan }
-   | BitwiseOrToken { token_span :: !SrcSpan }
-   | BitwiseXorToken { token_span :: !SrcSpan }
-   | BitwiseAndToken { token_span :: !SrcSpan }
-   | StrictEqToken { token_span :: !SrcSpan }
-   | EqToken { token_span :: !SrcSpan }
-   | AssignToken { token_span :: !SrcSpan, token_literal :: !String }
-   | SimpleAssignToken { token_span :: !SrcSpan }
-   | StrictNeToken { token_span :: !SrcSpan }
-   | NeToken { token_span :: !SrcSpan }
-   | LshToken { token_span :: !SrcSpan }
-   | LeToken { token_span :: !SrcSpan }
-   | LtToken { token_span :: !SrcSpan }
-   | UrshToken { token_span :: !SrcSpan }
-   | RshToken { token_span :: !SrcSpan }
-   | GeToken { token_span :: !SrcSpan }
-   | GtToken { token_span :: !SrcSpan }
-   | IncrementToken { token_span :: !SrcSpan }
-   | DecrementToken { token_span :: !SrcSpan }
-   | PlusToken { token_span :: !SrcSpan }
-   | MinusToken { token_span :: !SrcSpan }
-   | MulToken { token_span :: !SrcSpan }
-   | DivToken { token_span :: !SrcSpan }
-   | ModToken { token_span :: !SrcSpan }
-   | NotToken { token_span :: !SrcSpan }
-   | BitwiseNotToken { token_span :: !SrcSpan }
-   | DotToken { token_span :: !SrcSpan }
-   | LeftBracketToken { token_span :: !SrcSpan }
-   | RightBracketToken { token_span :: !SrcSpan }
-   | LeftCurlyToken { token_span :: !SrcSpan }
-   | RightCurlyToken { token_span :: !SrcSpan }
-   | LeftParenToken { token_span :: !SrcSpan }
-   | RightParenToken { token_span :: !SrcSpan }
-   | CondcommentEndToken { token_span :: !SrcSpan }
+   | SemiColonToken { token_span :: !AlexSpan }
+   | CommaToken { token_span :: !AlexSpan }
+   | HookToken { token_span :: !AlexSpan }
+   | ColonToken { token_span :: !AlexSpan }
+   | OrToken { token_span :: !AlexSpan }
+   | AndToken { token_span :: !AlexSpan }
+   | BitwiseOrToken { token_span :: !AlexSpan }
+   | BitwiseXorToken { token_span :: !AlexSpan }
+   | BitwiseAndToken { token_span :: !AlexSpan }
+   | StrictEqToken { token_span :: !AlexSpan }
+   | EqToken { token_span :: !AlexSpan }
+   | AssignToken { token_span :: !AlexSpan, token_literal :: !String }
+   | SimpleAssignToken { token_span :: !AlexSpan }
+   | StrictNeToken { token_span :: !AlexSpan }
+   | NeToken { token_span :: !AlexSpan }
+   | LshToken { token_span :: !AlexSpan }
+   | LeToken { token_span :: !AlexSpan }
+   | LtToken { token_span :: !AlexSpan }
+   | UrshToken { token_span :: !AlexSpan }
+   | RshToken { token_span :: !AlexSpan }
+   | GeToken { token_span :: !AlexSpan }
+   | GtToken { token_span :: !AlexSpan }
+   | IncrementToken { token_span :: !AlexSpan }
+   | DecrementToken { token_span :: !AlexSpan }
+   | PlusToken { token_span :: !AlexSpan }
+   | MinusToken { token_span :: !AlexSpan }
+   | MulToken { token_span :: !AlexSpan }
+   | DivToken { token_span :: !AlexSpan }
+   | ModToken { token_span :: !AlexSpan }
+   | NotToken { token_span :: !AlexSpan }
+   | BitwiseNotToken { token_span :: !AlexSpan }
+   | DotToken { token_span :: !AlexSpan }
+   | LeftBracketToken { token_span :: !AlexSpan }
+   | RightBracketToken { token_span :: !AlexSpan }
+   | LeftCurlyToken { token_span :: !AlexSpan }
+   | RightCurlyToken { token_span :: !AlexSpan }
+   | LeftParenToken { token_span :: !AlexSpan }
+   | RightParenToken { token_span :: !AlexSpan }
+   | CondcommentEndToken { token_span :: !AlexSpan }
 
    -- Special cases
-   | EOFToken { token_span :: !SrcSpan }                          -- ^ End of file 
-   deriving (Eq,Ord,Show,Typeable,Data)
+   | EOFToken { token_span :: !AlexSpan }                          -- ^ End of file 
+   deriving (Eq,{-Ord,-}Show,Typeable{-,Data-})
 
+{-
 instance Span Token where
   getSpan = token_span 
-   
+-}   
+
 -- | Produce a string from a token containing detailed information. Mainly intended for debugging. 
 debugTokenString :: Token -> String
 debugTokenString token = 

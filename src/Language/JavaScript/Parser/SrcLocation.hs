@@ -14,6 +14,10 @@
 
 module Language.JavaScript.Parser.SrcLocation (
   -- * Construction 
+  AlexPosn (..),
+  AlexSpan (..),
+  alexStartPos,
+  alexSpanEmpty,
   SrcLocation (..),
   SrcSpan (..),
   Span (..),
@@ -36,6 +40,16 @@ module Language.JavaScript.Parser.SrcLocation (
 
 import Data.Data
 import Prelude hiding (span)
+
+data AlexPosn = AlexPn !Int !Int !Int
+        deriving (Eq,Show)
+
+alexStartPos :: AlexPosn
+alexStartPos = AlexPn 0 1 1
+
+-- AZ bringing this in as SrcSpan replacement.
+type AlexSpan = (AlexPosn, Char, String)
+alexSpanEmpty = (alexStartPos, '\n', "")
 
 -- | A location for a syntactic entity from the source code.
 -- The location is specified by its filename, and starting row
