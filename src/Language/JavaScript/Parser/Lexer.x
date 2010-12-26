@@ -7,16 +7,20 @@ module Language.JavaScript.Parser.Lexer (
   
 import Control.Monad
 import Language.JavaScript.Parser.LexerUtils
-import Language.JavaScript.Parser.ParserMonad hiding (location,input)
+import Language.JavaScript.Parser.ParserMonad 
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Data.Map as Map
+import Data.Word (Word8)
+
+import Codec.Binary.UTF8.Light as UTF8
 
 }
 
 -- Not using a wrapper, rolling own below.
 --%wrapper "basic"
--- %wrapper "monad" 
+--%wrapper "monad" 
+--%wrapper "monadUserState" 
 -- %wrapper "monad-bytestring" 
 
 -- character sets
@@ -129,9 +133,9 @@ tokens :-
 
 -- beginning of file
 <bof> {
-   -- @eol_pattern                         ;
-   @eol_pattern                         { endOfLine lexToken }
-   -- ()                                   { indentation lexToken dedent BOF }
+   @eol_pattern                         ;
+   -- @eol_pattern                         { endOfLine lexToken }
+   --@eol_pattern                         { endOfLine alexMonadScan }
 }
 
 -- / or /= only allowed in state 1
@@ -216,22 +220,26 @@ classifyToken token =
 
 lexToken :: P Token
 lexToken = do
-  location <- getLocation
-  input <- getInput
+  -- location <- getLocation
+  -- input <- getInput
+  input@(_,_,_,inp) <- alexGetInput
   -- startCode <- getStartCode
   lt <- getLastToken
-  case alexScan (location, input) (classifyToken lt) of
-  --vcase alexScan (location, input) startCode of
+  -- case alexScan (location, input) (classifyToken lt) of
+  case alexScan input (classifyToken lt) of
     AlexEOF -> return endOfFileToken
     AlexError _ -> lexicalError
-    AlexSkip (nextLocation, rest) _len -> do
-       setLocation nextLocation 
-       setInput rest 
+    AlexSkip rest _len -> do
+       -- setLocation nextLocation 
+       -- setInput rest 
+       alexSetInput rest 
        lexToken
-    AlexToken (nextLocation, rest) len action -> do
-       setLocation nextLocation 
-       setInput rest 
-       token <- action (mkSrcSpan location $ decColumn 1 nextLocation) len input 
+    AlexToken rest len action -> do
+       --setLocation nextLocation 
+       --setInput rest 
+       alexSetInput rest
+       --token <- action (mkSrcSpan location $ decColumn 1 nextLocation) len input 
+       token <- action (ignorePendingBytes input) len inp
        setLastToken token
        return token
 
@@ -243,6 +251,7 @@ lexCont cont = do
    -- lexLoop :: P a
    lexLoop = do
       tok <- lexToken
+      --tok <- alexMonadScan
       case tok of
          {-
          CommentToken {} -> do
@@ -253,20 +262,44 @@ lexCont cont = do
          _other -> cont tok
 
 
+utf8Encode :: Char -> [Byte]
+utf8Encode c = head (UTF8.encodeUTF8' [UTF8.c2w c])
+
+alexEOF = EOFToken alexSpanEmpty
+
+
+ignorePendingBytes (p,c,ps,s) = (p,c,s)
+
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar (p,c,bs,s) = c
+
+alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
+alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
+alexGetByte (p,c,[],[]) = Nothing
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
+                                  (b:bs) = utf8Encode c
+                              in p' `seq`  Just (b, (p', c, bs, s))
+
+alexMove :: AlexPosn -> Char -> AlexPosn
+alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
+alexMove (AlexPn a l c) '\n' = AlexPn (a+1) (l+1)   1
+alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
+
 -- ---------------------------------------------------------------------
          
 -- a keyword or an identifier (the syntax overlaps)
-keywordOrIdent :: String -> SrcSpan -> P Token
+keywordOrIdent :: String -> AlexSpan -> P Token
 keywordOrIdent str location
    = return $ case Map.lookup str keywords of
          Just symbol -> symbol location
          Nothing -> IdentifierToken location str  
 
 -- mapping from strings to keywords
-keywords :: Map.Map String (SrcSpan -> Token) 
+keywords :: Map.Map String (AlexSpan -> Token) 
 keywords = Map.fromList keywordNames 
 
-keywordNames :: [(String, SrcSpan -> Token)]
+keywordNames :: [(String, AlexSpan -> Token)]
 keywordNames =
    [ 
     ("break",BreakToken),("case",CaseToken),("catch",CatchToken),("const",ConstToken),

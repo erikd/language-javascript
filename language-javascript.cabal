@@ -28,6 +28,7 @@ Library
                    , array            >= 0.3     && < 0.5
                    , mtl              >= 1.1     && < 2
                    , containers       >= 0.2     && < 0.5
+                   , utf8-light       >= 0.4     && < 1.0
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.Parser
