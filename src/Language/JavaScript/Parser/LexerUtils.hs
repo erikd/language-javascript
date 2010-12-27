@@ -50,6 +50,8 @@ endOfLine lexToken span _len _str = do
 -}
 
 --symbolToken :: (AlexSpan -> Token) -> Action 
+symbolToken :: (Monad m) => (t -> a) -> t -> t1 -> t2 -> m a
+--symbolToken :: (Monad m) => (AlexSpan -> Token) -> t -> t1 -> t2 -> m Token
 symbolToken mkToken location _ _ = return (mkToken location)
 --symbolToken mkToken location = return (mkToken location)
 
@@ -60,6 +62,8 @@ endOfFileToken = EOFToken alexSpanEmpty
 
 
 --mkString :: (AlexSpan -> String -> Token) -> Action
+mkString
+  :: (Monad m) => (t -> [a1] -> a) -> t -> Int -> [a1] -> m a
 mkString toToken loc len str = do
    return $ toToken loc (take len str)
 

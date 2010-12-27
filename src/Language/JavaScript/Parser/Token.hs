@@ -23,7 +23,7 @@ module Language.JavaScript.Parser.Token (
    ) where
 
 --import Language.JavaScript.Parser.Pretty
-import Language.JavaScript.Parser.SrcLocation (AlexSpan (..),SrcSpan (..), Span(getSpan))
+import Language.JavaScript.Parser.SrcLocation (AlexSpan)
 import Data.Data
 
 -- | Lexical tokens.
