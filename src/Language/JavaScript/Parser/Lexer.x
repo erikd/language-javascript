@@ -75,7 +75,6 @@ $RegExpChars = [$printable] # [ $cr $lf \\ \/]
 $MultiLineNotAsteriskChar               = [$any_char] # [\*]
 $MultiLineNotForwardSlashOrAsteriskChar = [$any_char] # [\* \/]
 
-
 -- See http://blog.stevenlevithan.com/archives/javascript-regex-and-unicode
     -- *  \u0009 — Tab — \t
     -- * \u000a — Line feed — \n — (newline character)
