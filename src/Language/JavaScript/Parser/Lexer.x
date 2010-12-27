@@ -105,6 +105,15 @@ $MultiLineNotForwardSlashOrAsteriskChar = [$any_char] # [\* \/]
 --$white_char   = [\ \f\v\t\r\n]
 $white_char = [\x0009\x000a\x000b\x000c\x000d\x0020\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000]
 
+-- Identifier characters
+-- UnicodeLetter
+--       any character in the Unicode categories “Uppercase letter (Lu)”, “Lowercase letter (Ll)”, 
+--       “Titlecase letter (Lt)”, “Modifier letter (Lm)”, “Other letter (Lo)”, or “Letter number (Nl)”.
+
+-- http://www.fileformat.info/info/unicode/category/Lu/list.htm
+$UnicodeLu = [\x0041-\x005a\x00c0-\x00de\x0100\x0102\x0104\x0106\x0108\x010a\x010c\x010e\x0110\x0112\x0114\x0116\x0118\x011a\x011c\x011e\x0120\x0122\x0124\x0128\x012a\x012c\x012e\x0130\x0132\x0134\x0136\x0139\x013b\x013d\x013f\x0141\x0143\x0145\x0147\x014a\x014c\x014e\x0150\x0152\x0154\x0158]
+
+
 
 -- ! ------------------------------------------------- Terminals
 tokens :-
