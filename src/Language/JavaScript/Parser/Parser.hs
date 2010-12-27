@@ -12,7 +12,7 @@ import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.Grammar
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad
-import Language.JavaScript.Parser.SrcLocation
+--import Language.JavaScript.Parser.SrcLocation
 import qualified Language.JavaScript.Parser.AST as AST
 
 -- | Parse one compound statement, or a sequence of simple statements. 
@@ -22,7 +22,7 @@ parseStmtKeepComments :: String -- ^ The input stream (Javascript source code).
       -> String -- ^ The name of the Javascript source (filename or input device). 
       -> Either ParseError (AST.JSNode, [Token]) 
          -- ^ An error or maybe the abstract syntax tree (AST) of zero or more Javascript statements, plus comments.
-parseStmtKeepComments input srcName = 
+parseStmtKeepComments input _srcName = 
    execParserKeepComments parseProgram state 
    where
      state = initialState input 
@@ -35,7 +35,7 @@ parse :: String -- ^ The input stream (Javascript source code).
       -> String -- ^ The name of the Javascript source (filename or input device). 
       -> Either ParseError AST.JSNode 
          -- ^ An error or maybe the abstract syntax tree (AST) of zero or more Javascript statements, plus comments.
-parse input srcName = 
+parse input _srcName = 
    execParser parseProgram state 
    where
      state = initialState input 
@@ -62,7 +62,7 @@ parseUsing ::
       -> String -- ^ The name of the Javascript source (filename or input device). 
       -> Either ParseError AST.JSNode 
          -- ^ An error or maybe the abstract syntax tree (AST) of zero or more Javascript statements, plus comments.
-parseUsing p input srcName = 
+parseUsing p input _srcName = 
    execParser p state 
    where
      state = initialState input

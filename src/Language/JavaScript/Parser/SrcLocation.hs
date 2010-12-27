@@ -15,7 +15,7 @@
 module Language.JavaScript.Parser.SrcLocation (
   -- * Construction 
   AlexPosn (..),
-  AlexSpan (..),
+  AlexSpan,
   alexStartPos,
   alexSpanEmpty,
   SrcLocation (..),
@@ -41,7 +41,16 @@ module Language.JavaScript.Parser.SrcLocation (
 import Data.Data
 import Prelude hiding (span)
 
-data AlexPosn = AlexPn !Int !Int !Int
+-- | `Posn' records the location of a token in the input text.  It has three
+-- fields: the address (number of characters preceding the token), line number
+-- and column of a token within the file. `start_pos' gives the position of the
+-- start of the file and `eof_pos' a standard encoding for the end of file.
+-- `move_pos' calculates the new position after traversing a given character,
+-- assuming the usual eight character tab stops.
+
+data AlexPosn = AlexPn !Int -- address (number of characters preceding the token)
+                       !Int -- line number
+                       !Int -- column
         deriving (Eq,Show)
 
 alexStartPos :: AlexPosn
@@ -49,6 +58,7 @@ alexStartPos = AlexPn 0 1 1
 
 -- AZ bringing this in as SrcSpan replacement.
 type AlexSpan = (AlexPosn, Char, String)
+alexSpanEmpty :: AlexSpan
 alexSpanEmpty = (alexStartPos, '\n', "")
 
 -- | A location for a syntactic entity from the source code.

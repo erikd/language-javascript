@@ -5,13 +5,13 @@ module Language.JavaScript.Parser.Lexer (
     , lexCont 
     ) where
   
-import Control.Monad
+--import Control.Monad
 import Language.JavaScript.Parser.LexerUtils
 import Language.JavaScript.Parser.ParserMonad 
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Data.Map as Map
-import Data.Word (Word8)
+--import Data.Word (Word8)
 
 import Codec.Binary.UTF8.Light as UTF8
 
@@ -38,7 +38,9 @@ $ident_letter = [a-zA-Z_]
 
 $any_char = [\x00-\xff]
 
-$eol_char = [$lf $cr] -- any end of line character
+
+$eol_char = [\x000A\x000D\x2028\x2029] -- any end of line character
+--$eol_char = [$lf $cr] -- any end of line character
 $not_eol_char = ~$eol_char -- anything but an end of line character
 
 
@@ -70,15 +72,37 @@ $RegExpFirstChar = [$printable] # [ $cr $lf \* \\ \/]
 -- ~ ( LineTerminator | BSLASH | DIV )
 $RegExpChars = [$printable] # [ $cr $lf \\ \/]
 
--- WhiteSpace ::
---      <TAB>
---      <VT>
---      <FF>
---      <SP>
---      <NBSP>
---      <USP>
--- TODO: bring in NBSP and USP
-$white_char   = [\ \f\v\t\r\n]
+
+-- See http://blog.stevenlevithan.com/archives/javascript-regex-and-unicode
+    -- *  \u0009 — Tab — \t
+    -- * \u000a — Line feed — \n — (newline character)
+    -- * \u000b — Vertical tab — \v
+    -- * \u000c — Form feed — \f
+    -- * \u000d — Carriage return — \r — (newline character)
+    -- * \u0020 — Space
+    -- * \u00a0 — No-break space
+    -- * \u1680 — Ogham space mark
+    -- * \u180e — Mongolian vowel separator
+    -- * \u2000 — En quad
+    -- * \u2001 — Em quad
+    -- * \u2002 — En space
+    -- * \u2003 — Em space
+    -- * \u2004 — Three-per-em space
+    -- * \u2005 — Four-per-em space
+    -- * \u2006 — Six-per-em space
+    -- * \u2007 — Figure space
+    -- * \u2008 — Punctuation space
+    -- * \u2009 — Thin space
+    -- * \u200a — Hair space
+    -- * \u2028 — Line separator — (newline character)
+    -- * \u2029 — Paragraph separator — (newline character)
+    -- * \u202f — Narrow no-break space
+    -- * \u205f — Medium mathematical space
+    -- * \u3000 — Ideographic space
+
+--$white_char   = [\ \f\v\t\r\n]
+$white_char = [\x0009\x000a\x000b\x000c\x000d\x0020\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000]
+
 
 -- ! ------------------------------------------------- Terminals
 tokens :-
@@ -199,7 +223,7 @@ tokens :-
 The method is inspired by the lexer in http://jint.codeplex.com/
 
 -}
---classifyToken :: Token -> Int
+classifyToken :: Token -> Int
 classifyToken token = 
    case token of
       IdentifierToken {} -> divide
@@ -265,10 +289,10 @@ lexCont cont = do
 utf8Encode :: Char -> [Byte]
 utf8Encode c = head (UTF8.encodeUTF8' [UTF8.c2w c])
 
-alexEOF = EOFToken alexSpanEmpty
+--alexEOF = EOFToken alexSpanEmpty
 
-
-ignorePendingBytes (p,c,ps,s) = (p,c,s)
+ignorePendingBytes :: forall t t1 t2 t3. (t, t1, t2, t3) -> (t, t1, t3)
+ignorePendingBytes (p,c,_ps,s) = (p,c,s)
 
 
 alexInputPrevChar :: AlexInput -> Char
@@ -276,14 +300,14 @@ alexInputPrevChar (p,c,bs,s) = c
 
 alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
 alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
-alexGetByte (p,c,[],[]) = Nothing
+alexGetByte (_p,_c,[],[]) = Nothing
 alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
                                   (b:bs) = utf8Encode c
                               in p' `seq`  Just (b, (p', c, bs, s))
 
 alexMove :: AlexPosn -> Char -> AlexPosn
 alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
-alexMove (AlexPn a l c) '\n' = AlexPn (a+1) (l+1)   1
+alexMove (AlexPn a l _c) '\n' = AlexPn (a+1) (l+1)   1
 alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
 
 -- ---------------------------------------------------------------------

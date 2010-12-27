@@ -34,7 +34,7 @@ module Language.JavaScript.Parser.ParserMonad
    , addComment
    , getComments
    , spanError
-   , AlexInput (..)
+   , AlexInput 
    , Byte  
    ) where
 
@@ -43,7 +43,7 @@ import Control.Monad.Error as Error
 import Control.Monad.State.Class
 import Control.Monad.State.Strict as State
 import Language.JavaScript.Parser.ParseError (ParseError (..))
-import Language.JavaScript.Parser.SrcLocation (AlexPosn (..), alexStartPos, alexSpanEmpty, SrcLocation (..), SrcSpan (..), Span (..))
+import Language.JavaScript.Parser.SrcLocation (AlexPosn (..), alexStartPos, alexSpanEmpty, Span (..))
 import Language.JavaScript.Parser.Token (Token (..))
 import Prelude hiding (span)
 import Data.Word (Word8)

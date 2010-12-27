@@ -6,9 +6,10 @@ module Language.JavaScript.Parser
        , JSNode(..)  
        , ParseError(..)  
        -- Source locations  
-       , SrcLocation (..)
-       , SrcSpan (..)
-       , Span (..)
+       , AlexPosn
+       -- , SrcLocation (..)
+       -- , SrcSpan (..)
+       -- , Span (..)
        -- ParserMonad  
        , P  
        , ParseState (..)  

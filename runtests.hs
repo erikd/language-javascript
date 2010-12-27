@@ -4,6 +4,7 @@ import Test.Framework.Providers.HUnit
 import Test.HUnit hiding (Test)
 
 
+import Control.Monad (liftM)
 import Language.JavaScript.Parser.Parser
 import Language.JavaScript.Parser.Grammar
 
@@ -224,6 +225,15 @@ testSuite = testGroup "Parser"
      
    , testCase "122_jsexec" (testProg "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"v\",JSOperator \"=\",JSExpressionBinary \" in \" [JSIdentifier \"getValue\",JSArguments [[JSIdentifier \"execute\",JSArguments [[JSMemberSquare [JSIdentifier \"n\"] (JSExpression [JSDecimal \"0\"])],[JSIdentifier \"x\"]]]]] [JSIdentifier \"getValue\",JSArguments [[JSIdentifier \"execute\",JSArguments [[JSMemberSquare [JSIdentifier \"n\"] (JSExpression [JSDecimal \"1\"])],[JSIdentifier \"x\"]]]]]]],JSLiteral \";\"])")
      
+   , testCase "unicode1-ws" (testProg "a \f\v\t\r\n=\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\&1;" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"a\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\"])")
+     
+   , testCase "unicode2-lt" (testProg "//comment\x000Ax=1;" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\"])")  
+   , testCase "unicode3-lt" (testProg "//comment\x000Dx=1;" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\"])")  
+   , testCase "unicode4-lt" (testProg "//comment\x2028x=1;" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\"])")  
+   , testCase "unicode5-lt" (testProg "//comment\x2029x=1;" "Right (JSSourceElementsTop [JSExpression [JSElement \"assignmentExpression\" [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]],JSLiteral \";\"])")  
+     
+   , testCase "unicode2" (testProg "àáâãäå = 1;" "")
+   , testCase "unicode3" (testFile "./test/Unicode.js" "")  
     ]
 
 srcHelloWorld = "Hello"
@@ -244,5 +254,15 @@ testStmt str expected = expected @=? (show $ parseUsing parseStatement str "src"
 
 testProg str expected = expected @=? (show $ parseUsing parseProgram str "src")
 
+testFile fileName expected = do
+  res <- parseFile fileName
+  -- expected @=? (liftM show $ parseFile fileName)
+  (expected @=? (show res))
+
+
+-- Set emacs mode
+-- Local Variables: 
+-- coding: utf-8
+-- End:             
 
 -- EOF
