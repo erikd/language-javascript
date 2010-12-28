@@ -13,7 +13,6 @@ Build-type:          Simple
 homepage:            http://github.com/alanz/language-javascript
 bug-reports:         http://github.com/alanz//language-javascript/issues
 Extra-source-files:  README
-                     ANNOUNCE
                      .ghci
                      buildall.sh
 
