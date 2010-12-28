@@ -45,6 +45,9 @@ $ cabal install --reinstall alex
 
 Changes
 
+0.0.3 Support for unicode in source. At the moment it only supports
+UTF8 encoding, does not recognise byte order marks or UTF-16/UTF-32
+
 0.0.2 Multiline comments were processed in greedy form, now end of
 comment recognised properly. Thanks to Tony Morris for reporting this.
 
