@@ -224,9 +224,9 @@ Elision :  ','        { [(AST.JSElision [])] }
 --                  | <Element List> ',' <Elision>  <Assignment Expression>
 --                  | <Element List> ',' <Assignment Expression>
 --                  | <Assignment Expression>
-ElementList : Elision AssignmentExpression                     { [(AST.JSElementList ($1++$2)) ] }
-            | ElementList ',' Elision AssignmentExpression { [(AST.JSElementList ($1++[(AST.JSElision [])]++$3++$4))] }
-            | ElementList ',' AssignmentExpression         { [(AST.JSElementList ($1++[(AST.JSElision [])]++$3))] }
+ElementList : Elision AssignmentExpression                     { ($1++$2) {- ElementList -}}
+            | ElementList ',' Elision AssignmentExpression { ($1++[(AST.JSElision [])]++$3++$4) {- ElementList -}}
+            | ElementList ',' AssignmentExpression         { ($1++[(AST.JSElision [])]++$3) {- ElementList -}}
             | AssignmentExpression                             { $1 {- ElementList -}}
 
 -- <Object Literal> ::= '{' <Property Name and Value List> '}'
@@ -433,7 +433,7 @@ ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
 AssignmentExpression :: { [AST.JSNode] }
 AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}} 
                      | LeftHandSideExpression AssignmentOperator AssignmentExpression 
-                       { [(AST.JSElement "assignmentExpression" ($1++[$2]++$3))] }
+                       { ($1++[$2]++$3) }
                        
 -- <Assignment Operator> ::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator :: { AST.JSNode }

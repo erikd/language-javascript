@@ -16,8 +16,8 @@ data JSNode = JSArguments [[JSNode]]
               | JSDecimal String -- Was Integer   
               | JSDefault JSNode
               | JSDoWhile JSNode JSNode JSNode
-              | JSElement String [JSNode]
-              | JSElementList [JSNode]  
+              -- | JSElement String [JSNode]
+              -- | JSElementList [JSNode]  
               | JSElision [JSNode]  
               | JSEmpty JSNode
               | JSExpression [JSNode]
