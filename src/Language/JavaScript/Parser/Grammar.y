@@ -666,9 +666,12 @@ FunctionDeclaration : 'function' Identifier '(' FormalParameterList ')' '{' Func
 -- <Function Expression> ::= 'function' '(' ')' '{' <Function Body> '}'
 --                         | 'function' '(' <Formal Parameter List> ')' '{' <Function Body> '}'
 FunctionExpression :: { AST.JSNode }
-FunctionExpression : 'function' '(' ')' '{' FunctionBody '}'                      { (AST.JSFunctionExpression [] $5) }
-                   | 'function' '(' FormalParameterList ')' '{' FunctionBody '}'  { (AST.JSFunctionExpression $3 $6) }
+FunctionExpression : 'function' IdentifierOpt '(' ')' '{' FunctionBody '}'                      { (AST.JSFunctionExpression $2 [] $6) }
+                   | 'function' IdentifierOpt '(' FormalParameterList ')' '{' FunctionBody '}'  { (AST.JSFunctionExpression $2 $4 $7) }
 
+IdentifierOpt :: { [AST.JSNode] }
+IdentifierOpt : Identifier { [$1] {- IdentifierOpt -}}
+              |            { []   {- IdentifierOpt -}}
 
 -- <Formal Parameter List> ::= Identifier
 --                           | <Formal Parameter List> ',' Identifier

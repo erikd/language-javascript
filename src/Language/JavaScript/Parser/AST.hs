@@ -16,8 +16,6 @@ data JSNode = JSArguments [[JSNode]]
               | JSDecimal String -- Was Integer   
               | JSDefault JSNode
               | JSDoWhile JSNode JSNode JSNode
-              -- | JSElement String [JSNode]
-              -- | JSElementList [JSNode]  
               | JSElision [JSNode]  
               | JSEmpty JSNode
               | JSExpression [JSNode]
@@ -32,7 +30,7 @@ data JSNode = JSArguments [[JSNode]]
               | JSForVarIn JSNode JSNode JSNode 
               | JSFunction JSNode [JSNode] JSNode -- name, parameter list, body
               | JSFunctionBody [JSNode]
-              | JSFunctionExpression [JSNode] JSNode -- name, parameter list, body                
+              | JSFunctionExpression [JSNode] [JSNode] JSNode -- name, parameter list, body                
               | JSHexInteger String -- Was Integer  
               | JSIdentifier String
               | JSIf JSNode JSNode  
