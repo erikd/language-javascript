@@ -19,6 +19,8 @@ manipulation.
 
 5. Process comments. Some kinds of hooks exist, but they are essentially discarded.
 
+6. Work in the future reserved words, ECMAScript edition 3, 7.5.3
+
 
 EOF
 

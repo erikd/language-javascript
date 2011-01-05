@@ -203,6 +203,7 @@ tokens :-
 
 
 
+-- TODO: Work in SignedInteger
 
 -- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
 --              |  {Non Zero Digits}+ '.' {Digit}* 
