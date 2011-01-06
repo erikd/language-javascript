@@ -56,6 +56,8 @@ testSuite = testGroup "Parser"
       
     , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSPropertyNameandValue (JSIdentifier \"load\") [JSFunction (JSIdentifier \"load\") [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]),JSExpression [JSDecimal \"1\"]]])]])")
 
+    , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"])")
+    
     , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
       
     , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")

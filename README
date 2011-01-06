@@ -45,6 +45,8 @@ $ cabal install --reinstall alex
 
 Changes
 
+0.2.1 Allow trailing comma in object literal
+
 0.2.0 ECMAScript 3 allows function expressions to have names, AST.JSFunctionExpression now reflects this
 
 0.1.0 Simplified AST by removing JSElement and JSElementList components

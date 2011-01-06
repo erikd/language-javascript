@@ -237,6 +237,7 @@ ObjectLiteral : '{' PropertyNameandValueList '}' { AST.JSObjectLiteral $2 }
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
 
 -- Seems we can have function declarations in the value part too                           
+-- TODO: And can end with a comma
 PropertyNameandValueList :: { [ AST.JSNode ] }
 PropertyNameandValueList : PropertyName ':' AssignmentExpression { [(AST.JSPropertyNameandValue $1 $3)] }
                          | PropertyName ':' FunctionDeclaration { [(AST.JSPropertyNameandValue $1 [$3])] }
@@ -244,6 +245,8 @@ PropertyNameandValueList : PropertyName ':' AssignmentExpression { [(AST.JSPrope
                            { ($1 ++ [(AST.JSPropertyNameandValue $3 $5)])  } 
                          | PropertyNameandValueList ',' PropertyName ':' FunctionDeclaration 
                            { ($1 ++ [(AST.JSPropertyNameandValue $3 [$5])])  } 
+                         | PropertyNameandValueList ',' 
+                           { ($1 ++ [(AST.JSLiteral ",")])  } 
                          |    { [] }  
 
 
