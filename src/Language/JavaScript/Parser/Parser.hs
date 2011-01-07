@@ -9,10 +9,10 @@ module Language.JavaScript.Parser.Parser (
    ) where
 
 import Language.JavaScript.Parser.ParseError
-import Language.JavaScript.Parser.Grammar
+--import Language.JavaScript.Parser.Grammar
+import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad
---import Language.JavaScript.Parser.SrcLocation
 import qualified Language.JavaScript.Parser.AST as AST
 
 -- | Parse one compound statement, or a sequence of simple statements. 

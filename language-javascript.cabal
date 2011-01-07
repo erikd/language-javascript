@@ -34,6 +34,7 @@ Library
                        Language.JavaScript.Parser.Parser
                        Language.JavaScript.Parser.Lexer
                        Language.JavaScript.Parser.Grammar
+                       Language.JavaScript.Parser.Grammar5
                        Language.JavaScript.Parser.AST
   Other-modules:       Language.JavaScript.Parser.LexerUtils
                        Language.JavaScript.Parser.ParseError
