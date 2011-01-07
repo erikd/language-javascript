@@ -144,8 +144,10 @@ $HexDigit = [0-9a-fA-F]
 --         UnicodeConnectorPunctuation
 --         \ UnicodeEscapeSequence
 
+$ZWNJ = [\x200c]
+$ZWJ  = [\x200d]
 @IdentifierPart = @IdentifierStart | $UnicodeCombiningMark | $UnicodeDigit | UnicodeConnectorPunctuation
-        [\\] @UnicodeEscapeSequence
+        [\\] @UnicodeEscapeSequence | $ZWNJ | $ZWJ
                                                    
 -- ! ------------------------------------------------- Terminals
 tokens :-
@@ -211,9 +213,9 @@ tokens :-
 --              | {Non Zero Digits}+ {Digit}* 
 --              | '0' 
 --              | '0' '.' {Digit}+
-<reg,divide> $non_zero_digit+ "." $digit* ("e"|"E") $non_zero_digit+ $digit* 
+<reg,divide> $non_zero_digit+ "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
     | $non_zero_digit+ "." $digit*       
-    | "0." $digit+  ("e"|"E") $non_zero_digit+ $digit* 
+    | "0." $digit+  ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
     | $non_zero_digit+ $digit*
     | "0"
     | "0." $digit+                    { mkString decimalToken }

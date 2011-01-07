@@ -201,7 +201,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral "this" }
                   | ArrayLiteral             { $1 {- PrimaryExpression3 -}}
                   | ObjectLiteral            { $1 {- PrimaryExpression4 -}}
                   | '(' Expression ')'       { AST.JSExpressionParen $2 }
-                  | RegularExpressionLiteral { $1 {- PrimaryExpression5 -}}
+                  | RegularExpressionLiteral { $1 {- PrimaryExpression5 -}} -- Not in ECMA ed 5?
                   
 Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
 
@@ -213,6 +213,7 @@ ArrayLiteral : '[' ']'                         { AST.JSArrayLiteral [] }
              | '[' Elision ']'                 { AST.JSArrayLiteral $2 }
              | '[' ElementList ']'             { AST.JSArrayLiteral $2 }
              | '[' ElementList ',' Elision ']' { AST.JSArrayLiteral ($2++$4) }
+             | '[' ElementList ',' ']'         { AST.JSArrayLiteral ($2++[AST.JSLiteral ","]) }
 
 -- <Elision> ::= ','
 --             | <Elision> ','

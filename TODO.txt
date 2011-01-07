@@ -21,6 +21,10 @@ manipulation.
 
 6. Work in the future reserved words, ECMAScript edition 3, 7.5.3
 
+7. Make BOM parse as whitespace, as required by edition 5.
+
+8. String literals for ed 5 - continuation chars etc.
+
 
 EOF
 

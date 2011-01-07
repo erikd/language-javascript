@@ -26,7 +26,11 @@ testSuite = testGroup "Parser"
     , testCase "LiteralDecimal4"   (testLiteral "0.7E8"    "Right (JSDecimal \"0.7E8\")")
     , testCase "LiteralDecimal5"   (testLiteral "10"       "Right (JSDecimal \"10\")")
     , testCase "LiteralDecimal6"   (testLiteral "0"        "Right (JSDecimal \"0\")")
-    , testCase "LiteralDecimaly"   (testLiteral "0.03"     "Right (JSDecimal \"0.03\")")
+    , testCase "LiteralDecimal7"   (testLiteral "0.03"     "Right (JSDecimal \"0.03\")")
+    , testCase "LiteralDecimal9"   (testLiteral "0.7e+8"   "Right (JSDecimal \"0.7e+8\")")
+    , testCase "LiteralDecimal10"  (testLiteral "0.7e-18"  "Right (JSDecimal \"0.7e-18\")")      
+    , testCase "LiteralDecimal11"  (testLiteral "1.0e+4"   "Right (JSDecimal \"1.0e+4\")")
+    , testCase "LiteralDecimal12"  (testLiteral "1.0e-4"   "Right (JSDecimal \"1.0e-4\")")
       
     , testCase "LiteralString1"    (testLiteral "\"hello\\nworld\"" "Right (JSStringLiteral '\"' \"hello\\\\nworld\")")  
     , testCase "LiteralString2"    (testLiteral "'hello\\nworld'"  "Right (JSStringLiteral '\\'' \"hello\\\\nworld\")")
@@ -49,6 +53,7 @@ testSuite = testGroup "Parser"
     , testCase "ArrayLiteral5"     (testPE "[,,x]"   "Right (JSArrayLiteral [JSElision [],JSElision [],JSIdentifier \"x\"])")
     , testCase "ArrayLiteral6"     (testPE "[,x,,x]" "Right (JSArrayLiteral [JSElision [],JSIdentifier \"x\",JSElision [],JSElision [],JSIdentifier \"x\"])")
     , testCase "ArrayLiteral7"     (testPE "[x]"     "Right (JSArrayLiteral [JSIdentifier \"x\"])")
+    , testCase "ArrayLiteral8"     (testPE "[x,]"    "Right (JSArrayLiteral [JSIdentifier \"x\",JSLiteral \",\"])")
       
     , testCase "ObjectLiteral1"    (testPE "{}"       "Right (JSObjectLiteral [])")
     , testCase "ObjectLiteral2"    (testPE "{x:1}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]])")
@@ -58,6 +63,8 @@ testSuite = testGroup "Parser"
 
     , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"])")
     
+    , testCase "ObjectLiteral6"    (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"values\") [JSDecimal \"7\"],JSLiteral \",\"]]])")
+      
     , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
       
     , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")
