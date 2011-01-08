@@ -103,7 +103,8 @@ $MultiLineNotForwardSlashOrAsteriskChar = [$any_char] # [\* \/]
     -- * \u3000 — Ideographic space
 
 --$white_char   = [\ \f\v\t\r\n]
-$white_char = [\x0009\x000a\x000b\x000c\x000d\x0020\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000]
+-- Note: from edition 5 the BOM (\xfeff) is also considered whitespace
+$white_char = [\x0009\x000a\x000b\x000c\x000d\x0020\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\xfeff]
 
 -- Identifier characters
 -- UnicodeLetter
@@ -195,7 +196,7 @@ tokens :-
      | $sq ( $StringChars2 | \\ $printable )* $sq { mkString stringToken }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
-<reg,divide> "0x" @HexDigit+ { mkString hexIntegerToken }
+<reg,divide> ("0x"|"0X") @HexDigit+ { mkString hexIntegerToken }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
 -- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
@@ -401,11 +402,96 @@ keywordNames =
     ("return",ReturnToken),("switch",SwitchToken),("this",ThisToken),
     ("throw",ThrowToken),("true",TrueToken),("try",TryToken),
     ("typeof",TypeofToken),("var",VarToken),("void",VoidToken),
-    ("while",WhileToken),("with",WithToken)
+    ("while",WhileToken),("with",WithToken),
+    -- TODO: no idea if these are reserved or not, but they are needed
+    ("get",GetToken),("set",SetToken),
+                         
+    -- Future Reserved Words                         
+    ("class", FutureToken),
+    ("code", FutureToken),
+    -- ("const", FutureToken),
+    -- enum
+    ("export", FutureToken),
+    ("extends", FutureToken),
+    ("implements", FutureToken),
+    ("import", FutureToken),
+    -- in 
+    ("interface", FutureToken),
+    ("let", FutureToken),
+    ("mode", FutureToken),
+    ("of", FutureToken),
+    ("one", FutureToken),
+    ("or", FutureToken),
+    ("package", FutureToken),
+    ("private", FutureToken),
+    ("protected", FutureToken),
+    ("public", FutureToken),
+    ("static", FutureToken),
+    ("strict", FutureToken),
+    ("super", FutureToken),
+    ("yield", FutureToken)
    ]
-
 }
 
+
+-- break 
+-- case 
+-- catch 
+-- continue 
+-- debugger 
+-- default 
+-- delete 
+-- do
+-- else
+--  - enum
+--  - false
+-- finally
+-- for
+-- function
+-- if
+-- in
+-- instanceof 
+-- new 
+--  - null
+-- return 
+-- switch 
+-- this 
+-- throw
+--  - true
+-- try
+-- typeof
+-- var
+-- void
+-- while
+-- with
+
+
+
+-- FutureReservedWord :: one of   See 7.6.1.2
+
+-- class 
+-- code 
+-- const 
+-- *enum
+-- export
+-- extends 
+-- implements 
+-- import
+-- *in 
+-- interface 
+-- let 
+-- mode 
+-- of
+-- one 
+-- or 
+-- package 
+-- private 
+-- protected 
+-- public
+-- static
+-- strict 
+-- super
+-- yield
 
 
 -- Set emacs mode

@@ -1,5 +1,7 @@
 Things to do
 
+Useful resource: http://sideshowbarker.github.com/es5-spec
+
 1. Work in unicode support.
 
 Use the utf8 branch of the following project
@@ -13,7 +15,7 @@ Necessary?  Depends what this tool is used for.  Current assumption is
 that it is fed well-formed JS, and generates an AST for further
 manipulation.
 
-3. Simplify the AST. JSElement at the very least is redundant.
+3. Simplify the AST. *JSElement at the very least is redundant.
 
 4. Clarify the external interfaces required.
 
@@ -25,6 +27,10 @@ manipulation.
 
 8. String literals for ed 5 - continuation chars etc.
 
+9. IdentifierName is union of Identifier and reserved word. i.e. Can
+use reserved word as a name in certain contexts. Damn.
+
+10. Sort out [no line terminator here] in PostfixExpression
 
 EOF
 

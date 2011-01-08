@@ -77,7 +77,12 @@ data Token
    | VoidToken { token_span :: !AlexSpan }
    | WhileToken { token_span :: !AlexSpan }
    | WithToken { token_span :: !AlexSpan }
-
+   -- Future reserved words  
+   | FutureToken { token_span :: !AlexSpan }
+   -- Needed, not sure what they are though.  
+   | GetToken { token_span :: !AlexSpan }
+   | SetToken { token_span :: !AlexSpan }
+   
    -- Delimiters
    -- Operators
    | SemiColonToken { token_span :: !AlexSpan }

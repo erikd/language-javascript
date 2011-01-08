@@ -42,6 +42,7 @@ data JSNode = JSArguments [[JSNode]]
               | JSObjectLiteral [JSNode]  
               | JSOperator String  
               | JSPropertyNameandValue JSNode [JSNode]
+              | JSPropertyAccessor String JSNode [JSNode] JSNode
               | JSRegEx String
               | JSReturn [JSNode]
               | JSSourceElements [JSNode]

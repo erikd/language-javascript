@@ -18,7 +18,8 @@ testSuite = testGroup "Parser"
     , testCase "LiteralNull"       (testLiteral "null"     "Right (JSLiteral \"null\")")
     , testCase "LiteralFalse"      (testLiteral "false"    "Right (JSLiteral \"false\")")
     , testCase "LiteralTrue"       (testLiteral "true"     "Right (JSLiteral \"true\")")
-    , testCase "LiteralHexInteger" (testLiteral "0x1234fF" "Right (JSHexInteger \"0x1234fF\")")
+    , testCase "LiteralHexInteger1" (testLiteral "0x1234fF" "Right (JSHexInteger \"0x1234fF\")")
+    , testCase "LiteralHexInteger2" (testLiteral "0X1234fF" "Right (JSHexInteger \"0X1234fF\")")
     , testCase "LiteralDecimal1"   (testLiteral "1.0e4"    "Right (JSDecimal \"1.0e4\")")
     , testCase "LiteralDecimal2"   (testLiteral "2.3E6"    "Right (JSDecimal \"2.3E6\")")
     , testCase "LiteralDecimal3"   (testLiteral "4.5"      "Right (JSDecimal \"4.5\")")
@@ -64,6 +65,9 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"])")
     
     , testCase "ObjectLiteral6"    (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"values\") [JSDecimal \"7\"],JSLiteral \",\"]]])")
+      
+    -- Edition 5 extensions  
+    , testCase "ObjectLiteral7"    (testPE "{get foo() {return 1},set foo(a) {x=a}}"  "")
       
     , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
       
