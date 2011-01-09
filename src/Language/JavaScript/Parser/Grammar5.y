@@ -277,9 +277,11 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSNode }
 PropertyAssignment : PropertyName ':' AssignmentExpression { (AST.JSPropertyNameandValue $1 $3) }
-                   | 'get' PropertyName '(' ')' '{' FunctionBody '}' { (AST.JSPropertyAccessor "get" $2 [] $6) }
-                   | 'set' PropertyName '(' PropertySetParameterList ')' '{' FunctionBody '}' 
-                       { (AST.JSPropertyAccessor "set" $2 [$4] $7) }
+                   -- Should be "get" in next, but is not a Token
+                   | 'ident' PropertyName '(' ')' '{' FunctionBody '}' { (AST.JSPropertyAccessor (token_literal $1) $2 [] $6) }
+                   -- Should be "set" in next, but is not a Token
+                   | 'ident' PropertyName '(' PropertySetParameterList ')' '{' FunctionBody '}' 
+                       { (AST.JSPropertyAccessor (token_literal $1) $2 [$4] $7) }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName
