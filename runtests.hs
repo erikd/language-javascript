@@ -6,10 +6,20 @@ import Test.HUnit hiding (Test)
 
 import Control.Monad (liftM)
 import Language.JavaScript.Parser.Parser
-import Language.JavaScript.Parser.Grammar
+--import Language.JavaScript.Parser.Grammar
+import Language.JavaScript.Parser.Grammar5
 
 main :: IO ()
 main = defaultMain [testSuite]
+
+one :: IO ()
+one = defaultMain [oneSuite]
+
+oneSuite :: Test
+oneSuite = testGroup "One"
+ [
+   testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}"  "")
+ ]  
 
 testSuite :: Test
 testSuite = testGroup "Parser"
@@ -60,14 +70,14 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral2"    (testPE "{x:1}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]])")
     , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]])")
       
-    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSPropertyNameandValue (JSIdentifier \"load\") [JSFunction (JSIdentifier \"load\") [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]),JSExpression [JSDecimal \"1\"]]])]])")
+    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression [JSIdentifier \"load\"] [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]),JSExpression [JSDecimal \"1\"]]])]])")
 
     , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"])")
     
     , testCase "ObjectLiteral6"    (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"values\") [JSDecimal \"7\"],JSLiteral \",\"]]])")
       
     -- Edition 5 extensions  
-    , testCase "ObjectLiteral7"    (testPE "{get foo() {return 1},set foo(a) {x=a}}"  "")
+    , testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}"  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSObjectLiteral [JSPropertyAccessor \"get\" (JSIdentifier \"foo\") [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSDecimal \"1\"],JSLiteral \"\"]]]),JSPropertyAccessor \"set\" (JSIdentifier \"foo\") [JSIdentifier \"a\"] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"a\"]]])]]])")
       
     , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
       
@@ -279,6 +289,7 @@ testPE str expected = expected @=? (show $ parseUsing parsePrimaryExpression str
 testStmt str expected = expected @=? (show $ parseUsing parseStatement str "src")
 
 testProg str expected = expected @=? (show $ parseUsing parseProgram str "src")
+--testProg str expected = expected @=? (show $ readJs str )
 
 testFile fileName expected = do
   res <- parseFile fileName
