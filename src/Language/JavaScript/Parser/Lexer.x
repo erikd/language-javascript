@@ -404,7 +404,8 @@ keywordNames =
     ("typeof",TypeofToken),("var",VarToken),("void",VoidToken),
     ("while",WhileToken),("with",WithToken),
     -- TODO: no idea if these are reserved or not, but they are needed
-    -- Nope, cause too much grief ("get",GetToken),("set",SetToken),
+    --       handled in parser, in the Identifier rule       
+    ("get",GetToken),("set",SetToken),
                          
     -- Future Reserved Words                         
     ("class", FutureToken),

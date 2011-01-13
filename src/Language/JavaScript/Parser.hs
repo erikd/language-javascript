@@ -6,7 +6,7 @@ module Language.JavaScript.Parser
        , JSNode(..)  
        , ParseError(..)  
        -- Source locations  
-       , AlexPosn
+       , AlexPosn(..)
        -- , SrcLocation (..)
        -- , SrcSpan (..)
        -- , Span (..)

@@ -219,7 +219,10 @@ PrimaryExpression : 'this'                   { AST.JSLiteral "this" }
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSNode }
 Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
--- TODO: make this include any reserved word too, including future
+           | 'get'   { AST.JSIdentifier "get" }  
+           | 'set'   { AST.JSIdentifier "set" }  
+
+-- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSNode }
 IdentifierName : Identifier {$1}
 
@@ -278,10 +281,10 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 PropertyAssignment :: { AST.JSNode }
 PropertyAssignment : PropertyName ':' AssignmentExpression { (AST.JSPropertyNameandValue $1 $3) }
                    -- Should be "get" in next, but is not a Token
-                   | 'ident' PropertyName '(' ')' '{' FunctionBody '}' { (AST.JSPropertyAccessor (token_literal $1) $2 [] $6) }
+                   | 'get' PropertyName '(' ')' '{' FunctionBody '}' { (AST.JSPropertyAccessor "get" $2 [] $6) }
                    -- Should be "set" in next, but is not a Token
-                   | 'ident' PropertyName '(' PropertySetParameterList ')' '{' FunctionBody '}' 
-                       { (AST.JSPropertyAccessor (token_literal $1) $2 [$4] $7) }
+                   | 'set' PropertyName '(' PropertySetParameterList ')' '{' FunctionBody '}' 
+                       { (AST.JSPropertyAccessor "set" $2 [$4] $7) }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName
@@ -549,8 +552,8 @@ LogicalOrExpressionNoIn : LogicalAndExpressionNoIn { $1 {- LogicalOrExpression -
 --        LogicalORExpression ? AssignmentExpression : AssignmentExpression
 ConditionalExpression :: { [AST.JSNode] }
 ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
-                    | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression 
-                      { [AST.JSExpressionTernary $1 $3 $5] } 
+                      | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression 
+                        { [AST.JSExpressionTernary $1 $3 $5] } 
                     
 -- ConditionalExpressionNoIn :                                                           See 11.12
 --        LogicalORExpressionNoIn

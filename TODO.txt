@@ -21,9 +21,9 @@ manipulation.
 
 5. Process comments. Some kinds of hooks exist, but they are essentially discarded.
 
-6. Work in the future reserved words, ECMAScript edition 3, 7.5.3
+*6. Work in the future reserved words, ECMAScript edition 3, 7.5.3
 
-7. Make BOM parse as whitespace, as required by edition 5.
+*7. Make BOM parse as whitespace, as required by edition 5.
 
 8. String literals for ed 5 - continuation chars etc.
 
@@ -31,6 +31,13 @@ manipulation.
 use reserved word as a name in certain contexts. Damn.
 
 10. Sort out [no line terminator here] in PostfixExpression
+
+11. Export AST as JSON or XML
+
+nicferrier Nic Ferrier
+@paul_houle better tools come from the languages making their ast available, 
+as json or xml: gcc --astxml a.c
+
 
 EOF
 
