@@ -110,6 +110,8 @@ import qualified Language.JavaScript.Parser.AST as AST
      'regex'      { RegExToken {} }
      'assign'     { AssignToken {} }
 
+     'future'     { FutureToken {} }
+
 
 %%
 
@@ -225,6 +227,42 @@ Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSNode }
 IdentifierName : Identifier {$1}
+             | 'break'      { AST.JSIdentifier "break" }  
+             | 'case'       { AST.JSIdentifier "case" }
+             | 'catch'      { AST.JSIdentifier "catch" }
+             | 'const'      { AST.JSIdentifier "const" }
+             | 'continue'   { AST.JSIdentifier "continue" }
+             | 'debugger'   { AST.JSIdentifier "debugger" }
+             | 'default'    { AST.JSIdentifier "default" }
+             | 'delete'     { AST.JSIdentifier "delete" }
+             | 'do'         { AST.JSIdentifier "do" }
+             | 'else'       { AST.JSIdentifier "else" }
+             | 'enum'       { AST.JSIdentifier "enum" }
+             | 'false'      { AST.JSIdentifier "false" }
+             | 'finally'    { AST.JSIdentifier "finally" }
+             | 'for'        { AST.JSIdentifier "for" }
+             | 'function'   { AST.JSIdentifier "function" }
+             | 'get'        { AST.JSIdentifier "get" }
+             | 'if'         { AST.JSIdentifier "if" }
+             | 'in'         { AST.JSIdentifier "in" }
+             | 'instanceof' { AST.JSIdentifier "instanceof" }
+             | 'new'        { AST.JSIdentifier "new" }
+             | 'null'       { AST.JSIdentifier "null" }
+             | 'return'     { AST.JSIdentifier "return" }
+             | 'set'        { AST.JSIdentifier "set" }
+             | 'switch'     { AST.JSIdentifier "switch" }
+             | 'this'       { AST.JSIdentifier "this" }
+             | 'throw'      { AST.JSIdentifier "throw" }
+             | 'true'       { AST.JSIdentifier "true" }
+             | 'try'        { AST.JSIdentifier "try" }
+             | 'typeof'     { AST.JSIdentifier "typeof" }
+             | 'var'        { AST.JSIdentifier "var" }
+             | 'void'       { AST.JSIdentifier "void" }
+             | 'while'      { AST.JSIdentifier "while" }
+             | 'with'       { AST.JSIdentifier "with" }
+             | 'future'     { AST.JSIdentifier (token_literal $1) }  
+
+
 
 -- ArrayLiteral :                                                        See 11.1.4
 --        [ Elisionopt ]

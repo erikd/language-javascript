@@ -27,16 +27,16 @@ manipulation.
 
 8. String literals for ed 5 - continuation chars etc.
 
-9. IdentifierName is union of Identifier and reserved word. i.e. Can
+*9. IdentifierName is union of Identifier and reserved word. i.e. Can
 use reserved word as a name in certain contexts. Damn.
 
 10. Sort out [no line terminator here] in PostfixExpression
 
 11. Export AST as JSON or XML
 
-nicferrier Nic Ferrier
-@paul_houle better tools come from the languages making their ast available, 
-as json or xml: gcc --astxml a.c
+  nicferrier Nic Ferrier
+  @paul_houle better tools come from the languages making their ast available, 
+  as json or xml: gcc --astxml a.c
 
 
 EOF

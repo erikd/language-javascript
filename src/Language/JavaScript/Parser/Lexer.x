@@ -383,14 +383,14 @@ alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
 keywordOrIdent :: String -> AlexSpan -> P Token
 keywordOrIdent str location
    = return $ case Map.lookup str keywords of
-         Just symbol -> symbol location
+         Just symbol -> symbol location str
          Nothing -> IdentifierToken location str  
 
 -- mapping from strings to keywords
-keywords :: Map.Map String (AlexSpan -> Token) 
+keywords :: Map.Map String (AlexSpan -> String -> Token) 
 keywords = Map.fromList keywordNames 
 
-keywordNames :: [(String, AlexSpan -> Token)]
+keywordNames :: [(String, AlexSpan -> String -> Token)]
 keywordNames =
    [ 
     ("break",BreakToken),("case",CaseToken),("catch",CatchToken),("const",ConstToken),

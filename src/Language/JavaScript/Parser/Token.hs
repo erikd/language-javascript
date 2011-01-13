@@ -46,42 +46,42 @@ data Token
      -- ^ Literal: Regular Expression
 
    -- Keywords
-   | BreakToken { token_span :: !AlexSpan }
-   | CaseToken { token_span :: !AlexSpan }
-   | CatchToken { token_span :: !AlexSpan }
-   | ConstToken { token_span :: !AlexSpan }
-   | ContinueToken { token_span :: !AlexSpan }
-   | DebuggerToken { token_span :: !AlexSpan }
-   | DefaultToken { token_span :: !AlexSpan }
-   | DeleteToken { token_span :: !AlexSpan }
-   | DoToken { token_span :: !AlexSpan }
-   | ElseToken { token_span :: !AlexSpan }
-   | EnumToken { token_span :: !AlexSpan }
-   | FalseToken { token_span :: !AlexSpan }
-   | FinallyToken { token_span :: !AlexSpan }
-   | ForToken { token_span :: !AlexSpan }
-   | FunctionToken { token_span :: !AlexSpan }
-   | IfToken { token_span :: !AlexSpan }
-   | InToken { token_span :: !AlexSpan }
-   | InstanceofToken { token_span :: !AlexSpan }
-   | NewToken { token_span :: !AlexSpan }
-   | NullToken { token_span :: !AlexSpan }
-   | ReturnToken { token_span :: !AlexSpan }
-   | SwitchToken { token_span :: !AlexSpan }
-   | ThisToken { token_span :: !AlexSpan }
-   | ThrowToken { token_span :: !AlexSpan }
-   | TrueToken { token_span :: !AlexSpan }
-   | TryToken { token_span :: !AlexSpan }
-   | TypeofToken { token_span :: !AlexSpan }
-   | VarToken { token_span :: !AlexSpan }
-   | VoidToken { token_span :: !AlexSpan }
-   | WhileToken { token_span :: !AlexSpan }
-   | WithToken { token_span :: !AlexSpan }
+   | BreakToken { token_span :: !AlexSpan, token_literal :: !String }
+   | CaseToken { token_span :: !AlexSpan, token_literal :: !String }
+   | CatchToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ConstToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ContinueToken { token_span :: !AlexSpan, token_literal :: !String }
+   | DebuggerToken { token_span :: !AlexSpan, token_literal :: !String }
+   | DefaultToken { token_span :: !AlexSpan, token_literal :: !String }
+   | DeleteToken { token_span :: !AlexSpan, token_literal :: !String }
+   | DoToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ElseToken { token_span :: !AlexSpan, token_literal :: !String }
+   | EnumToken { token_span :: !AlexSpan, token_literal :: !String }
+   | FalseToken { token_span :: !AlexSpan, token_literal :: !String }
+   | FinallyToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ForToken { token_span :: !AlexSpan, token_literal :: !String }
+   | FunctionToken { token_span :: !AlexSpan, token_literal :: !String }
+   | IfToken { token_span :: !AlexSpan, token_literal :: !String }
+   | InToken { token_span :: !AlexSpan, token_literal :: !String }
+   | InstanceofToken { token_span :: !AlexSpan, token_literal :: !String }
+   | NewToken { token_span :: !AlexSpan, token_literal :: !String }
+   | NullToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ReturnToken { token_span :: !AlexSpan, token_literal :: !String }
+   | SwitchToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ThisToken { token_span :: !AlexSpan, token_literal :: !String }
+   | ThrowToken { token_span :: !AlexSpan, token_literal :: !String }
+   | TrueToken { token_span :: !AlexSpan, token_literal :: !String }
+   | TryToken { token_span :: !AlexSpan, token_literal :: !String }
+   | TypeofToken { token_span :: !AlexSpan, token_literal :: !String }
+   | VarToken { token_span :: !AlexSpan, token_literal :: !String }
+   | VoidToken { token_span :: !AlexSpan, token_literal :: !String }
+   | WhileToken { token_span :: !AlexSpan, token_literal :: !String }
+   | WithToken { token_span :: !AlexSpan, token_literal :: !String }
    -- Future reserved words  
-   | FutureToken { token_span :: !AlexSpan }
+   | FutureToken { token_span :: !AlexSpan, token_literal :: !String }
    -- Needed, not sure what they are though.  
-   | GetToken { token_span :: !AlexSpan }
-   | SetToken { token_span :: !AlexSpan }
+   | GetToken { token_span :: !AlexSpan, token_literal :: !String }
+   | SetToken { token_span :: !AlexSpan, token_literal :: !String }
    
    -- Delimiters
    -- Operators
