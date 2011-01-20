@@ -1,9 +1,16 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-module Language.JavaScript.Parser.AST (JSNode(..)) where
+module Language.JavaScript.Parser.AST 
+       (
+           JSNode(..)
+         , NodeSpan (..)
+       ) where
 
 import Data.Data
+import Language.JavaScript.Parser.SrcLocation (SrcSpan(..))
 
 -- ---------------------------------------------------------------------
+
+data NodeSpan = NS JSNode SrcSpan
 
 data JSNode = JSArguments [[JSNode]]  
               | JSArrayLiteral [JSNode]

@@ -21,9 +21,10 @@ module Language.JavaScript.Parser.SrcLocation (
   SrcLocation (..),
   SrcSpan (..),
   Span (..),
-  -- spanning,
+  toSrcSpan,
+  spanning,
   mkSrcSpan,
-  -- combineSrcSpans,
+  combineSrcSpans,
   initialSrcLocation,
   spanStartPoint,
   -- * Modification
@@ -66,6 +67,7 @@ alexSpanEmpty = (alexStartPos, '\n', "")
 -- and column. 
 data SrcLocation = 
    Sloc { sloc_filename :: !String
+        , sloc_address :: {-# UNPACK #-} !Int  -- address (number of characters preceding the token)
         , sloc_row :: {-# UNPACK #-} !Int
         , sloc_column :: {-# UNPACK #-} !Int 
         } 
@@ -104,11 +106,20 @@ instance (Span a, Span b) => Span (a, b) where
 instance Span SrcSpan where
    getSpan = id
 
+-- ++AZ++ adding this
+instance Span AlexPosn where   
+  getSpan ap = toSrcSpan (ap,'\n',"")
+
+toSrcSpan :: AlexSpan -> SrcSpan
+toSrcSpan ((AlexPn _addr line col),_,_) = SpanPoint { span_filename = "", span_row = line, span_column = col}
+-- ++AZ++ end
+
 -- | Construct the initial source location for a file.
 initialSrcLocation :: String -> SrcLocation
 initialSrcLocation filename 
     = Sloc 
       { sloc_filename = filename
+      , sloc_address = 1                  
       , sloc_row = 1
       , sloc_column = 1
       }

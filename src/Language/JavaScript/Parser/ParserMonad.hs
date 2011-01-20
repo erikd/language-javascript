@@ -110,8 +110,8 @@ execParser :: P a -> ParseState -> Either ParseError a
 execParser = evalStateT 
 
 execParserKeepComments :: P a -> ParseState -> Either ParseError (a, [Token])
-execParserKeepComments parser state = 
-   evalStateT (parser >>= \x -> getComments >>= \c -> return (x, c)) state
+execParserKeepComments parser astate = 
+   evalStateT (parser >>= \x -> getComments >>= \c -> return (x, c)) astate
 
 runParser :: P a -> ParseState -> Either ParseError (a, ParseState)
 runParser = runStateT 
