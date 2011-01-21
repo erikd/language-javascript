@@ -163,7 +163,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 AutoSemi :: { AST.NodeSpan }
 AutoSemi : ';' { AST.NS (AST.JSLiteral ";") (toSrcSpan (token_span $1))}
-         |     { AST.JSLiteral "" SpanEmpty }
+         |     { AST.NS (AST.JSLiteral "") SpanEmpty }
            
 -- ---------------------------------------------------------------------
 
@@ -180,24 +180,24 @@ Literal : NullLiteral     {$1}
         | RegularExpressionLiteral {$1}  
 
 NullLiteral :: { AST.NodeSpan }
-NullLiteral : 'null' { AST.JSLiteral "null" }
+NullLiteral : 'null' { AST.NS (AST.JSLiteral "null") (toSrcSpan (token_span $1)) }
 
 BooleanLiteral :: { AST.NodeSpan }
-BooleanLiteral : 'true' { AST.JSLiteral "true" }
-               | 'false' { AST.JSLiteral "false" }
+BooleanLiteral : 'true'  { AST.NS (AST.JSLiteral "true") (toSrcSpan (token_span $1))}
+               | 'false' { AST.NS (AST.JSLiteral "false") (toSrcSpan (token_span $1))}
 
 -- <Numeric Literal> ::= DecimalLiteral
 --                     | HexIntegerLiteral
 NumericLiteral :: { AST.NodeSpan }
-NumericLiteral : 'decimal'    { AST.JSDecimal (token_literal $1)}
-               | 'hexinteger' { AST.JSHexInteger (token_literal $1)}
+NumericLiteral : 'decimal'    { AST.NS (AST.JSDecimal (token_literal $1)) (toSrcSpan (token_span $1))}
+               | 'hexinteger' { AST.NS (AST.JSHexInteger (token_literal $1)) (toSrcSpan (token_span $1))}
 
 StringLiteral :: { AST.NodeSpan }
-StringLiteral : 'string'  {AST.JSStringLiteral (token_delimiter $1) (token_literal $1)}
+StringLiteral : 'string'  {AST.NS (AST.JSStringLiteral (token_delimiter $1) (token_literal $1)) (toSrcSpan (token_span $1))}
 
 -- <Regular Expression Literal> ::= RegExp 
 RegularExpressionLiteral :: { AST.NodeSpan }
-RegularExpressionLiteral : 'regex' {AST.JSRegEx (token_literal $1)}
+RegularExpressionLiteral : 'regex' { AST.NS (AST.JSRegEx (token_literal $1)) (toSrcSpan (token_span $1))}
 
 -- PrimaryExpression :                                                   See 11.1
 --        this
@@ -207,12 +207,12 @@ RegularExpressionLiteral : 'regex' {AST.JSRegEx (token_literal $1)}
 --        ObjectLiteral
 --        ( Expression )
 PrimaryExpression :: { AST.NodeSpan }
-PrimaryExpression : 'this'                   { AST.JSLiteral "this" }
+PrimaryExpression : 'this'                   { AST.NS (AST.JSLiteral "this") (toSrcSpan (token_span $1)) }
                   | Identifier               { $1 {- PrimaryExpression1 -}}
                   | Literal                  { $1 {- PrimaryExpression2 -}}
                   | ArrayLiteral             { $1 {- PrimaryExpression3 -}}
                   | ObjectLiteral            { $1 {- PrimaryExpression4 -}}
-                  | '(' Expression ')'       { AST.JSExpressionParen $2 }
+                  | '(' Expression ')'       { AST.NS (AST.JSExpressionParen (ex $2)) (toSrcSpan (token_span $1)) }
                   
 -- Identifier ::                                                            See 7.6
 --         IdentifierName but not ReservedWord
@@ -220,47 +220,47 @@ PrimaryExpression : 'this'                   { AST.JSLiteral "this" }
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.NodeSpan }
-Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
-           | 'get'   { AST.JSIdentifier "get" }  
-           | 'set'   { AST.JSIdentifier "set" }  
+Identifier : 'ident' { AST.NS (AST.JSIdentifier (token_literal $1)) (toSrcSpan (token_span $1)) }
+           | 'get'   { AST.NS (AST.JSIdentifier "get") (toSrcSpan (token_span $1)) }  
+           | 'set'   { AST.NS (AST.JSIdentifier "set") (toSrcSpan (token_span $1)) }  
 
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.NodeSpan }
 IdentifierName : Identifier {$1}
-             | 'break'      { AST.JSIdentifier "break" }  
-             | 'case'       { AST.JSIdentifier "case" }
-             | 'catch'      { AST.JSIdentifier "catch" }
-             | 'const'      { AST.JSIdentifier "const" }
-             | 'continue'   { AST.JSIdentifier "continue" }
-             | 'debugger'   { AST.JSIdentifier "debugger" }
-             | 'default'    { AST.JSIdentifier "default" }
-             | 'delete'     { AST.JSIdentifier "delete" }
-             | 'do'         { AST.JSIdentifier "do" }
-             | 'else'       { AST.JSIdentifier "else" }
-             | 'enum'       { AST.JSIdentifier "enum" }
-             | 'false'      { AST.JSIdentifier "false" }
-             | 'finally'    { AST.JSIdentifier "finally" }
-             | 'for'        { AST.JSIdentifier "for" }
-             | 'function'   { AST.JSIdentifier "function" }
-             | 'get'        { AST.JSIdentifier "get" }
-             | 'if'         { AST.JSIdentifier "if" }
-             | 'in'         { AST.JSIdentifier "in" }
-             | 'instanceof' { AST.JSIdentifier "instanceof" }
-             | 'new'        { AST.JSIdentifier "new" }
-             | 'null'       { AST.JSIdentifier "null" }
-             | 'return'     { AST.JSIdentifier "return" }
-             | 'set'        { AST.JSIdentifier "set" }
-             | 'switch'     { AST.JSIdentifier "switch" }
-             | 'this'       { AST.JSIdentifier "this" }
-             | 'throw'      { AST.JSIdentifier "throw" }
-             | 'true'       { AST.JSIdentifier "true" }
-             | 'try'        { AST.JSIdentifier "try" }
-             | 'typeof'     { AST.JSIdentifier "typeof" }
-             | 'var'        { AST.JSIdentifier "var" }
-             | 'void'       { AST.JSIdentifier "void" }
-             | 'while'      { AST.JSIdentifier "while" }
-             | 'with'       { AST.JSIdentifier "with" }
-             | 'future'     { AST.JSIdentifier (token_literal $1) }  
+             | 'break'      { AST.NS (AST.JSIdentifier "break") (toSrcSpan (token_span $1)) }  
+             | 'case'       { AST.NS (AST.JSIdentifier "case") (toSrcSpan (token_span $1)) }
+             | 'catch'      { AST.NS (AST.JSIdentifier "catch") (toSrcSpan (token_span $1)) }
+             | 'const'      { AST.NS (AST.JSIdentifier "const") (toSrcSpan (token_span $1)) }
+             | 'continue'   { AST.NS (AST.JSIdentifier "continue") (toSrcSpan (token_span $1)) }
+             | 'debugger'   { AST.NS (AST.JSIdentifier "debugger") (toSrcSpan (token_span $1)) }
+             | 'default'    { AST.NS (AST.JSIdentifier "default") (toSrcSpan (token_span $1)) }
+             | 'delete'     { AST.NS (AST.JSIdentifier "delete") (toSrcSpan (token_span $1)) }
+             | 'do'         { AST.NS (AST.JSIdentifier "do") (toSrcSpan (token_span $1)) }
+             | 'else'       { AST.NS (AST.JSIdentifier "else") (toSrcSpan (token_span $1)) }
+             | 'enum'       { AST.NS (AST.JSIdentifier "enum") (toSrcSpan (token_span $1)) }
+             | 'false'      { AST.NS (AST.JSIdentifier "false") (toSrcSpan (token_span $1)) }
+             | 'finally'    { AST.NS (AST.JSIdentifier "finally") (toSrcSpan (token_span $1)) }
+             | 'for'        { AST.NS (AST.JSIdentifier "for" ) (toSrcSpan (token_span $1))}
+             | 'function'   { AST.NS (AST.JSIdentifier "function") (toSrcSpan (token_span $1)) }
+             | 'get'        { AST.NS (AST.JSIdentifier "get") (toSrcSpan (token_span $1)) }
+             | 'if'         { AST.NS (AST.JSIdentifier "if") (toSrcSpan (token_span $1)) }
+             | 'in'         { AST.NS (AST.JSIdentifier "in") (toSrcSpan (token_span $1)) }
+             | 'instanceof' { AST.NS (AST.JSIdentifier "instanceof") (toSrcSpan (token_span $1)) }
+             | 'new'        { AST.NS (AST.JSIdentifier "new") (toSrcSpan (token_span $1)) }
+             | 'null'       { AST.NS (AST.JSIdentifier "null") (toSrcSpan (token_span $1)) }
+             | 'return'     { AST.NS (AST.JSIdentifier "return") (toSrcSpan (token_span $1)) }
+             | 'set'        { AST.NS (AST.JSIdentifier "set") (toSrcSpan (token_span $1)) }
+             | 'switch'     { AST.NS (AST.JSIdentifier "switch") (toSrcSpan (token_span $1)) }
+             | 'this'       { AST.NS (AST.JSIdentifier "this") (toSrcSpan (token_span $1)) }
+             | 'throw'      { AST.NS (AST.JSIdentifier "throw") (toSrcSpan (token_span $1)) }
+             | 'true'       { AST.NS (AST.JSIdentifier "true") (toSrcSpan (token_span $1)) }
+             | 'try'        { AST.NS (AST.JSIdentifier "try") (toSrcSpan (token_span $1)) }
+             | 'typeof'     { AST.NS (AST.JSIdentifier "typeof") (toSrcSpan (token_span $1)) }
+             | 'var'        { AST.NS (AST.JSIdentifier "var") (toSrcSpan (token_span $1)) }
+             | 'void'       { AST.NS (AST.JSIdentifier "void") (toSrcSpan (token_span $1)) }
+             | 'while'      { AST.NS (AST.JSIdentifier "while") (toSrcSpan (token_span $1)) }
+             | 'with'       { AST.NS (AST.JSIdentifier "with") (toSrcSpan (token_span $1)) }
+             | 'future'     { AST.NS (AST.JSIdentifier (token_literal $1)) (toSrcSpan (token_span $1)) }  
 
 
 
@@ -269,27 +269,27 @@ IdentifierName : Identifier {$1}
 --        [ ElementList ]
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.NodeSpan }
-ArrayLiteral : '[' ']'                         { AST.JSArrayLiteral [] }
-             | '[' Elision ']'                 { AST.JSArrayLiteral $2 }
-             | '[' ElementList ']'             { AST.JSArrayLiteral $2 }
-             | '[' ElementList ',' Elision ']' { AST.JSArrayLiteral ($2++$4) }
-             | '[' ElementList ',' ']'         { AST.JSArrayLiteral ($2++[AST.JSLiteral ","]) }
+ArrayLiteral : '[' ']'                         { AST.NS (AST.JSArrayLiteral []) (toSrcSpan (token_span $1)) }
+             | '[' Elision ']'                 { AST.NS (AST.JSArrayLiteral (mex $2)) (toSrcSpan (token_span $1)) }
+             | '[' ElementList ']'             { AST.NS (AST.JSArrayLiteral (mex $2)) (toSrcSpan (token_span $1)) }
+             | '[' ElementList ',' Elision ']' { AST.NS (AST.JSArrayLiteral ((mex $2)++(mex $4))) (toSrcSpan (token_span $1)) }
+             | '[' ElementList ',' ']'         { AST.NS (AST.JSArrayLiteral ((mex $2)++[AST.JSLiteral ","])) (toSrcSpan (token_span $1)) }
 
 -- ElementList :                                                         See 11.1.4
 --        Elisionopt AssignmentExpression
 --        ElementList , Elisionopt AssignmentExpression
 ElementList :: { [AST.NodeSpan] }
-ElementList : Elision AssignmentExpression                 { ($1++$2) {- ElementList -}}
+ElementList : Elision AssignmentExpression                 { combine (($1)++($2)) {- ElementList -}}
             | AssignmentExpression                         { $1 {- ElementList -}}
-            | ElementList ',' Elision AssignmentExpression { ($1++[(AST.JSElision [])]++$3++$4) {- ElementList -}}
-            | ElementList ',' AssignmentExpression         { ($1++[(AST.JSElision [])]++$3) {- ElementList -}}
+            | ElementList ',' Elision AssignmentExpression { combine (($1)++[(AST.JSElision [])]++($3)++($4)) {- ElementList -}}
+            | ElementList ',' AssignmentExpression         { combine (($1)++[(AST.JSElision [])]++($3)) {- ElementList -}}
 
 -- Elision :                                                             See 11.1.4
 --        ,
 --        Elision ,
 Elision :: { [AST.NodeSpan] }
-Elision :  ','        { [(AST.JSElision [])] }
-        | Elision ',' { $1 ++ [(AST.JSElision [])] }
+Elision :  ','        { AST.NS [(AST.JSElision [])] (toSrcSpan (token_span $1))}
+        | Elision ',' { AST.NS ((mex $1) ++ [(AST.JSElision [])]) (toSrcSpan (token_span $1))}
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
@@ -974,7 +974,18 @@ flattenExpression (AST.JSExpression xs) e = AST.JSExpression (xs++litComma++e)
                           litComma :: [AST.NodeSpan]
                           litComma = [(AST.JSLiteral ",")]
 
+ex :: AST.NodeSpan -> AST.JSNode
+ex (AST.NS node span) = node
 
+mex :: [AST.NodeSpan] -> [AST.JSNode]
+mex xs = map ex xs
+
+combine :: [AST.NodeSpan] -> AST.NodeSpan
+combine [] = AST.NSS [] SpanEmpty
+combine xs = AST.NSS (mex xs) span
+  where
+    (AST.NS _ span) = head xs
+    
 }
 
 -- Set emacs mode

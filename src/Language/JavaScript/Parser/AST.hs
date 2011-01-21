@@ -11,6 +11,7 @@ import Language.JavaScript.Parser.SrcLocation (SrcSpan(..))
 -- ---------------------------------------------------------------------
 
 data NodeSpan = NS JSNode SrcSpan
+              | NSS [JSNode] SrcSpan
 
 data JSNode = JSArguments [[JSNode]]  
               | JSArrayLiteral [JSNode]
