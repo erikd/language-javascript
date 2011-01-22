@@ -1,8 +1,9 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 module Language.JavaScript.Parser.AST 
        (
-           JSNode(..)
-         , NodeSpan (..)
+           Node (..)
+         , JSNode(..)
+         , SrcSpan (..)
        ) where
 
 import Data.Data
@@ -10,60 +11,61 @@ import Language.JavaScript.Parser.SrcLocation (SrcSpan(..))
 
 -- ---------------------------------------------------------------------
 
-data NodeSpan = NS JSNode SrcSpan
-              | NSS [JSNode] SrcSpan
+data JSNode = NS Node SrcSpan
+    deriving (Show, Eq, Read, Data, Typeable)
 
-data JSNode = JSArguments [[JSNode]]  
-              | JSArrayLiteral [JSNode]
-              | JSBlock JSNode
-              | JSBreak [JSNode] [JSNode]
-              | JSCallExpression String [JSNode] -- type : ., (), []; rest  
-              | JSCase JSNode JSNode
-              | JSCatch JSNode [JSNode] JSNode
-              | JSContinue [JSNode]
-              | JSDecimal String -- Was Integer   
-              | JSDefault JSNode
-              | JSDoWhile JSNode JSNode JSNode
-              | JSElision [JSNode]  
-              | JSEmpty JSNode
-              | JSExpression [JSNode]
-              | JSExpressionBinary String [JSNode] [JSNode]
-              | JSExpressionParen JSNode
-              | JSExpressionPostfix String [JSNode]
-              | JSExpressionTernary [JSNode] [JSNode] [JSNode]
+data Node = JSArguments [[JSNode]]   
+              | JSArrayLiteral [JSNode] 
+              | JSBlock JSNode 
+              | JSBreak [JSNode] [JSNode] 
+              | JSCallExpression String [JSNode]  -- type : ., (), []; rest  
+              | JSCase JSNode JSNode 
+              | JSCatch JSNode [JSNode] JSNode 
+              | JSContinue [JSNode] 
+              | JSDecimal String  -- Was Integer   
+              | JSDefault JSNode 
+              | JSDoWhile JSNode JSNode JSNode 
+              | JSElision [JSNode] 
+              | JSEmpty JSNode 
+              | JSExpression [JSNode] 
+              | JSExpressionBinary String [JSNode] [JSNode] 
+              | JSExpressionParen JSNode 
+              | JSExpressionPostfix String [JSNode] 
+              | JSExpressionTernary [JSNode] [JSNode] [JSNode] 
               | JSFinally JSNode  
-              | JSFor [JSNode] [JSNode] [JSNode] JSNode                
-              | JSForIn [JSNode] JSNode JSNode
-              | JSForVar [JSNode] [JSNode] [JSNode] JSNode                
+              | JSFor [JSNode] [JSNode] [JSNode] JSNode 
+              | JSForIn [JSNode] JSNode JSNode 
+              | JSForVar [JSNode] [JSNode] [JSNode] JSNode 
               | JSForVarIn JSNode JSNode JSNode 
-              | JSFunction JSNode [JSNode] JSNode -- name, parameter list, body
-              | JSFunctionBody [JSNode]
-              | JSFunctionExpression [JSNode] [JSNode] JSNode -- name, parameter list, body                
-              | JSHexInteger String -- Was Integer  
-              | JSIdentifier String
-              | JSIf JSNode JSNode  
+              | JSFunction JSNode [JSNode] JSNode  -- name, parameter list, body
+              | JSFunctionBody [JSNode] 
+              | JSFunctionExpression [JSNode] [JSNode] JSNode  -- name, parameter list, body                
+              | JSHexInteger String  -- Was Integer  
+              | JSIdentifier String 
+              | JSIf JSNode JSNode 
               | JSIfElse JSNode JSNode JSNode 
               | JSLabelled JSNode JSNode  
               | JSLiteral String  
-              | JSMemberDot [JSNode] JSNode
-              | JSMemberSquare [JSNode] JSNode
+              | JSMemberDot [JSNode] JSNode 
+              | JSMemberSquare [JSNode] JSNode 
               | JSObjectLiteral [JSNode]  
               | JSOperator String  
-              | JSPropertyNameandValue JSNode [JSNode]
-              | JSPropertyAccessor String JSNode [JSNode] JSNode
-              | JSRegEx String
-              | JSReturn [JSNode]
-              | JSSourceElements [JSNode]
-              | JSSourceElementsTop [JSNode]
-              | JSStatementList [JSNode]
-              | JSStringLiteral Char [Char]
-              | JSSwitch JSNode [JSNode]
+              | JSPropertyNameandValue JSNode [JSNode] 
+              | JSPropertyAccessor String JSNode [JSNode] JSNode 
+              | JSRegEx String 
+              | JSReturn [JSNode] 
+              | JSSourceElements [JSNode] 
+              | JSSourceElementsTop [JSNode] 
+              | JSStatementBlock JSNode 
+              | JSStatementList [JSNode] 
+              | JSStringLiteral Char [Char] 
+              | JSSwitch JSNode [JSNode] 
               | JSThrow JSNode  
               | JSTry JSNode [JSNode]  
               | JSUnary String  
-              | JSVarDecl JSNode [JSNode]
+              | JSVarDecl JSNode [JSNode] 
               | JSVariables String [JSNode]  
-              | JSWhile JSNode JSNode
-              | JSWith JSNode [JSNode]
+              | JSWhile JSNode JSNode 
+              | JSWith JSNode [JSNode] 
     deriving (Show, Eq, Read, Data, Typeable)
 

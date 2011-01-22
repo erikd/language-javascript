@@ -181,7 +181,7 @@ data SrcSpan
     }
     -- | No span information.
   | SpanEmpty 
-   deriving (Eq,Ord,Show,Typeable,Data)
+   deriving (Eq,Ord,Show,Read,Typeable,Data)
 
 
 instance Span SrcLocation where
