@@ -183,7 +183,33 @@ data SrcSpan
   | SpanEmpty 
    deriving (Eq,Ord,Show,Read,Typeable,Data)
 
+{-
+instance Show SrcSpan where
+  show (s@(SpanCoLinear filename row start end)) = 
+    -- showChar '('.showString filename.shows row.shows start.shows end.showChar ')'      -- ("foo.txt" 12 4 5)
+    showChar '(' . showChar ')'       -- ("foo.txt" 12 4 5)
 
+  show (s@(SpanMultiLine filename sr sc er ec)) = 
+    showChar '('.showString filename.shows sr.shows sc.shows er.shows ec.showChar ')'  -- ("foo.txt" 12 4 13 5)
+  show (s@(SpanPoint filename r c)) = 
+    showChar '('.showString filename.shows r.shows c.showChar ')'                      -- ("foo.txt" 12 4)
+  show (SpanEmpty) = showString "()"                                                   -- ()
+ -}
+ 
+--instance Read SrcSpan where
+--  readsPrec _ str = [
+  
+{-    
+instance Read a => Read Tree a where
+  readsPrec _ str = [(Leave x, t’) | ("Leave", t) <- reads str,
+                                     (x, t’)      <- reads t] ++
+                    [((Node i r d), t’’’) |
+                               ("Node", t) <- reads str,
+                               (i, t’)       <- reads t,
+                               (r, t’’)      <- reads t’,
+                               (d, t’’’)     <- reads t’’]
+-}
+  
 instance Span SrcLocation where
    getSpan loc@(Sloc {})
       = SpanPoint 

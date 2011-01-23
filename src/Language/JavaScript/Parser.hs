@@ -3,6 +3,8 @@ module Language.JavaScript.Parser
          parse
        , readJs  
        , parseFile  
+       , showStripped  
+       , showStrippedMaybe  
        , JSNode(..)  
        , ParseError(..)  
        -- Source locations  

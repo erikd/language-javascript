@@ -6,6 +6,8 @@ module Language.JavaScript.Parser.Parser (
    -- * Parsing expressions
    -- parseExpr
    , parseUsing
+   , showStripped  
+   , showStrippedMaybe  
    ) where
 
 import Language.JavaScript.Parser.ParseError
@@ -52,6 +54,12 @@ parseFile filename =
      x <- readFile (filename)
      return $ readJs x
 
+showStripped ast = AST.showStripped ast 
+
+showStrippedMaybe maybeAst = do
+  case maybeAst of
+    Left msg -> "Left (" ++ show msg ++ ")"
+    Right p -> "Right (" ++ AST.showStripped p ++ ")"
 
 -- | Parse one compound statement, or a sequence of simple statements. 
 -- Generally used for interactive input, such as from the command line of an interpreter. 
