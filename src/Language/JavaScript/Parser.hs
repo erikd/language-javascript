@@ -1,10 +1,10 @@
 module Language.JavaScript.Parser 
        (
-         parse
-       , readJs  
-       , parseFile  
-       , showStripped  
-       , showStrippedMaybe  
+         PA.parse
+       , PA.readJs  
+       , PA.parseFile  
+       , PA.showStripped  
+       , PA.showStrippedMaybe  
        , JSNode(..)  
        , ParseError(..)  
        -- Source locations  
@@ -20,7 +20,7 @@ module Language.JavaScript.Parser
 
 import Language.JavaScript.Parser.AST
 import Language.JavaScript.Parser.ParseError
-import Language.JavaScript.Parser.Parser
+import qualified Language.JavaScript.Parser.Parser as PA
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 

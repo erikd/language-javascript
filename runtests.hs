@@ -276,6 +276,8 @@ testSuite = testGroup "Parser"
      
    , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"zero\"]]),JSExpression [JSIdentifier \"get\"],JSLiteral \";\",JSExpression [JSIdentifier \"two\"],JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"three\"],JSExpression [JSIdentifier \"four\"],JSLiteral \";\",JSExpression [JSIdentifier \"set\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"six\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"seven\"],JSLiteral \";\"])])])])")
 
+   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (SpanPoint {span_filename = \"\", span_row = 1, span_column = 1}),NS (JSOperator \"=\") (SpanPoint {span_filename = \"\", span_row = 1, span_column = 3}),NS (JSDecimal \"1\") (SpanPoint {span_filename = \"\", span_row = 1, span_column = 5})]) (SpanPoint {span_filename = \"\", span_row = 1, span_column = 1}),NS (JSExpression [NS (JSIdentifier \"y\") (SpanPoint {span_filename = \"\", span_row = 2, span_column = 3}),NS (JSOperator \"=\") (SpanPoint {span_filename = \"\", span_row = 2, span_column = 4}),NS (JSDecimal \"2\") (SpanPoint {span_filename = \"\", span_row = 2, span_column = 5})]) (SpanPoint {span_filename = \"\", span_row = 2, span_column = 3}),NS (JSLiteral \";\") (SpanPoint {span_filename = \"\", span_row = 2, span_column = 6})]) (SpanPoint {span_filename = \"\", span_row = 1, span_column = 1}))")
+     
     ]
 
 srcHelloWorld = "Hello"
@@ -296,6 +298,8 @@ testStmt str expected = expected @=? (showStrippedMaybe $ parseUsing parseStatem
 
 --testProg str expected = expected @=? (show $ parseUsing parseProgram str "src")
 testProg str expected = expected @=? (showStrippedMaybe $ parseUsing parseProgram str "src")
+
+testProgUn str expected = expected @=? (show $ parseUsing parseProgram str "src")
 
 
 testFile fileName expected = do
