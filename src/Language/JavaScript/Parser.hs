@@ -6,12 +6,10 @@ module Language.JavaScript.Parser
        , PA.showStripped  
        , PA.showStrippedMaybe  
        , JSNode(..)  
+       , Node(..)  
        , ParseError(..)  
        -- Source locations  
        , AlexPosn(..)
-       -- , SrcLocation (..)
-       -- , SrcSpan (..)
-       -- , Span (..)
        -- ParserMonad  
        , P  
        , ParseState (..)  

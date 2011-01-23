@@ -45,6 +45,8 @@ $ cabal install --reinstall alex
 
 Changes
 
+0.4.1 Expose AST.Node as well.
+
 0.4.0 Updated JSNode to include location information, and made the parse more true to the original by leaving blocks as such, not replacing with ';'.
 
 0.3.0 ECMA-262 edition 5 compliance.  Required adding JSFunctionExpression and JSPropertyAccessor to the AST.
