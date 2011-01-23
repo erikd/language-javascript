@@ -45,6 +45,8 @@ $ cabal install --reinstall alex
 
 Changes
 
+0.4.2 Expose SrcSpan
+
 0.4.1 Expose AST.Node as well.
 
 0.4.0 Updated JSNode to include location information, and made the parse more true to the original by leaving blocks as such, not replacing with ';'.
