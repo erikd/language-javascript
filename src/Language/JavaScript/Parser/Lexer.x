@@ -214,8 +214,8 @@ tokens :-
 --              | {Non Zero Digits}+ {Digit}* 
 --              | '0' 
 --              | '0' '.' {Digit}+
-<reg,divide> $non_zero_digit+ "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
-    | $non_zero_digit+ "." $digit*       
+<reg,divide> $non_zero_digit $digit* "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
+    | $non_zero_digit $digit* "." $digit*       
     | "0." $digit+  ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
     | $non_zero_digit+ $digit*
     | "0"

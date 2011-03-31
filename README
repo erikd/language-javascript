@@ -21,7 +21,9 @@ Running the tests
 
 To debug the grammar
 
-happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar.y 
+happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar.y
+OR 
+happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y 
 
 This generates src/Language/JavaScript/Parser/Grammar.hs, delete this
 when done with the debug version
@@ -44,6 +46,8 @@ To switch back to the standard version,
 $ cabal install --reinstall alex
 
 Changes
+
+0.4.3 correct lexer for decimalToken, only leading digit needs to be non-zero.
 
 0.4.2 Expose SrcSpan
 
