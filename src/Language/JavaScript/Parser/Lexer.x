@@ -37,6 +37,7 @@ $ident_letter = [a-zA-Z_]
 @eol_pattern = $lf | $cr $lf | $cr $lf  
 
 $any_char = [\x00-\xff]
+$any_unicode_char = [\x00-\xffff]
 
 
 $eol_char = [\x000A\x000D\x2028\x2029] -- any end of line character
@@ -72,8 +73,8 @@ $RegExpFirstChar = [$printable] # [ $cr $lf \* \\ \/]
 -- ~ ( LineTerminator | BSLASH | DIV )
 $RegExpChars = [$printable] # [ $cr $lf \\ \/]
 
-$MultiLineNotAsteriskChar               = [$any_char] # [\*]
-$MultiLineNotForwardSlashOrAsteriskChar = [$any_char] # [\* \/]
+$MultiLineNotAsteriskChar               = [$any_unicode_char] # [\*]
+$MultiLineNotForwardSlashOrAsteriskChar = [$any_unicode_char] # [\* \/]
 
 -- See http://blog.stevenlevithan.com/archives/javascript-regex-and-unicode
     -- *  \u0009 — Tab — \t

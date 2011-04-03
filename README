@@ -47,6 +47,8 @@ $ cabal install --reinstall alex
 
 Changes
 
+0.4.4 Allow unicode characters in comments
+
 0.4.3 correct lexer for decimalToken, only leading digit needs to be non-zero.
 
 0.4.2 Expose SrcSpan
