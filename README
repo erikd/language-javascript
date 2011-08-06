@@ -21,8 +21,6 @@ Running the tests
 
 To debug the grammar
 
-happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar.y
-OR 
 happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y 
 
 This generates src/Language/JavaScript/Parser/Grammar.hs, delete this
@@ -31,21 +29,13 @@ when done with the debug version
 
 UTF8/Unicode version 
 
-This requires https://github.com/jyp/Alex, in particular the utf8
-branch, to generate the Lexer.hs file
+Alex 3.0 now supports unicode natively, and has been included as a
+dependency in the cabal file.
 
-$ git clone https://github.com/jyp/Alex.git
-$ cd Alex
-$ git checkout utf8
-$ cabal install
-
-This will put a utf8 enabled alex in ~/.cabal/bin
-
-To switch back to the standard version, 
-
-$ cabal install --reinstall alex
 
 Changes
+
+0.4.5 Update cabal file and docs for Alex 3.0, giving out of the box unicode support
 
 0.4.4 Allow unicode characters in comments
 

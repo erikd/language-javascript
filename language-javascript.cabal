@@ -29,6 +29,7 @@ Library
                    , mtl              >= 1.1     && < 2.9
                    , containers       >= 0.2     && < 0.5
                    , utf8-light       >= 0.4     && < 1.0
+  build-tools        alex >= 3.0
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.Parser

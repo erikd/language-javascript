@@ -359,7 +359,7 @@ utf8Encode c = head (UTF8.encodeUTF8' [UTF8.c2w c])
 
 --alexEOF = EOFToken alexSpanEmpty
 
-ignorePendingBytes :: forall t t1 t2 t3. (t, t1, t2, t3) -> (t, t1, t3)
+-- ignorePendingBytes :: forall t t1 t2 t3. (t, t1, t2, t3) -> (t, t1, t3)
 ignorePendingBytes (p,c,_ps,s) = (p,c,s)
 
 

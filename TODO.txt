@@ -2,13 +2,6 @@ Things to do
 
 Useful resource: http://sideshowbarker.github.com/es5-spec
 
-1. Work in unicode support.
-
-Use the utf8 branch of the following project
-
-http://www.mail-archive.com/haskell-cafe@haskell.org/msg62848.html
-https://github.com/jyp/Alex
-
 2. Separate out the different versions of JavaScript. 
 
 Necessary?  Depends what this tool is used for.  Current assumption is
@@ -38,6 +31,8 @@ use reserved word as a name in certain contexts. Damn.
   @paul_houle better tools come from the languages making their ast available, 
   as json or xml: gcc --astxml a.c
 
+12. Look at using the AST in WebBits
+    http://hackage.haskell.org/package/WebBits-0.15
 
 EOF
 
