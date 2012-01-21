@@ -2,7 +2,7 @@ Things to do
 
 Useful resource: http://sideshowbarker.github.com/es5-spec
 
-2. Separate out the different versions of JavaScript. 
+2. Separate out the different versions of JavaScript.
 
 Necessary?  Depends what this tool is used for.  Current assumption is
 that it is fed well-formed JS, and generates an AST for further
@@ -14,21 +14,14 @@ manipulation.
 
 5. Process comments. Some kinds of hooks exist, but they are essentially discarded.
 
-*6. Work in the future reserved words, ECMAScript edition 3, 7.5.3
-
-*7. Make BOM parse as whitespace, as required by edition 5.
-
 8. String literals for ed 5 - continuation chars etc.
-
-*9. IdentifierName is union of Identifier and reserved word. i.e. Can
-use reserved word as a name in certain contexts. Damn.
 
 10. Sort out [no line terminator here] in PostfixExpression
 
 11. Export AST as JSON or XML
 
   nicferrier Nic Ferrier
-  @paul_houle better tools come from the languages making their ast available, 
+  @paul_houle better tools come from the languages making their ast available,
   as json or xml: gcc --astxml a.c
 
 12. Look at using the AST in WebBits
