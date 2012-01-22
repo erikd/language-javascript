@@ -29,5 +29,7 @@ manipulation.
 12. Look at using the AST in WebBits
     http://hackage.haskell.org/package/WebBits-0.15
 
+13. Numeric literals Infinity, NaN
+
 EOF
 

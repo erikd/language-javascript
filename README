@@ -21,19 +21,22 @@ Running the tests
 
 To debug the grammar
 
-happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y 
+happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y
 
 This generates src/Language/JavaScript/Parser/Grammar.hs, delete this
 when done with the debug version
 
 
-UTF8/Unicode version 
+UTF8/Unicode version
 
 Alex 3.0 now supports unicode natively, and has been included as a
 dependency in the cabal file.
 
 
 Changes
+
+0.4.6 Update to ECMASCRIPT 5.1 by allowing continuations in string literals
+      Include build dependencies on alex >= 3.0 and happy.
 
 0.4.5 Update cabal file and docs for Alex 3.0, giving out of the box unicode support
 

@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.4.5
+Version:             0.4.6
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
 Homepage:            https://github.com/alanz/language-javascript
@@ -29,7 +29,8 @@ Library
                    , mtl              >= 1.1     && < 2.9
                    , containers       >= 0.2     && < 0.5
                    , utf8-light       >= 0.4     && < 1.0
-  build-tools        alex >= 3.0
+  build-tools:       alex >= 3.0
+                   , happy
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.Parser
