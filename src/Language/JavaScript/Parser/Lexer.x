@@ -1,13 +1,13 @@
 {
-  
+
 module Language.JavaScript.Parser.Lexer (
     Token(..)
-    , lexCont 
+    , lexCont
     ) where
-  
+
 --import Control.Monad
 import Language.JavaScript.Parser.LexerUtils
-import Language.JavaScript.Parser.ParserMonad 
+import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Data.Map as Map
@@ -19,9 +19,9 @@ import Codec.Binary.UTF8.Light as UTF8
 
 -- Not using a wrapper, rolling own below.
 --%wrapper "basic"
---%wrapper "monad" 
---%wrapper "monadUserState" 
--- %wrapper "monad-bytestring" 
+--%wrapper "monad"
+--%wrapper "monadUserState"
+-- %wrapper "monad-bytestring"
 
 -- character sets
 $lf = \n  -- line feed
@@ -34,7 +34,12 @@ $alpha = [a-zA-Z]		-- alphabetic characters
 $digit    = 0-9
 $non_zero_digit = 1-9
 $ident_letter = [a-zA-Z_]
-@eol_pattern = $lf | $cr $lf | $cr $lf  
+@eol_pattern = $lf | $cr $lf | $cr $lf
+
+$ls = \x2028
+$ps = \x2029
+@LineTerminatorSequence = $lf | $cr | $ls | $ps | $cr $lf
+
 
 $any_char = [\x00-\xff]
 $any_unicode_char = [\x00-\xffff]
@@ -52,10 +57,15 @@ $not_eol_char = ~$eol_char -- anything but an end of line character
 -- {ID Tail}      = {Alphanumeric} + [_] + [$]
 @IDTail = $alpha | $digit | [_] | [\$]
 
--- {String Chars1} = {Printable} + {HT} - ["\] 
--- {String Chars2} = {Printable} + {HT} - [\''] 
-$StringChars1 = [$printable $ht] # [$dq \\] 
-$StringChars2 = [$printable $ht] # [$sq \\] 
+-- {String Chars1} = {Printable} + {HT} - ["\]
+-- {String Chars2} = {Printable} + {HT} - [\'']
+$StringChars1 = [$printable $ht] # [$dq \\]
+$StringChars2 = [$printable $ht] # [$sq \\]
+
+-- LineContinuation :: \ LineTerminatorSequence
+@LineContinuation = [\\] @LineTerminatorSequence
+
+
 $short_str_char = [^ \n \r ' \" \\]
 
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
@@ -109,7 +119,7 @@ $white_char = [\x0009\x000a\x000b\x000c\x000d\x0020\x00a0\x1680\x180e\x2000\x200
 
 -- Identifier characters
 -- UnicodeLetter
---       any character in the Unicode categories “Uppercase letter (Lu)”, “Lowercase letter (Ll)”, 
+--       any character in the Unicode categories “Uppercase letter (Lu)”, “Lowercase letter (Ll)”,
 --       “Titlecase letter (Lt)”, “Modifier letter (Lm)”, “Other letter (Lo)”, or “Letter number (Nl)”.
 
 -- http://www.fileformat.info/info/unicode/category/Lu/list.htm etc, see unicode/doit.sh
@@ -150,7 +160,7 @@ $ZWNJ = [\x200c]
 $ZWJ  = [\x200d]
 @IdentifierPart = @IdentifierStart | $UnicodeCombiningMark | $UnicodeDigit | UnicodeConnectorPunctuation
         [\\] @UnicodeEscapeSequence | $ZWNJ | $ZWJ
-                                                   
+
 -- ! ------------------------------------------------- Terminals
 tokens :-
 
@@ -182,8 +192,8 @@ tokens :-
 --        SourceCharacter but not forward-slash / or asterisk *
 
 -- Skip multi-line comments. Note: may not nest
--- <reg,divide> "/*"($any_char)*"*/"  ;	
-<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;	
+-- <reg,divide> "/*"($any_char)*"*/"  ;
+<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;
 
 
 
@@ -191,10 +201,10 @@ tokens :-
 --<reg,divide> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
 <reg,divide> @IdentifierStart(@IdentifierPart)*  { \loc len str -> keywordOrIdent (take len str) loc }
 
--- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"' 
+-- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"'
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
-<reg,divide>  $dq ( $StringChars1 | \\ $printable )* $dq
-     | $sq ( $StringChars2 | \\ $printable )* $sq { mkString stringToken }
+<reg,divide>  $dq ( $StringChars1 | \\ $printable | @LineContinuation )* $dq
+            | $sq ( $StringChars2 | \\ $printable | @LineContinuation )* $sq { mkString stringToken }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
 <reg,divide> ("0x"|"0X") @HexDigit+ { mkString hexIntegerToken }
@@ -209,15 +219,15 @@ tokens :-
 
 -- TODO: Work in SignedInteger
 
--- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
---              |  {Non Zero Digits}+ '.' {Digit}* 
---              | '0' '.' {Digit}+ ('e' | 'E' ) {Non Zero Digits}+ {Digit}* 
---              | {Non Zero Digits}+ {Digit}* 
---              | '0' 
+-- DecimalLiteral= {Non Zero Digits}+ '.' {Digit}* ('e' | 'E' ) {Non Zero Digits}+ {Digit}*
+--              |  {Non Zero Digits}+ '.' {Digit}*
+--              | '0' '.' {Digit}+ ('e' | 'E' ) {Non Zero Digits}+ {Digit}*
+--              | {Non Zero Digits}+ {Digit}*
+--              | '0'
 --              | '0' '.' {Digit}+
-<reg,divide> $non_zero_digit $digit* "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
-    | $non_zero_digit $digit* "." $digit*       
-    | "0." $digit+  ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit* 
+<reg,divide> $non_zero_digit $digit* "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
+    | $non_zero_digit $digit* "." $digit*
+    | "0." $digit+  ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
     | $non_zero_digit+ $digit*
     | "0"
     | "0." $digit+                    { mkString decimalToken }
@@ -284,15 +294,15 @@ tokens :-
 
 {
 
-{-   
+{-
 -- The next function select between the two lex input states, as called for in
--- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.   
+-- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.
 
 The method is inspired by the lexer in http://jint.codeplex.com/
 
 -}
 classifyToken :: Token -> Int
-classifyToken token = 
+classifyToken token =
    case token of
       IdentifierToken {} -> divide
       NullToken {} -> divide
@@ -322,15 +332,15 @@ lexToken = do
     AlexEOF -> return endOfFileToken
     AlexError _ -> lexicalError
     AlexSkip rest _len -> do
-       -- setLocation nextLocation 
-       -- setInput rest 
-       alexSetInput rest 
+       -- setLocation nextLocation
+       -- setInput rest
+       alexSetInput rest
        lexToken
     AlexToken rest len action -> do
-       --setLocation nextLocation 
-       --setInput rest 
+       --setLocation nextLocation
+       --setInput rest
        alexSetInput rest
-       --token <- action (mkSrcSpan location $ decColumn 1 nextLocation) len input 
+       --token <- action (mkSrcSpan location $ decColumn 1 nextLocation) len input
        token <- action (ignorePendingBytes input) len inp
        setLastToken token
        return token
@@ -369,7 +379,7 @@ alexInputPrevChar (p,c,bs,s) = c
 alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
 alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
 alexGetByte (_p,_c,[],[]) = Nothing
-alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
                                   (b:bs) = utf8Encode c
                               in p' `seq`  Just (b, (p', c, bs, s))
 
@@ -379,21 +389,21 @@ alexMove (AlexPn a l _c) '\n' = AlexPn (a+1) (l+1)   1
 alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
 
 -- ---------------------------------------------------------------------
-         
+
 -- a keyword or an identifier (the syntax overlaps)
 keywordOrIdent :: String -> AlexSpan -> P Token
 keywordOrIdent str location
    = return $ case Map.lookup str keywords of
          Just symbol -> symbol location str
-         Nothing -> IdentifierToken location str  
+         Nothing -> IdentifierToken location str
 
 -- mapping from strings to keywords
-keywords :: Map.Map String (AlexSpan -> String -> Token) 
-keywords = Map.fromList keywordNames 
+keywords :: Map.Map String (AlexSpan -> String -> Token)
+keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, AlexSpan -> String -> Token)]
 keywordNames =
-   [ 
+   [
     ("break",BreakToken),("case",CaseToken),("catch",CatchToken),("const",ConstToken),
     ("continue",ContinueToken),("debugger",DebuggerToken),("default",DefaultToken),
     ("delete",DeleteToken),("do",DoToken),("else",ElseToken),("enum",EnumToken),
@@ -405,10 +415,10 @@ keywordNames =
     ("typeof",TypeofToken),("var",VarToken),("void",VoidToken),
     ("while",WhileToken),("with",WithToken),
     -- TODO: no idea if these are reserved or not, but they are needed
-    --       handled in parser, in the Identifier rule       
+    --       handled in parser, in the Identifier rule
     ("get",GetToken),("set",SetToken),
-                         
-    -- Future Reserved Words                         
+
+    -- Future Reserved Words
     ("class", FutureToken),
     ("code", FutureToken),
     -- ("const", FutureToken),
@@ -417,7 +427,7 @@ keywordNames =
     ("extends", FutureToken),
     ("implements", FutureToken),
     ("import", FutureToken),
-    -- in 
+    -- in
     ("interface", FutureToken),
     ("let", FutureToken),
     ("mode", FutureToken),
@@ -436,13 +446,13 @@ keywordNames =
 }
 
 
--- break 
--- case 
--- catch 
--- continue 
--- debugger 
--- default 
--- delete 
+-- break
+-- case
+-- catch
+-- continue
+-- debugger
+-- default
+-- delete
 -- do
 -- else
 --  - enum
@@ -452,12 +462,12 @@ keywordNames =
 -- function
 -- if
 -- in
--- instanceof 
--- new 
+-- instanceof
+-- new
 --  - null
--- return 
--- switch 
--- this 
+-- return
+-- switch
+-- this
 -- throw
 --  - true
 -- try
@@ -471,32 +481,32 @@ keywordNames =
 
 -- FutureReservedWord :: one of   See 7.6.1.2
 
--- class 
--- code 
--- const 
+-- class
+-- code
+-- const
 -- *enum
 -- export
--- extends 
--- implements 
+-- extends
+-- implements
 -- import
--- *in 
--- interface 
--- let 
--- mode 
+-- *in
+-- interface
+-- let
+-- mode
 -- of
--- one 
--- or 
--- package 
--- private 
--- protected 
+-- one
+-- or
+-- package
+-- private
+-- protected
 -- public
 -- static
--- strict 
+-- strict
 -- super
 -- yield
 
 
 -- Set emacs mode
--- Local Variables: 
+-- Local Variables:
 -- mode:haskell
--- End:             
+-- End:

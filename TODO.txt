@@ -1,6 +1,8 @@
 Things to do
 
 Useful resource: http://sideshowbarker.github.com/es5-spec
+                 http://test262.ecmascript.org
+                 http://www.ecma-international.org/publications/standards/Ecma-262.htm
 
 2. Separate out the different versions of JavaScript.
 

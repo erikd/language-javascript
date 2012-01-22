@@ -289,6 +289,15 @@ testSuite = testGroup "Parser"
    -- https://github.com/alanz/language-javascript/issues/2
    , testCase "issue2" (testProg "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"img\") [JSMemberDot [JSIdentifier \"document\"] (JSIdentifier \"createElement\"),JSArguments [[JSStringLiteral '\\'' \"img\"]]]],JSExpression [JSMemberDot [JSIdentifier \"img\"] (JSIdentifier \"src\"),JSOperator \"=\",JSStringLiteral '\"' \"mylogo.jpg\"],JSLiteral \";\",JSExpression [JSIdentifier \"$\",JSArguments [[JSIdentifier \"img\"]],JSCallExpression \".\" [JSIdentifier \"click\"],JSCallExpression \"()\" [JSArguments [[JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"alert\",JSArguments [[JSStringLiteral '\\'' \"clicked!\"]]],JSLiteral \";\"]])]]]],JSLiteral \";\"])")
 
+
+   -- Working in ECMASCRIPT 5.1 changes
+   , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"    "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\\'' \"abcdef\"],JSLiteral \";\"])")
+   , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
+   , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
+   , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\"])")
+   , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\"])")
+   , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
+
     ]
 
 srcHelloWorld = "Hello"
