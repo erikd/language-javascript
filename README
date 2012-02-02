@@ -35,6 +35,9 @@ dependency in the cabal file.
 
 Changes
 
+0.4.7 Continue ECMASCRIPT update, remove incorrect future reserved words for
+      "code", "mode", "of", "one", "or" and "strict", put in by accident/stupidity.
+
 0.4.6 Update to ECMASCRIPT 5.1 by allowing continuations in string literals
       Include build dependencies on alex >= 3.0 and happy.
 

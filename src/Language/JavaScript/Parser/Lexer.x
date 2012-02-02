@@ -404,106 +404,159 @@ keywords = Map.fromList keywordNames
 keywordNames :: [(String, AlexSpan -> String -> Token)]
 keywordNames =
    [
-    ("break",BreakToken),("case",CaseToken),("catch",CatchToken),("const",ConstToken),
-    ("continue",ContinueToken),("debugger",DebuggerToken),("default",DefaultToken),
-    ("delete",DeleteToken),("do",DoToken),("else",ElseToken),("enum",EnumToken),
-    ("false",FalseToken),("finally",FinallyToken),("for",ForToken),
-    ("function",FunctionToken),("if",IfToken),("in",InToken),
-    ("instanceof",InstanceofToken),("new",NewToken),("null",NullToken),
-    ("return",ReturnToken),("switch",SwitchToken),("this",ThisToken),
-    ("throw",ThrowToken),("true",TrueToken),("try",TryToken),
-    ("typeof",TypeofToken),("var",VarToken),("void",VoidToken),
-    ("while",WhileToken),("with",WithToken),
+    ("break",BreakToken),
+    ("case",CaseToken),
+    ("catch",CatchToken),
+
+    ("const",ConstToken), -- not a keyword, nominally a future reserved word, but actually in use
+
+    ("continue",ContinueToken),
+    ("debugger",DebuggerToken),
+    ("default",DefaultToken),
+    ("delete",DeleteToken),
+    ("do",DoToken),
+    ("else",ElseToken),
+
+    ("enum",EnumToken),  -- not a keyword,  nominally a future reserved word, but actually in use
+
+    ("false",FalseToken), -- boolean literal
+
+    ("finally",FinallyToken),
+    ("for",ForToken),
+    ("function",FunctionToken),
+    ("if",IfToken),
+    ("in",InToken),
+    ("instanceof",InstanceofToken),
+    ("new",NewToken),
+
+    ("null",NullToken), -- null literal
+
+    ("return",ReturnToken),
+    ("switch",SwitchToken),
+    ("this",ThisToken),
+    ("throw",ThrowToken),
+    ("true",TrueToken),
+    ("try",TryToken),
+    ("typeof",TypeofToken),
+    ("var",VarToken),
+    ("void",VoidToken),
+    ("while",WhileToken),
+    ("with",WithToken),
     -- TODO: no idea if these are reserved or not, but they are needed
     --       handled in parser, in the Identifier rule
     ("get",GetToken),("set",SetToken),
+    {- Come from Table 6 of ECMASCRIPT 5.1, Attributes of a Named Accessor Property
+       Also include
+
+         Enumerable
+         Configurable
+
+      Table 7 includes
+
+         Value
+     -}
+
 
     -- Future Reserved Words
     ("class", FutureToken),
-    ("code", FutureToken),
-    -- ("const", FutureToken),
-    -- enum
-    ("export", FutureToken),
-    ("extends", FutureToken),
+    -- ("code",  FutureToken), **** not any more
+    -- ("const", FutureToken), **** an actual token, used in productions
+    -- enum                    **** an actual token, used in productions
+    ("export",     FutureToken),
+    ("extends",    FutureToken),
+
+    ("import",     FutureToken),
+    ("super",      FutureToken),
+
+
+    -- Strict mode FutureReservedWords
     ("implements", FutureToken),
-    ("import", FutureToken),
-    -- in
-    ("interface", FutureToken),
-    ("let", FutureToken),
-    ("mode", FutureToken),
-    ("of", FutureToken),
-    ("one", FutureToken),
-    ("or", FutureToken),
-    ("package", FutureToken),
-    ("private", FutureToken),
-    ("protected", FutureToken),
-    ("public", FutureToken),
-    ("static", FutureToken),
-    ("strict", FutureToken),
-    ("super", FutureToken),
-    ("yield", FutureToken)
+    ("interface",  FutureToken),
+    ("let",        FutureToken),
+    -- ("mode",       FutureToken),  **** not any more
+    -- ("of",         FutureToken),  **** not any more
+    -- ("one",        FutureToken),  **** not any more
+    -- ("or",         FutureToken),  **** not any more
+
+    ("package",    FutureToken),
+    ("private",    FutureToken),
+    ("protected",  FutureToken),
+    ("public",     FutureToken),
+    ("static",     FutureToken),
+    -- ("strict",     FutureToken),  *** not any more
+    ("yield",      FutureToken)
    ]
 }
 
 
--- break
--- case
--- catch
--- continue
--- debugger
--- default
--- delete
--- do
--- else
---  - enum
---  - false
--- finally
--- for
--- function
--- if
--- in
--- instanceof
--- new
---  - null
--- return
--- switch
--- this
--- throw
---  - true
--- try
--- typeof
--- var
--- void
--- while
--- with
+-- -- Edition 5.1 of ECMASCRIPT
+
+-- 7.6.1.1 Keywords
+
+-- The following tokens are ECMAScript keywords and may not be used as Identifiers in ECMAScript programs.
+
+-- Syntax
+-- Keyword :: one of
+--   break
+--   case
+--   catch
+--   continue
+--   debugger
+--   default
+--   delete
+--   do
+--   else
+--   finally
+--   for
+--   function
+--   if
+--   in
+--   instanceof
+--   new
+--   return
+--   switch
+--   this
+--   throw
+--   try
+--   typeof
+--   var
+--   void
+--   while
+--   with
+
+-- 7.6.1.2 Future Reserved Words
+
+-- The following words are used as keywords in proposed extensions and
+-- are therefore reserved to allow for the possibility of future adoption
+-- of those extensions.
+
+-- Syntax
+-- FutureReservedWord :: one of
+--   class
+--   const
+--   enum
+--   export
+--   extends
+--   import
+--   super
+
+-- The following tokens are also considered to be FutureReservedWords
+-- when they occur within strict mode code (see 10.1.1). The occurrence
+-- of any of these tokens within strict mode code in any context where
+-- the occurrence of a FutureReservedWord would produce an error must
+-- also produce an equivalent error:
+
+--  implements
+--  interface
+--  let
+--  package
+--  private
+--  protected
+--  public
+--  static
+--  yield
 
 
-
--- FutureReservedWord :: one of   See 7.6.1.2
-
--- class
--- code
--- const
--- *enum
--- export
--- extends
--- implements
--- import
--- *in
--- interface
--- let
--- mode
--- of
--- one
--- or
--- package
--- private
--- protected
--- public
--- static
--- strict
--- super
--- yield
 
 
 -- Set emacs mode

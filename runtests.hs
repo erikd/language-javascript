@@ -298,6 +298,12 @@ testSuite = testGroup "Parser"
    , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\"])")
    , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
 
+
+     -- https://github.com/alanz/language-javascript/issues/4
+   , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"somename\"]]]]])")
+   , testCase "issue4bug1" (testProg "var k = {\ny: code\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"code\"]]]]])")
+   , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"mode\"]]]]])")
+
     ]
 
 srcHelloWorld = "Hello"
