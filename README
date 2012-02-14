@@ -35,6 +35,9 @@ dependency in the cabal file.
 
 Changes
 
+0.4.8 Close issue https://github.com/alanz/language-javascript/issues/5 by
+      correcting the lexical analyser for DecimalLiteral
+
 0.4.7 Continue ECMASCRIPT update, remove incorrect future reserved words for
       "code", "mode", "of", "one", "or" and "strict", put in by accident/stupidity.
 

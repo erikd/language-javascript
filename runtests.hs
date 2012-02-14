@@ -42,6 +42,9 @@ testSuite = testGroup "Parser"
     , testCase "LiteralDecimal10"  (testLiteral "0.7e-18"  "Right (JSDecimal \"0.7e-18\")")
     , testCase "LiteralDecimal11"  (testLiteral "1.0e+4"   "Right (JSDecimal \"1.0e+4\")")
     , testCase "LiteralDecimal12"  (testLiteral "1.0e-4"   "Right (JSDecimal \"1.0e-4\")")
+    , testCase "LiteralDecimal13"  (testLiteral "1e18"     "Right (JSDecimal \"1e18\")")
+    , testCase "LiteralDecimal14"  (testLiteral "1e+18"    "Right (JSDecimal \"1e+18\")")
+    , testCase "LiteralDecimal15"  (testLiteral "1e-18"    "Right (JSDecimal \"1e-18\")")
 
     , testCase "LiteralString1"    (testLiteral "\"hello\\nworld\"" "Right (JSStringLiteral '\"' \"hello\\\\nworld\")")
     , testCase "LiteralString2"    (testLiteral "'hello\\nworld'"  "Right (JSStringLiteral '\\'' \"hello\\\\nworld\")")
@@ -305,7 +308,12 @@ testSuite = testGroup "Parser"
    , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"mode\"]]]]])")
 
      -- https://github.com/alanz/language-javascript/issues/5
-   , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "")
+   , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"1e8\"]]]])")
+   , testCase "issue5ok2" (testProg "{ y: 1e8 }" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSLabelled (JSIdentifier \"y\") (JSExpression [JSDecimal \"1e8\"])])])")
+   , testCase "issue5ok3" (testProg "{ y: 18 }" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSLabelled (JSIdentifier \"y\") (JSExpression [JSDecimal \"18\"])])])")
+   , testCase "issue5ok4" (testProg "x = { y: 18 }" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"18\"]]]])")
+
+
     ]
 
 srcHelloWorld = "Hello"
