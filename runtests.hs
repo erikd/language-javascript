@@ -304,6 +304,8 @@ testSuite = testGroup "Parser"
    , testCase "issue4bug1" (testProg "var k = {\ny: code\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"code\"]]]]])")
    , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"mode\"]]]]])")
 
+     -- https://github.com/alanz/language-javascript/issues/5
+   , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "")
     ]
 
 srcHelloWorld = "Hello"
