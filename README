@@ -35,6 +35,9 @@ dependency in the cabal file.
 
 Changes
 
+0.4.9 Make alex and happy versions more explicit. Expose the AlexSpan
+      data type, so parse error positions can be reported.
+
 0.4.8 Close issue https://github.com/alanz/language-javascript/issues/5 by
       correcting the lexical analyser for DecimalLiteral
 

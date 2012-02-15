@@ -1,8 +1,8 @@
 {-# LANGUAGE CPP, DeriveDataTypeable #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      : Language.Python.Common.SrcLocation 
--- Copyright   : (c) 2009 Bernie Pope 
+-- Module      : Language.Python.Common.SrcLocation
+-- Copyright   : (c) 2009 Bernie Pope
 -- License     : BSD-style
 -- Maintainer  : bjpop@csse.unimelb.edu.au
 -- Stability   : experimental
@@ -13,9 +13,9 @@
 -----------------------------------------------------------------------------
 
 module Language.JavaScript.Parser.SrcLocation (
-  -- * Construction 
+  -- * Construction
   AlexPosn (..),
-  AlexSpan,
+  AlexSpan (..),
   alexStartPos,
   alexSpanEmpty,
   SrcLocation (..),
@@ -28,7 +28,7 @@ module Language.JavaScript.Parser.SrcLocation (
   initialSrcLocation,
   spanStartPoint,
   -- * Modification
-  incColumn, 
+  incColumn,
   decColumn,
   incLine,
   incTab,
@@ -64,13 +64,13 @@ alexSpanEmpty = (alexStartPos, '\n', "")
 
 -- | A location for a syntactic entity from the source code.
 -- The location is specified by its filename, and starting row
--- and column. 
-data SrcLocation = 
+-- and column.
+data SrcLocation =
    Sloc { sloc_filename :: !String
         , sloc_address :: {-# UNPACK #-} !Int  -- address (number of characters preceding the token)
         , sloc_row :: {-# UNPACK #-} !Int
-        , sloc_column :: {-# UNPACK #-} !Int 
-        } 
+        , sloc_column :: {-# UNPACK #-} !Int
+        }
    | NoLocation
    deriving (Eq,Ord,Show,Typeable,Data)
 {-
@@ -89,7 +89,7 @@ spanning x y = combineSrcSpans (getSpan x) (getSpan y)
 
 instance Span a => Span [a] where
    getSpan [] = SpanEmpty
-   getSpan [x] = getSpan x 
+   getSpan [x] = getSpan x
    getSpan list@(x:_xs) = combineSrcSpans (getSpan x) (getSpan (last list))
 
 instance Span a => Span (Maybe a) where
@@ -107,7 +107,7 @@ instance Span SrcSpan where
    getSpan = id
 
 -- ++AZ++ adding this
-instance Span AlexPosn where   
+instance Span AlexPosn where
   getSpan ap = toSrcSpan (ap,'\n',"")
 
 toSrcSpan :: AlexSpan -> SrcSpan
@@ -116,10 +116,10 @@ toSrcSpan ((AlexPn _addr line col),_,_) = SpanPoint { span_filename = "", span_r
 
 -- | Construct the initial source location for a file.
 initialSrcLocation :: String -> SrcLocation
-initialSrcLocation filename 
-    = Sloc 
+initialSrcLocation filename
+    = Sloc
       { sloc_filename = filename
-      , sloc_address = 1                  
+      , sloc_address = 1
       , sloc_row = 1
       , sloc_column = 1
       }
@@ -128,32 +128,32 @@ initialSrcLocation filename
 decColumn :: Int -> SrcLocation -> SrcLocation
 decColumn n loc
    | n < col = loc { sloc_column = col - n }
-   | otherwise = loc 
+   | otherwise = loc
    where
    col = sloc_column loc
 
--- | Increment the column of a location. 
+-- | Increment the column of a location.
 incColumn :: Int -> SrcLocation -> SrcLocation
 incColumn n loc@(Sloc { sloc_column = col })
    = loc { sloc_column = col + n }
-incColumn _ NoLocation = NoLocation     
+incColumn _ NoLocation = NoLocation
 
 -- | Increment the column of a location by one tab stop.
 incTab :: SrcLocation -> SrcLocation
 incTab loc@(Sloc { sloc_column = col })
-   = loc { sloc_column = newCol } 
+   = loc { sloc_column = newCol }
    where
    newCol = col + 8 - (col - 1) `mod` 8
 incTab NoLocation = NoLocation
 
 -- | Increment the line number (row) of a location by one.
 incLine :: Int -> SrcLocation -> SrcLocation
-incLine n loc@(Sloc { sloc_row = row }) 
+incLine n loc@(Sloc { sloc_row = row })
    = loc { sloc_column = 1, sloc_row = row + n }
 incLine _ NoLocation = NoLocation
 {-
-Inspired heavily by compiler/basicTypes/SrcLoc.lhs 
-A SrcSpan delimits a portion of a text file.  
+Inspired heavily by compiler/basicTypes/SrcLoc.lhs
+A SrcSpan delimits a portion of a text file.
 -}
 
 -- | Source location spanning a contiguous section of a file.
@@ -180,26 +180,26 @@ data SrcSpan
     , span_column   :: {-# UNPACK #-} !Int
     }
     -- | No span information.
-  | SpanEmpty 
+  | SpanEmpty
    deriving (Eq,Ord,Show,Read,Typeable,Data)
 
 {-
 instance Show SrcSpan where
-  show (s@(SpanCoLinear filename row start end)) = 
+  show (s@(SpanCoLinear filename row start end)) =
     -- showChar '('.showString filename.shows row.shows start.shows end.showChar ')'      -- ("foo.txt" 12 4 5)
     showChar '(' . showChar ')'       -- ("foo.txt" 12 4 5)
 
-  show (s@(SpanMultiLine filename sr sc er ec)) = 
+  show (s@(SpanMultiLine filename sr sc er ec)) =
     showChar '('.showString filename.shows sr.shows sc.shows er.shows ec.showChar ')'  -- ("foo.txt" 12 4 13 5)
-  show (s@(SpanPoint filename r c)) = 
+  show (s@(SpanPoint filename r c)) =
     showChar '('.showString filename.shows r.shows c.showChar ')'                      -- ("foo.txt" 12 4)
   show (SpanEmpty) = showString "()"                                                   -- ()
  -}
- 
+
 --instance Read SrcSpan where
 --  readsPrec _ str = [
-  
-{-    
+
+{-
 instance Read a => Read Tree a where
   readsPrec _ str = [(Leave x, t’) | ("Leave", t) <- reads str,
                                      (x, t’)      <- reads t] ++
@@ -209,21 +209,21 @@ instance Read a => Read Tree a where
                                (r, t’’)      <- reads t’,
                                (d, t’’’)     <- reads t’’]
 -}
-  
+
 instance Span SrcLocation where
    getSpan loc@(Sloc {})
-      = SpanPoint 
+      = SpanPoint
         { span_filename = sloc_filename loc
         , span_row = sloc_row loc
         , span_column = sloc_column loc
         }
-   getSpan NoLocation = SpanEmpty 
+   getSpan NoLocation = SpanEmpty
 
 -- | Make a point span from the start of a span
 spanStartPoint :: SrcSpan -> SrcSpan
 spanStartPoint SpanEmpty = SpanEmpty
-spanStartPoint span = 
-   SpanPoint 
+spanStartPoint span =
+   SpanPoint
    { span_filename = span_filename span
    , span_row = startRow span
    , span_column = startCol span
@@ -233,13 +233,13 @@ spanStartPoint span =
 -- arguments are the same, or the left one preceeds the right one.
 mkSrcSpan :: SrcLocation -> SrcLocation -> SrcSpan
 mkSrcSpan NoLocation _ = SpanEmpty
-mkSrcSpan _ NoLocation = SpanEmpty 
+mkSrcSpan _ NoLocation = SpanEmpty
 mkSrcSpan loc1 loc2
-  | line1 == line2 = 
-       if col2 <= col1 
+  | line1 == line2 =
+       if col2 <= col1
           then SpanPoint file line1 col1
           else SpanCoLinear file line1 col1 col2
-  | otherwise = 
+  | otherwise =
        SpanMultiLine file line1 col1 line2 col2
   where
   line1 = sloc_row loc1
@@ -284,14 +284,14 @@ endRow SpanEmpty = error "endRow called on empty span"
 
 -- | Get the column of the start of a span.
 startCol :: SrcSpan -> Int
-startCol (SpanCoLinear { span_start_column = col }) = col 
-startCol (SpanMultiLine { span_start_column = col }) = col 
-startCol (SpanPoint { span_column = col }) = col 
+startCol (SpanCoLinear { span_start_column = col }) = col
+startCol (SpanMultiLine { span_start_column = col }) = col
+startCol (SpanPoint { span_column = col }) = col
 startCol SpanEmpty = error "startCol called on empty span"
 
 -- | Get the column of the end of a span.
 endCol :: SrcSpan -> Int
-endCol (SpanCoLinear { span_end_column = col }) = col 
-endCol (SpanMultiLine { span_end_column = col }) = col 
-endCol (SpanPoint { span_column = col }) = col 
+endCol (SpanCoLinear { span_end_column = col }) = col
+endCol (SpanMultiLine { span_end_column = col }) = col
+endCol (SpanPoint { span_column = col }) = col
 endCol SpanEmpty = error "endCol called on empty span"
