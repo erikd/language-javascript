@@ -29,6 +29,8 @@ Library
                    , mtl              >= 1.1     && < 2.9
                    , containers       >= 0.2     && < 0.5
                    , utf8-light       >= 0.4     && < 1.0
+                   -- For the round trip output
+                   , blaze-builder       >= 0.2     && < 1
   build-tools:       alex >= 3.0
                    , happy >= 1.18.5
   hs-source-dirs: src
