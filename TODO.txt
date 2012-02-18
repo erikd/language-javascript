@@ -31,5 +31,7 @@ manipulation.
 
 13. Numeric literals Infinity, NaN
 
+14. Look at http://jsshaper.org/
+
 EOF
 

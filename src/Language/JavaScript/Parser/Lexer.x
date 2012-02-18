@@ -172,8 +172,8 @@ tokens :-
 <reg,divide> $white_char+   ;
 
 -- Skip one line comment
-<reg,divide> "//"($not_eol_char)*   ;
-
+-- <reg,divide> "//"($not_eol_char)*   ;
+<reg,divide> "//"($not_eol_char)*   { mkString commentToken }
 
 -- ---------------------------------------------------------------------
 -- Comment definition from the ECMAScript spec, ver 3
@@ -193,8 +193,8 @@ tokens :-
 
 -- Skip multi-line comments. Note: may not nest
 -- <reg,divide> "/*"($any_char)*"*/"  ;
-<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;
-
+-- <reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;
+<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  { mkString commentToken }
 
 
 -- Identifier    = {ID Head}{ID Tail}*
@@ -366,15 +366,16 @@ lexCont cont = do
    -- lexLoop :: P a
    lexLoop = do
       tok <- lexToken
-      --tok <- alexMonadScan
       case tok of
-         {-
+
          CommentToken {} -> do
             addComment tok
             lexLoop
+         {-
          LineJoinToken {} -> lexLoop
          -}
          _other -> cont tok
+
 
 
 utf8Encode :: Char -> [Byte]

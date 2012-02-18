@@ -18,6 +18,7 @@ module Language.JavaScript.Parser.LexerUtils (
   -- , alexInputPrevChar
   , symbolToken
   , mkString
+  , commentToken
   , regExToken
   , decimalToken
   -- , endOfLine
@@ -62,13 +63,16 @@ endOfFileToken = EOFToken alexSpanEmpty
 
 
 --mkString :: (AlexSpan -> String -> Token) -> Action
+--mkString
+--  :: (Monad m) => (t -> [a1] -> a) -> t -> Int -> [a1] -> m a
 mkString
-  :: (Monad m) => (t -> [a1] -> a) -> t -> Int -> [a1] -> m a
+  :: (Monad m) => (AlexSpan -> String -> Token) -> AlexSpan -> Int -> String -> m Token
 mkString toToken loc len str = do
    return $ toToken loc (take len str)
 
 mkStringRemoveContinuation
-  :: (Monad m) => (t -> [a1] -> a) -> t -> Int -> [a1] -> m a
+  :: (Monad m) => (AlexSpan -> String -> Token) -> AlexSpan -> Int -> String -> m Token
+  -- :: (Monad m) => (t -> [a1] -> a) -> t -> Int -> [a1] -> m a
 mkStringRemoveContinuation toToken loc len str = do
    -- token <- toToken loc (take len str)
    return $ toToken loc (take len str)
@@ -91,6 +95,9 @@ stringToken loc str = StringToken loc str1 delimiter
     -- str1 = init $ tail str
     str1 = stripLineContinuations $ init $ tail str
     delimiter = head str
+
+commentToken :: AlexSpan -> String -> Token
+commentToken loc str = CommentToken loc str
 
 -- ---------------------------------------------------------------------
 -- Strip out any embedded line continuations
