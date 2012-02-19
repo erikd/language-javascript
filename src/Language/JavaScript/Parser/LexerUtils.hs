@@ -119,37 +119,11 @@ doStripLineContinuations acc matched xs
 -- -----------------------------------------------------------------------------
 -- Functionality required by Alex
 
--- type AlexInput = (SrcLocation, String)
-{-
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar _ = error "alexInputPrevChar not used"
-
-alexGetChar :: AlexInput -> Maybe (Char, AlexInput)
-alexGetChar (loc, input)
-   | null input  = Nothing
-   | otherwise = Just (nextChar, (nextLoc, rest))
-   where
-   nextChar = head input
-   rest = tail input
-   nextLoc = moveChar nextChar loc
-
-moveChar :: Char -> SrcLocation -> SrcLocation
-moveChar '\n' = incLine 1
-moveChar '\t' = incTab
-moveChar '\r' = id
-moveChar _    = incColumn 1
--}
-
 lexicalError :: P a
 lexicalError = do
   location <- getLocation
   c <- liftM head getInput
   -- (_,c,_,_) <- getInput
   throwError $ UnexpectedChar c location
-
-{-
-readOctNoO :: String -> Integer
-readOctNoO (zero:rest) = read (zero:'O':rest)
--}
 
 -- EOF
