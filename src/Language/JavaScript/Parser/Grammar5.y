@@ -9,6 +9,7 @@ module Language.JavaScript.Parser.Grammar5 (
 import Control.Monad.Error.Class (throwError)
 import Data.Char
 import Language.JavaScript.Parser.Lexer
+import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import qualified Language.JavaScript.Parser.AST as AST
@@ -23,7 +24,8 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 %tokentype { Token }
 %error { parseError }
-%monad { P } { thenP } { returnP }
+-- %monad { P } { thenP } { returnP }
+%monad { Alex } { >>= } { return }
 %lexer { lexCont } { EOFToken {} }
 
 
@@ -120,7 +122,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 AutoSemi :: { AST.JSNode }
 AutoSemi : ';' { AST.NS (AST.JSLiteral ";") (ss $1)}
-         |     { AST.NS (AST.JSLiteral "") SpanEmpty }
+         |     { AST.NS (AST.JSLiteral "") tokenPosnEmpty }
 
 -- ---------------------------------------------------------------------
 
@@ -245,8 +247,8 @@ ElementList : Elision AssignmentExpression                 { (($1)++($2)) {- Ele
 --        ,
 --        Elision ,
 Elision :: { [AST.JSNode] }
-Elision :  ','        { [AST.NS (AST.JSElision []) SpanEmpty] }
-        | Elision ',' { ($1 ++ [(AST.NS (AST.JSElision []) SpanEmpty)]) }
+Elision :  ','        { [AST.NS (AST.JSElision []) tokenPosnEmpty] }
+        | Elision ',' { ($1 ++ [(AST.NS (AST.JSElision []) tokenPosnEmpty)]) }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
@@ -909,7 +911,7 @@ FormalParameterList : Identifier                          { [$1] {- FormalParame
 --        SourceElementsopt
 FunctionBody :: { AST.JSNode }
 FunctionBody : SourceElements { (AST.NS (AST.JSFunctionBody [$1]) (ex $1)) }
-             |                { (AST.NS (AST.JSFunctionBody [])   SpanEmpty) }
+             |                { (AST.NS (AST.JSFunctionBody [])   tokenPosnEmpty) }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
@@ -947,23 +949,25 @@ combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineStatements (AST.NS (AST.JSStatementList xs) s1) (AST.NS (AST.JSStatementList ys) s2) = (AST.NS (AST.JSStatementList (xs++ys) ) s1)
 combineStatements (AST.NS (AST.JSStatementList xs) s1) y = (AST.NS (AST.JSStatementList (xs++[y])) s1)
 
-parseError :: Token -> P a
-parseError = throwError . UnexpectedToken
+parseError :: Token -> Alex a
+--parseError = throwError . UnexpectedToken
+parseError tok = alexError (show tok)
 
 flattenExpression :: AST.JSNode -> [AST.JSNode] -> AST.JSNode
 flattenExpression (AST.NS (AST.JSExpression xs) s1) e = (AST.NS (AST.JSExpression (xs++litComma++e)) s1)
                         where
                           litComma :: [AST.JSNode]
-                          litComma = [AST.NS (AST.JSLiteral ",") SpanEmpty]
+                          litComma = [AST.NS (AST.JSLiteral ",") tokenPosnEmpty]
 
-mex :: [AST.JSNode] -> SrcSpan
-mex [] = SpanEmpty
+mex :: [AST.JSNode] -> TokenPosn
+mex [] = tokenPosnEmpty
 mex xs = ex (head xs)
 
-ex :: AST.JSNode -> SrcSpan
+ex :: AST.JSNode -> TokenPosn
 ex (AST.NS _node span) = span
 
-ss token = toSrcSpan (token_span token)
+--ss token = toSrcSpan (token_span token)
+ss token = token_span token
 
 }
 

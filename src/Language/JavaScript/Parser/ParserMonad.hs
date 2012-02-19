@@ -1,25 +1,54 @@
 {-# OPTIONS  #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      : Language.JavaScript.ParserMonad 
+-- Module      : Language.JavaScript.ParserMonad
 -- Based on language-python version by Bernie Pope
--- Copyright   : (c) 2009 Bernie Pope 
+-- Copyright   : (c) 2009 Bernie Pope
 -- License     : BSD-style
 -- Stability   : experimental
 -- Portability : ghc
 --
--- Monad support for JavaScript parser and lexer. 
+-- Monad support for JavaScript parser and lexer.
 -----------------------------------------------------------------------------
 
-module Language.JavaScript.Parser.ParserMonad 
+module Language.JavaScript.Parser.ParserMonad
+       (
+         AlexUserState(..)
+       , alexInitUserState
+       -- , execParser
+       -- , execParserKeepComments
+       ) where
+
+import Language.JavaScript.Parser.Token
+import Language.JavaScript.Parser.SrcLocation
+
+data AlexUserState = AlexUserState
+  {
+    previousToken :: !Token  -- the previous token
+  , comments :: [Token]      -- accumulated comments
+  }
+
+alexInitUserState :: AlexUserState
+alexInitUserState = AlexUserState
+   {
+     previousToken = initToken
+   , comments = []
+   }
+
+initToken :: Token
+initToken = CommentToken tokenPosnEmpty ""
+
+-- ---------------------------------------------------------------------
+{- ++AZ++ disabling this for now, prior tofile delete
+module Language.JavaScript.Parser.ParserMonad
    ( P
    , execParser
    , execParserKeepComments
    , runParser
    , thenP
    , returnP
-   , alexSetInput  
-   , alexGetInput  
+   , alexSetInput
+   , alexGetInput
    , setLocation
    , getLocation
    , getInput
@@ -34,8 +63,8 @@ module Language.JavaScript.Parser.ParserMonad
    , addComment
    , getComments
    , spanError
-   , AlexInput 
-   , Byte  
+   , AlexInput
+   , Byte
    ) where
 
 import Control.Applicative ((<$>))
@@ -43,15 +72,16 @@ import Control.Monad.Error as Error
 import Control.Monad.State.Class
 import Control.Monad.State.Strict as State
 import Language.JavaScript.Parser.ParseError (ParseError (..))
-import Language.JavaScript.Parser.SrcLocation (AlexPosn (..), alexStartPos, alexSpanEmpty, Span (..))
+--import Language.JavaScript.Parser.SrcLocation (AlexPosn (..), alexStartPos, alexSpanEmpty, Span (..))
+--import ParseMonad -- From Alex
 import Language.JavaScript.Parser.Token (Token (..))
 import Prelude hiding (span)
 import Data.Word (Word8)
 
-internalError :: String -> P a 
-internalError = throwError . StrError 
+internalError :: String -> P a
+internalError = throwError . StrError
 
-spanError :: Span a => a -> String -> P b 
+spanError :: Span a => a -> String -> P b
 --spanError x str = throwError $ StrError $ unwords [prettyText $ getSpan x, str]
 spanError x str = throwError $ StrError $ show ([show (getSpan x), str])
 
@@ -69,37 +99,37 @@ data ParseState = ParseState {
         alex_chr :: !Char,      -- the character before the input
         alex_bytes :: [Byte],
         alex_scd :: !Int        -- the current startcode
-        
+
     , previousToken :: !Token  -- the previous token
-    , comments :: [Token]      -- accumulated comments 
+    , comments :: [Token]      -- accumulated comments
     }
 
 initialState :: String -> ParseState
-initialState inp 
-   = ParseState 
+initialState inp
+   = ParseState
    { alex_pos = alexStartPos
    , alex_inp = inp
-   , alex_chr = '\n'          
-   , alex_bytes = []             
-   , alex_scd = 0               
+   , alex_chr = '\n'
+   , alex_bytes = []
+   , alex_scd = 0
    , previousToken = initToken
    , comments = []
    }
 {-
-data ParseState = 
-   ParseState 
+data ParseState =
+   ParseState
    { location :: !SrcLocation -- position at current input location
    -- , input :: !String         -- the current input
-   , input :: !AlexInput      -- the current input     
+   , input :: !AlexInput      -- the current input
    , previousToken :: !Token  -- the previous token
    -- , lastEOL :: !SrcSpan      -- location of the most recent end-of-line encountered
-   , comments :: [Token]      -- accumulated comments 
+   , comments :: [Token]      -- accumulated comments
    }
    deriving Show
 -}
 
 initToken :: Token
---initToken = NewlineToken SpanEmpty 
+--initToken = NewlineToken SpanEmpty
 initToken = CommentToken alexSpanEmpty ""
 
 
@@ -107,18 +137,18 @@ initToken = CommentToken alexSpanEmpty ""
 type P a = StateT ParseState (Either ParseError) a
 
 execParser :: P a -> ParseState -> Either ParseError a
-execParser = evalStateT 
+execParser = evalStateT
 
 execParserKeepComments :: P a -> ParseState -> Either ParseError (a, [Token])
-execParserKeepComments parser astate = 
+execParserKeepComments parser astate =
    evalStateT (parser >>= \x -> getComments >>= \c -> return (x, c)) astate
 
 runParser :: P a -> ParseState -> Either ParseError (a, ParseState)
-runParser = runStateT 
+runParser = runStateT
 
 {-# INLINE returnP #-}
 returnP :: a -> P a
-returnP = return 
+returnP = return
 
 {-# INLINE thenP #-}
 thenP :: P a -> (a -> P b) -> P b
@@ -126,7 +156,7 @@ thenP = (>>=)
 
 {-
 failP :: SrcSpan -> [String] -> P a
-failP span strs = throwError (prettyText span ++ ": " ++ unwords strs) 
+failP span strs = throwError (prettyText span ++ ": " ++ unwords strs)
 -}
 {-
 setLastEOL :: SrcSpan -> P ()
@@ -138,7 +168,7 @@ getLastEOL = gets lastEOL
 
 alexGetInput :: P AlexInput
 alexGetInput
- -- = P $ \s@ParseState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} -> 
+ -- = P $ \s@ParseState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} ->
  --        Right (s, (pos,c,bs,inp))
  = do
    pos <- gets alex_pos
@@ -155,22 +185,22 @@ alexSetInput (pos,c,bs,inp)
 
 
 setLocation :: AlexPosn -> P ()
-setLocation loc = modify $ \s -> s { alex_pos = loc } 
+setLocation loc = modify $ \s -> s { alex_pos = loc }
 
 getLocation :: P AlexPosn
-getLocation = gets alex_pos 
+getLocation = gets alex_pos
 
-getInput :: P String 
-getInput = gets alex_inp 
+getInput :: P String
+getInput = gets alex_inp
 
 setInput :: String -> P ()
 setInput inp = modify $ \s -> s { alex_inp = inp }
 
 getLastToken :: P Token
-getLastToken = gets previousToken 
+getLastToken = gets previousToken
 
 setLastToken :: Token -> P ()
-setLastToken tok = modify $ \s -> s { previousToken = tok } 
+setLastToken tok = modify $ \s -> s { previousToken = tok }
 
 addComment :: Token -> P ()
 addComment c = do
@@ -179,3 +209,7 @@ addComment c = do
 
 getComments :: P [Token]
 getComments = reverse <$> gets comments
+
+
+++AZ++
+-}

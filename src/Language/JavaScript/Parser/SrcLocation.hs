@@ -1,21 +1,31 @@
-{-# LANGUAGE CPP, DeriveDataTypeable #-}
------------------------------------------------------------------------------
--- |
--- Module      : Language.Python.Common.SrcLocation
--- Copyright   : (c) 2009 Bernie Pope
--- License     : BSD-style
--- Maintainer  : bjpop@csse.unimelb.edu.au
--- Stability   : experimental
--- Portability : ghc
---
--- Source location information for the Python lexer and parser. This module
--- provides single-point locations and spans, and conversions between them.
------------------------------------------------------------------------------
+{-# LANGUAGE DeriveDataTypeable #-}
+module Language.JavaScript.Parser.SrcLocation (
+  TokenPosn(..)
+  , tokenPosnEmpty
+  ) where
 
+import Data.Data
+
+-- This type exists to break an import loop with the lexer. It is a
+-- duplicate of the AlexPosn type
+
+data TokenPosn = TokenPn !Int -- address (number of characters preceding the token)
+                         !Int -- line number
+                         !Int -- column
+        deriving (Eq,Show, Read, Data, Typeable)
+
+--instance Typeable TokenPosn where
+--  typeo
+
+tokenPosnEmpty :: TokenPosn
+tokenPosnEmpty = TokenPn 0 0 0
+
+------------------------------------------------------------------------
+{- ++AZ++ starting this from scratch
 module Language.JavaScript.Parser.SrcLocation (
   -- * Construction
   AlexPosn (..),
-  AlexSpan (..),
+  -- AlexSpan (..),
   alexStartPos,
   alexSpanEmpty,
   SrcLocation (..),
@@ -295,3 +305,5 @@ endCol (SpanCoLinear { span_end_column = col }) = col
 endCol (SpanMultiLine { span_end_column = col }) = col
 endCol (SpanPoint { span_column = col }) = col
 endCol SpanEmpty = error "endCol called on empty span"
+
+++AZ++ end -}

@@ -3,18 +3,17 @@ module Language.JavaScript.Parser.AST
        (
            Node (..)
          , JSNode(..)
-         , SrcSpan (..)
-         , AlexPosn(..)
+         -- , TokenPosn (..)
          , showStripped
        ) where
 
 import Data.Data
 import Data.List
-import Language.JavaScript.Parser.SrcLocation (SrcSpan(..), AlexPosn(..))
+import Language.JavaScript.Parser.SrcLocation (TokenPosn(..))
 
 -- ---------------------------------------------------------------------
 
-data JSNode = NS Node SrcSpan
+data JSNode = NS Node TokenPosn
     deriving (Show, Eq, Read, Data, Typeable)
 
 data Node = JSArguments [[JSNode]]
