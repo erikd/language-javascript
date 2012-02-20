@@ -6,7 +6,7 @@ module Language.JavaScript.Parser.Grammar5 (
   , parseStatement
   ) where
 
-import Control.Monad.Error.Class (throwError)
+-- import Control.Monad.Error.Class (throwError)
 import Data.Char
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParseError
@@ -24,7 +24,6 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 %tokentype { Token }
 %error { parseError }
--- %monad { P } { thenP } { returnP }
 %monad { Alex } { >>= } { return }
 %lexer { lexCont } { EOFToken {} }
 
@@ -950,7 +949,7 @@ combineStatements (AST.NS (AST.JSStatementList xs) s1) (AST.NS (AST.JSStatementL
 combineStatements (AST.NS (AST.JSStatementList xs) s1) y = (AST.NS (AST.JSStatementList (xs++[y])) s1)
 
 parseError :: Token -> Alex a
---parseError = throwError . UnexpectedToken
+-- parseError = throwError . UnexpectedToken
 parseError tok = alexError (show tok)
 
 flattenExpression :: AST.JSNode -> [AST.JSNode] -> AST.JSNode

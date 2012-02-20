@@ -9,7 +9,7 @@ module Language.JavaScript.Parser
        --, SrcSpan(..)
        --, AlexSpan(..)
        , Node(..)
-       , ParseError(..)
+       -- , ParseError(..)
        -- Source locations
        , TokenPosn(..)
        -- ParserMonad

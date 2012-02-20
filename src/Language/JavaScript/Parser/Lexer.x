@@ -335,12 +335,9 @@ classifyToken aToken =
       _other      -> reg
 
 
--- Each right-hand side has type :: String -> Token
-
 
 --lexToken :: Alex Token
 lexToken = do
-  -- input@(_,_,_,inp) <- alexGetInput
   inp <- alexGetInput
   lt <- getLastToken
   case alexScan inp (classifyToken lt) of
@@ -352,7 +349,6 @@ lexToken = do
        lexToken
     AlexToken inp' len action -> do
        alexSetInput inp'
-       -- token <- action (ignorePendingBytes input) len inp
        token <- action (ignorePendingBytes inp) len
        setLastToken token
        return token
@@ -419,37 +415,6 @@ mkComment loc@(p@(AlexPn offset line col),_,inp) len = do
 toTokenPosn :: AlexPosn -> TokenPosn
 toTokenPosn (AlexPn offset line col) = (TokenPn offset line col)
 
--- ---------------------------------------------------------------------
-
-
-{-
-++AZ++ commenting this out, it should be included by the monadUserState wrapper
-
-utf8Encode :: Char -> [Byte]
-utf8Encode c = head (UTF8.encodeUTF8' [UTF8.c2w c])
-
---alexEOF = EOFToken alexSpanEmpty
-
--- ignorePendingBytes :: forall t t1 t2 t3. (t, t1, t2, t3) -> (t, t1, t3)
-ignorePendingBytes (p,c,_ps,s) = (p,c,s)
-
-
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar (p,c,bs,s) = c
-
-alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
-alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
-alexGetByte (_p,_c,[],[]) = Nothing
-alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
-                                  (b:bs) = utf8Encode c
-                              in p' `seq`  Just (b, (p', c, bs, s))
-
-alexMove :: AlexPosn -> Char -> AlexPosn
-alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
-alexMove (AlexPn a l _c) '\n' = AlexPn (a+1) (l+1)   1
-alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
-++AZ++ end
--}
 -- ---------------------------------------------------------------------
 
 -- a keyword or an identifier (the syntax overlaps)

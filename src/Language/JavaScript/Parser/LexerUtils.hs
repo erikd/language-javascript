@@ -28,10 +28,8 @@ module Language.JavaScript.Parser.LexerUtils (
   --, lexicalError
   ) where
 
---import Control.Monad (liftM)
---import Control.Monad.Error.Class (throwError)
+import Control.Monad.Error.Class (throwError)
 import Language.JavaScript.Parser.Token as Token
---import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import Prelude hiding (span)
 
@@ -51,21 +49,6 @@ endOfFileToken = EOFToken tokenPosnEmpty
 mkString
   :: (Monad m) => (TokenPosn -> String -> Token) -> TokenPosn -> Int -> String -> m Token
 mkString toToken loc len str = do return (toToken loc (take len str))
-
---mkString
---  :: (Monad m) => ((t,Char,String) -> String -> Token) -> (t,Char,String) -> Int -> m Token
---mkString toToken loc@(p,c,str) len = do
---   return $ toToken loc (take len str)
-
-
-{-
-mkStringRemoveContinuation
-  :: (Monad m) => (TokenPosn -> String -> Token) -> TokenPosn -> Int -> String -> m Token
-  -- :: (Monad m) => (t -> [a1] -> a) -> t -> Int -> [a1] -> m a
-mkStringRemoveContinuation toToken loc len str = do
-   -- token <- toToken loc (take len str)
-   return $ toToken loc (take len str)
--}
 
 decimalToken :: TokenPosn -> String -> Token
 decimalToken loc str = DecimalToken loc str
