@@ -22,9 +22,9 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- Return comments in addition to the parsed statements.
 parse :: String -- ^ The input stream (Javascript source code).
       -> String -- ^ The name of the Javascript source (filename or input device).
-      -- -> Either ParseError AST.JSNode
       -> Either String  AST.JSNode
-         -- ^ An error or maybe the abstract syntax tree (AST) of zero or more Javascript statements, plus comments.
+         -- ^ An error or maybe the abstract syntax tree (AST) of zero
+         -- or more Javascript statements, plus comments.
 parse input _srcName = runAlex input parseProgram
 
 

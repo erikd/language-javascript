@@ -33,5 +33,5 @@ alexInitUserState = AlexUserState
    }
 
 initToken :: Token
-initToken = CommentToken tokenPosnEmpty ""
+initToken = CommentToken tokenPosnEmpty "" []
 

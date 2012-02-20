@@ -400,7 +400,7 @@ addComment :: Token -> Alex ()
 addComment c = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comments=[c] }}, ())
 
 alexEOF :: Alex Token
-alexEOF = do return (EOFToken tokenPosnEmpty)
+alexEOF = do return (EOFToken tokenPosnEmpty [])
 
 adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
 adapt f loc@(p@(AlexPn offset line col),_,inp) len =
@@ -421,14 +421,16 @@ toTokenPosn (AlexPn offset line col) = (TokenPn offset line col)
 keywordOrIdent :: String -> TokenPosn -> Alex Token
 keywordOrIdent str location
    = return $ case Map.lookup str keywords of
-         Just symbol -> symbol location str
-         Nothing -> IdentifierToken location str
+         Just symbol -> symbol location str []
+         Nothing -> IdentifierToken location str []
 
 -- mapping from strings to keywords
-keywords :: Map.Map String (TokenPosn -> String -> Token)
+--keywords :: Map.Map String (TokenPosn -> String -> Token)
+keywords :: Map.Map String (TokenPosn -> String -> [CommentAnnotation] -> Token)
 keywords = Map.fromList keywordNames
 
-keywordNames :: [(String, TokenPosn -> String -> Token)]
+--keywordNames :: [(String, TokenPosn -> String -> Token)]
+keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
    [
     ("break",BreakToken),
