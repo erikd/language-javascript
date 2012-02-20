@@ -299,7 +299,7 @@ tokens :-
      "["	{ adapt (symbolToken  LeftBracketToken)}
      "]"	{ adapt (symbolToken  RightBracketToken)}
      "{"	{ adapt (symbolToken  LeftCurlyToken)}
-     ")}"	{ adapt (symbolToken  RightCurlyToken)}
+     "}"	{ adapt (symbolToken  RightCurlyToken)}
      "("	{ adapt (symbolToken  LeftParenToken)}
      ")"	{ adapt (symbolToken  RightParenToken)}
      "@*/"	{ adapt (symbolToken  CondcommentEndToken)}
