@@ -15,7 +15,7 @@
 module Language.JavaScript.Parser.Token (
    -- * The tokens
    Token (..)
-   , CommentAnnotation
+   , CommentAnnotation(..)
    -- * String conversion
    , debugTokenString
    -- * Classification
@@ -25,7 +25,9 @@ module Language.JavaScript.Parser.Token (
 import Data.Data
 import Language.JavaScript.Parser.SrcLocation
 
-type CommentAnnotation = (TokenPosn, String)
+data CommentAnnotation = CommentA TokenPosn String
+                       | NoComment
+   deriving (Eq,{-Ord,-}Show,Typeable,Data,Read)
 
 -- | Lexical tokens.
 -- Each may be annotated with any comment occuring between the prior token and this one

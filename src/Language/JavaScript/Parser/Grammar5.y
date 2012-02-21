@@ -120,7 +120,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- Sort out automatically inserted semi-colons
 
 AutoSemi :: { AST.JSNode }
-AutoSemi : ';' { AST.NS (AST.JSLiteral ";") (ss $1) []}
+AutoSemi : ';' { AST.NS (AST.JSLiteral ";") (ss $1) (gc $1)}
          |     { AST.NS (AST.JSLiteral "") tokenPosnEmpty []}
 
 -- ---------------------------------------------------------------------
@@ -138,24 +138,24 @@ Literal : NullLiteral     {$1}
         | RegularExpressionLiteral {$1}
 
 NullLiteral :: { AST.JSNode }
-NullLiteral : 'null' { AST.NS (AST.JSLiteral "null") (ss $1) []}
+NullLiteral : 'null' { AST.NS (AST.JSLiteral "null") (ss $1) (gc $1)}
 
 BooleanLiteral :: { AST.JSNode }
-BooleanLiteral : 'true'  { AST.NS (AST.JSLiteral "true")  (ss $1) []}
-               | 'false' { AST.NS (AST.JSLiteral "false") (ss $1) []}
+BooleanLiteral : 'true'  { AST.NS (AST.JSLiteral "true")  (ss $1) (gc $1)}
+               | 'false' { AST.NS (AST.JSLiteral "false") (ss $1) (gc $1)}
 
 -- <Numeric Literal> ::= DecimalLiteral
 --                     | HexIntegerLiteral
 NumericLiteral :: { AST.JSNode }
-NumericLiteral : 'decimal'    { AST.NS (AST.JSDecimal (token_literal $1)) (ss $1) []}
-               | 'hexinteger' { AST.NS (AST.JSHexInteger (token_literal $1)) (ss $1) []}
+NumericLiteral : 'decimal'    { AST.NS (AST.JSDecimal (token_literal $1)) (ss $1) (gc $1)}
+               | 'hexinteger' { AST.NS (AST.JSHexInteger (token_literal $1)) (ss $1) (gc $1)}
 
 StringLiteral :: { AST.JSNode }
-StringLiteral : 'string'  { AST.NS (AST.JSStringLiteral (token_delimiter $1) (token_literal $1)) (ss $1) []}
+StringLiteral : 'string'  { AST.NS (AST.JSStringLiteral (token_delimiter $1) (token_literal $1)) (ss $1) (gc $1)}
 
 -- <Regular Expression Literal> ::= RegExp
 RegularExpressionLiteral :: { AST.JSNode }
-RegularExpressionLiteral : 'regex' { AST.NS (AST.JSRegEx (token_literal $1)) (ss $1) []}
+RegularExpressionLiteral : 'regex' { AST.NS (AST.JSRegEx (token_literal $1)) (ss $1) (gc $1)}
 
 -- PrimaryExpression :                                                   See 11.1
 --        this
@@ -165,12 +165,12 @@ RegularExpressionLiteral : 'regex' { AST.NS (AST.JSRegEx (token_literal $1)) (ss
 --        ObjectLiteral
 --        ( Expression )
 PrimaryExpression :: { AST.JSNode }
-PrimaryExpression : 'this'                   { AST.NS (AST.JSLiteral "this") (ss $1) []}
+PrimaryExpression : 'this'                   { AST.NS (AST.JSLiteral "this") (ss $1) (gc $1)}
                   | Identifier               { $1 {- PrimaryExpression1 -}}
                   | Literal                  { $1 {- PrimaryExpression2 -}}
                   | ArrayLiteral             { $1 {- PrimaryExpression3 -}}
                   | ObjectLiteral            { $1 {- PrimaryExpression4 -}}
-                  | '(' Expression ')'       { AST.NS (AST.JSExpressionParen $2) (ss $1) []}
+                  | '(' Expression ')'       { AST.NS (AST.JSExpressionParen $2) (ss $1) ((gc $1)++(gnc $2)++(gc $3))}
 
 -- Identifier ::                                                            See 7.6
 --         IdentifierName but not ReservedWord
@@ -178,47 +178,47 @@ PrimaryExpression : 'this'                   { AST.NS (AST.JSLiteral "this") (ss
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSNode }
-Identifier : 'ident' { AST.NS (AST.JSIdentifier (token_literal $1)) (ss $1) []}
-           | 'get'   { AST.NS (AST.JSIdentifier "get") (ss $1) []}
-           | 'set'   { AST.NS (AST.JSIdentifier "set") (ss $1) []}
+Identifier : 'ident' { AST.NS (AST.JSIdentifier (token_literal $1)) (ss $1) (gc $1)}
+           | 'get'   { AST.NS (AST.JSIdentifier "get") (ss $1) (gc $1)}
+           | 'set'   { AST.NS (AST.JSIdentifier "set") (ss $1) (gc $1)}
 
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSNode }
 IdentifierName : Identifier {$1}
-             | 'break'      { AST.NS (AST.JSIdentifier "break") (ss $1) []}
-             | 'case'       { AST.NS (AST.JSIdentifier "case") (ss $1) []}
-             | 'catch'      { AST.NS (AST.JSIdentifier "catch") (ss $1) []}
-             | 'const'      { AST.NS (AST.JSIdentifier "const") (ss $1) []}
-             | 'continue'   { AST.NS (AST.JSIdentifier "continue") (ss $1) []}
-             | 'debugger'   { AST.NS (AST.JSIdentifier "debugger") (ss $1) []}
-             | 'default'    { AST.NS (AST.JSIdentifier "default") (ss $1) []}
-             | 'delete'     { AST.NS (AST.JSIdentifier "delete") (ss $1) []}
-             | 'do'         { AST.NS (AST.JSIdentifier "do") (ss $1) []}
-             | 'else'       { AST.NS (AST.JSIdentifier "else") (ss $1) []}
-             | 'enum'       { AST.NS (AST.JSIdentifier "enum") (ss $1) []}
-             | 'false'      { AST.NS (AST.JSIdentifier "false") (ss $1) []}
-             | 'finally'    { AST.NS (AST.JSIdentifier "finally") (ss $1) []}
-             | 'for'        { AST.NS (AST.JSIdentifier "for")  (ss $1) []}
-             | 'function'   { AST.NS (AST.JSIdentifier "function") (ss $1) []}
-             | 'get'        { AST.NS (AST.JSIdentifier "get") (ss $1) []}
-             | 'if'         { AST.NS (AST.JSIdentifier "if") (ss $1) []}
-             | 'in'         { AST.NS (AST.JSIdentifier "in") (ss $1) []}
-             | 'instanceof' { AST.NS (AST.JSIdentifier "instanceof") (ss $1) []}
-             | 'new'        { AST.NS (AST.JSIdentifier "new") (ss $1) []}
-             | 'null'       { AST.NS (AST.JSIdentifier "null") (ss $1) []}
-             | 'return'     { AST.NS (AST.JSIdentifier "return") (ss $1) []}
-             | 'set'        { AST.NS (AST.JSIdentifier "set") (ss $1) []}
-             | 'switch'     { AST.NS (AST.JSIdentifier "switch") (ss $1) []}
-             | 'this'       { AST.NS (AST.JSIdentifier "this") (ss $1) []}
-             | 'throw'      { AST.NS (AST.JSIdentifier "throw") (ss $1) []}
-             | 'true'       { AST.NS (AST.JSIdentifier "true") (ss $1) []}
-             | 'try'        { AST.NS (AST.JSIdentifier "try") (ss $1) []}
-             | 'typeof'     { AST.NS (AST.JSIdentifier "typeof") (ss $1) []}
-             | 'var'        { AST.NS (AST.JSIdentifier "var") (ss $1) []}
-             | 'void'       { AST.NS (AST.JSIdentifier "void") (ss $1) []}
-             | 'while'      { AST.NS (AST.JSIdentifier "while") (ss $1) []}
-             | 'with'       { AST.NS (AST.JSIdentifier "with") (ss $1) []}
-             | 'future'     { AST.NS (AST.JSIdentifier (token_literal $1)) (ss $1) []}
+             | 'break'      { AST.NS (AST.JSIdentifier "break") (ss $1) (gc $1)}
+             | 'case'       { AST.NS (AST.JSIdentifier "case") (ss $1) (gc $1)}
+             | 'catch'      { AST.NS (AST.JSIdentifier "catch") (ss $1) (gc $1)}
+             | 'const'      { AST.NS (AST.JSIdentifier "const") (ss $1) (gc $1)}
+             | 'continue'   { AST.NS (AST.JSIdentifier "continue") (ss $1) (gc $1)}
+             | 'debugger'   { AST.NS (AST.JSIdentifier "debugger") (ss $1) (gc $1)}
+             | 'default'    { AST.NS (AST.JSIdentifier "default") (ss $1) (gc $1)}
+             | 'delete'     { AST.NS (AST.JSIdentifier "delete") (ss $1) (gc $1)}
+             | 'do'         { AST.NS (AST.JSIdentifier "do") (ss $1) (gc $1)}
+             | 'else'       { AST.NS (AST.JSIdentifier "else") (ss $1) (gc $1)}
+             | 'enum'       { AST.NS (AST.JSIdentifier "enum") (ss $1) (gc $1)}
+             | 'false'      { AST.NS (AST.JSIdentifier "false") (ss $1) (gc $1)}
+             | 'finally'    { AST.NS (AST.JSIdentifier "finally") (ss $1) (gc $1)}
+             | 'for'        { AST.NS (AST.JSIdentifier "for")  (ss $1) (gc $1)}
+             | 'function'   { AST.NS (AST.JSIdentifier "function") (ss $1) (gc $1)}
+             | 'get'        { AST.NS (AST.JSIdentifier "get") (ss $1) (gc $1)}
+             | 'if'         { AST.NS (AST.JSIdentifier "if") (ss $1) (gc $1)}
+             | 'in'         { AST.NS (AST.JSIdentifier "in") (ss $1) (gc $1)}
+             | 'instanceof' { AST.NS (AST.JSIdentifier "instanceof") (ss $1) (gc $1)}
+             | 'new'        { AST.NS (AST.JSIdentifier "new") (ss $1) (gc $1)}
+             | 'null'       { AST.NS (AST.JSIdentifier "null") (ss $1) (gc $1)}
+             | 'return'     { AST.NS (AST.JSIdentifier "return") (ss $1) (gc $1)}
+             | 'set'        { AST.NS (AST.JSIdentifier "set") (ss $1) (gc $1)}
+             | 'switch'     { AST.NS (AST.JSIdentifier "switch") (ss $1) (gc $1)}
+             | 'this'       { AST.NS (AST.JSIdentifier "this") (ss $1) (gc $1)}
+             | 'throw'      { AST.NS (AST.JSIdentifier "throw") (ss $1) (gc $1)}
+             | 'true'       { AST.NS (AST.JSIdentifier "true") (ss $1) (gc $1)}
+             | 'try'        { AST.NS (AST.JSIdentifier "try") (ss $1) (gc $1)}
+             | 'typeof'     { AST.NS (AST.JSIdentifier "typeof") (ss $1) (gc $1)}
+             | 'var'        { AST.NS (AST.JSIdentifier "var") (ss $1) (gc $1)}
+             | 'void'       { AST.NS (AST.JSIdentifier "void") (ss $1) (gc $1)}
+             | 'while'      { AST.NS (AST.JSIdentifier "while") (ss $1) (gc $1)}
+             | 'with'       { AST.NS (AST.JSIdentifier "with") (ss $1) (gc $1)}
+             | 'future'     { AST.NS (AST.JSIdentifier (token_literal $1)) (ss $1) (gc $1)}
 
 
 
@@ -227,36 +227,36 @@ IdentifierName : Identifier {$1}
 --        [ ElementList ]
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSNode }
-ArrayLiteral : '[' ']'                         { AST.NS (AST.JSArrayLiteral []) (ss $1) []}
-             | '[' Elision ']'                 { AST.NS (AST.JSArrayLiteral $2) (ss $1) []}
-             | '[' ElementList ']'             { AST.NS (AST.JSArrayLiteral $2) (ss $1) []}
-             | '[' ElementList ',' Elision ']' { AST.NS (AST.JSArrayLiteral ($2++$4)) (ss $1) []}
-             | '[' ElementList ',' ']'         { AST.NS (AST.JSArrayLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) []])) (ss $1) []}
+ArrayLiteral : '[' ']'                         { AST.NS (AST.JSArrayLiteral []) (ss $1) ((gc $1)++(gc $2))}
+             | '[' Elision ']'                 { AST.NS (AST.JSArrayLiteral $2) (ss $1) ((gc $1)++(mgnc $2)++(gc $3))}
+             | '[' ElementList ']'             { AST.NS (AST.JSArrayLiteral $2) (ss $1) ((gc $1)++(mgnc $2)++(gc $3))}
+             | '[' ElementList ',' Elision ']' { AST.NS (AST.JSArrayLiteral ($2++$4)) (ss $1) ((gc $1)++(mgnc $2)++(gc $3)++(mgnc $4)++(gc $5))}
+             | '[' ElementList ',' ']'         { AST.NS (AST.JSArrayLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) []])) (ss $1) ((gc $1)++(mgnc $2)++(gc $3)++(gc $4))}
 
 -- ElementList :                                                         See 11.1.4
 --        Elisionopt AssignmentExpression
 --        ElementList , Elisionopt AssignmentExpression
 ElementList :: { [AST.JSNode] }
 ElementList : Elision AssignmentExpression                 { (($1)++($2)) {- ElementList -}}
-            | AssignmentExpression                         { $1 {- ElementList -}}
-            | ElementList ',' Elision AssignmentExpression { (($1)++[(AST.NS (AST.JSElision []) (ss $2) [])]++($3)++($4)) {- ElementList -}}
-            | ElementList ',' AssignmentExpression         { (($1)++[(AST.NS (AST.JSElision []) (ss $2) [])]++($3)) {- ElementList -}}
+            | AssignmentExpression                         { $1           {- ElementList -}}
+            | ElementList ',' Elision AssignmentExpression { (($1)++[(AST.NS (AST.JSElision []) (ss $2) (gc $2))]++($3)++($4)) {- ElementList -}}
+            | ElementList ',' AssignmentExpression         { (($1)++[(AST.NS (AST.JSElision []) (ss $2) (gc $2))]++($3)) {- ElementList -}}
 
 -- Elision :                                                             See 11.1.4
 --        ,
 --        Elision ,
 Elision :: { [AST.JSNode] }
-Elision :  ','        { [AST.NS (AST.JSElision []) tokenPosnEmpty []] }
-        | Elision ',' { ($1 ++ [(AST.NS (AST.JSElision []) tokenPosnEmpty [])]) }
+Elision :  ','        { [AST.NS (AST.JSElision []) tokenPosnEmpty (gc $1)] }
+        | Elision ',' { ($1 ++ [(AST.NS (AST.JSElision []) tokenPosnEmpty (gc $2))]) }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
 --        { PropertyNameAndValueList }
 --        { PropertyNameAndValueList , }
 ObjectLiteral :: { AST.JSNode }
-ObjectLiteral : '{' '}'                          { AST.NS (AST.JSObjectLiteral []) (ss $1) []}
-              | '{' PropertyNameandValueList '}' { AST.NS (AST.JSObjectLiteral $2) (ss $1) []}
-              | '{' PropertyNameandValueList ',' '}' { AST.NS (AST.JSObjectLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) []])) (ss $1) []}
+ObjectLiteral : '{' '}'                          { AST.NS (AST.JSObjectLiteral []) (ss $1) ((gc $1)++(gc $2))}
+              | '{' PropertyNameandValueList '}' { AST.NS (AST.JSObjectLiteral $2) (ss $1) ((gc $1)++(gc $3))}
+              | '{' PropertyNameandValueList ',' '}' { AST.NS (AST.JSObjectLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) (gc $3)])) (ss $1) ((gc $1)++(gc $4))} -- ++xxxxx
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
@@ -967,6 +967,11 @@ ex (AST.NS _node span _c) = span
 
 --ss token = toSrcSpan (token_span token)
 ss token = token_span token
+
+gc token = token_comment token
+
+gnc   (AST.NS _ _ ca)  = ca
+mgnc [(AST.NS _ _ ca)] = ca
 
 }
 

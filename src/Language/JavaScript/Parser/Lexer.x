@@ -365,10 +365,16 @@ lexCont cont = do
       tok <- lexToken
       case tok of
          CommentToken {} -> do
-            addComment tok
+            setComment [tok]
             lexLoop
-         _other -> cont tok
+         _other -> do
+            cs <- getComment
+            let tok' = tok{ token_comment=(toCommentAnnotation cs) }
+            setComment []
+            cont tok'
 
+toCommentAnnotation []    = [NoComment]
+toCommentAnnotation [tok] = [(CommentA (token_span tok) (token_literal tok))]
 
 -- ---------------------------------------------------------------------
 
@@ -386,9 +392,9 @@ getLastToken = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, previousToken ust)
 setLastToken :: Token -> Alex ()
 setLastToken tok = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
 
-getComments :: Alex [Token]
+getComment :: Alex [Token]
 --getComments = reverse <$> Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)
-getComments = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)
+getComment = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comment ust)
 
 {-
 addComment :: Token -> Alex ()
@@ -396,8 +402,8 @@ addComment c = Alex $ \s -> do
   oldComments <- getComments
   Right (s{alex_ust=(alex_ust s){comments=c : oldComments}}, ())
 -}
-addComment :: Token -> Alex ()
-addComment c = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comments=[c] }}, ())
+setComment :: [Token] -> Alex ()
+setComment cs = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comment=cs }}, ())
 
 alexEOF :: Alex Token
 alexEOF = do return (EOFToken tokenPosnEmpty [])

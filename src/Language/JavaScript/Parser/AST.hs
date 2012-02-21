@@ -10,6 +10,7 @@ module Language.JavaScript.Parser.AST
 import Data.Data
 import Data.List
 import Language.JavaScript.Parser.SrcLocation (TokenPosn(..))
+import Language.JavaScript.Parser.Token
 
 -- ---------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ import Language.JavaScript.Parser.SrcLocation (TokenPosn(..))
 -- Each has a syntactic part 'Node', the position of the first leaf element
 -- 'TokenPosn', as well as an array (length 0 or 1) of comments that were collected
 -- while parsing. The comments will only decorate leaf elements.
-data JSNode = NS Node TokenPosn [(TokenPosn,String)]
+data JSNode = NS Node TokenPosn [CommentAnnotation]
     deriving (Show, Eq, Read, Data, Typeable)
 
 data Node = JSArguments [[JSNode]]

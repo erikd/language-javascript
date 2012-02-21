@@ -21,15 +21,15 @@ import Language.JavaScript.Parser.SrcLocation
 
 data AlexUserState = AlexUserState
   {
-    previousToken :: !Token  -- the previous token
-  , comments :: [Token]      -- accumulated comments
+    previousToken :: !Token  -- ^the previous token
+  , comment :: [Token]       -- ^the previous comment, if any
   }
 
 alexInitUserState :: AlexUserState
 alexInitUserState = AlexUserState
    {
      previousToken = initToken
-   , comments = []
+   , comment = []
    }
 
 initToken :: Token
