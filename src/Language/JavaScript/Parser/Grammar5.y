@@ -256,7 +256,7 @@ Elision :  ','        { [AST.NS (AST.JSElision []) tokenPosnEmpty (gc $1)] }
 ObjectLiteral :: { AST.JSNode }
 ObjectLiteral : '{' '}'                          { AST.NS (AST.JSObjectLiteral []) (ss $1) ((gc $1)++(gc $2))}
               | '{' PropertyNameandValueList '}' { AST.NS (AST.JSObjectLiteral $2) (ss $1) ((gc $1)++(gc $3))}
-              | '{' PropertyNameandValueList ',' '}' { AST.NS (AST.JSObjectLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) (gc $3)])) (ss $1) ((gc $1)++(gc $4))} -- ++xxxxx
+              | '{' PropertyNameandValueList ',' '}' { AST.NS (AST.JSObjectLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) (gc $3)])) (ss $1) ((gc $1)++(gc $4))}
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
@@ -267,7 +267,7 @@ ObjectLiteral : '{' '}'                          { AST.NS (AST.JSObjectLiteral [
 --        PropertyNameAndValueList , PropertyAssignment
 PropertyNameandValueList :: { [ AST.JSNode ] }
 PropertyNameandValueList : PropertyAssignment                              { [$1] {- PropertyNameandValueList1 -} }
-                         | PropertyNameandValueList ',' PropertyAssignment { ($1 ++ [$3]) {- PropertyNameandValueList2 -} }
+                         | PropertyNameandValueList ',' PropertyAssignment { ($1 ++ [(pc $3 (gc $2))]) {- PropertyNameandValueList2 -} }
 
 -- PropertyAssignment :                                                  See 11.1.5
 --        PropertyName : AssignmentExpression
@@ -275,9 +275,9 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 --        set PropertyName( PropertySetParameterList ) { FunctionBody }
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSNode }
-PropertyAssignment : PropertyName ':' AssignmentExpression { (AST.NS (AST.JSPropertyNameandValue $1 $3) (ex $1) []) }
+PropertyAssignment : PropertyName ':' AssignmentExpression { (AST.NS (AST.JSPropertyNameandValue $1 $3) (ex $1) (gc $2)) }
                    -- Should be "get" in next, but is not a Token
-                   | 'get' PropertyName '(' ')' '{' FunctionBody '}' { (AST.NS (AST.JSPropertyAccessor "get" $2 [] $6) (ss $1) []) }
+                   | 'get' PropertyName '(' ')' '{' FunctionBody '}' { (AST.NS (AST.JSPropertyAccessor "get" $2 [] $6) (ss $1) (mgc [$1,$3,$4,$5,$7])) } -- ++XXXX
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName '(' PropertySetParameterList ')' '{' FunctionBody '}'
                        { (AST.NS (AST.JSPropertyAccessor "set" $2 [$4] $7) (ss $1) []) }
@@ -969,9 +969,14 @@ ex (AST.NS _node span _c) = span
 ss token = token_span token
 
 gc token = token_comment token
+mgc xs = concatMap gc xs
 
+-- Get node comment
 gnc   (AST.NS _ _ ca)  = ca
 mgnc [(AST.NS _ _ ca)] = ca
+
+-- Prepend a comment
+pc (AST.NS node span cs2) cs1 = (AST.NS node span (cs1++cs2))
 
 }
 
