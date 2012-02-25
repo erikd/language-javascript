@@ -229,10 +229,10 @@ IdentifierName : Identifier {$1}
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSNode }
 ArrayLiteral : '[' ']'                         { AST.NS (AST.JSArrayLiteral []) (ss $1) ((gc $1)++(gc $2))}
-             | '[' Elision ']'                 { AST.NS (AST.JSArrayLiteral $2) (ss $1) ((gc $1)++(mgnc $2)++(gc $3))}
-             | '[' ElementList ']'             { AST.NS (AST.JSArrayLiteral $2) (ss $1) ((gc $1)++(mgnc $2)++(gc $3))}
-             | '[' ElementList ',' Elision ']' { AST.NS (AST.JSArrayLiteral ($2++$4)) (ss $1) ((gc $1)++(mgnc $2)++(gc $3)++(mgnc $4)++(gc $5))}
-             | '[' ElementList ',' ']'         { AST.NS (AST.JSArrayLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) []])) (ss $1) ((gc $1)++(mgnc $2)++(gc $3)++(gc $4))}
+             | '[' Elision ']'                 { AST.NS (AST.JSArrayLiteral $2) (ss $1) (mgc [$1,$3])}
+             | '[' ElementList ']'             { AST.NS (AST.JSArrayLiteral $2) (ss $1) (mgc [$1,$3])}
+             | '[' ElementList ',' Elision ']' { AST.NS (AST.JSArrayLiteral ($2++$4)) (ss $1) (mgc [$1,$3,$5])}
+             | '[' ElementList ',' ']'         { AST.NS (AST.JSArrayLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) (gc $3)])) (ss $1) (mgc [$1,$4])}
 
 -- ElementList :                                                         See 11.1.4
 --        Elisionopt AssignmentExpression
