@@ -206,11 +206,11 @@ testSuite = testGroup "Parser"
 
     , testCase "Labelled1" (testStmt "abc:x=1"    "Right (JSLabelled (JSIdentifier \"abc\") (JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]))")
 
-    , testCase "Switch1" (testStmt "switch (x) {}" "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [])")
+    , testCase "Switch1" (testStmt "switch (x) {}" "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSLiteral \"\"])")
     , testCase "Switch2" (testStmt "switch (x) {case 1:break;}"          "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
     , testCase "Switch3" (testStmt "switch (x) {case 0:\ncase 1:break;}"  "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSCase (JSExpression [JSDecimal \"0\"]) (JSStatementList []),JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
-    , testCase "Switch4" (testStmt "switch (x) {default:break;}"          "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSDefault (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
-    , testCase "Switch5" (testStmt "switch (x) {default:\ncase 1:break;}"   "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSDefault (JSStatementList []),JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
+    , testCase "Switch4" (testStmt "switch (x) {default:break;}"          "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSLiteral \"\",JSDefault (JSStatementList [JSBreak [] [JSLiteral \";\"]]),JSLiteral \"\"])")
+    , testCase "Switch5" (testStmt "switch (x) {default:\ncase 1:break;}"   "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSLiteral \"\",JSDefault (JSStatementList []),JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
 
     , testCase "Throw1" (testStmt "throw 1"   "Right (JSThrow (JSExpression [JSDecimal \"1\"]))")
 
@@ -287,7 +287,7 @@ testSuite = testGroup "Parser"
 
    , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"zero\"]]),JSExpression [JSIdentifier \"get\"],JSLiteral \";\",JSExpression [JSIdentifier \"two\"],JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"three\"],JSExpression [JSIdentifier \"four\"],JSLiteral \";\",JSExpression [JSIdentifier \"set\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"six\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"seven\"],JSLiteral \";\"])])])])")
 
-   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [NoComment],NS (JSOperator \"=\") (TokenPn 2 1 3) [],NS (JSDecimal \"1\") (TokenPn 4 1 5) [NoComment]]) (TokenPn 0 1 1) [],NS (JSExpression [NS (JSIdentifier \"y\") (TokenPn 8 2 3) [NoComment],NS (JSOperator \"=\") (TokenPn 9 2 4) [],NS (JSDecimal \"2\") (TokenPn 10 2 5) [NoComment]]) (TokenPn 8 2 3) [],NS (JSLiteral \";\") (TokenPn 11 2 6) []]) (TokenPn 0 1 1) [])")
+   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [NoComment],NS (JSOperator \"=\") (TokenPn 2 1 3) [NoComment],NS (JSDecimal \"1\") (TokenPn 4 1 5) [NoComment]]) (TokenPn 0 1 1) [],NS (JSExpression [NS (JSIdentifier \"y\") (TokenPn 8 2 3) [NoComment],NS (JSOperator \"=\") (TokenPn 9 2 4) [NoComment],NS (JSDecimal \"2\") (TokenPn 10 2 5) [NoComment]]) (TokenPn 8 2 3) [],NS (JSLiteral \";\") (TokenPn 11 2 6) [NoComment]]) (TokenPn 0 1 1) [])")
 
    -- https://github.com/alanz/language-javascript/issues/2
    , testCase "issue2" (testProg "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"img\") [JSMemberDot [JSIdentifier \"document\"] (JSIdentifier \"createElement\"),JSArguments [[JSStringLiteral '\\'' \"img\"]]]],JSExpression [JSMemberDot [JSIdentifier \"img\"] (JSIdentifier \"src\"),JSOperator \"=\",JSStringLiteral '\"' \"mylogo.jpg\"],JSLiteral \";\",JSExpression [JSIdentifier \"$\",JSArguments [[JSIdentifier \"img\"]],JSCallExpression \".\" [JSIdentifier \"click\"],JSCallExpression \"()\" [JSArguments [[JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"alert\",JSArguments [[JSStringLiteral '\\'' \"clicked!\"]]],JSLiteral \";\"]])]]]],JSLiteral \";\"])")
