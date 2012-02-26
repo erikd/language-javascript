@@ -12,6 +12,7 @@ module Language.JavaScript.Parser
        -- , ParseError(..)
        -- Source locations
        , TokenPosn(..)
+       , tokenPosnEmpty
        -- ParserMonad
        -- , P
        -- , ParseState (..)
