@@ -358,41 +358,49 @@ commentSuite = testGroup "Comments"
     , testCase "ObjectLiteral2"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/}"    "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier \"x\") (TokenPn 11 1 12) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal \"1\") (TokenPn 23 1 24) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 11 1 12) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
     , testCase "ObjectLiteral3"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/}"     "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier \"x\") (TokenPn 11 1 12) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal \"1\") (TokenPn 23 1 24) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 11 1 12) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSPropertyNameandValue (NS (JSIdentifier \"y\") (TokenPn 35 1 36) [CommentA (TokenPn 30 1 31) \"/*f*/\"]) [NS (JSDecimal \"2\") (TokenPn 47 1 48) [CommentA (TokenPn 42 1 43) \"/*h*/\"]]) (TokenPn 35 1 36) [CommentA (TokenPn 24 1 25) \"/*e*/\",CommentA (TokenPn 36 1 37) \"/*g*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 48 1 49) \"/*i*/\"])")
 
-      {-
-
-    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression [JSIdentifier \"load\"] [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]),JSExpression [JSDecimal \"1\"]]])]])")
-
-    , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"])")
-
-    , testCase "ObjectLiteral6"    (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"values\") [JSDecimal \"7\"],JSLiteral \",\"]]])")
+    , testCase "ObjectLiteral5"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/}"    "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier \"x\") (TokenPn 11 1 12) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal \"1\") (TokenPn 23 1 24) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 11 1 12) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSLiteral \",\") (TokenPn 29 1 30) [CommentA (TokenPn 24 1 25) \"/*e*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 30 1 31) \"/*f*/\"])")
 
     -- Edition 5 extensions
-    , testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}"  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSObjectLiteral [JSPropertyAccessor \"get\" (JSIdentifier \"foo\") [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSDecimal \"1\"],JSLiteral \"\"]]]),JSPropertyAccessor \"set\" (JSIdentifier \"foo\") [JSIdentifier \"a\"] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"a\"]]])]]])")
+    , testCase "ObjectLiteral7"    (testProgC "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"  "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"],NS (JSOperator \"=\") (TokenPn 11 1 12) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSObjectLiteral [NS (JSPropertyAccessor \"get\" (NS (JSIdentifier \"foo\") (TokenPn 32 1 33) [CommentA (TokenPn 26 1 27) \"/*e*/\"]) [] (NS (JSFunctionBody [NS (JSSourceElements [NS (JSReturn [NS (JSExpression [NS (JSDecimal \"1\") (TokenPn 71 1 72) [CommentA (TokenPn 65 1 66) \"/*j*/\"]]) (TokenPn 71 1 72) [],NS (JSLiteral \"\") (TokenPn 0 0 0) []]) (TokenPn 59 1 60) [CommentA (TokenPn 54 1 55) \"/*i*/\"]]) (TokenPn 59 1 60) []]) (TokenPn 59 1 60) [])) (TokenPn 23 1 24) [CommentA (TokenPn 18 1 19) \"/*d*/\",CommentA (TokenPn 35 1 36) \"/*f*/\",CommentA (TokenPn 41 1 42) \"/*g*/\",CommentA (TokenPn 47 1 48) \"/*h*/\",CommentA (TokenPn 72 1 73) \"/*k*/\"],NS (JSPropertyAccessor \"set\" (NS (JSIdentifier \"foo\") (TokenPn 98 1 99) [CommentA (TokenPn 92 1 93) \"/*n*/\"]) [NS (JSIdentifier \"a\") (TokenPn 112 1 113) [CommentA (TokenPn 107 1 108) \"/*p*/\"]] (NS (JSFunctionBody [NS (JSSourceElements [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 131 1 132) [CommentA (TokenPn 126 1 127) \"/*s*/\"],NS (JSOperator \"=\") (TokenPn 137 1 138) [CommentA (TokenPn 132 1 133) \"/*t*/\"],NS (JSIdentifier \"a\") (TokenPn 143 1 144) [CommentA (TokenPn 138 1 139) \"/*u*/\"]]) (TokenPn 131 1 132) []]) (TokenPn 131 1 132) []]) (TokenPn 131 1 132) [])) (TokenPn 89 1 90) [CommentA (TokenPn 78 1 79) \"/*l*/\",CommentA (TokenPn 84 1 85) \"/*m*/\",CommentA (TokenPn 101 1 102) \"/*o*/\",CommentA (TokenPn 113 1 114) \"/*q*/\",CommentA (TokenPn 120 1 121) \"/*r*/\",CommentA (TokenPn 144 1 145) \"/*v*/\"]]) (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\",CommentA (TokenPn 150 1 151) \"/*w*/\"]]) (TokenPn 5 1 6) []]) (TokenPn 5 1 6) [])")
 
-    , testCase "ObjectLiteral8"    (testProg "a={if:1,interface:2}" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"if\") [JSDecimal \"1\"],JSPropertyNameandValue (JSIdentifier \"interface\") [JSDecimal \"2\"]]]])")
+    , testCase "ExpressionParen"   (testPEC "/*a*/(/*b*/56/*c*/)"     "Right (NS (JSExpressionParen (NS (JSExpression [NS (JSDecimal \"56\") (TokenPn 11 1 12) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 11 1 12) [])) (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 13 1 14) \"/*c*/\"])")
 
-    , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSExpressionParen (JSExpression [JSDecimal \"56\"]))")
+    , testCase "Statement1"        (testStmtC "/*a*/x"        "Right (NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]]) (TokenPn 5 1 6) [])")
 
-    , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")
-    , testCase "Statement2"        (testStmt "null"     "Right (JSExpression [JSLiteral \"null\"])")
-    , testCase "Statement3"        (testStmt "true?1:2" "Right (JSExpression [JSExpressionTernary [JSLiteral \"true\"] [JSDecimal \"1\"] [JSDecimal \"2\"]])")
+    , testCase "Statement2"        (testStmtC "/*a*/null"     "Right (NS (JSExpression [NS (JSLiteral \"null\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]]) (TokenPn 5 1 6) [])")
 
-    , testCase "Statement4"        (testStmt "x||y"     "Right (JSExpression [JSExpressionBinary \"||\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement5"        (testStmt "x&&y"     "Right (JSExpression [JSExpressionBinary \"&&\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement6"        (testStmt "x|y"     "Right (JSExpression [JSExpressionBinary \"|\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement6"        (testStmt "x^y"     "Right (JSExpression [JSExpressionBinary \"^\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement7"        (testStmt "x&y"     "Right (JSExpression [JSExpressionBinary \"&\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
+    , testCase "Statement3"        (testStmtC "/*a*/true/*b*/?/*c*/1/*d*/:/*e*/2" "Right (NS (JSExpression [NS (JSExpressionTernary [NS (JSLiteral \"true\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSDecimal \"1\") (TokenPn 20 1 21) [CommentA (TokenPn 15 1 16) \"/*c*/\"]] [NS (JSDecimal \"2\") (TokenPn 32 1 33) [CommentA (TokenPn 27 1 28) \"/*e*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 9 1 10) \"/*b*/\",CommentA (TokenPn 21 1 22) \"/*d*/\"]]) (TokenPn 5 1 6) [])")
 
-    , testCase "Statement8"        (testStmt "x==y"     "Right (JSExpression [JSExpressionBinary \"==\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement9"        (testStmt "x!=y"     "Right (JSExpression [JSExpressionBinary \"!=\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement10"       (testStmt "x===y"     "Right (JSExpression [JSExpressionBinary \"===\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement11"       (testStmt "x!==y"     "Right (JSExpression [JSExpressionBinary \"!==\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
+    , testCase "Statement4"        (testStmtC "/*a*/x/*b*/||/*c*/y"    "Right (NS (JSExpression [NS (JSExpressionBinary \"||\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 18 1 19) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
 
-    , testCase "Statement12"       (testStmt "x<y"     "Right (JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement12"       (testStmt "x>y"     "Right (JSExpression [JSExpressionBinary \">\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement12"       (testStmt "x<=y"     "Right (JSExpression [JSExpressionBinary \"<=\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement12"       (testStmt "x>=y"     "Right (JSExpression [JSExpressionBinary \">=\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    -- , testCase "Statement12"       (testStmt "x instanceof y"     "") -- TODO: restore test case
+    , testCase "Statement5"        (testStmtC "/*a*/x/*b*/&&/*c*/y"    "Right (NS (JSExpression [NS (JSExpressionBinary \"&&\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 18 1 19) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement6"        (testStmtC "/*a*/x/*b*/|/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"|\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement6"        (testStmtC "/*a*/x/*b*/^/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"^\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement7"        (testStmtC "/*a*/x/*b*/&/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"&\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement8"        (testStmtC "/*a*/x/*b*/==/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"==\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 18 1 19) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement9"        (testStmtC "/*a*/x/*b*/!=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"!=\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 18 1 19) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement10"       (testStmtC "/*a*/x/*b*/===/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"===\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 19 1 20) [CommentA (TokenPn 14 1 15) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement11"       (testStmtC "/*a*/x/*b*/!==/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"!==\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 19 1 20) [CommentA (TokenPn 14 1 15) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement12a"       (testStmtC "/*a*/x/*b*/</*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"<\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement12b"       (testStmtC "/*a*/x/*b*/>/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \">\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement12c"       (testStmtC "/*a*/x/*b*/<=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"<=\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 18 1 19) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement12d"       (testStmtC "/*a*/x/*b*/>=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \">=\" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 18 1 19) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+    , testCase "Statement12e"       (testStmtC "/*a*/x /*b*/instanceof /*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \" instanceof \" [NS (JSIdentifier \"x\") (TokenPn 5 1 6) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 28 1 29) [CommentA (TokenPn 23 1 24) \"/*c*/\"]]) (TokenPn 5 1 6) [CommentA (TokenPn 7 1 8) \"/*b*/\"]]) (TokenPn 5 1 6) [])")
+
+      {-
+
 
     , testCase "Statement13"       (testStmt "x<<y"     "Right (JSExpression [JSExpressionBinary \"<<\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
     , testCase "Statement13"       (testStmt "x>>y"     "Right (JSExpression [JSExpressionBinary \">>\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
@@ -612,10 +620,12 @@ testLiteralC literal expected = expected @=? (show              $ parseUsing par
 testPE  str expected = expected @=? (showStrippedMaybe $ parseUsing parsePrimaryExpression str "src")
 testPEC str expected = expected @=? (show              $ parseUsing parsePrimaryExpression str "src")
 
-testStmt str expected = expected @=? (showStrippedMaybe $ parseUsing parseStatement str "src")
+testStmt  str expected = expected @=? (showStrippedMaybe $ parseUsing parseStatement str "src")
+testStmtC str expected = expected @=? (show              $ parseUsing parseStatement str "src")
 
 --testProg str expected = expected @=? (show $ parseUsing parseProgram str "src")
-testProg str expected = expected @=? (showStrippedMaybe $ parseUsing parseProgram str "src")
+testProg  str expected = expected @=? (showStrippedMaybe $ parseUsing parseProgram str "src")
+testProgC str expected = expected @=? (show              $ parseUsing parseProgram str "src")
 
 testProgUn str expected = expected @=? (show $ parseUsing parseProgram str "src")
 

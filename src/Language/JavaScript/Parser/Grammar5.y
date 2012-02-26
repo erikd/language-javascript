@@ -278,7 +278,8 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 PropertyAssignment :: { AST.JSNode }
 PropertyAssignment : PropertyName ':' AssignmentExpression { (AST.NS (AST.JSPropertyNameandValue $1 $3) (ex $1) (gc $2)) }
                    -- Should be "get" in next, but is not a Token
-                   | 'get' PropertyName '(' ')' '{' FunctionBody '}' { (AST.NS (AST.JSPropertyAccessor "get" $2 [] $6) (ss $1) (mgc [$1,$3,$4,$5,$7])) }
+                   | 'get' PropertyName '(' ')' '{' FunctionBody '}'
+                       { (AST.NS (AST.JSPropertyAccessor "get" $2 [] $6) (ss $1) (mgc [$1,$3,$4,$5,$7])) }
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName '(' PropertySetParameterList ')' '{' FunctionBody '}'
                        { (AST.NS (AST.JSPropertyAccessor "set" $2 [$4] $7) (ss $1) (mgc [$1,$3,$5,$6,$8])) }
@@ -548,7 +549,7 @@ LogicalOrExpressionNoIn : LogicalAndExpressionNoIn { $1 {- LogicalOrExpression -
 ConditionalExpression :: { [AST.JSNode] }
 ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
                       | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
-                        { [AST.NS (AST.JSExpressionTernary $1 $3 $5) (mex $1) []] }
+                        { [AST.NS (AST.JSExpressionTernary $1 $3 $5) (mex $1) (mgc [$2,$4])] }
 
 -- ConditionalExpressionNoIn :                                                           See 11.12
 --        LogicalORExpressionNoIn
