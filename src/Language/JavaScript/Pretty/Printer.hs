@@ -41,19 +41,48 @@ punctuate p xs = intersperse p xs
 
 -- ---------------------------------------------------------------------
 
-renderJS :: JSNode -> BB.Builder
-renderJS (NS node _ _) = rn node
+data State =
+  State { line           :: Int     -- ^ The current line
+ 	 , col           :: Int     -- ^ The current col
+         }
 
-rn :: Node -> BB.Builder
-rn (JSEmpty l)             = (renderJS l)
-rn (JSIdentifier s)        = text s
+-- ---------------------------------------------------------------------
+
+renderJS :: JSNode -> BB.Builder
+renderJS node = bb
+  where
+    (_,bb) = rn (1,1) node
+
+-- Take in the current
+rn :: (Int,Int) -> JSNode -> ((Int,Int), BB.Builder)
+{-
+rn (r,c) (NS (JSEmpty l) p cs) = do
+  (r',c') <- skipTo (r,c) p
+  return (rn (r',c') l)
+-}
+rn (r,c) (NS (JSSourceElementsTop xs) p cs) = ((r'',c''),bb <> bb')
+  where
+    ((r',c'),bb) = skipTo (r,c) p
+    ((r'',c''),bb') = rJS (r',c') xs
+
+rn (r,c) (NS (JSExpression xs) p cs) = ((r'',c''),bb <> bb')
+  where
+    ((r',c'),bb) = skipTo (r,c) p
+    ((r'',c''),bb') = rJS (r',c') xs
+
+rn (r,c) (NS (JSIdentifier s) p cs) = ((r'',c''),bb <> bb')
+  where
+    ((r',c'),bb) = skipTo (r,c) p
+    -- ((r'',c''),bb') = rJS (r',c') xs
+    ((r'',c''),bb') = ((r',c' + (length s)),text s)
+
+
+
+{-
 rn (JSDecimal i)           = text i
 rn (JSOperator s)          = text s
-rn (JSExpression xs)       = rJS xs
-
 rn (JSSourceElements xs)   = rJS xs
 
-rn (JSSourceElementsTop xs)= rJS xs
 
 
 rn (JSFunction s p xs)     = (text "function") <+> (renderJS s) <> (text "(") <> (commaList p) <> (text ")") <> (renderJS xs)
@@ -146,11 +175,19 @@ rn (JSWhile e (NS (JSLiteral ";") _ _))   = (text "while") <> (char '(') <> (ren
 rn (JSWhile e s)                 = (text "while") <> (char '(') <> (renderJS e) <> (char ')') <> (renderJS s)
 
 rn (JSWith e s)                  = (text "with") <> (char '(') <> (renderJS e) <> (char ')') <> (rJS s)
-
+-}
 -- Helper functions
-rJS :: [JSNode] -> BB.Builder
-rJS xs = hcat $ map renderJS xs
+rJS :: (Int,Int) -> [JSNode] -> ((Int,Int),BB.Builder)
+-- rJS xs = hcat $ map renderJS xs
+--rJS (r,c) xs = map rn xs
+rJS (r,c) xs = foldl' frn ((r,c),mempty) xs
+  where
+    frn :: ((Int,Int),BB.Builder) -> JSNode -> ((Int,Int),BB.Builder)
+    frn ((rc,cc),bb) n = ((rc',cc'),bb <> bb')
+      where
+        ((rc',cc'),bb') = rn (rc,cc) n
 
+{-
 commaList :: [JSNode] -> BB.Builder
 commaList [] = empty
 commaList xs = (hcat $ (punctuate comma (toDoc xs') ++ trail))
@@ -169,6 +206,7 @@ spaceOrBlock :: JSNode -> BB.Builder
 spaceOrBlock (NS (JSBlock xs) _ _) = rn (JSBlock xs)
 spaceOrBlock (NS (JSStatementBlock xs) _ _) = rn (JSStatementBlock xs)
 spaceOrBlock x            = (text " ") <> (renderJS x)
+-}
 
 
 {-
@@ -180,6 +218,7 @@ JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [])])
 -- ---------------------------------------------------------------
 -- Utility stuff
 
+{-
 -- A space is needed if this expression starts with an identifier etc, but not if with a '('
 spaceNeeded :: [JSNode] -> Bool
 spaceNeeded xs =
@@ -188,6 +227,15 @@ spaceNeeded xs =
     str = LB.unpack $ BB.toLazyByteString $ rJS xs
   in
    head str /= (fromIntegral $ ord '(')
+-}
+skipTo :: (Int,Int) -> TokenPosn -> ((Int,Int), BB.Builder)
+skipTo (lcur,ccur) (TokenPn _ ltgt ctgt) = ((lnew,cnew),bb)
+  where
+    lnew = if (lcur < ltgt) then ltgt else lcur
+    cnew = if (ccur < ctgt) then ctgt else ccur
+    bbline = if (lcur < ltgt) then (text $ take (ctgt - ccur) $ repeat '\n') else mempty
+    bbcol  = if (ccur < ctgt) then (text $ take (ctgt - ccur) $ repeat ' ' ) else mempty
+    bb = bbline <> bbcol
 
 -- ---------------------------------------------------------------------
 -- Test stuff
