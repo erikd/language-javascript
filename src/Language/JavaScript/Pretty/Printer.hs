@@ -41,10 +41,11 @@ punctuate p xs = intersperse p xs
 
 -- ---------------------------------------------------------------------
 
-data State =
-  State { line           :: Int     -- ^ The current line
- 	 , col           :: Int     -- ^ The current col
-         }
+bp :: (Int,Int) -> TokenPosn -> ((Int,Int) -> ((Int,Int),BB.Builder)) -> ((Int,Int),BB.Builder)
+bp (r,c) p f = ((r'',c''),bb <> bb')
+  where
+    ((r',c'),bb) = skipTo (r,c) p
+    ((r'',c''),bb') = f (r',c')
 
 -- ---------------------------------------------------------------------
 
@@ -60,30 +61,18 @@ rn (r,c) (NS (JSEmpty l) p cs) = do
   (r',c') <- skipTo (r,c) p
   return (rn (r',c') l)
 -}
-rn (r,c) (NS (JSSourceElementsTop xs) p cs) = ((r'',c''),bb <> bb')
-  where
-    ((r',c'),bb) = skipTo (r,c) p
-    ((r'',c''),bb') = rJS (r',c') xs
+rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
+rn (r,c) (NS (JSSourceElements    xs) p cs) = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
 
-rn (r,c) (NS (JSExpression xs) p cs) = ((r'',c''),bb <> bb')
-  where
-    ((r',c'),bb) = skipTo (r,c) p
-    ((r'',c''),bb') = rJS (r',c') xs
+rn (r,c) (NS (JSExpression xs) p cs)        = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
 
-rn (r,c) (NS (JSIdentifier s) p cs) = ((r'',c''),bb <> bb')
-  where
-    ((r',c'),bb) = skipTo (r,c) p
-    -- ((r'',c''),bb') = rJS (r',c') xs
-    ((r'',c''),bb') = ((r',c' + (length s)),text s)
+rn (r,c) (NS (JSIdentifier s) p cs)         = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
 
+rn (r,c) (NS (JSOperator s) p cs)           = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
 
+rn (r,c) (NS (JSDecimal i) p cs)            = bp (r,c) p (\(r,c) -> ((r,c + (length i)),text i))
 
 {-
-rn (JSDecimal i)           = text i
-rn (JSOperator s)          = text s
-rn (JSSourceElements xs)   = rJS xs
-
-
 
 rn (JSFunction s p xs)     = (text "function") <+> (renderJS s) <> (text "(") <> (commaList p) <> (text ")") <> (renderJS xs)
 rn (JSFunctionBody xs)     = (text "{") <> (rJS xs) <> (text "}")
@@ -233,7 +222,7 @@ skipTo (lcur,ccur) (TokenPn _ ltgt ctgt) = ((lnew,cnew),bb)
   where
     lnew = if (lcur < ltgt) then ltgt else lcur
     cnew = if (ccur < ctgt) then ctgt else ccur
-    bbline = if (lcur < ltgt) then (text $ take (ctgt - ccur) $ repeat '\n') else mempty
+    bbline = if (lcur < ltgt) then (text $ take (ltgt - lcur) $ repeat '\n') else mempty
     bbcol  = if (ccur < ctgt) then (text $ take (ctgt - ccur) $ repeat ' ' ) else mempty
     bb = bbline <> bbcol
 
