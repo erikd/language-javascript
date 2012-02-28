@@ -47,6 +47,15 @@ bp (r,c) p f = ((r'',c''),bb <> bb')
     ((r',c'),bb) = skipTo (r,c) p
     ((r'',c''),bb') = f (r',c')
 
+bprJS
+  :: (Int, Int) -> TokenPosn -> [JSNode] -> ((Int, Int), BB.Builder)
+bprJS (r,c) p xs = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
+
+bpText
+  :: (Int, Int) -> TokenPosn -> [Char] -> ((Int, Int), BB.Builder)
+bpText (r,c) p s = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
+
+
 -- ---------------------------------------------------------------------
 
 renderJS :: JSNode -> BB.Builder
@@ -61,16 +70,20 @@ rn (r,c) (NS (JSEmpty l) p cs) = do
   (r',c') <- skipTo (r,c) p
   return (rn (r',c') l)
 -}
-rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
-rn (r,c) (NS (JSSourceElements    xs) p cs) = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
+rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bprJS (r,c) p xs
+rn (r,c) (NS (JSSourceElements    xs) p cs) = bprJS (r,c) p xs
 
-rn (r,c) (NS (JSExpression xs) p cs)        = bp (r,c) p (\(r,c) -> rJS (r,c) xs)
+rn (r,c) (NS (JSExpression xs) p cs)        = bprJS (r,c) p xs
 
-rn (r,c) (NS (JSIdentifier s) p cs)         = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
+rn (r,c) (NS (JSIdentifier s) p cs)         = bpText (r,c) p s
 
-rn (r,c) (NS (JSOperator s) p cs)           = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
+rn (r,c) (NS (JSOperator s) p cs)           = bpText (r,c) p s
 
-rn (r,c) (NS (JSDecimal i) p cs)            = bp (r,c) p (\(r,c) -> ((r,c + (length i)),text i))
+rn (r,c) (NS (JSDecimal i) p cs)            = bpText (r,c) p i
+
+rn (r,c) (NS (JSLiteral l) p cs)            = bpText (r,c) p l
+
+rn (r,c) (NS (JSUnary l) p cs               = bpText (r,c) p l
 
 {-
 
@@ -91,9 +104,7 @@ rn (JSIfElse c t e)        = (text "if") <> (text "(") <> (renderJS c) <> (text 
                                    <> (text "else") <> (spaceOrBlock e)
 rn (JSMemberDot xs y)        = (rJS xs) <> (text ".") <> (renderJS y)
 rn (JSMemberSquare xs x)   = (rJS xs) <> (text "[") <> (renderJS x) <> (text "]")
-rn (JSLiteral l)           = (text l)
 rn (JSStringLiteral s l)   = empty <> (char s) <> (text l) <> (char s)
-rn (JSUnary l  )           = text l
 rn (JSArrayLiteral xs)     = (text "[") <> (rJS xs) <> (text "]")
 
 rn (JSBreak [] [])            = (text "break")
