@@ -6,8 +6,8 @@ module Language.JavaScript.Pretty.Printer (
 import Data.Char
 import Data.List
 import Data.Monoid (Monoid, mappend, mempty, mconcat)
--- import Text.Jasmine.Parse
 import Language.JavaScript.Parser
+import Language.JavaScript.Parser.Token
 import qualified Blaze.ByteString.Builder as BB
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
 import qualified Data.ByteString.Lazy as LB
@@ -40,12 +40,24 @@ punctuate :: a -> [a] -> [a]
 punctuate p xs = intersperse p xs
 
 -- ---------------------------------------------------------------------
+-- Utility (boilerplate) functions
 
 bp :: (Int,Int) -> TokenPosn -> ((Int,Int) -> ((Int,Int),BB.Builder)) -> ((Int,Int),BB.Builder)
 bp (r,c) p f = ((r'',c''),bb <> bb')
   where
     ((r',c'),bb) = skipTo (r,c) p
     ((r'',c''),bb') = f (r',c')
+
+
+bpc (r,c) p cs f = ((r'',c''),bb <> bb')
+  where
+    ((r', c'), bb)  = foldl' (\((rc,cc),bb) (pc,comment) -> bp (rc,cc) pc (rComment comment)) ((r,c),mempty) cs
+    ((r'',c''),bb') = bp (r',c') p f
+
+rComment NoComment      (r,c) = ((r,c),mempty)
+rComment (CommentA p s) (r,c) = ((r',c'),text s)
+  where
+    (r',c') = (r,c) -- TODO: advance as per actual comment
 
 bprJS
   :: (Int, Int) -> TokenPosn -> [JSNode] -> ((Int, Int), BB.Builder)
@@ -55,6 +67,7 @@ bpText
   :: (Int, Int) -> TokenPosn -> [Char] -> ((Int, Int), BB.Builder)
 bpText (r,c) p s = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
 
+bpcText (r,c) p cs s = bpc (r,c) p cs (\(r,c) -> ((r,c + (length s)),text s))
 
 -- ---------------------------------------------------------------------
 
@@ -83,7 +96,7 @@ rn (r,c) (NS (JSDecimal i) p cs)            = bpText (r,c) p i
 
 rn (r,c) (NS (JSLiteral l) p cs)            = bpText (r,c) p l
 
-rn (r,c) (NS (JSUnary l) p cs               = bpText (r,c) p l
+rn (r,c) (NS (JSUnary l) p cs)              = bpText (r,c) p l
 
 {-
 

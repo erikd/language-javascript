@@ -33,5 +33,7 @@ manipulation.
 
 14. Look at http://jsshaper.org/
 
+15. Store number of rows/cols in a comment, to speed output
+
 EOF
 
