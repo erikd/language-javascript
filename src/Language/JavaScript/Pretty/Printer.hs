@@ -1,12 +1,15 @@
 module Language.JavaScript.Pretty.Printer (
   -- * Printing
   renderJS
+  , renderToString
   ) where
 
 import Data.Char
 import Data.List
 import Data.Monoid (Monoid, mappend, mempty, mconcat)
-import Language.JavaScript.Parser
+import Language.JavaScript.Parser.AST
+import Language.JavaScript.Parser.Parser
+import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Blaze.ByteString.Builder as BB
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
@@ -60,7 +63,6 @@ bpc (r,c) p cs f = ((r'',c''),bb <> bb')
 rComment NoComment      (r,c) = ((r,c),mempty)
 rComment (CommentA p s) (r,c) = ((r',c'),text s)
   where
-    -- (r',c') = (r,c) -- TODO: advance as per actual comment
     (r',c') = foldl' (\(row,col) char -> go (row,col) char) (r,c) s
 
     go (r,c) '\n' = (r+1,0)
@@ -100,18 +102,23 @@ rn (r,c) (NS (JSEmpty l) p cs) = do
 rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bprJS (r,c) p xs
 rn (r,c) (NS (JSSourceElements    xs) p cs) = bprJS (r,c) p xs
 
---rn (r,c) (NS (JSExpression xs) p cs)        = bprJS (r,c) p xs
 rn (r,c) (NS (JSExpression xs) p cs)        = rJS (r,c) xs
 
 rn (r,c) (NS (JSIdentifier s) p cs)         = bpcText (r,c) p cs s
 
-rn (r,c) (NS (JSOperator s) p cs)           = bpText (r,c) p s
+rn (r,c) (NS (JSOperator s) p cs)           = bpcText (r,c) p cs s
 
-rn (r,c) (NS (JSDecimal i) p cs)            = bpText (r,c) p i
+rn (r,c) (NS (JSDecimal i) p cs)            = bpcText (r,c) p cs i
 
-rn (r,c) (NS (JSLiteral l) p cs)            = bpText (r,c) p l
+rn (r,c) (NS (JSLiteral l) p cs)            = bpcText (r,c) p cs l
 
-rn (r,c) (NS (JSUnary l) p cs)              = bpText (r,c) p l
+rn (r,c) (NS (JSUnary l) p cs)              = bpcText (r,c) p cs l
+
+rn (r,c) (NS (JSHexInteger i) p cs)         = bpcText (r,c) p cs i
+
+rn (r,c) (NS (JSStringLiteral s l) p cs)    = bpcText (r,c) p cs ((s:l)++[s])
+
+rn (r,c) (NS (JSRegEx s) p cs)              = bpcText (r,c) p cs s
 
 {-
 
@@ -132,7 +139,6 @@ rn (JSIfElse c t e)        = (text "if") <> (text "(") <> (renderJS c) <> (text 
                                    <> (text "else") <> (spaceOrBlock e)
 rn (JSMemberDot xs y)        = (rJS xs) <> (text ".") <> (renderJS y)
 rn (JSMemberSquare xs x)   = (rJS xs) <> (text "[") <> (renderJS x) <> (text "]")
-rn (JSStringLiteral s l)   = empty <> (char s) <> (text l) <> (char s)
 rn (JSArrayLiteral xs)     = (text "[") <> (rJS xs) <> (text "]")
 
 rn (JSBreak [] [])            = (text "break")
@@ -173,12 +179,10 @@ rn (JSForVar e1 e2 e3 s)         = (text "for") <> (char '(') <> (text "var") <+
 rn (JSForVarIn e1 e2 s)          = (text "for") <> (char '(') <> (text "var") <+> (renderJS e1) <+> (text "in")
                                          <+> (renderJS e2) <> (char ')') <> (renderJS s)
 
-rn (JSHexInteger i)              = (text $ show i) -- TODO: need to tweak this
 rn (JSLabelled l v)              = (renderJS l) <> (text ":") <> (rJS  [v])
 rn (JSObjectLiteral xs)          = (text "{") <> (commaList xs) <> (text "}")
 rn (JSPropertyAccessor s n ps b) = (text s) <+> (renderJS n) <> (char '(') <> (rJS ps) <> (text ")") <> (renderJS b)
 rn (JSPropertyNameandValue n vs) = (renderJS n) <> (text ":") <> (rJS vs)
-rn (JSRegEx s)                   = (text s)
 
 rn (JSReturn [])                 = (text "return")
 rn (JSReturn [(NS (JSLiteral ";") _ _)])    = (text "return;")
@@ -265,10 +269,13 @@ skipTo (lcur,ccur) (TokenPn _ ltgt ctgt) = ((lnew,cnew),bb)
     bbcol  = if (ccur < ctgt) then (text $ take (ctgt - ccur) $ repeat ' ' ) else mempty
     bb = bbline <> bbcol
 
+renderToString :: JSNode -> String
+renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
+
 -- ---------------------------------------------------------------------
 -- Test stuff
 
-_r :: JSNode -> [Char]
+_r :: JSNode -> String
 _r js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
 
 _t :: String -> String
