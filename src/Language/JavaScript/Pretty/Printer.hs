@@ -45,19 +45,27 @@ punctuate p xs = intersperse p xs
 bp :: (Int,Int) -> TokenPosn -> ((Int,Int) -> ((Int,Int),BB.Builder)) -> ((Int,Int),BB.Builder)
 bp (r,c) p f = ((r'',c''),bb <> bb')
   where
-    ((r',c'),bb) = skipTo (r,c) p
+    ((r' ,c'), bb)  = skipTo (r,c) p
     ((r'',c''),bb') = f (r',c')
-
 
 bpc (r,c) p cs f = ((r'',c''),bb <> bb')
   where
-    ((r', c'), bb)  = foldl' (\((rc,cc),bb) (pc,comment) -> bp (rc,cc) pc (rComment comment)) ((r,c),mempty) cs
+    ((r', c'), bb)  = foldl' (\((rc,cc),bb) comment -> (doComment bb comment (r,c))) ((r,c),mempty) cs
     ((r'',c''),bb') = bp (r',c') p f
+
+    doComment bb comment (r,c) = ((r1,c1), bb <> bb1)
+      where
+        ((r1,c1),bb1) = rComment comment (r,c)
 
 rComment NoComment      (r,c) = ((r,c),mempty)
 rComment (CommentA p s) (r,c) = ((r',c'),text s)
   where
-    (r',c') = (r,c) -- TODO: advance as per actual comment
+    -- (r',c') = (r,c) -- TODO: advance as per actual comment
+    (r',c') = foldl' (\(row,col) char -> go (row,col) char) (r,c) s
+
+    go (r,c) '\n' = (r+1,0)
+    go (r,c) _    = (r,c+1)
+
 
 bprJS
   :: (Int, Int) -> TokenPosn -> [JSNode] -> ((Int, Int), BB.Builder)
@@ -67,6 +75,12 @@ bpText
   :: (Int, Int) -> TokenPosn -> [Char] -> ((Int, Int), BB.Builder)
 bpText (r,c) p s = bp (r,c) p (\(r,c) -> ((r,c + (length s)),text s))
 
+bpcText
+  :: (Int, Int)
+     -> TokenPosn
+     -> [CommentAnnotation]
+     -> String
+     -> ((Int, Int), BB.Builder)
 bpcText (r,c) p cs s = bpc (r,c) p cs (\(r,c) -> ((r,c + (length s)),text s))
 
 -- ---------------------------------------------------------------------
@@ -77,7 +91,7 @@ renderJS node = bb
     (_,bb) = rn (1,1) node
 
 -- Take in the current
-rn :: (Int,Int) -> JSNode -> ((Int,Int), BB.Builder)
+rn :: (Int, Int) -> JSNode -> ((Int, Int), BB.Builder)
 {-
 rn (r,c) (NS (JSEmpty l) p cs) = do
   (r',c') <- skipTo (r,c) p
@@ -86,9 +100,10 @@ rn (r,c) (NS (JSEmpty l) p cs) = do
 rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bprJS (r,c) p xs
 rn (r,c) (NS (JSSourceElements    xs) p cs) = bprJS (r,c) p xs
 
-rn (r,c) (NS (JSExpression xs) p cs)        = bprJS (r,c) p xs
+--rn (r,c) (NS (JSExpression xs) p cs)        = bprJS (r,c) p xs
+rn (r,c) (NS (JSExpression xs) p cs)        = rJS (r,c) xs
 
-rn (r,c) (NS (JSIdentifier s) p cs)         = bpText (r,c) p s
+rn (r,c) (NS (JSIdentifier s) p cs)         = bpcText (r,c) p cs s
 
 rn (r,c) (NS (JSOperator s) p cs)           = bpText (r,c) p s
 
@@ -258,6 +273,17 @@ _r js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ ren
 
 _t :: String -> String
 _t str = _r $ readJs str
+
+
+-- readJs "/*a*/x"
+_ax = (NS
+     (JSExpression
+       [NS
+        (JSIdentifier "x")
+        (TokenPn 5 1 6)
+        [CommentA (TokenPn 0 1 1) "/*a*/"]])
+     (TokenPn 5 1 6)
+     [])
 
 -- EOF
 
