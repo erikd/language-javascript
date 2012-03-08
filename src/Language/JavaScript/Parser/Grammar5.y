@@ -179,9 +179,9 @@ PrimaryExpression : 'this'                   { fp (AST.NS (AST.JSLiteral "this")
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSNode }
-Identifier : 'ident' { fp (AST.NS (AST.JSIdentifier (token_literal $1)) (ss $1) (gc $1))}
-           | 'get'   { fp (AST.NS (AST.JSIdentifier "get") (ss $1) (gc $1))}
-           | 'set'   { fp (AST.NS (AST.JSIdentifier "set") (ss $1) (gc $1))}
+Identifier : 'ident' {  (AST.NS (AST.JSIdentifier (token_literal $1)) (ss $1) (gc $1))}
+           | 'get'   {  (AST.NS (AST.JSIdentifier "get") (ss $1) (gc $1))}
+           | 'set'   {  (AST.NS (AST.JSIdentifier "set") (ss $1) (gc $1))}
 
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSNode }

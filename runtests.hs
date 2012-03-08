@@ -11,7 +11,7 @@ import Language.JavaScript.Parser
 import Language.JavaScript.Parser.Grammar5
 
 main :: IO ()
-main = defaultMain [testSuite,commentSuite,commentPrintSuite]
+main = defaultMain [testSuite,{- ++AZ++temporary++ commentSuite ,-}commentPrintSuite]
 
 one :: IO ()
 one = defaultMain [oneSuite]
