@@ -35,6 +35,10 @@ dependency in the cabal file.
 
 Changes
 
+0.4.10 Moved Lexer.x into a separate directory, and made a script to
+       call alex to generate Lexer.hs. This means alex is not required
+       at install time
+
 0.4.9 Make alex and happy versions more explicit. Expose the AlexSpan
       data type, so parse error positions can be reported.
 

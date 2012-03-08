@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.4.9
+Version:             0.4.10
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
 Homepage:            https://github.com/alanz/language-javascript
@@ -7,7 +7,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Alan Zimmerman
 Maintainer:          alan.zimm@gmail.com
-Copyright:           (c) 2010,2011 Alan Zimmerman
+Copyright:           (c) 2010,2011,2012 Alan Zimmerman
 Category:            Language
 Build-type:          Simple
 homepage:            http://github.com/alanz/language-javascript
@@ -29,13 +29,13 @@ Library
                    , mtl              >= 1.1     && < 2.9
                    , containers       >= 0.2     && < 0.5
                    , utf8-light       >= 0.4     && < 1.0
-  build-tools:       alex >= 3.0
-                   , happy >= 1.18.5
+  build-tools:       happy >= 1.18.5
+                   -- , alex >= 3.0
+
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.Parser
                        Language.JavaScript.Parser.Lexer
-                       -- Language.JavaScript.Parser.Grammar
                        Language.JavaScript.Parser.Grammar5
                        Language.JavaScript.Parser.AST
   Other-modules:       Language.JavaScript.Parser.LexerUtils
@@ -44,7 +44,8 @@ Library
                        Language.JavaScript.Parser.SrcLocation
                        Language.JavaScript.Parser.StringEscape
                        Language.JavaScript.Parser.Token
-  Build-tools:         happy, alex
+  Build-tools:         happy
+                      -- , alex
   ghc-options:         -Wall
 
 executable             runtests
