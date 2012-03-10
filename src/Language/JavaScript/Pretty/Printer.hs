@@ -99,7 +99,9 @@ rn (r,c) (NS (JSEmpty l) p cs) = do
   (r',c') <- skipTo (r,c) p
   return (rn (r',c') l)
 -}
-rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bprJS (r,c) p xs
+--rn (r,c) (NS (JSSourceElementsTop xs) p cs) = bprJS (r,c) p xs
+rn (r,c) (NS (JSSourceElementsTop xs) p cs) = rJS (r,c) xs
+
 rn (r,c) (NS (JSSourceElements    xs) p cs) = bprJS (r,c) p xs
 
 rn (r,c) (NS (JSExpression xs) p cs)        = rJS (r,c) xs
@@ -291,6 +293,21 @@ _ax = (NS
         [CommentA (TokenPn 0 1 1) "/*a*/"]])
      (TokenPn 5 1 6)
      [])
+
+
+-- readJs "//j\nthis_"
+-- NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier "this_") (TokenPn 4 2 1) [CommentA (TokenPn 0 1 1) "//j"]]) (TokenPn 4 2 1) []]) (TokenPn 4 2 1) []
+
+_r1 = NS
+      (
+        JSExpression
+          [
+            NS
+              (JSIdentifier "this_")
+              (TokenPn 4 2 1)
+              [CommentA (TokenPn 0 1 1) "//j"]
+          ])
+      (TokenPn 4 2 1) []
 
 -- EOF
 

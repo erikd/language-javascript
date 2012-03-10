@@ -4,6 +4,8 @@ module Language.JavaScript.Parser.Grammar5 (
   , parseLiteral
   , parsePrimaryExpression
   , parseStatement
+  -- debug
+  , fp
   ) where
 
 -- import Control.Monad.Error.Class (throwError)
@@ -999,6 +1001,7 @@ fp (AST.NS x p cs) = (AST.NS x p' cs)
   where
     p' = case (filter (/= NoComment) cs) of
       [] -> p
+      [(CommentA posn _)]    -> posn
       ((CommentA posn _):_)  -> posn
 
 }
