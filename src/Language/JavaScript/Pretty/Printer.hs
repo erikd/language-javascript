@@ -24,6 +24,9 @@ import qualified Data.ByteString.Lazy as LB
 (<+>) :: BB.Builder -> BB.Builder -> BB.Builder
 (<+>) a b = mconcat [a, (text " "), b]
 
+--() ((Int, Int), BB.Builder) -> ((Int, Int), BB.Builder) -> ((Int, Int), BB.Builder)
+--() a b =
+
 hcat :: (Monoid a) => [a] -> a
 hcat xs = mconcat xs
 
@@ -122,6 +125,9 @@ rn (r,c) (NS (JSStringLiteral s l) p cs)    = bpcText (r,c) p cs ((s:l)++[s])
 
 rn (r,c) (NS (JSRegEx s) p cs)              = bpcText (r,c) p cs s
 
+--rn (r,c) (NS (JSArrayLiteral xs) p cs       = (text "[") <> (rJS xs) <> (text "]")
+--rn (r,c) (NS (JSArrayLiteral xs) p cs       = (bpcText (r,c) p "[") <> (rJS xs) <> (text "]")
+
 {-
 
 rn (JSFunction s p xs)     = (text "function") <+> (renderJS s) <> (text "(") <> (commaList p) <> (text ")") <> (renderJS xs)
@@ -141,7 +147,6 @@ rn (JSIfElse c t e)        = (text "if") <> (text "(") <> (renderJS c) <> (text 
                                    <> (text "else") <> (spaceOrBlock e)
 rn (JSMemberDot xs y)        = (rJS xs) <> (text ".") <> (renderJS y)
 rn (JSMemberSquare xs x)   = (rJS xs) <> (text "[") <> (renderJS x) <> (text "]")
-rn (JSArrayLiteral xs)     = (text "[") <> (rJS xs) <> (text "]")
 
 rn (JSBreak [] [])            = (text "break")
 rn (JSBreak [] _xs)           = (text "break") -- <> (rJS xs) -- <> (text ";")
