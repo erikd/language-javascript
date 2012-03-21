@@ -62,28 +62,30 @@ punctuate p xs = intersperse p xs
 renderJS :: JSNode -> BB.Builder
 renderJS node = bb
   where
-    Foo _ bb = rn (Foo (1,1) empty) node
+    Foo _ bb = rn node (Foo (1,1) empty)
 
 -- Take in the current
 -- rn :: (Int, Int) -> JSNode -> ((Int, Int), BB.Builder)
-rn :: Foo -> JSNode -> Foo
+rn :: JSNode -> Foo -> Foo
 
-rn foo (NS (JSSourceElementsTop xs) p cs) = rJS foo cs p xs
+rn (NS (JSSourceElementsTop xs) p cs) foo = rJS cs p xs foo
+rn (NS (JSExpression xs) p cs) foo        = rJS cs p xs foo
+rn (NS (JSIdentifier s) p cs) foo         = rcs cs p s foo
+rn (NS (JSOperator s) p cs) foo           = rcs cs p s foo
+rn (NS (JSDecimal i) p cs) foo            = rcs cs p i foo
+rn (NS (JSLiteral l) p cs) foo            = rcs cs p l foo
+rn (NS (JSUnary l) p cs) foo              = rcs cs p l foo
+rn (NS (JSHexInteger i) p cs) foo         = rcs cs p i foo
+rn (NS (JSStringLiteral s l) p cs) foo    = rcs cs p ((s:l)++[s]) foo
+rn (NS (JSRegEx s) p cs) foo              = rcs cs p s foo
 
-rn foo (NS (JSExpression xs) p cs)        = rJS foo cs p xs
-rn foo (NS (JSIdentifier s) p cs)         = rcs foo cs p s
-rn foo (NS (JSOperator s) p cs)           = rcs foo cs p s
-rn foo (NS (JSDecimal i) p cs)            = rcs foo cs p i
-rn foo (NS (JSLiteral l) p cs)            = rcs foo cs p l
-rn foo (NS (JSUnary l) p cs)              = rcs foo cs p l
-rn foo (NS (JSHexInteger i) p cs)         = rcs foo cs p i
-rn foo (NS (JSStringLiteral s l) p cs)    = rcs foo cs p ((s:l)++[s])
-rn foo (NS (JSRegEx s) p cs)              = rcs foo cs p s
-rn foo (NS (JSArrayLiteral xs) p [c1,c2]) = (rcs (rJS (rcs foo [c1] p "[") [] p xs) [c2] p "]")
-rn foo (NS (JSElision xs) p cs)           = rJS (rcs foo cs p ",") [] p xs
-rn foo (NS (JSStatementBlock x) p [c1,c2]) = (rcs (rJS (rcs foo [c1] p "{") [] p [x]) [c2] p "}")
-rn foo (NS (JSStatementList xs) p cs)      = rJS foo cs p xs
-rn foo (NS (JSLabelled l v) p cs)          = (rJS (rs (rJS foo [] p [l]) ":") cs p [v])
+--rn (NS (JSArrayLiteral xs) p [c1,c2]) foo  = (rcs (rJS (rcs foo [c1] p "[") [] p xs) [c2] p "]")
+rn (NS (JSArrayLiteral xs) p [c1,c2]) foo  = (rcs [c2] p "]" (rJS  [] p xs (rcs [c1] p "[" foo)))
+
+rn (NS (JSElision xs) p cs) foo            = rJS [] p xs (rcs cs p "," foo)
+rn (NS (JSStatementBlock x) p [c1,c2]) foo = (rcs [c2] p "}" (rJS [] p [x] (rcs [c1] p "{" foo)))
+rn (NS (JSStatementList xs) p cs) foo      = rJS cs p xs foo
+rn (NS (JSLabelled l v) p cs) foo          = (rJS [] p [v] (rcs cs p ":" (rJS [] p [l] foo)))
 
 -- ---------------------------------------------------------------------
 -- Helper functions
@@ -93,25 +95,25 @@ rn foo (NS (JSLabelled l v) p cs)          = (rJS (rs (rJS foo [] p [l]) ":") cs
 -- a) renders all comments, according to their positions
 -- b) advances to the position of the required string
 -- c) renders the string, advancing the position
-rcs :: Foo -> [CommentAnnotation] -> TokenPosn -> String -> Foo
-rcs foo cs p s = rps (rc foo cs) p s
+rcs :: [CommentAnnotation] -> TokenPosn -> String -> Foo -> Foo
+rcs cs p s foo = rps p s (rc cs foo)
 
-rc :: Foo -> [CommentAnnotation] -> Foo
-rc foo cs = foldl' go foo cs
+rc :: [CommentAnnotation] -> Foo -> Foo
+rc cs foo = foldl' go foo cs
   where
     go :: Foo -> CommentAnnotation -> Foo
     go foo NoComment = foo
-    go foo (CommentA p s) = rps foo p s
+    go foo (CommentA p s) = rps p s foo
 
 
-rps :: Foo -> TokenPosn -> String -> Foo
-rps foo p s = (rs foo' s)
+rps :: TokenPosn -> String -> Foo -> Foo
+rps p s foo = (rs s foo')
   where
-    foo' = (goto foo p)
+    foo' = (goto p foo)
 
 -- Render a string
-rs :: Foo -> String -> Foo
-rs (Foo (r,c) bb) s = (Foo (r',c') (bb <> (text s)))
+rs :: String -> Foo -> Foo
+rs s (Foo (r,c) bb) = (Foo (r',c') (bb <> (text s)))
   where
     (r',c') = foldl' (\(row,col) char -> go (row,col) char) (r,c) s
 
@@ -119,8 +121,8 @@ rs (Foo (r,c) bb) s = (Foo (r',c') (bb <> (text s)))
     go (r,c) _    = (r,c+1)
 
 
-goto :: Foo -> TokenPosn -> Foo
-goto (Foo (lcur,ccur) bb) (TokenPn _ ltgt ctgt) = (Foo (lnew,cnew) (bb <> bb'))
+goto :: TokenPosn -> Foo -> Foo
+goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
   where
     lnew = if (lcur < ltgt) then ltgt else lcur
     cnew = if (ccur < ctgt) then ctgt else ccur
@@ -129,8 +131,8 @@ goto (Foo (lcur,ccur) bb) (TokenPn _ ltgt ctgt) = (Foo (lnew,cnew) (bb <> bb'))
     bb' = bbline <> bbcol
 
 
-rJS :: Foo -> [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo
-rJS foo cs p xs = foldl' rn (rc foo cs) xs
+rJS :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
+rJS cs p xs foo = foldl' (flip rn) (rc cs foo) xs
 
 renderToString :: JSNode -> String
 renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js

@@ -644,7 +644,7 @@ commentPrintSuite = testGroup "Comments"
 
     , testCase "ObjectLiteral1"    (testRoundTrip "/*a*/{/*b*/}")
     , testCase "ObjectLiteral2"    (testRoundTrip "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/}")
-    , testCase "ObjectLiteral3"    (testRoundTrip "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/}")
+    , testCase "ObjectLiteral3"    (testRoundTrip "x=/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/}")
 
     , testCase "ObjectLiteral5"    (testRoundTrip "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/}")
 
