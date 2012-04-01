@@ -270,7 +270,8 @@ ObjectLiteral : '{' '}'                          { fp (AST.NS (AST.JSObjectLiter
 --        PropertyNameAndValueList , PropertyAssignment
 PropertyNameandValueList :: { [ AST.JSNode ] }
 PropertyNameandValueList : PropertyAssignment                              { [$1] {- PropertyNameandValueList1 -} }
-                         | PropertyNameandValueList ',' PropertyAssignment { ($1 ++ [(pc $3 (gc $2))]) {- PropertyNameandValueList2 -} }
+--                         | PropertyNameandValueList ',' PropertyAssignment { ($1 ++ [(pc $3 (gc $2))]) {- PropertyNameandValueList2 -} }
+                         | PropertyNameandValueList ',' PropertyAssignment { ($1 ++ [(AST.NS (AST.JSLiteral ",") (ss $2) (gc $2))] ++ [$3]) {- PropertyNameandValueList2 -} }
 
 -- PropertyAssignment :                                                  See 11.1.5
 --        PropertyName : AssignmentExpression

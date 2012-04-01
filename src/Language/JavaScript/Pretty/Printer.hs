@@ -69,6 +69,7 @@ renderJS node = bb
 rn :: JSNode -> Foo -> Foo
 
 rn (NS (JSSourceElementsTop xs) p cs) foo = rJS cs p xs foo
+rn (NS (JSSourceElements    xs) p cs) foo = rJS cs p xs foo
 rn (NS (JSExpression xs) p cs) foo        = rJS cs p xs foo
 rn (NS (JSIdentifier s) p cs) foo         = rcs cs p s foo
 rn (NS (JSOperator s) p cs) foo           = rcs cs p s foo
@@ -79,13 +80,40 @@ rn (NS (JSHexInteger i) p cs) foo         = rcs cs p i foo
 rn (NS (JSStringLiteral s l) p cs) foo    = rcs cs p ((s:l)++[s]) foo
 rn (NS (JSRegEx s) p cs) foo              = rcs cs p s foo
 
---rn (NS (JSArrayLiteral xs) p [c1,c2]) foo  = (rcs (rJS (rcs foo [c1] p "[") [] p xs) [c2] p "]")
 rn (NS (JSArrayLiteral xs) p [c1,c2]) foo  = (rcs [c2] p "]" (rJS  [] p xs (rcs [c1] p "[" foo)))
 
 rn (NS (JSElision xs) p cs) foo            = rJS [] p xs (rcs cs p "," foo)
 rn (NS (JSStatementBlock x) p [c1,c2]) foo = (rcs [c2] p "}" (rJS [] p [x] (rcs [c1] p "{" foo)))
 rn (NS (JSStatementList xs) p cs) foo      = rJS cs p xs foo
 rn (NS (JSLabelled l v) p cs) foo          = (rJS [] p [v] (rcs cs p ":" (rJS [] p [l] foo)))
+
+rn (NS (JSObjectLiteral xs) p [c1,c2]) foo      = (rcs [c2] p "}" (rJS  [] p xs (rcs [c1] p "{" foo)))
+rn (NS (JSPropertyNameandValue n vs) p cs) foo  = (rJS [] p vs (rcs cs p ":" (rJS [] p [n] foo)))
+
+-- rn (NS (JSPropertyAccessor s n ps b) p cs) foo = (rcs [] p s (rcs [] p " " (rJS [] p [n] (rcs [] p ")" (rJS [] p ps (rcs [] p "(" (rJS [] p [b] foo)))))))
+
+rn (NS (JSPropertyAccessor s n ps b) p cs) foo = (rJS [] p [b]
+                                                 (rcs [] p ")"
+                                                 (rJS [] p ps
+                                                 (rcs [] p "("
+                                                 (rJS [] p [n]
+                                                 (rcs [] p " "
+                                                 (rcs [] p s foo)))))))
+
+-- NOTE: the comments for the brackets are attached to JSFunction. Oops.
+rn (NS (JSFunctionBody xs) p cs) foo = (rcs [] p "}" (rJS [] p xs (rcs cs p "{" foo)))
+
+
+-- rn (JSReturn [])                 = (text "return")
+-- rn (JSReturn [(NS (JSLiteral ";") _ _)])    = (text "return;")
+-- rn (JSReturn xs)                 = (text "return") <> (if (spaceNeeded xs) then (text " ") else (empty)) <> (rJS xs)
+
+rn (NS (JSReturn [])                            p cs) foo = (rcs cs p "return" foo)
+rn (NS (JSReturn [(NS (JSLiteral ";") p1 cs1)]) p cs) foo = (rcs cs1 p1 ";" (rcs cs p "return" foo))
+rn (NS (JSReturn xs)                            p cs) foo = (rJS cs p xs (rcs cs p "return" foo))
+
+-- Debug helper
+rn what foo = rs (show what) foo
 
 -- ---------------------------------------------------------------------
 -- Helper functions
@@ -133,6 +161,43 @@ goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
 
 rJS :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
 rJS cs p xs foo = foldl' (flip rn) (rc cs foo) xs
+
+{-
+-- A space is needed if this expression starts with an identifier etc, but not if with a '('
+spaceNeeded :: [JSNode] -> Bool
+spaceNeeded xs =
+  let
+   -- str = show $ rJS xs
+    str = LB.unpack $ BB.toLazyByteString $ rJS xs
+  in
+   head str /= (fromIntegral $ ord '(')
+-}
+
+
+
+-- ++AZ++
+{-
+commaList :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
+commaList _cs _p [] foo = foo
+commaList cs p (x:xs) foo = go x xs
+  where
+    go y [] = rn y foo
+    go y (z:zs) = (rn y foo <> comma) : go z zs
+
+    -- (xs', trail) = if (last xs == JSLiteral ",") then (init xs, [comma]) else (xs,[])
+    (xs', trail) = if (x' == JSLiteral ",") then (init xs, [comma]) else (xs,[])
+    (NS x' _ _) = last xs
+-}
+
+{-
+-- From pretty print library
+punctuate :: Doc -> [Doc] -> [Doc]
+punctuate _ []     = []
+punctuate p (x:xs) = go x xs
+                   where go y []     = [y]
+                         go y (z:zs) = (y <> p) : go z zs
+-}
+
 
 renderToString :: JSNode -> String
 renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
