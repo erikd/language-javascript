@@ -110,7 +110,7 @@ rn (NS (JSFunctionBody xs) p cs) foo = (rcs [] p "}" (rJS [] p xs (rcs cs p "{" 
 
 rn (NS (JSReturn [])                            p cs) foo = (rcs cs p "return" foo)
 rn (NS (JSReturn [(NS (JSLiteral ";") p1 cs1)]) p cs) foo = (rcs cs1 p1 ";" (rcs cs p "return" foo))
-rn (NS (JSReturn xs)                            p cs) foo = (rJS cs p xs (rcs cs p "return" foo))
+rn (NS (JSReturn xs)                            p cs) foo = (rJS [] p xs (rcs cs p "return" foo))
 
 -- Debug helper
 rn what foo = rs (show what) foo
