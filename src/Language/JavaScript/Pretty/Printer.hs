@@ -80,25 +80,28 @@ rn (NS (JSHexInteger i) p cs) foo         = rcs cs p i foo
 rn (NS (JSStringLiteral s l) p cs) foo    = rcs cs p ((s:l)++[s]) foo
 rn (NS (JSRegEx s) p cs) foo              = rcs cs p s foo
 
-rn (NS (JSArrayLiteral xs) p [c1,c2]) foo  = (rcs [c2] p "]" (rJS  [] p xs (rcs [c1] p "[" foo)))
+rn (NS (JSArrayLiteral lb xs rb) p []) foo  = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
 
 rn (NS (JSElision xs) p cs) foo            = rJS [] p xs (rcs cs p "," foo)
 rn (NS (JSStatementBlock x) p [c1,c2]) foo = (rcs [c2] p "}" (rJS [] p [x] (rcs [c1] p "{" foo)))
 rn (NS (JSStatementList xs) p cs) foo      = rJS cs p xs foo
 rn (NS (JSLabelled l v) p cs) foo          = (rJS [] p [v] (rcs cs p ":" (rJS [] p [l] foo)))
 
-rn (NS (JSObjectLiteral xs) p [c1,c2]) foo      = (rcs [c2] p "}" (rJS  [] p xs (rcs [c1] p "{" foo)))
-rn (NS (JSPropertyNameandValue n vs) p cs) foo  = (rJS [] p vs (rcs cs p ":" (rJS [] p [n] foo)))
+rn (NS (JSObjectLiteral lb xs rb) p []) foo     = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
+rn (NS (JSPropertyNameandValue n colon vs) p []) foo  = (rJS [] p vs (rJS [] p [colon] (rJS [] p [n] foo)))
 
 -- rn (NS (JSPropertyAccessor s n ps b) p cs) foo = (rcs [] p s (rcs [] p " " (rJS [] p [n] (rcs [] p ")" (rJS [] p ps (rcs [] p "(" (rJS [] p [b] foo)))))))
 
-rn (NS (JSPropertyAccessor s n ps b) p cs) foo = (rJS [] p [b]
-                                                 (rcs [] p ")"
-                                                 (rJS [] p ps
-                                                 (rcs [] p "("
-                                                 (rJS [] p [n]
-                                                 (rcs [] p " "
-                                                 (rcs [] p s foo)))))))
+rn (NS (JSPropertyAccessor s n lb1 ps rb1 lb2 b rb2) p []) foo =
+  (rJS [] p [rb2]
+  (rJS [] p [b]
+  (rJS [] p [lb2]
+  (rJS [] p [rb1]
+  (rJS [] p ps
+  (rJS [] p [lb1]
+  (rJS [] p [n]
+  (rcs [] p " "
+  (rJS [] p [s] foo)))))))))
 
 -- NOTE: the comments for the brackets are attached to JSFunction. Oops.
 rn (NS (JSFunctionBody xs) p cs) foo = (rcs [] p "}" (rJS [] p xs (rcs cs p "{" foo)))

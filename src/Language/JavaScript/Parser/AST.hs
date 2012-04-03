@@ -22,7 +22,7 @@ data JSNode = NS Node TokenPosn [CommentAnnotation]
     deriving (Show, Eq, Read, Data, Typeable)
 
 data Node = JSArguments [[JSNode]]
-              | JSArrayLiteral [JSNode]
+              | JSArrayLiteral JSNode [JSNode] JSNode
               | JSBlock JSNode
               | JSBreak [JSNode] [JSNode]
               | JSCallExpression String [JSNode]  -- type : ., (), []; rest
@@ -36,7 +36,7 @@ data Node = JSArguments [[JSNode]]
               | JSEmpty JSNode
               | JSExpression [JSNode]
               | JSExpressionBinary String [JSNode] [JSNode]
-              | JSExpressionParen JSNode
+              | JSExpressionParen JSNode JSNode JSNode -- Literals for the parentheses, to keep posn and comments
               | JSExpressionPostfix String [JSNode]
               | JSExpressionTernary [JSNode] [JSNode] [JSNode]
               | JSFinally JSNode
@@ -55,10 +55,11 @@ data Node = JSArguments [[JSNode]]
               | JSLiteral String
               | JSMemberDot [JSNode] JSNode
               | JSMemberSquare [JSNode] JSNode
-              | JSObjectLiteral [JSNode]
+              | JSObjectLiteral JSNode [JSNode] JSNode -- lbrace contents rbrace
               | JSOperator String
-              | JSPropertyNameandValue JSNode [JSNode]
-              | JSPropertyAccessor String JSNode [JSNode] JSNode
+              | JSPropertyNameandValue JSNode JSNode [JSNode] -- name, colon, value
+              -- | JSPropertyAccessor String JSNode [JSNode] JSNode -- (get|set), name, params, functionbody
+              | JSPropertyAccessor JSNode JSNode JSNode [JSNode] JSNode JSNode JSNode JSNode -- (get|set), name, lb, params, rb, lb, functionbody, rb
               | JSRegEx String
               | JSReturn [JSNode]
               | JSSourceElements [JSNode]
@@ -94,7 +95,7 @@ ssss xss = "[" ++ (concat (intersperse "," $ map sss xss)) ++ "]"
 
 showStrippedNode :: Node -> String
 showStrippedNode (JSArguments xss) = "JSArguments " ++ ssss xss
-showStrippedNode (JSArrayLiteral xs) = "JSArrayLiteral " ++ sss xs
+showStrippedNode (JSArrayLiteral lb xs rb) = "JSArrayLiteral " ++ sss xs
 showStrippedNode (JSBlock x) = "JSBlock (" ++ ss x ++ ")"
 showStrippedNode (JSBreak x1s x2s) = "JSBreak " ++ sss x1s ++ " " ++ sss x2s
 showStrippedNode (JSCallExpression s xs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
@@ -108,7 +109,7 @@ showStrippedNode (JSElision xs) = "JSElision " ++ sss xs
 showStrippedNode (JSEmpty x) = "JSEmpty (" ++ ss x ++ ")"
 showStrippedNode (JSExpression xs) = "JSExpression " ++ sss xs
 showStrippedNode (JSExpressionBinary s x2s x3s) = "JSExpressionBinary " ++ show s ++ " " ++ sss x2s ++ " " ++ sss x3s
-showStrippedNode (JSExpressionParen x) = "JSExpressionParen (" ++ ss x ++ ")"
+showStrippedNode (JSExpressionParen lp x rp) = "JSExpressionParen (" ++ ss x ++ ")"
 showStrippedNode (JSExpressionPostfix s xs) = "JSExpressionPostfix " ++ show s ++ " " ++ sss xs
 showStrippedNode (JSExpressionTernary x1s x2s x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
 showStrippedNode (JSFinally x) = "JSFinally (" ++ ss x ++ ")"
@@ -127,10 +128,10 @@ showStrippedNode (JSLabelled x1 x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 
 showStrippedNode (JSLiteral s) = "JSLiteral " ++ show s
 showStrippedNode (JSMemberDot x1s x2) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
 showStrippedNode (JSMemberSquare x1s x2) = "JSMemberSquare " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
-showStrippedNode (JSObjectLiteral xs) = "JSObjectLiteral " ++ sss xs
+showStrippedNode (JSObjectLiteral lb xs rb) = "JSObjectLiteral " ++ sss xs
 showStrippedNode (JSOperator s) = "JSOperator " ++ show s
-showStrippedNode (JSPropertyNameandValue x1 x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
-showStrippedNode (JSPropertyAccessor s x1 x2s x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSPropertyNameandValue x1 colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
+showStrippedNode (JSPropertyAccessor s x1 lb1 x2s rb1 lb2 x3 rb2) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSRegEx s) = "JSRegEx " ++ show s
 showStrippedNode (JSReturn xs) = "JSReturn " ++ sss xs
 showStrippedNode (JSSourceElements xs) = "JSSourceElements " ++ sss xs
