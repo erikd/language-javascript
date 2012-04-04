@@ -156,6 +156,168 @@ Comma : ',' { fp (AST.NS (AST.JSLiteral ",") (ss $1) (gc $1))}
 Colon :: { AST.JSNode }
 Colon : ':' { fp (AST.NS (AST.JSLiteral ":") (ss $1) (gc $1))}
 
+Semi :: { AST.JSNode }
+Semi : ';' { fp (AST.NS (AST.JSLiteral ";") (ss $1) (gc $1))}
+
+Dot :: { AST.JSNode }
+Dot : '.' { fp (AST.NS (AST.JSLiteral ".") (ss $1) (gc $1))}
+
+Increment :: { AST.JSNode }
+Increment : '++' { fp (AST.NS (AST.JSLiteral "++") (ss $1) (gc $1))}
+
+Decrement :: { AST.JSNode }
+Decrement : '--' { fp (AST.NS (AST.JSLiteral "--") (ss $1) (gc $1))}
+
+Delete :: { AST.JSNode }
+Delete : 'delete' { fp (AST.NS (AST.JSLiteral "delete") (ss $1) (gc $1))}
+
+Void :: { AST.JSNode }
+Void : 'void' { fp (AST.NS (AST.JSLiteral "void") (ss $1) (gc $1))}
+
+Typeof :: { AST.JSNode }
+Typeof : 'typeof' { fp (AST.NS (AST.JSLiteral "typeof") (ss $1) (gc $1))}
+
+Plus :: { AST.JSNode }
+Plus : '+' { fp (AST.NS (AST.JSLiteral "+") (ss $1) (gc $1))}
+
+Minus :: { AST.JSNode }
+Minus : '-' { fp (AST.NS (AST.JSLiteral "-") (ss $1) (gc $1))}
+
+Tilde :: { AST.JSNode }
+Tilde : '~' { fp (AST.NS (AST.JSLiteral "~") (ss $1) (gc $1))}
+
+Not :: { AST.JSNode }
+Not : '!' { fp (AST.NS (AST.JSLiteral "!") (ss $1) (gc $1))}
+
+Mul :: { AST.JSNode }
+Mul : '*' { fp (AST.NS (AST.JSLiteral "*") (ss $1) (gc $1))}
+
+Div :: { AST.JSNode }
+Div : '/' { fp (AST.NS (AST.JSLiteral "/") (ss $1) (gc $1))}
+
+Mod :: { AST.JSNode }
+Mod : '%' { fp (AST.NS (AST.JSLiteral "%") (ss $1) (gc $1))}
+
+Lsh :: { AST.JSNode }
+Lsh : '<<' { fp (AST.NS (AST.JSLiteral "<<") (ss $1) (gc $1))}
+
+Rsh :: { AST.JSNode }
+Rsh : '>>' { fp (AST.NS (AST.JSLiteral ">>") (ss $1) (gc $1))}
+
+Ursh :: { AST.JSNode }
+Ursh : '>>>' { fp (AST.NS (AST.JSLiteral ">>>") (ss $1) (gc $1))}
+
+Le :: { AST.JSNode }
+Le : '<=' { fp (AST.NS (AST.JSLiteral "<=") (ss $1) (gc $1))}
+
+Lt :: { AST.JSNode }
+Lt : '<' { fp (AST.NS (AST.JSLiteral "<") (ss $1) (gc $1))}
+
+Ge :: { AST.JSNode }
+Ge : '>=' { fp (AST.NS (AST.JSLiteral ">=") (ss $1) (gc $1))}
+
+Gt :: { AST.JSNode }
+Gt : '>' { fp (AST.NS (AST.JSLiteral ">") (ss $1) (gc $1))}
+
+In :: { AST.JSNode }
+In : 'in' { fp (AST.NS (AST.JSLiteral "in") (ss $1) (gc $1))}
+
+Instanceof :: { AST.JSNode }
+Instanceof : 'instanceof' { fp (AST.NS (AST.JSLiteral "instanceof") (ss $1) (gc $1))}
+
+StrictEq :: { AST.JSNode }
+StrictEq : '===' { fp (AST.NS (AST.JSLiteral "===") (ss $1) (gc $1))}
+
+Equal :: { AST.JSNode }
+Equal : '==' { fp (AST.NS (AST.JSLiteral "==") (ss $1) (gc $1))}
+
+StrictNe :: { AST.JSNode }
+StrictNe : '!==' { fp (AST.NS (AST.JSLiteral "!==") (ss $1) (gc $1))}
+
+Ne :: { AST.JSNode }
+Ne : '!=' { fp (AST.NS (AST.JSLiteral "!=") (ss $1) (gc $1))}
+
+Or :: { AST.JSNode }
+Or : '||' { fp (AST.NS (AST.JSLiteral "||") (ss $1) (gc $1))}
+
+And :: { AST.JSNode }
+And : '&&' { fp (AST.NS (AST.JSLiteral "&&") (ss $1) (gc $1))}
+
+BitOr :: { AST.JSNode }
+BitOr : '|' { fp (AST.NS (AST.JSLiteral "|") (ss $1) (gc $1))}
+
+BitAnd :: { AST.JSNode }
+BitAnd : '&' { fp (AST.NS (AST.JSLiteral "&") (ss $1) (gc $1))}
+
+BitXor :: { AST.JSNode }
+BitXor : '^' { fp (AST.NS (AST.JSLiteral "^") (ss $1) (gc $1))}
+
+Hook :: { AST.JSNode }
+Hook : '?' { fp (AST.NS (AST.JSLiteral "?") (ss $1) (gc $1))}
+
+SimpleAssign :: { AST.JSNode }
+SimpleAssign : '=' { fp (AST.NS (AST.JSLiteral "=") (ss $1) (gc $1))}
+
+Assign :: { AST.JSNode }
+Assign : 'assign' { fp (AST.NS (AST.JSLiteral (token_literal $1)) (ss $1) (gc $1))}
+
+Var :: { AST.JSNode }
+Var : 'var' { fp (AST.NS (AST.JSLiteral "var") (ss $1) (gc $1))}
+
+Const :: { AST.JSNode }
+Const : 'const' { fp (AST.NS (AST.JSLiteral "const") (ss $1) (gc $1))}
+
+If :: { AST.JSNode }
+If : 'if' { fp (AST.NS (AST.JSLiteral "if") (ss $1) (gc $1))}
+
+Else :: { AST.JSNode }
+Else : 'else' { fp (AST.NS (AST.JSLiteral "else") (ss $1) (gc $1))}
+
+Do :: { AST.JSNode }
+Do : 'do' { fp (AST.NS (AST.JSLiteral "do") (ss $1) (gc $1))}
+
+While :: { AST.JSNode }
+While : 'while' { fp (AST.NS (AST.JSLiteral "while") (ss $1) (gc $1))}
+
+For :: { AST.JSNode }
+For : 'for' { fp (AST.NS (AST.JSLiteral "for") (ss $1) (gc $1))}
+
+Continue :: { AST.JSNode }
+Continue : 'continue' { fp (AST.NS (AST.JSLiteral "continue") (ss $1) (gc $1))}
+
+Break :: { AST.JSNode }
+Break : 'break' { fp (AST.NS (AST.JSLiteral "break") (ss $1) (gc $1))}
+
+Return :: { AST.JSNode }
+Return : 'return' { fp (AST.NS (AST.JSLiteral "return") (ss $1) (gc $1))}
+
+With :: { AST.JSNode }
+With : 'with' { fp (AST.NS (AST.JSLiteral "with") (ss $1) (gc $1))}
+
+Switch :: { AST.JSNode }
+Switch : 'switch' { fp (AST.NS (AST.JSLiteral "switch") (ss $1) (gc $1))}
+
+Case :: { AST.JSNode }
+Case : 'case' { fp (AST.NS (AST.JSLiteral "case") (ss $1) (gc $1))}
+
+Default :: { AST.JSNode }
+Default : 'default' { fp (AST.NS (AST.JSLiteral "Default") (ss $1) (gc $1))}
+
+Throw :: { AST.JSNode }
+Throw : 'throw' { fp (AST.NS (AST.JSLiteral "throw") (ss $1) (gc $1))}
+
+Try :: { AST.JSNode }
+Try : 'try' { fp (AST.NS (AST.JSLiteral "try") (ss $1) (gc $1))}
+
+CatchL :: { AST.JSNode }
+CatchL : 'catch' { fp (AST.NS (AST.JSLiteral "catch") (ss $1) (gc $1))}
+
+FinallyL :: { AST.JSNode }
+FinallyL : 'finally' { fp (AST.NS (AST.JSLiteral "finally") (ss $1) (gc $1))}
+
+Function :: { AST.JSNode }
+Function : 'function' { fp (AST.NS (AST.JSLiteral "function") (ss $1) (gc $1))}
+
 
 -- Literal ::                                                                See 7.8
 --         NullLiteral
@@ -353,8 +515,8 @@ PropertySetParameterList : Identifier { $1 {- PropertySetParameterList -}}
 MemberExpression :: { [AST.JSNode] }
 MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}}
                  | FunctionExpression  { [$1] {- MemberExpression -}}
-                 | MemberExpression '[' Expression ']' { [fp (AST.NS (AST.JSMemberSquare $1 $3) (mex $1) (mgc [$2,$4]))] }
-                 | MemberExpression '.' IdentifierName { [fp (AST.NS (AST.JSMemberDot $1 $3) (mex $1) (gc $2))] }
+                 | MemberExpression LSquare Expression RSquare { [fp (AST.NS (AST.JSMemberSquare $1 $2 $3 $4) (mex $1) [])] }
+                 | MemberExpression Dot IdentifierName { [fp (AST.NS (AST.JSMemberDot $1 $2 $3) (mex $1) [])] }
                  | 'new' MemberExpression Arguments    { (((fp (AST.NS (AST.JSLiteral "new ") (ss $1) (gc $1))):$2)++[$3])}
 
 -- NewExpression :                                              See 11.2
@@ -371,23 +533,23 @@ NewExpression : MemberExpression {$1 {- NewExpression -}}
 --        CallExpression . IdentifierName
 CallExpression :: { [AST.JSNode] }
 CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression -} }
-               | CallExpression Arguments          { ($1++[fp (AST.NS (AST.JSCallExpression "()" [$2]) (mex $1) [])]) }
-               | CallExpression '[' Expression ']' { ($1++[fp (AST.NS (AST.JSCallExpression "[]" [$3]) (mex $1) (mgc [$2,$4]))]) }
-               | CallExpression '.' IdentifierName { ($1++[fp (AST.NS (AST.JSCallExpression "."  [$3]) (mex $1) (gc $2))]) }
+               | CallExpression Arguments          { ($1++[fp (AST.NS (AST.JSCallExpression "()" [] [$2] []) (ex $2) [])]) }
+               | CallExpression LSquare Expression RSquare { ($1++[fp (AST.NS (AST.JSCallExpression "[]" [$2] [$3] [$4]) (ex $2) [])]) }
+               | CallExpression Dot IdentifierName { ($1++[fp (AST.NS (AST.JSCallExpression "."  [$2] [$3] []) (ex $2) [])]) }
 
 -- Arguments :                                                  See 11.2
 --        ()
 --        ( ArgumentList )
 Arguments :: { AST.JSNode }
-Arguments : '(' ')'               { fp (AST.NS (AST.JSArguments []) (ss $1) (mgc [$1,$2])) }
-          | '(' ArgumentList ')'  { fp (AST.NS (AST.JSArguments $2) (ss $1) (mgc [$1,$3])) }
+Arguments : LParen RParen               { fp (AST.NS (AST.JSArguments $1 [] $2) (ex $1) []) }
+          | LParen ArgumentList RParen  { fp (AST.NS (AST.JSArguments $1 $2 $3) (ex $1) []) }
 
 -- ArgumentList :                                               See 11.2
 --        AssignmentExpression
 --        ArgumentList , AssignmentExpression
-ArgumentList :: { [[AST.JSNode]] }
-ArgumentList : AssignmentExpression { [$1] {- ArgumentList -}}
-             | ArgumentList ',' AssignmentExpression { $1++[ (mpc $3 (gc $2)) ] {- ArgumentList2 -} }
+ArgumentList :: { [AST.JSNode] }
+ArgumentList : AssignmentExpression { $1 {- ArgumentList -}}
+             | ArgumentList Comma AssignmentExpression { $1++[$2]++$3 {- ArgumentList2 -} }
 
 -- LeftHandSideExpression :                                     See 11.2
 --        NewExpression
@@ -404,8 +566,8 @@ LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
 --        LeftHandSideExpression                             --
 PostfixExpression :: { [AST.JSNode] }
 PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
-                  | PostfixExpression '++' {[fp (AST.NS (AST.JSExpressionPostfix "++" $1) (mex $1) (gc $2))]}
-                  | PostfixExpression '--' {[fp (AST.NS (AST.JSExpressionPostfix "--" $1) (mex $1) (gc $2))]}
+                  | PostfixExpression Increment {[fp (AST.NS (AST.JSExpressionPostfix "++" $1 $2) (mex $1) [])]}
+                  | PostfixExpression Decrement {[fp (AST.NS (AST.JSExpressionPostfix "--" $1 $2) (mex $1) [])]}
 
 -- UnaryExpression :                                            See 11.4
 --        PostfixExpression
@@ -420,15 +582,15 @@ PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
 --        ! UnaryExpression
 UnaryExpression :: { [AST.JSNode] }
 UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
-                | 'delete' UnaryExpression { ((fp (AST.NS (AST.JSUnary "delete ") (ss $1) (gc $1))):$2)}
-                | 'void'   UnaryExpression { ((fp (AST.NS (AST.JSUnary "void ") (ss $1) (gc $1))):$2)}
-                | 'typeof' UnaryExpression { ((fp (AST.NS (AST.JSUnary "typeof ") (ss $1) (gc $1))):$2)}
-                | '++'     UnaryExpression { ((fp (AST.NS (AST.JSUnary "++") (ss $1) (gc $1))):$2) }
-                | '--'     UnaryExpression { ((fp (AST.NS (AST.JSUnary "--") (ss $1) (gc $1))):$2)}
-                | '+'      UnaryExpression { ((fp (AST.NS (AST.JSUnary "+") (ss $1) (gc $1))):$2)}
-                | '-'      UnaryExpression { ((fp (AST.NS (AST.JSUnary "-") (ss $1) (gc $1))):$2)}
-                | '~'      UnaryExpression { ((fp (AST.NS (AST.JSUnary "~") (ss $1) (gc $1))):$2)}
-                | '!'      UnaryExpression { ((fp (AST.NS (AST.JSUnary "!") (ss $1) (gc $1))):$2)}
+                | Delete    UnaryExpression { ((fp (AST.NS (AST.JSUnary "delete " $1) (ex $1) [])):$2)}
+                | Void      UnaryExpression { ((fp (AST.NS (AST.JSUnary "void "   $1) (ex $1) [])):$2)}
+                | Typeof    UnaryExpression { ((fp (AST.NS (AST.JSUnary "typeof " $1) (ex $1) [])):$2)}
+                | Increment UnaryExpression { ((fp (AST.NS (AST.JSUnary "++"      $1) (ex $1) [])):$2) }
+                | Decrement UnaryExpression { ((fp (AST.NS (AST.JSUnary "--"      $1) (ex $1) [])):$2)}
+                | Plus      UnaryExpression { ((fp (AST.NS (AST.JSUnary "+"       $1) (ex $1) [])):$2)}
+                | Minus     UnaryExpression { ((fp (AST.NS (AST.JSUnary "-"       $1) (ex $1) [])):$2)}
+                | Tilde     UnaryExpression { ((fp (AST.NS (AST.JSUnary "~"       $1) (ex $1) [])):$2)}
+                | Not       UnaryExpression { ((fp (AST.NS (AST.JSUnary "!"       $1) (ex $1) [])):$2)}
 
 -- MultiplicativeExpression :                                   See 11.5
 --        UnaryExpression
@@ -437,17 +599,17 @@ UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
 --        MultiplicativeExpression % UnaryExpression
 MultiplicativeExpression :: { [AST.JSNode] }
 MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}}
-                         | MultiplicativeExpression '*' UnaryExpression { [fp (AST.NS (AST.JSExpressionBinary "*" $1 $3) (mex $1) (gc $2))]}
-                         | MultiplicativeExpression '/' UnaryExpression { [fp (AST.NS (AST.JSExpressionBinary "/" $1 $3) (mex $1) (gc $2))]}
-                         | MultiplicativeExpression '%' UnaryExpression { [fp (AST.NS (AST.JSExpressionBinary "%" $1 $3) (mex $1) (gc $2))]}
+                         | MultiplicativeExpression Mul UnaryExpression { [fp (AST.NS (AST.JSExpressionBinary "*" $1 $2 $3) (mex $1) [])]}
+                         | MultiplicativeExpression Div UnaryExpression { [fp (AST.NS (AST.JSExpressionBinary "/" $1 $2 $3) (mex $1) [])]}
+                         | MultiplicativeExpression Mod UnaryExpression { [fp (AST.NS (AST.JSExpressionBinary "%" $1 $2 $3) (mex $1) [])]}
 
 -- AdditiveExpression :                                        See 11.6
 --        MultiplicativeExpression
 --        AdditiveExpression + MultiplicativeExpression
 --        AdditiveExpression - MultiplicativeExpression
 AdditiveExpression :: { [AST.JSNode] }
-AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [fp (AST.NS (AST.JSExpressionBinary "+" $1 $3) (mex $1) (gc $2))]}
-                   | AdditiveExpression '-' MultiplicativeExpression { [fp (AST.NS (AST.JSExpressionBinary "-" $1 $3) (mex $1) (gc $2))]}
+AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression { [fp (AST.NS (AST.JSExpressionBinary "+" $1 $2 $3) (mex $1) [])]}
+                   | AdditiveExpression Minus MultiplicativeExpression { [fp (AST.NS (AST.JSExpressionBinary "-" $1 $2 $3) (mex $1) [])]}
                    | MultiplicativeExpression { $1 {- (goRegExp $1)-} {- AdditiveExpression -} }
 
 -- ShiftExpression :                                           See 11.7
@@ -456,9 +618,9 @@ AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [fp (AST.
 --        ShiftExpression >> AdditiveExpression
 --        ShiftExpression >>> AdditiveExpression
 ShiftExpression :: { [AST.JSNode] }
-ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [fp (AST.NS (AST.JSExpressionBinary "<<" $1 $3) (mex $1) (gc $2))]}
-                | ShiftExpression '>>'  AdditiveExpression { [fp (AST.NS (AST.JSExpressionBinary ">>" $1 $3) (mex $1) (gc $2))]}
-                | ShiftExpression '>>>' AdditiveExpression { [fp (AST.NS (AST.JSExpressionBinary ">>>" $1 $3) (mex $1) (gc $2))]}
+ShiftExpression : ShiftExpression Lsh  AdditiveExpression { [fp (AST.NS (AST.JSExpressionBinary "<<"  $1 $2 $3) (mex $1) [])]}
+                | ShiftExpression Rsh  AdditiveExpression { [fp (AST.NS (AST.JSExpressionBinary ">>"  $1 $2 $3) (mex $1) [])]}
+                | ShiftExpression Ursh AdditiveExpression { [fp (AST.NS (AST.JSExpressionBinary ">>>" $1 $2 $3) (mex $1) [])]}
                 | AdditiveExpression { $1 {- ShiftExpression -}}
 
 -- RelationalExpression :                                      See 11.8
@@ -471,12 +633,12 @@ ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [fp (AST.NS (AST.JS
 --        RelationalExpression in ShiftExpression
 RelationalExpression :: { [AST.JSNode] }
 RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
-                     | RelationalExpression '<'  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpression '>'  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpression '<=' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<=" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpression '>=' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">=" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpression 'instanceof' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary " instanceof " $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpression 'in' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary " in " $1 $3) (mex $1) (gc $2))]}
+                     | RelationalExpression Lt  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<"  $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpression Gt  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">"  $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpression Le  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<=" $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpression Ge  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">=" $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpression Instanceof ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary " instanceof " $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpression In         ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary " in "         $1 $2 $3) (mex $1) [])]}
 
 -- RelationalExpressionNoIn :                                  See 11.8
 --        ShiftExpression
@@ -487,11 +649,11 @@ RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
 --        RelationalExpressionNoIn instanceof ShiftExpression
 RelationalExpressionNoIn :: { [AST.JSNode] }
 RelationalExpressionNoIn : ShiftExpression { $1 {- RelationalExpressionNoIn -}}
-                     | RelationalExpressionNoIn '<'  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpressionNoIn '>'  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpressionNoIn '<=' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<=" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpressionNoIn '>=' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">=" $1 $3) (mex $1) (gc $2))]}
-                     | RelationalExpressionNoIn 'instanceof' ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary " instanceof " $1 $3) (mex $1) (gc $2))]}
+                     | RelationalExpressionNoIn Lt  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<"  $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpressionNoIn Gt  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">"  $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpressionNoIn Le  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary "<=" $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpressionNoIn Ge  ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary ">=" $1 $2 $3) (mex $1) [])]}
+                     | RelationalExpressionNoIn Instanceof ShiftExpression { [fp (AST.NS (AST.JSExpressionBinary " instanceof " $1 $2 $3) (mex $1) [])]}
 
 -- EqualityExpression :                                        See 11.9
 --        RelationalExpression
@@ -501,10 +663,10 @@ RelationalExpressionNoIn : ShiftExpression { $1 {- RelationalExpressionNoIn -}}
 --        EqualityExpression !== RelationalExpression
 EqualityExpression :: { [AST.JSNode] }
 EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
-                   | EqualityExpression '=='  RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "==" $1 $3) (mex $1) (gc $2))]}
-                   | EqualityExpression '!='  RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!=" $1 $3) (mex $1) (gc $2))]}
-                   | EqualityExpression '===' RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "===" $1 $3) (mex $1) (gc $2))]}
-                   | EqualityExpression '!==' RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!==" $1 $3) (mex $1) (gc $2))]}
+                   | EqualityExpression Equal    RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "=="  $1 $2 $3) (mex $1) [])]}
+                   | EqualityExpression Ne       RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!="  $1 $2 $3) (mex $1) [])]}
+                   | EqualityExpression StrictEq RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "===" $1 $2 $3) (mex $1) [])]}
+                   | EqualityExpression StrictNe RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!==" $1 $2 $3) (mex $1) [])]}
 
 -- EqualityExpressionNoIn :                                    See 11.9
 --        RelationalExpressionNoIn
@@ -514,96 +676,96 @@ EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
 --        EqualityExpressionNoIn !== RelationalExpressionNoIn
 EqualityExpressionNoIn :: { [AST.JSNode] }
 EqualityExpressionNoIn : RelationalExpressionNoIn { $1 {- EqualityExpressionNoIn -} }
-                       | EqualityExpressionNoIn '=='  RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "==" $1 $3) (mex $1) (gc $2))]}
-                       | EqualityExpressionNoIn '!='  RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!=" $1 $3) (mex $1) (gc $2))]}
-                       | EqualityExpressionNoIn '===' RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "===" $1 $3) (mex $1) (gc $2))]}
-                       | EqualityExpressionNoIn '!==' RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!==" $1 $3) (mex $1) (gc $2))]}
+                       | EqualityExpressionNoIn Equal    RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "=="  $1 $2 $3) (mex $1) [])]}
+                       | EqualityExpressionNoIn Ne       RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!="  $1 $2 $3) (mex $1) [])]}
+                       | EqualityExpressionNoIn StrictEq RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "===" $1 $2 $3) (mex $1) [])]}
+                       | EqualityExpressionNoIn StrictNe RelationalExpression { [fp (AST.NS (AST.JSExpressionBinary "!==" $1 $2 $3) (mex $1) [])]}
 
 -- BitwiseANDExpression :                                      See 11.10
 --        EqualityExpression
 --        BitwiseANDExpression & EqualityExpression
 BitwiseAndExpression :: { [AST.JSNode] }
 BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} }
-                     | BitwiseAndExpression '&' EqualityExpression { [fp (AST.NS (AST.JSExpressionBinary "&" $1 $3) (mex $1) (gc $2))]}
+                     | BitwiseAndExpression BitAnd EqualityExpression { [fp (AST.NS (AST.JSExpressionBinary "&" $1 $2 $3) (mex $1) [])]}
 
 -- BitwiseANDExpressionNoIn :                                  See 11.10
 --        EqualityExpressionNoIn
 --        BitwiseANDExpressionNoIn & EqualityExpressionNoIn
 BitwiseAndExpressionNoIn :: { [AST.JSNode] }
 BitwiseAndExpressionNoIn : EqualityExpressionNoIn { $1 {- BitwiseAndExpression -} }
-                     | BitwiseAndExpressionNoIn '&' EqualityExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "&" $1 $3) (mex $1) (gc $2))]}
+                     | BitwiseAndExpressionNoIn BitAnd EqualityExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "&" $1 $2 $3) (mex $1) [])]}
 
 -- BitwiseXORExpression :                                                                See 11.10
 --        BitwiseANDExpression
 --        BitwiseXORExpression ^ BitwiseANDExpression
 BitwiseXOrExpression :: { [AST.JSNode] }
 BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} }
-                     | BitwiseXOrExpression '^' BitwiseAndExpression { [fp (AST.NS (AST.JSExpressionBinary "^" $1 $3) (mex $1) (gc $2))]}
+                     | BitwiseXOrExpression BitXor BitwiseAndExpression { [fp (AST.NS (AST.JSExpressionBinary "^" $1 $2 $3) (mex $1) [])]}
 
 -- BitwiseXORExpressionNoIn :                                                            See 11.10
 --        BitwiseANDExpressionNoIn
 --        BitwiseXORExpressionNoIn ^ BitwiseANDExpressionNoIn
 BitwiseXOrExpressionNoIn :: { [AST.JSNode] }
 BitwiseXOrExpressionNoIn : BitwiseAndExpressionNoIn { $1 {- BitwiseXOrExpression -} }
-                         | BitwiseXOrExpressionNoIn '^' BitwiseAndExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "^" $1 $3) (mex $1) (gc $2))]}
+                         | BitwiseXOrExpressionNoIn BitXor BitwiseAndExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "^" $1 $2 $3) (mex $1) [])]}
 
 -- BitwiseORExpression :                                                                 See 11.10
 --        BitwiseXORExpression
 --        BitwiseORExpression | BitwiseXORExpression
 BitwiseOrExpression :: { [AST.JSNode] }
 BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} }
-                    | BitwiseOrExpression '|' BitwiseXOrExpression { [fp (AST.NS (AST.JSExpressionBinary "|" $1 $3) (mex $1) (gc $2))]}
+                    | BitwiseOrExpression BitOr BitwiseXOrExpression { [fp (AST.NS (AST.JSExpressionBinary "|" $1 $2 $3) (mex $1) [])]}
 
 -- BitwiseORExpressionNoIn :                                                             See 11.10
 --        BitwiseXORExpressionNoIn
 --        BitwiseORExpressionNoIn | BitwiseXORExpressionNoIn
 BitwiseOrExpressionNoIn :: { [AST.JSNode] }
 BitwiseOrExpressionNoIn : BitwiseXOrExpressionNoIn { $1 {- BitwiseOrExpression -} }
-                        | BitwiseOrExpressionNoIn '|' BitwiseXOrExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "|" $1 $3) (mex $1) (gc $2))]}
+                        | BitwiseOrExpressionNoIn BitOr BitwiseXOrExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "|" $1 $2 $3) (mex $1) [])]}
 
 -- LogicalANDExpression :                                                                See 11.11
 --        BitwiseORExpression
 --        LogicalANDExpression && BitwiseORExpression
 LogicalAndExpression :: { [AST.JSNode] }
 LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} }
-                     | LogicalAndExpression '&&' BitwiseOrExpression { [fp (AST.NS (AST.JSExpressionBinary "&&" $1 $3) (mex $1) (gc $2))]}
+                     | LogicalAndExpression And BitwiseOrExpression { [fp (AST.NS (AST.JSExpressionBinary "&&" $1 $2 $3) (mex $1) [])]}
 
 -- LogicalANDExpressionNoIn :                                                            See 11.11
 --        BitwiseORExpressionNoIn
 --        LogicalANDExpressionNoIn && BitwiseORExpressionNoIn
 LogicalAndExpressionNoIn :: { [AST.JSNode] }
 LogicalAndExpressionNoIn : BitwiseOrExpressionNoIn { $1 {- LogicalAndExpression -} }
-                         | LogicalAndExpressionNoIn '&&' BitwiseOrExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "&&" $1 $3) (mex $1) (gc $2))]}
+                         | LogicalAndExpressionNoIn And BitwiseOrExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "&&" $1 $2 $3) (mex $1) [])]}
 
 -- LogicalORExpression :                                                                 See 11.11
 --        LogicalANDExpression
 --        LogicalORExpression || LogicalANDExpression
 LogicalOrExpression :: { [AST.JSNode] }
 LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} }
-                    | LogicalOrExpression '||' LogicalAndExpression { [fp (AST.NS (AST.JSExpressionBinary "||" $1 $3) (mex $1) (gc $2))]}
+                    | LogicalOrExpression Or LogicalAndExpression { [fp (AST.NS (AST.JSExpressionBinary "||" $1 $2 $3) (mex $1) [])]}
 
 -- LogicalORExpressionNoIn :                                                             See 11.11
 --        LogicalANDExpressionNoIn
 --        LogicalORExpressionNoIn || LogicalANDExpressionNoIn
 LogicalOrExpressionNoIn :: { [AST.JSNode] }
 LogicalOrExpressionNoIn : LogicalAndExpressionNoIn { $1 {- LogicalOrExpression -} }
-                        | LogicalOrExpressionNoIn '||' LogicalAndExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "||" $1 $3) (mex $1) (gc $2))]}
+                        | LogicalOrExpressionNoIn Or LogicalAndExpressionNoIn { [fp (AST.NS (AST.JSExpressionBinary "||" $1 $2 $3) (mex $1) [])]}
 
 -- ConditionalExpression :                                                               See 11.12
 --        LogicalORExpression
 --        LogicalORExpression ? AssignmentExpression : AssignmentExpression
 ConditionalExpression :: { [AST.JSNode] }
 ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
-                      | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
-                        { [fp (AST.NS (AST.JSExpressionTernary $1 $3 $5) (mex $1) (mgc [$2,$4]))] }
+                      | LogicalOrExpression Hook AssignmentExpression Colon AssignmentExpression
+                        { [fp (AST.NS (AST.JSExpressionTernary $1 $2 $3 $4 $5) (mex $1) [])] }
 
 -- ConditionalExpressionNoIn :                                                           See 11.12
 --        LogicalORExpressionNoIn
 --        LogicalORExpressionNoIn ? AssignmentExpressionNoIn : AssignmentExpressionNoIn
 ConditionalExpressionNoIn :: { [AST.JSNode] }
 ConditionalExpressionNoIn : LogicalOrExpressionNoIn { $1 {- ConditionalExpression -} }
-                          | LogicalOrExpressionNoIn '?' AssignmentExpressionNoIn ':' AssignmentExpressionNoIn
-                            { [fp (AST.NS (AST.JSExpressionTernary $1 $3 $5) (mex $1) (mgc [$2,$4]))] }
+                          | LogicalOrExpressionNoIn Hook AssignmentExpressionNoIn Colon AssignmentExpressionNoIn
+                            { [fp (AST.NS (AST.JSExpressionTernary $1 $2 $3 $4 $5) (mex $1) [])] }
 
 -- AssignmentExpression :                                                                See 11.13
 --        ConditionalExpression
@@ -624,22 +786,24 @@ AssignmentExpressionNoIn : ConditionalExpressionNoIn { $1 {- AssignmentExpressio
 -- AssignmentOperator : one of                                                           See 11.13
 --     '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator :: { AST.JSNode }
-AssignmentOperator : 'assign' { fp (AST.NS (AST.JSOperator (token_literal $1)) (ss $1) (gc $1))}
-                   | '='      { fp (AST.NS (AST.JSOperator "=") (ss $1) (gc $1))}
+AssignmentOperator : Assign       { fp (AST.NS (AST.JSOperator $1) (ex $1) [])}
+                   | SimpleAssign { fp (AST.NS (AST.JSOperator $1) (ex $1) [])}
 
 -- Expression :                                                   See 11.14
 --         AssignmentExpression
 --         Expression , AssignmentExpression
 Expression :: { AST.JSNode }
 Expression : AssignmentExpression { fp (AST.NS (AST.JSExpression $1) (mex $1) []) {- Expression -} }
-           | Expression ',' AssignmentExpression  { flattenExpression $1 (mpc $3 (gc $2)) }
+           -- | Expression ',' AssignmentExpression  { flattenExpression $1 (mpc $3 (gc $2)) }
+           | Expression Comma AssignmentExpression  { fp (AST.NS (AST.JSExpression ($1:[$2]++$3)) (ex $1) []) {- Expression2 -} }
 
 -- ExpressionNoIn :                                               See 11.14
 --         AssignmentExpressionNoIn
 --         ExpressionNoIn , AssignmentExpressionNoIn
 ExpressionNoIn :: { AST.JSNode }
-ExpressionNoIn : AssignmentExpressionNoIn { fp (AST.NS (AST.JSExpression $1) (mex $1) []) {- Expression -} }
-               | ExpressionNoIn ',' AssignmentExpressionNoIn  { flattenExpression $1 (mpc $3 (gc $2)) }
+ExpressionNoIn : AssignmentExpressionNoIn { fp (AST.NS (AST.JSExpression $1) (mex $1) []) {- ExpressionNoIn -} }
+               -- | ExpressionNoIn ',' AssignmentExpressionNoIn  { flattenExpression $1 (mpc $3 (gc $2)) }
+               | ExpressionNoIn Comma AssignmentExpressionNoIn  { fp (AST.NS (AST.JSExpression ($1:[$2]++$3)) (ex $1) []) {- ExpressionNoIn2 -} }
 
 -- TODO: still required?
 ExpressionOpt :: { [AST.JSNode] }
@@ -696,14 +860,14 @@ StatementNoEmpty : StatementBlock     { $1 {- StatementNoEmpty1 -}}
 --                                             else (AST.NS (AST.JSBlock $2   ) (ss $1) []))
 --                                        }
 StatementBlock :: { AST.JSNode }
-StatementBlock : '{' '}'               { fp (AST.NS (AST.JSStatementBlock (AST.NS (AST.JSStatementList []) (ss $1) [])) (ss $1) (mgc [$1,$2])) }
-               | '{' StatementList '}' { fp (AST.NS (AST.JSStatementBlock $2) (ss $1) (mgc [$1,$3])) }
+StatementBlock : LBrace RBrace               { fp (AST.NS (AST.JSStatementBlock $1 (AST.NS (AST.JSStatementList []) (ex $1) []) $2) (ex $1) []) }
+               | LBrace StatementList RBrace { fp (AST.NS (AST.JSStatementBlock $1 $2                                           $3) (ex $1) []) }
 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
 Block :: { AST.JSNode }
-Block : '{' '}'               { fp (AST.NS (AST.JSBlock (AST.NS (AST.JSStatementList []) (ss $1) [])) (ss $1) (mgc [$1,$2])) }
-      | '{' StatementList '}' { fp (AST.NS (AST.JSBlock $2) (ss $1) (mgc [$1,$3])) }
+Block : LBrace RBrace               { fp (AST.NS (AST.JSBlock [$1] (AST.NS (AST.JSStatementList []) (ex $1) []) [$2]) (ex $1) []) }
+      | LBrace StatementList RBrace { fp (AST.NS (AST.JSBlock [$1] $2                                           [$3]) (ex $1) []) }
 
 -- StatementList :                                                See 12.1
 --         Statement
@@ -715,22 +879,22 @@ StatementList : Statement               { fp (AST.NS (AST.JSStatementList [$1]) 
 -- VariableStatement :                                            See 12.2
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSNode }
-VariableStatement : 'var'   VariableDeclarationList AutoSemi { fp (AST.NS (AST.JSVariables "var" $2) (ss $1) (gc $1))}
-                  | 'const' VariableDeclarationList AutoSemi { fp (AST.NS (AST.JSVariables "const" $2) (ss $1) (gc $1))}
+VariableStatement : Var   VariableDeclarationList AutoSemi { fp (AST.NS (AST.JSVariables $1 $2 $3) (ex $1) [])}
+                  | Const VariableDeclarationList AutoSemi { fp (AST.NS (AST.JSVariables $1 $2 $3) (ex $1) [])}
 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration
 --         VariableDeclarationList , VariableDeclaration
 VariableDeclarationList :: { [AST.JSNode] }
 VariableDeclarationList : VariableDeclaration { [$1] {- VariableDeclarationList -}}
-                        | VariableDeclarationList ',' VariableDeclaration { ($1 ++ [(pc $3 (gc $2))]) {- VariableDeclarationList -}}
+                        | VariableDeclarationList Comma VariableDeclaration { ($1++[$2]++[$3]) {- VariableDeclarationList -}}
 
 -- VariableDeclarationListNoIn :                                  See 12.2
 --         VariableDeclarationNoIn
 --         VariableDeclarationListNoIn , VariableDeclarationNoIn
 VariableDeclarationListNoIn :: { [AST.JSNode] }
 VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- VariableDeclarationList -}}
-                            | VariableDeclarationListNoIn ',' VariableDeclarationNoIn { ($1 ++ [(pc $3 (gc $2))]) {- VariableDeclarationList -}}
+                            | VariableDeclarationListNoIn Comma VariableDeclarationNoIn { ($1++[$2]++[$3]) {- VariableDeclarationListNoIn -}}
 
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
@@ -747,17 +911,17 @@ VariableDeclarationNoIn : Identifier InitializerNoIn { fp (AST.NS (AST.JSVarDecl
 -- Initialiser :                                                                            See 12.2
 --         = AssignmentExpression
 Initializer :: { [AST.JSNode] }
-Initializer : '=' AssignmentExpression { (mpc $2 (gc $1)) {- Initializer -} }
+Initializer : SimpleAssign AssignmentExpression { $1:$2 {- Initializer -} }
 
 -- InitialiserNoIn :                                                                        See 12.2
 --         = AssignmentExpressionNoIn
 InitializerNoIn :: { [AST.JSNode] }
-InitializerNoIn : '=' AssignmentExpressionNoIn { (mpc $2 (gc $1)) {- InitializerNoIn -}}
+InitializerNoIn : SimpleAssign AssignmentExpressionNoIn { $1:$2 {- InitializerNoIn -}}
 
 -- EmptyStatement :                                                                         See 12.3
 --         ;
 EmptyStatement :: { AST.JSNode }
-EmptyStatement : ';' { fp (AST.NS (AST.JSLiteral ";") (ss $1) (gc $1)) }
+EmptyStatement : Semi { $1 }
 
 -- ExpressionStatement :                                                                    See 12.4
 --         [lookahead ∉ {{, function}] Expression  ;
@@ -772,34 +936,36 @@ ExpressionStatement : Expression { $1 {- ExpressionStatement -} }
 --         if ( Expression ) Statement else Statement
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSNode } -- +++XXXX++
-IfStatement : 'if' '(' Expression ')' StatementSemi  IfElseRest
+IfStatement : If LParen Expression RParen StatementSemi  IfElseRest
                   { (if ($6 /= []) then
                        (if (length $6 == 1)
                         then
-                          (fp (AST.NS (AST.JSIfElse $3 $5 (head $6)) (ss $1) (mgc [$1,$2,$4]) ))
+                          (fp (AST.NS (AST.JSIfElse $1 $2 $3 $4 $5 (head $6)) (ex $1) [] ))
                         else
                           (fp (AST.NS
                              (AST.JSIfElse
+                                $1 $2
                                 $3
+                                $4
                                 (fp (AST.NS
-                                   (AST.JSBlock (AST.NS (AST.JSStatementList [$5]) (ss $1) []) )
-                                   (ss $1) []
+                                   (AST.JSBlock [] (AST.NS (AST.JSStatementList [$5]) (ex $5) []) [] )
+                                   (ex $5) []
                                    ))
                                 (last $6)
                              )
-                             (ss $1) (mgc [$1,$2,$4])
+                             (ex $1) []
                            ))
                        )
-                     else (fp (AST.NS (AST.JSIf $3 $5) (ss $1) (mgc [$1,$2,$4]))) ) }
+                     else (fp (AST.NS (AST.JSIf $1 $2 $3 $4 $5) (ex $1) [] )) ) }
 
 IfElseRest :: { [AST.JSNode] }
-IfElseRest : 'else' Statement     { [(pc $2 (gc $1))] }
-           |                      { [] }
+IfElseRest : Else Statement     { [$1,$2] }
+           |                    { [] }
 
 StatementSemi :: { AST.JSNode }
-StatementSemi : StatementNoEmpty ';' { fp (AST.NS (AST.JSBlock (AST.NS (AST.JSStatementList [$1]) (ex $1) [])) (ex $1) (gc $2)) }
-              | StatementNoEmpty     { $1 {- StatementSemi -}}
-              | ';'                  { fp (AST.NS (AST.JSLiteral ";") (ss $1) (gc $1)) }
+StatementSemi : StatementNoEmpty Semi { fp (AST.NS (AST.JSBlock [] (AST.NS (AST.JSStatementList [$1,$2]) (ex $1) []) []) (ex $1) []) }
+              | StatementNoEmpty      { $1 {- StatementSemi -}}
+              | Semi                  { $1 }
 
 
 -- IterationStatement :                                                                     See 12.6
@@ -810,56 +976,56 @@ StatementSemi : StatementNoEmpty ';' { fp (AST.NS (AST.JSBlock (AST.NS (AST.JSSt
 --         for ( LeftHandSideExpression in Expression ) Statement
 --         for ( var VariableDeclarationNoIn in Expression ) Statement
 IterationStatement :: { AST.JSNode }
-IterationStatement : 'do' Statement 'while' '(' Expression ')' AutoSemi
-                     { fp (AST.NS (AST.JSDoWhile $2 $5 $7) (ss $1) (mgc [$1,$3,$4,$6])) }
-                   | 'while' '(' Expression ')' Statement
-                     { fp (AST.NS (AST.JSWhile $3 $5) (ss $1) (mgc [$1,$2,$4])) }
-                   | 'for' '(' ExpressionNoInOpt ';' ExpressionOpt ';' ExpressionOpt ')' Statement
-                     { fp (AST.NS (AST.JSFor $3 $5 $7 $9) (ss $1) (mgc [$1,$2,$4,$6,$8])) }
-                   | 'for' '(' 'var' VariableDeclarationListNoIn ';' ExpressionOpt ';' ExpressionOpt ')' Statement
-                     { fp (AST.NS (AST.JSForVar $4 $6 $8 $10) (ss $1) (mgc [$1,$2,$3,$5,$7,$9])) }
-                   | 'for' '(' LeftHandSideExpression 'in' Expression ')' Statement
-                     { fp (AST.NS (AST.JSForIn $3 $5 $7) (ss $1) (mgc [$1,$2,$4,$6])) }
-                   | 'for' '(' 'var' VariableDeclarationNoIn 'in' Expression ')' Statement
-                     { fp (AST.NS (AST.JSForVarIn $4 $6 $8) (ss $1) (mgc [$1,$2,$3,$5,$7])) }
+IterationStatement : Do Statement While LParen Expression RParen AutoSemi
+                     { fp (AST.NS (AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7) (ex $1) []) }
+                   | While LParen Expression RParen Statement
+                     { fp (AST.NS (AST.JSWhile $1 $2 $3 $4 $5) (ex $1) []) }
+                   | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement
+                     { fp (AST.NS (AST.JSFor $1 $2 $3 $4 $5 $6 $7 $8 $9) (ex $1) []) }
+                   | For LParen Var VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement
+                     { fp (AST.NS (AST.JSForVar $1 $2 $3 $4 $5 $6 $7 $8 $9 $10) (ex $1) []) }
+                   | For LParen LeftHandSideExpression In Expression RParen Statement
+                     { fp (AST.NS (AST.JSForIn $1 $2 $3 $4 $5 $6 $7) (ex $1) []) }
+                   | For LParen Var VariableDeclarationNoIn In Expression RParen Statement
+                     { fp (AST.NS (AST.JSForVarIn $1 $2 $3 $4 $5 $6 $7 $8) (ex $1) []) }
 
 -- ContinueStatement :                                                                      See 12.7
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSNode }
-ContinueStatement : 'continue' AutoSemi             { fp (AST.NS (AST.JSContinue [$2])    (ss $1) (gc $1)) }
-                  | 'continue' Identifier AutoSemi  { fp (AST.NS (AST.JSContinue [$2,$3]) (ss $1) (gc $1)) }
+ContinueStatement : Continue AutoSemi             { fp (AST.NS (AST.JSContinue [$1,$2])    (ex $1) []) }
+                  | Continue Identifier AutoSemi  { fp (AST.NS (AST.JSContinue [$1,$2,$3]) (ex $1) []) }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSNode }
-BreakStatement : 'break' AutoSemi             { fp (AST.NS (AST.JSBreak []   [$2]) (ss $1) (gc $1)) }
-               | 'break' Identifier AutoSemi  { fp (AST.NS (AST.JSBreak [$2] [$3]) (ss $1) (gc $1)) }
+BreakStatement : Break AutoSemi             { fp (AST.NS (AST.JSBreak [$1]    [$2]) (ex $1) []) }
+               | Break Identifier AutoSemi  { fp (AST.NS (AST.JSBreak [$1,$2] [$3]) (ex $1) []) }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSNode }
-ReturnStatement : 'return' AutoSemi             { fp (AST.NS (AST.JSReturn [$2])    (ss $1) (gc $1)) }
-                | 'return' Expression AutoSemi  { fp (AST.NS (AST.JSReturn [$2,$3]) (ss $1) (gc $1)) }
+ReturnStatement : Return AutoSemi             { fp (AST.NS (AST.JSReturn [$1,$2])    (ex $1) []) }
+                | Return Expression AutoSemi  { fp (AST.NS (AST.JSReturn [$1,$2,$3]) (ex $1) []) }
 
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement
 WithStatement :: { AST.JSNode }
-WithStatement : 'with' '(' Expression ')' Statement AutoSemi  { fp (AST.NS (AST.JSWith $3 [$5,$6]) (ss $1) (mgc [$1,$2,$4])) }
+WithStatement : With LParen Expression RParen Statement AutoSemi  { fp (AST.NS (AST.JSWith $1 $2 $3 $4 [$5,$6]) (ex $1) []) }
 
 -- SwitchStatement :                                                                        See 12.11
 --         switch ( Expression ) CaseBlock
 SwitchStatement :: { AST.JSNode }
-SwitchStatement : 'switch' '(' Expression ')' CaseBlock { (AST.NS (AST.JSSwitch $3 $5) (ss $1) (mgc [$1,$2,$4])) }
+SwitchStatement : Switch LParen Expression RParen CaseBlock { (AST.NS (AST.JSSwitch $1 $2 $3 $4 $5) (ex $1) []) }
 
 -- CaseBlock :                                                                              See 12.11
 --         { CaseClausesopt }
 --         { CaseClausesopt DefaultClause CaseClausesopt }
 CaseBlock :: { [AST.JSNode] }
-CaseBlock : '{' CaseClausesOpt '}'                              { (mpc $2 (mgc [$1,$3])       )     {- CaseBlock1 -}}
-          | '{' CaseClausesOpt DefaultClause CaseClausesOpt '}' { (mpc ($2++($3:$4)) (mgc [$1,$5])) {- CaseBlock2 -}}
+CaseBlock : LBrace CaseClausesOpt RBrace                              { ($1:$2)++[$3]           {- CaseBlock1 -}}
+          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { ($1:$2)++[$3]++$4++[$5] {- CaseBlock2 -}}
 
 -- CaseClauses :                                                                            See 12.11
 --         CaseClause
@@ -872,26 +1038,26 @@ CaseClausesOpt : CaseClause                { [$1] {- CaseClauses1 -}}
 -- CaseClause :                                                               See 12.11
 --        case Expression : StatementListopt
 CaseClause :: { AST.JSNode }
-CaseClause : 'case' Expression ':' StatementList  { fp (AST.NS (AST.JSCase $2 $4) (ss $1) (mgc [$1,$3])) }
-           | 'case' Expression ':'                { fp (AST.NS (AST.JSCase $2 (AST.NS (AST.JSStatementList []) (ss $1) [])) (ss $1) (mgc [$1,$3])) }
+CaseClause : Case Expression Colon StatementList  { fp (AST.NS (AST.JSCase $1 $2 $3 $4) (ex $1) []) }
+           | Case Expression Colon                { fp (AST.NS (AST.JSCase $1 $2 $3 (AST.NS (AST.JSStatementList []) (ex $1) [])) (ex $1) []) }
 
 -- DefaultClause :                                                            See 12.11
 --        default : StatementListopt
 DefaultClause :: { AST.JSNode }
-DefaultClause : 'default' ':'                { fp (AST.NS (AST.JSDefault (AST.NS (AST.JSStatementList []) (ss $1) [])) (ss $1) (mgc [$1,$2])) }
-              | 'default' ':' StatementList  { fp (AST.NS (AST.JSDefault $3) (ss $1) (mgc [$1,$2])) }
+DefaultClause : Default Colon                { fp (AST.NS (AST.JSDefault $1 $2 (AST.NS (AST.JSStatementList []) (ex $1) [])) (ex $1) []) }
+              | Default Colon StatementList  { fp (AST.NS (AST.JSDefault $1 $2 $3) (ex $1) []) }
 
 -- LabelledStatement :                                                        See 12.12
 --        Identifier : Statement
 LabelledStatement :: { AST.JSNode }
-LabelledStatement : Identifier ':' Statement { fp (AST.NS (AST.JSLabelled $1 $3) (ex $1) (gc $2)) }
+LabelledStatement : Identifier Colon Statement { fp (AST.NS (AST.JSLabelled $1 $2 $3) (ex $1) []) }
 
 -- ThrowStatement :                                                           See 12.13
 --        throw [no LineTerminator here] Expression ;
 -- TODO : sort out no LineTerminator here
 --        Does it need a semi at the end?
 ThrowStatement :: { AST.JSNode }
-ThrowStatement : 'throw' Expression { fp (AST.NS (AST.JSThrow $2) (ss $1) (gc $1)) }
+ThrowStatement : Throw Expression { fp (AST.NS (AST.JSThrow $1 $2) (ex $1) []) }
 
 -- Note: worked in updated syntax as per https://developer.mozilla.org/en/JavaScript/Reference/Statements/try...catch
 --   i.e., 0 or more catches, then an optional finally
@@ -900,9 +1066,9 @@ ThrowStatement : 'throw' Expression { fp (AST.NS (AST.JSThrow $2) (ss $1) (gc $1
 --        try Block Finally
 --        try Block Catch Finally
 TryStatement :: { AST.JSNode }
-TryStatement : 'try' Block Catches         { fp (AST.NS (AST.JSTry $2 $3) (ss $1) (gc $1))         {- TryStatement1 -} }
-             | 'try' Block Finally         { fp (AST.NS (AST.JSTry $2 [$3]) (ss $1) (gc $1))       {- TryStatement2 -} }
-             | 'try' Block Catches Finally { fp (AST.NS (AST.JSTry $2 ($3++[$4])) (ss $1) (gc $1)) {- TryStatement3 -} }
+TryStatement : Try Block Catches         { fp (AST.NS (AST.JSTry $1 $2 $3)         (ex $1) []) {- TryStatement1 -} }
+             | Try Block Finally         { fp (AST.NS (AST.JSTry $1 $2 [$3])       (ex $1) []) {- TryStatement2 -} }
+             | Try Block Catches Finally { fp (AST.NS (AST.JSTry $1 $2 ($3++[$4])) (ex $1) []) {- TryStatement3 -} }
 
 Catches :: { [AST.JSNode] }
 Catches : Catch         { [$1]       {- Catches 1 -} }
@@ -914,13 +1080,13 @@ Catches : Catch         { [$1]       {- Catches 1 -} }
 -- <Catch> ::= 'catch' '(' Identifier ')' <Block>
 --           | 'catch' '(' Identifier 'if' ConditionalExpression ')' <Block>
 Catch :: { AST.JSNode }
-Catch : 'catch' '(' Identifier ')' Block                 { fp (AST.NS (AST.JSCatch $3 [] $5) (ss $1) (mgc [$1,$2,$4])) }
-      | 'catch' '(' Identifier 'if' ConditionalExpression ')' Block  { fp (AST.NS (AST.JSCatch $3 $5 $7) (ss $1) (mgc [$1,$2,$4,$6])) }
+Catch : CatchL LParen Identifier RParen Block                 { fp (AST.NS (AST.JSCatch $1 $2 $3 [] $4 $5) (ex $1) []) }
+      | CatchL LParen Identifier If ConditionalExpression RParen Block { fp (AST.NS (AST.JSCatch $1 $2 $3 ($4:$5) $6 $7) (ex $1) []) }
 
 -- Finally :                                                                  See 12.14
 --        finally Block
 Finally :: { AST.JSNode }
-Finally : 'finally' Block { fp (AST.NS (AST.JSFinally $2) (ss $1) (gc $1)) }
+Finally : FinallyL Block { fp (AST.NS (AST.JSFinally $1 $2) (ex $1) []) }
 
 -- DebuggerStatement :                                                        See 12.15
 --        debugger ;
@@ -930,18 +1096,18 @@ DebuggerStatement : 'debugger' AutoSemi { fp (AST.NS (AST.JSLiteral "debugger") 
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSNode }
-FunctionDeclaration : 'function' Identifier '(' FormalParameterList ')' '{' FunctionBody '}'
-                      { fp (AST.NS (AST.JSFunction $2 $4 $7) (ss $1) (mgc[$1,$3,$5,$6,$8])) }
-                    | 'function' Identifier '(' ')' '{' FunctionBody '}'
-                      { fp (AST.NS (AST.JSFunction $2 [] $6) (ss $1) (mgc [$1,$3,$4,$5,$7])) }
+FunctionDeclaration : Function Identifier LParen FormalParameterList RParen LBrace FunctionBody RBrace
+                      { fp (AST.NS (AST.JSFunction $1 $2 $3 $4 $5 $6 $7 $8) (ex $1) []) }
+                    | Function Identifier LParen RParen LBrace FunctionBody RBrace
+                      { fp (AST.NS (AST.JSFunction $1 $2 $3 [] $4 $5 $6 $7) (ex $1) []) }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
 FunctionExpression :: { AST.JSNode }
-FunctionExpression : 'function' IdentifierOpt '(' ')' '{' FunctionBody '}'
-                     { fp (AST.NS (AST.JSFunctionExpression $2 [] $6) (ss $1) (mgc [$1,$3,$4,$5,$7])) }
-                   | 'function' IdentifierOpt '(' FormalParameterList ')' '{' FunctionBody '}'
-                     { fp (AST.NS (AST.JSFunctionExpression $2 $4 $7) (ss $1) (mgc [$1,$3,$5,$6,$8])) }
+FunctionExpression : Function IdentifierOpt LParen RParen LBrace FunctionBody RBrace
+                     { fp (AST.NS (AST.JSFunctionExpression $1 $2 $3 [] $4 $5 $6 $7) (ex $1) []) }
+                   | Function IdentifierOpt LParen FormalParameterList RParen LBrace FunctionBody RBrace
+                     { fp (AST.NS (AST.JSFunctionExpression $1 $2 $3 $4 $5 $6 $7 $8) (ex $1) []) }
 
 IdentifierOpt :: { [AST.JSNode] }
 IdentifierOpt : Identifier { [$1] {- IdentifierOpt -}}
@@ -952,7 +1118,7 @@ IdentifierOpt : Identifier { [$1] {- IdentifierOpt -}}
 --        FormalParameterList , Identifier
 FormalParameterList :: { [AST.JSNode] }
 FormalParameterList : Identifier                          { [$1] {- FormalParameterList -}}
-                    | FormalParameterList ',' Identifier  { ($1++[(pc $3 (gc $2))]) }
+                    | FormalParameterList Comma Identifier  { ($1++[$2]++[$3]) }
 
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt

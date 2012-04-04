@@ -71,21 +71,21 @@ rn :: JSNode -> Foo -> Foo
 rn (NS (JSSourceElementsTop xs) p cs) foo = rJS cs p xs foo
 rn (NS (JSSourceElements    xs) p cs) foo = rJS cs p xs foo
 rn (NS (JSExpression xs) p cs) foo        = rJS cs p xs foo
-rn (NS (JSIdentifier s) p cs) foo         = rcs cs p s foo
-rn (NS (JSOperator s) p cs) foo           = rcs cs p s foo
+rn (NS (JSIdentifier s) p cs) foo         = rcs cs p s  foo
+rn (NS (JSOperator n) p cs) foo           = rJS cs p [n] foo
 rn (NS (JSDecimal i) p cs) foo            = rcs cs p i foo
 rn (NS (JSLiteral l) p cs) foo            = rcs cs p l foo
-rn (NS (JSUnary l) p cs) foo              = rcs cs p l foo
+rn (NS (JSUnary l n) p cs) foo            = rJS cs p [n] foo
 rn (NS (JSHexInteger i) p cs) foo         = rcs cs p i foo
 rn (NS (JSStringLiteral s l) p cs) foo    = rcs cs p ((s:l)++[s]) foo
 rn (NS (JSRegEx s) p cs) foo              = rcs cs p s foo
 
 rn (NS (JSArrayLiteral lb xs rb) p []) foo  = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
 
-rn (NS (JSElision xs) p cs) foo            = rJS [] p xs (rcs cs p "," foo)
-rn (NS (JSStatementBlock x) p [c1,c2]) foo = (rcs [c2] p "}" (rJS [] p [x] (rcs [c1] p "{" foo)))
-rn (NS (JSStatementList xs) p cs) foo      = rJS cs p xs foo
-rn (NS (JSLabelled l v) p cs) foo          = (rJS [] p [v] (rcs cs p ":" (rJS [] p [l] foo)))
+rn (NS (JSElision xs) p cs) foo             = rJS [] p xs (rcs cs p "," foo)
+rn (NS (JSStatementBlock lb x rb) p []) foo = (rJS [] p [rb] (rJS [] p [x] (rJS [] p [lb] foo)))
+rn (NS (JSStatementList xs) p cs) foo       = rJS cs p xs foo
+rn (NS (JSLabelled l c v) p cs) foo           = (rJS [] p [v] (rJS cs p [c] (rJS [] p [l] foo)))
 
 rn (NS (JSObjectLiteral lb xs rb) p []) foo     = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
 rn (NS (JSPropertyNameandValue n colon vs) p []) foo  = (rJS [] p vs (rJS [] p [colon] (rJS [] p [n] foo)))
