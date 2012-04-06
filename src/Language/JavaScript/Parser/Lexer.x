@@ -339,7 +339,7 @@ classifyToken aToken =
 --lexToken :: Alex Token
 lexToken = do
   inp <- alexGetInput
-  lt <- getLastToken
+  lt  <- getLastToken
   case alexScan inp (classifyToken lt) of
     AlexEOF        -> alexEOF
     AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
@@ -365,7 +365,8 @@ lexCont cont = do
       tok <- lexToken
       case tok of
          CommentToken {} -> do
-            setComment [tok]
+            -- setComment [tok]
+            addComment tok
             lexLoop
          _other -> do
             cs <- getComment
@@ -374,7 +375,8 @@ lexCont cont = do
             cont tok'
 
 toCommentAnnotation []    = [NoComment]
-toCommentAnnotation [tok] = [(CommentA (token_span tok) (token_literal tok))]
+-- toCommentAnnotation [tok] = [(CommentA (token_span tok) (token_literal tok))]
+toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
 
 -- ---------------------------------------------------------------------
 
@@ -396,12 +398,11 @@ getComment :: Alex [Token]
 --getComments = reverse <$> Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)
 getComment = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comment ust)
 
-{-
+
 addComment :: Token -> Alex ()
-addComment c = Alex $ \s -> do
-  oldComments <- getComments
-  Right (s{alex_ust=(alex_ust s){comments=c : oldComments}}, ())
--}
+addComment c = Alex $ \s ->  Right (s{alex_ust=(alex_ust s){comment=c:(  comment (alex_ust s)  )}}, ())
+
+
 setComment :: [Token] -> Alex ()
 setComment cs = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comment=cs }}, ())
 

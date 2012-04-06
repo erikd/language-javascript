@@ -82,7 +82,7 @@ rn (NS (JSRegEx s) p cs) foo              = rcs cs p s foo
 
 rn (NS (JSArrayLiteral lb xs rb) p []) foo  = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
 
-rn (NS (JSElision xs) p cs) foo             = rJS [] p xs (rcs cs p "," foo)
+rn (NS (JSElision xs) p cs) foo             = rJS [] p xs foo
 rn (NS (JSStatementBlock lb x rb) p []) foo = (rJS [] p [rb] (rJS [] p [x] (rJS [] p [lb] foo)))
 rn (NS (JSStatementList xs) p cs) foo       = rJS cs p xs foo
 rn (NS (JSLabelled l c v) p cs) foo           = (rJS [] p [v] (rJS cs p [c] (rJS [] p [l] foo)))
@@ -100,20 +100,17 @@ rn (NS (JSPropertyAccessor s n lb1 ps rb1 lb2 b rb2) p []) foo =
   (rJS [] p ps
   (rJS [] p [lb1]
   (rJS [] p [n]
-  (rcs [] p " "
-  (rJS [] p [s] foo)))))))))
+  (rJS [] p [s] foo))))))))
 
--- NOTE: the comments for the brackets are attached to JSFunction. Oops.
-rn (NS (JSFunctionBody xs) p cs) foo = (rcs [] p "}" (rJS [] p xs (rcs cs p "{" foo)))
+-- NOTE: the braces are attached to the surrounding production
+rn (NS (JSFunctionBody xs) p []) foo = (rJS [] p xs foo)
 
 
 -- rn (JSReturn [])                 = (text "return")
 -- rn (JSReturn [(NS (JSLiteral ";") _ _)])    = (text "return;")
 -- rn (JSReturn xs)                 = (text "return") <> (if (spaceNeeded xs) then (text " ") else (empty)) <> (rJS xs)
 
-rn (NS (JSReturn [])                            p cs) foo = (rcs cs p "return" foo)
-rn (NS (JSReturn [(NS (JSLiteral ";") p1 cs1)]) p cs) foo = (rcs cs1 p1 ";" (rcs cs p "return" foo))
-rn (NS (JSReturn xs)                            p cs) foo = (rJS [] p xs (rcs cs p "return" foo))
+rn (NS (JSReturn xs) p []) foo = (rJS [] p xs foo)
 
 -- Debug helper
 rn what foo = rs (show what) foo

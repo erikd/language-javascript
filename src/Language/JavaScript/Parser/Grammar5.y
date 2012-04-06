@@ -441,8 +441,6 @@ ArrayLiteral : LSquare RSquare                 { fp (AST.NS (AST.JSArrayLiteral 
 ElementList :: { [AST.JSNode] }
 ElementList : Elision AssignmentExpression                 { (($1)++($2)) {- ElementList -}}
             | AssignmentExpression                         { $1           {- ElementList -}}
-            -- | ElementList ',' Elision AssignmentExpression { (($1)++[fp (AST.NS (AST.JSElision []) (ss $2) (gc $2))]++($3)++($4)) {- ElementList -}}
-            -- | ElementList ',' AssignmentExpression         { (($1)++[fp (AST.NS (AST.JSElision []) (ss $2) (gc $2))]++($3)) {- ElementList -}}
             | ElementList Comma Elision AssignmentExpression { (($1)++[fp (AST.NS (AST.JSElision [$2]) (ex $2) [])]++($3)++($4)) {- ElementList -}}
             | ElementList Comma AssignmentExpression         { (($1)++[fp (AST.NS (AST.JSElision [$2]) (ex $2) [])]++($3)) {- ElementList -}}
 
@@ -451,7 +449,7 @@ ElementList : Elision AssignmentExpression                 { (($1)++($2)) {- Ele
 --        ,
 --        Elision ,
 Elision :: { [AST.JSNode] }
-Elision : Comma        { [fp (AST.NS (AST.JSElision [$1]) (ex $1) [])] }
+Elision : Comma        { [        fp (AST.NS (AST.JSElision [$1]) ( ex $1) [])] }
         | Elision Comma { ($1 ++ [fp (AST.NS (AST.JSElision [$2]) (mex $1) [])]) }
 
 -- ObjectLiteral :                                                       See 11.1.5
@@ -1123,8 +1121,8 @@ FormalParameterList : Identifier                          { [$1] {- FormalParame
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
 FunctionBody :: { AST.JSNode }
-FunctionBody : SourceElements { (AST.NS (AST.JSFunctionBody [$1]) (ex $1) []) }
-             |                { (AST.NS (AST.JSFunctionBody [])   tokenPosnEmpty []) }
+FunctionBody : SourceElements { (AST.NS (AST.JSFunctionBody [$1]) (ex $1)        []) }
+             |                { (AST.NS (AST.JSFunctionBody []  ) tokenPosnEmpty []) }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
