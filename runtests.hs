@@ -73,7 +73,7 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral2"    (testPE "{x:1}"     "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]])")
     , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]])")
 
-    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression [JSIdentifier \"load\"] [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSLiteral \"return\",JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]),JSExpression [JSDecimal \"1\"]]])]])")
+    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression [JSIdentifier \"load\"] [JSIdentifier \"s\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSIdentifier \"x\"]) (JSReturn [JSLiteral \"return\",JSExpression [JSIdentifier \"s\"],JSLiteral \";\"]) ([]),JSExpression [JSDecimal \"1\"]]])]])")
 
     , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"])")
 
@@ -171,10 +171,10 @@ testSuite = testGroup "Parser"
     , testCase "Block4" (testStmt "{{}}"     "Right (JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [])]))")
     , testCase "Block5" (testStmt "{{{}}}"   "Right (JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [])])]))")
 
-    , testCase "If1" (testStmt "if (1) {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSStatementBlock (JSStatementList [])))")
+    , testCase "If1" (testStmt "if (1) {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSStatementBlock (JSStatementList [])) ([]))")
 
-    , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [JSStatementBlock (JSStatementList [])])) (JSStatementBlock (JSStatementList [])))")
-    , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [JSBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"])])) (JSStatementBlock (JSStatementList [])))")
+    , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [JSStatementBlock (JSStatementList [])])) ([JSLiteral \"else\",JSStatementBlock (JSStatementList [])]))")
+    , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [JSBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"])])) ([JSLiteral \"else\",JSStatementBlock (JSStatementList [])]))")
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"   "Right (JSDoWhile (JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
@@ -230,13 +230,13 @@ testSuite = testGroup "Parser"
     , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"z\",JSOperator JSLiteral \"=\",JSDecimal \"2\"],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
 
     , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\""
-                                   "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new \",JSIdentifier \"Error\",JSArguments [JSStringLiteral '\\'' \"Must specify an animal name\"]]),JSLiteral \";\"])),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator JSLiteral \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator JSLiteral \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator JSLiteral \"=\",JSLiteral \"new \",JSIdentifier \"Animal\",JSArguments [JSStringLiteral '\"' \"bob\"]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]]])")
+                                   "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new \",JSIdentifier \"Error\",JSArguments [JSStringLiteral '\\'' \"Must specify an animal name\"]]),JSLiteral \";\"])) ([]),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator JSLiteral \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator JSLiteral \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator JSLiteral \"=\",JSLiteral \"new \",JSIdentifier \"Animal\",JSArguments [JSStringLiteral '\"' \"bob\"]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]]])")
 
     , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"Animal\",JSOperator JSLiteral \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\"])")
 
-    , testCase "min_100_animals3" (testProg "if(a)x=1;y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"])),JSExpression [JSIdentifier \"y\",JSOperator JSLiteral \"=\",JSDecimal \"2\"]])")
+    , testCase "min_100_animals3" (testProg "if(a)x=1;y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"])) ([]),JSExpression [JSIdentifier \"y\",JSOperator JSLiteral \"=\",JSDecimal \"2\"]])")
 
-    , testCase "min_100_animals4" (testProg "if(a)x=a()y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSIdentifier \"a\",JSArguments []]),JSExpression [JSIdentifier \"y\",JSOperator JSLiteral \"=\",JSDecimal \"2\"]])")
+    , testCase "min_100_animals4" (testProg "if(a)x=a()y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSIdentifier \"a\",JSArguments []]) ([]),JSExpression [JSIdentifier \"y\",JSOperator JSLiteral \"=\",JSDecimal \"2\"]])")
 
     , testCase "05_regex"  (testProg "newlines=spaces.match(/\\n/g)" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"newlines\",JSOperator JSLiteral \"=\",JSMemberDot [JSIdentifier \"spaces\"] (JSIdentifier \"match\"),JSArguments [JSRegEx \"/\\\\n/g\"]]])")
 
@@ -246,9 +246,10 @@ testSuite = testGroup "Parser"
 
     , testCase "05_regex4" (testProg "x=i(/^$/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSIdentifier \"i\",JSArguments [JSRegEx \"/^$/g\",JSLiteral \",\",JSStringLiteral '\"' \"\\\\\\\\$&\"]]])")
 
-   , testCase "05_regex5" (testProg "if(/^[a-z]/.test(t)){consts+=t.toUpperCase();keywords[t]=i}else consts+=(/^\\W/.test(t)?opTypeNames[t]:t);" "Right (JSSourceElementsTop [JSIfElse (JSExpression [JSMemberDot [JSRegEx \"/^[a-z]/\"] (JSIdentifier \"test\"),JSArguments [JSIdentifier \"t\"]]) (JSBlock (JSStatementList [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"consts\",JSOperator JSLiteral \"+=\",JSMemberDot [JSIdentifier \"t\"] (JSIdentifier \"toUpperCase\"),JSArguments []],JSLiteral \";\",JSExpression [JSMemberSquare [JSIdentifier \"keywords\"] (JSExpression [JSIdentifier \"t\"]),JSOperator JSLiteral \"=\",JSIdentifier \"i\"]])])) (JSExpression [JSIdentifier \"consts\",JSOperator JSLiteral \"+=\",JSExpressionParen (JSExpression [JSExpressionTernary [JSMemberDot [JSRegEx \"/^\\\\W/\"] (JSIdentifier \"test\"),JSArguments [JSIdentifier \"t\"]] [JSMemberSquare [JSIdentifier \"opTypeNames\"] (JSExpression [JSIdentifier \"t\"])] [JSIdentifier \"t\"]])]),JSLiteral \";\"])")
+   , testCase "05_regex5" (testProg "if(/^[a-z]/.test(t)){consts+=t.toUpperCase();keywords[t]=i}else consts+=(/^\\W/.test(t)?opTypeNames[t]:t);"
+                           "Right (JSSourceElementsTop [JSIf (JSExpression [JSMemberDot [JSRegEx \"/^[a-z]/\"] (JSIdentifier \"test\"),JSArguments [JSIdentifier \"t\"]]) (JSBlock (JSStatementList [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"consts\",JSOperator JSLiteral \"+=\",JSMemberDot [JSIdentifier \"t\"] (JSIdentifier \"toUpperCase\"),JSArguments []],JSLiteral \";\",JSExpression [JSMemberSquare [JSIdentifier \"keywords\"] (JSExpression [JSIdentifier \"t\"]),JSOperator JSLiteral \"=\",JSIdentifier \"i\"]])])) ([JSLiteral \"else\",JSExpression [JSIdentifier \"consts\",JSOperator JSLiteral \"+=\",JSExpressionParen (JSExpression [JSExpressionTernary [JSMemberDot [JSRegEx \"/^\\\\W/\"] (JSIdentifier \"test\"),JSArguments [JSIdentifier \"t\"]] [JSMemberSquare [JSIdentifier \"opTypeNames\"] (JSExpression [JSIdentifier \"t\"])] [JSIdentifier \"t\"]])]]),JSLiteral \";\"])")
 
-   , testCase "if_semi" (testProg "if(x);x=1" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"x\"]) (JSLiteral \";\"),JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])")
+   , testCase "if_semi" (testProg "if(x);x=1" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"x\"]) (JSLiteral \";\") ([]),JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])")
 
    , testCase "67_bob" (testProg "(match = /^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/(input))" "Right (JSSourceElementsTop [JSExpression [JSExpressionParen (JSExpression [JSIdentifier \"match\",JSOperator JSLiteral \"=\",JSRegEx \"/^\\\"(?:\\\\\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\\\\\.)*'/\",JSArguments [JSIdentifier \"input\"]])]])")
 
@@ -692,215 +693,215 @@ commentPrintSuite = testGroup "Comments"
 
     , testCase "Statement12e"       (testRoundTrip "/*a*/x /*b*/instanceof /*c*/y")
 
-      {-
 
 
-    , testCase "Statement13"       (testStmt "x<<y"     "Right (JSExpression [JSExpressionBinary \"<<\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement13"       (testStmt "x>>y"     "Right (JSExpression [JSExpressionBinary \">>\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement13"       (testStmt "x>>>y"     "Right (JSExpression [JSExpressionBinary \">>>\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
+    , testCase "Statement13"       (testRoundTrip "x<<y")
+    , testCase "Statement13"       (testRoundTrip "x>>y")
+    , testCase "Statement13"       (testRoundTrip "x>>>y")
 
-    , testCase "Statement14"       (testStmt "x+y"     "Right (JSExpression [JSExpressionBinary \"+\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement14"       (testStmt "x-y"     "Right (JSExpression [JSExpressionBinary \"-\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
+    , testCase "Statement14"       (testRoundTrip "x+y")
+    , testCase "Statement14"       (testRoundTrip "x-y")
 
-    , testCase "Statement15"       (testStmt "x*y"     "Right (JSExpression [JSExpressionBinary \"*\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement16"       (testStmt "x/y"     "Right (JSExpression [JSExpressionBinary \"/\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
-    , testCase "Statement17"       (testStmt "x%y"     "Right (JSExpression [JSExpressionBinary \"%\" [JSIdentifier \"x\"] [JSIdentifier \"y\"]])")
+    , testCase "Statement15"       (testRoundTrip "x*y")
+    , testCase "Statement16"       (testRoundTrip "x/y")
+    , testCase "Statement17"       (testRoundTrip "x%y")
 
-    , testCase "Statement18"       (testStmt "delete y"  "Right (JSExpression [JSUnary \"delete \",JSIdentifier \"y\"])")
-    , testCase "Statement19"       (testStmt "void y"    "Right (JSExpression [JSUnary \"void \",JSIdentifier \"y\"])")
-    , testCase "Statement20"       (testStmt "typeof y"  "Right (JSExpression [JSUnary \"typeof \",JSIdentifier \"y\"])")
-    , testCase "Statement21"       (testStmt "++y"    "Right (JSExpression [JSUnary \"++\",JSIdentifier \"y\"])")
-    , testCase "Statement22"       (testStmt "--y"    "Right (JSExpression [JSUnary \"--\",JSIdentifier \"y\"])")
-    , testCase "Statement23"       (testStmt "+y"     "Right (JSExpression [JSUnary \"+\",JSIdentifier \"y\"])")
-    , testCase "Statement24"       (testStmt "-y"     "Right (JSExpression [JSUnary \"-\",JSIdentifier \"y\"])")
-    , testCase "Statement25"       (testStmt "~y"     "Right (JSExpression [JSUnary \"~\",JSIdentifier \"y\"])")
-    , testCase "Statement26"       (testStmt "!y"     "Right (JSExpression [JSUnary \"!\",JSIdentifier \"y\"])")
+    , testCase "Statement18"       (testRoundTrip "delete y")
+    , testCase "Statement19"       (testRoundTrip "void y")
+    , testCase "Statement20"       (testRoundTrip "typeof y")
+    , testCase "Statement21"       (testRoundTrip "++y")
+    , testCase "Statement22"       (testRoundTrip "--y")
+    , testCase "Statement23"       (testRoundTrip "+y")
+    , testCase "Statement24"       (testRoundTrip "-y")
+    , testCase "Statement25"       (testRoundTrip "~y")
+    , testCase "Statement26"       (testRoundTrip "!y")
 
-    , testCase "Statement27"       (testStmt "y++"     "Right (JSExpression [JSExpressionPostfix \"++\" [JSIdentifier \"y\"]])")
-    , testCase "Statement28"       (testStmt "y--"     "Right (JSExpression [JSExpressionPostfix \"--\" [JSIdentifier \"y\"]])")
+    , testCase "Statement27"       (testRoundTrip "y++")
+    , testCase "Statement28"       (testRoundTrip "y--")
 
       -- Member Expressions
-    , testCase "MemberExpression1" (testStmt "function(){}"    "Right (JSExpression [JSFunctionExpression [] [] (JSFunctionBody [])])")
-    , testCase "MemberExpression1" (testStmt "function(a){}"    "Right (JSExpression [JSFunctionExpression [] [JSIdentifier \"a\"] (JSFunctionBody [])])")
-    , testCase "MemberExpression1" (testStmt "function(a,b){}"  "Right (JSExpression [JSFunctionExpression [] [JSIdentifier \"a\",JSIdentifier \"b\"] (JSFunctionBody [])])")
+    , testCase "MemberExpression1" (testRoundTrip "function(){}")
+    , testCase "MemberExpression1" (testRoundTrip "function(a){}")
+    , testCase "MemberExpression1" (testRoundTrip "function(a,b){}")
 
-    , testCase "MemberExpression1" (testStmt "x[y]"     "Right (JSExpression [JSMemberSquare [JSIdentifier \"x\"] (JSExpression [JSIdentifier \"y\"])])")
-    , testCase "MemberExpression1" (testStmt "x[y][z]"  "Right (JSExpression [JSMemberSquare [JSMemberSquare [JSIdentifier \"x\"] (JSExpression [JSIdentifier \"y\"])] (JSExpression [JSIdentifier \"z\"])])")
-    , testCase "MemberExpression1" (testStmt "x.y"      "Right (JSExpression [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
-    , testCase "MemberExpression1" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")] (JSIdentifier \"z\")])")
+    , testCase "MemberExpression1" (testRoundTrip "x[y]")
+    , testCase "MemberExpression1" (testRoundTrip "x[y][z]")
+    , testCase "MemberExpression1" (testRoundTrip "x.y")
+    , testCase "MemberExpression1" (testRoundTrip "x.y.z")
 
-    , testCase "MemberExpression1" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new \",JSIdentifier \"x\",JSArguments []])")
+    , testCase "MemberExpression1" (testRoundTrip "new x()")
 
-    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new \",JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
+    , testCase "NewExpression1" (testRoundTrip "new x.y")
 
-    , testCase "CallExpression1" (testStmt "x()"     "Right (JSExpression [JSIdentifier \"x\",JSArguments []])")
-    , testCase "CallExpression2" (testStmt "x()()"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"()\" [JSArguments []]])")
-    , testCase "CallExpression3" (testStmt "x()[4]"  "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"[]\" [JSExpression [JSDecimal \"4\"]]])")
-    , testCase "CallExpression4" (testStmt "x().x"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \".\" [JSIdentifier \"x\"]])")
-    , testCase "CallExpression5" (testStmt "x(a,b=2).x"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [[JSIdentifier \"a\"],[JSIdentifier \"b\",JSOperator \"=\",JSDecimal \"2\"]],JSCallExpression \".\" [JSIdentifier \"x\"]])")
+    , testCase "CallExpression1" (testRoundTrip "x()")
+    , testCase "CallExpression2" (testRoundTrip "x()()")
+    , testCase "CallExpression3" (testRoundTrip "x()[4]")
+    , testCase "CallExpression4" (testRoundTrip "x().x")
+    , testCase "CallExpression5" (testRoundTrip "x(a,b=2).x")
 
-    , testCase "AssignExpression1" (testStmt "x=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x*=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"*=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x/=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"/=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x%=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"%=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x+=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"+=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x-=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"-=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x<<=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"<<=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x>>=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \">>=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x>>>=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \">>>=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x&=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"&=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x^=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"^=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression1" (testStmt "x|=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator \"|=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression1" (testRoundTrip "x=1")
+    , testCase "AssignExpression1" (testRoundTrip "x*=1")
+    , testCase "AssignExpression1" (testRoundTrip "x/=1")
+    , testCase "AssignExpression1" (testRoundTrip "x%=1")
+    , testCase "AssignExpression1" (testRoundTrip "x+=1")
+    , testCase "AssignExpression1" (testRoundTrip "x-=1")
+    , testCase "AssignExpression1" (testRoundTrip "x<<=1")
+    , testCase "AssignExpression1" (testRoundTrip "x>>=1")
+    , testCase "AssignExpression1" (testRoundTrip "x>>>=1")
+    , testCase "AssignExpression1" (testRoundTrip "x&=1")
+    , testCase "AssignExpression1" (testRoundTrip "x^=1")
+    , testCase "AssignExpression1" (testRoundTrip "x|=1")
 
 
-    , testCase "Block1" (testStmt "{}"     "Right (JSStatementBlock (JSStatementList []))")
-    , testCase "Block2" (testStmt "{x=1}"  "Right (JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]]))")
-    , testCase "Block3" (testStmt "{x=1;y=2}"   "Right (JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\",JSExpression [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]]))")
-    , testCase "Block4" (testStmt "{{}}"     "Right (JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [])]))")
-    , testCase "Block5" (testStmt "{{{}}}"   "Right (JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [JSStatementBlock (JSStatementList [])])]))")
+    , testCase "Block1" (testRoundTrip "{}")
+    , testCase "Block2" (testRoundTrip "{x=1}")
+    , testCase "Block3" (testRoundTrip "{x=1;y=2}")
+    , testCase "Block4" (testRoundTrip "{{}}")
+    , testCase "Block5" (testRoundTrip "{{{}}}")
 
-    , testCase "If1" (testStmt "if (1) {}"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) (JSStatementBlock (JSStatementList [])))")
 
-    , testCase "IfElse1" (testStmt "if (1) {} else {}"   "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSStatementBlock (JSStatementList [])) (JSStatementBlock (JSStatementList [])))")
-    , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIfElse (JSExpression [JSDecimal \"1\"]) (JSBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]])) (JSStatementBlock (JSStatementList [])))")
+    , testCase "If1" (testRoundTrip "if (1) {}")
 
-    , testCase "DoWhile1" (testStmt "do {x=1} while (true);"   "Right (JSDoWhile (JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
-    , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
+    , testCase "IfElse1" (testRoundTrip "if (1) {} else {}")
+    , testCase "IfElse2" (testRoundTrip "if (1) x=1; else {}")
 
-    , testCase "For1"   (testStmt "for(;;);"             "Right (JSFor [] [] [] (JSLiteral \";\"))")
-    , testCase "For2"   (testStmt "for(x=1;x<10;x++);"   "Right (JSFor [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]] [JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"10\"]]] [JSExpression [JSExpressionPostfix \"++\" [JSIdentifier \"x\"]]] (JSLiteral \";\"))")
+    , testCase "DoWhile1" (testRoundTrip "do {x=1} while (true);")
+    , testCase "While1"   (testRoundTrip "while(true);")
 
-    , testCase "ForVar1"   (testStmt "for(var x;;);"            "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [] [] (JSLiteral \";\"))")
-    , testCase "ForVar2"   (testStmt "for(var x=1;;);"          "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"]] [] [] (JSLiteral \";\"))")
-    , testCase "ForVar2"   (testStmt "for(var x;y;z){}"         "Right (JSForVar [JSVarDecl (JSIdentifier \"x\") []] [JSExpression [JSIdentifier \"y\"]] [JSExpression [JSIdentifier \"z\"]] (JSStatementBlock (JSStatementList [])))")
+    , testCase "For1"   (testRoundTrip "for(;;);")
+    , testCase "For2"   (testRoundTrip "for(x=1;x<10;x++);")
 
-    , testCase "ForIn1"   (testStmt "for(x in 5){}"         "Right (JSForIn [JSIdentifier \"x\"] (JSExpression [JSDecimal \"5\"]) (JSStatementBlock (JSStatementList [])))")
+    , testCase "ForVar1"   (testRoundTrip "for(var x;;);")
+    , testCase "ForVar2"   (testRoundTrip "for(var x=1;;);")
+    , testCase "ForVar2"   (testRoundTrip "for(var x;y;z){}")
 
-    , testCase "ForVarIn1" (testStmt "for(var x in 5){}"    "Right (JSForVarIn (JSVarDecl (JSIdentifier \"x\") []) (JSExpression [JSDecimal \"5\"]) (JSStatementBlock (JSStatementList [])))")
+    , testCase "ForIn1"   (testRoundTrip "for(x in 5){}")
 
-    , testCase "Var1" (testStmt "var x=1;"        "Right (JSVariables \"var\" [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"]])")
-    , testCase "Var2" (testStmt "const x=1,y=2;"  "Right (JSVariables \"const\" [JSVarDecl (JSIdentifier \"x\") [JSDecimal \"1\"],JSVarDecl (JSIdentifier \"y\") [JSDecimal \"2\"]])")
+    , testCase "ForVarIn1" (testRoundTrip "for(var x in 5){}")
 
-    , testCase "Continue1" (testStmt "continue;"       "Right (JSContinue [JSLiteral \";\"])")
-    , testCase "Continue2" (testStmt "continue x;"     "Right (JSContinue [JSIdentifier \"x\",JSLiteral \";\"])")
+    , testCase "Var1" (testRoundTrip "var x=1;")
+    , testCase "Var2" (testRoundTrip "const x=1,y=2;")
 
-    , testCase "Break1" (testStmt "break;"       "Right (JSBreak [] [JSLiteral \";\"])")
-    , testCase "Break2" (testStmt "break x;"     "Right (JSBreak [JSIdentifier \"x\"] [JSLiteral \";\"])")
 
-    , testCase "Return1" (testStmt "return;"       "Right (JSReturn [JSLiteral \";\"])")
-    , testCase "Return2" (testStmt "return x;"     "Right (JSReturn [JSExpression [JSIdentifier \"x\"],JSLiteral \";\"])")
+    , testCase "Continue1" (testRoundTrip "continue;")
+    , testCase "Continue2" (testRoundTrip "continue x;")
 
-    , testCase "With1" (testStmt "with (x) {};"    "Right (JSWith (JSExpression [JSIdentifier \"x\"]) [JSStatementBlock (JSStatementList []),JSLiteral \";\"])")
+    , testCase "Break1" (testRoundTrip "break;")
+    , testCase "Break2" (testRoundTrip "break x;")
 
-    , testCase "Labelled1" (testStmt "abc:x=1"    "Right (JSLabelled (JSIdentifier \"abc\") (JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]))")
+    , testCase "Return1" (testRoundTrip "return;")
+    , testCase "Return2" (testRoundTrip "return x;")
 
-    , testCase "Switch1" (testStmt "switch (x) {}" "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSLiteral \"\"])")
-    , testCase "Switch2" (testStmt "switch (x) {case 1:break;}"          "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
-    , testCase "Switch3" (testStmt "switch (x) {case 0:\ncase 1:break;}"  "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSCase (JSExpression [JSDecimal \"0\"]) (JSStatementList []),JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
-    , testCase "Switch4" (testStmt "switch (x) {default:break;}"          "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSLiteral \"\",JSDefault (JSStatementList [JSBreak [] [JSLiteral \";\"]]),JSLiteral \"\"])")
-    , testCase "Switch5" (testStmt "switch (x) {default:\ncase 1:break;}"   "Right (JSSwitch (JSExpression [JSIdentifier \"x\"]) [JSLiteral \"\",JSDefault (JSStatementList []),JSCase (JSExpression [JSDecimal \"1\"]) (JSStatementList [JSBreak [] [JSLiteral \";\"]])])")
+    , testCase "With1" (testRoundTrip "with (x) {};")
 
-    , testCase "Throw1" (testStmt "throw 1"   "Right (JSThrow (JSExpression [JSDecimal \"1\"]))")
+    , testCase "Labelled1" (testRoundTrip "abc:x=1")
 
-    , testCase "Try1" (testStmt "try{}catch(a){}"            "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [] (JSBlock (JSStatementList []))])")
-    , testCase "Try2" (testStmt "try{}finally{}"             "Right (JSTry (JSBlock (JSStatementList [])) [JSFinally (JSBlock (JSStatementList []))])")
-    , testCase "Try3" (testStmt "try{}catch(a){}finally{}"   "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [] (JSBlock (JSStatementList [])),JSFinally (JSBlock (JSStatementList []))])")
+    , testCase "Switch1" (testRoundTrip "switch (x) {}")
+    , testCase "Switch2" (testRoundTrip "switch (x) {case 1:break;}")
+    , testCase "Switch3" (testRoundTrip "switch (x) {case 0:\ncase 1:break;}")
+    , testCase "Switch4" (testRoundTrip "switch (x) {default:break;}")
+    , testCase "Switch5" (testRoundTrip "switch (x) {default:\ncase 1:break;}")
 
-    , testCase "Try4" (testStmt "try{}catch(a){}catch(b){}finally{}"   "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [] (JSBlock (JSStatementList [])),JSCatch (JSIdentifier \"b\") [] (JSBlock (JSStatementList [])),JSFinally (JSBlock (JSStatementList []))])")
-    , testCase "Try5" (testStmt "try{}catch(a){}catch(b){}"            "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [] (JSBlock (JSStatementList [])),JSCatch (JSIdentifier \"b\") [] (JSBlock (JSStatementList []))])")
-    , testCase "Try6" (testStmt "try{}catch(a if true){}catch(b){}"     "Right (JSTry (JSBlock (JSStatementList [])) [JSCatch (JSIdentifier \"a\") [JSLiteral \"true\"] (JSBlock (JSStatementList [])),JSCatch (JSIdentifier \"b\") [] (JSBlock (JSStatementList []))])")
+    , testCase "Throw1" (testRoundTrip "throw 1")
 
-    , testCase "Function1" (testProg "function a(){}"      "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"a\") [] (JSFunctionBody [])])")
-    , testCase "Function2" (testProg "function a(b,c){}"   "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"a\") [JSIdentifier \"b\",JSIdentifier \"c\"] (JSFunctionBody [])])")
+    , testCase "Try1" (testRoundTrip "try{}catch(a){}")
+    , testCase "Try2" (testRoundTrip "try{}finally{}")
+    , testCase "Try3" (testRoundTrip "try{}catch(a){}finally{}")
 
-    , testCase "Comment1" (testProg "//blah\nx=1;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
+    , testCase "Try4" (testRoundTrip "try{}catch(a){}catch(b){}finally{}")
+    , testCase "Try5" (testRoundTrip "try{}catch(a){}catch(b){}")
+    , testCase "Try6" (testRoundTrip "try{}catch(a if true){}catch(b){}")
 
-    , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
+    , testCase "Function1" (testRoundTrip "function a(){}")
+    , testCase "Function2" (testRoundTrip "function a(b,c){}")
 
-    , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new \",JSIdentifier \"Error\",JSArguments [[JSStringLiteral '\\'' \"Must specify an animal name\"]]])])),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator \"=\",JSLiteral \"new \",JSIdentifier \"Animal\",JSArguments [[JSStringLiteral '\"' \"bob\"]]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]]])")
 
-    , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\"])")
+    , testCase "Comment1" (testRoundTrip "//blah\nx=1;//foo\na")
 
-    , testCase "min_100_animals3" (testProg "if(a)x=1;y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSBlock (JSStatementList [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]])),JSExpression [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]])")
+    , testCase "Comment2" (testRoundTrip "/*x=1\ny=2\n*/z=2;//foo\na")
 
-    , testCase "min_100_animals4" (testProg "if(a)x=a()y=2" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"a\"]) (JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"a\",JSArguments []]),JSExpression [JSIdentifier \"y\",JSOperator \"=\",JSDecimal \"2\"]])")
+    , testCase "min_100_animals1" (testRoundTrip "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"")
 
-    , testCase "05_regex"  (testProg "newlines=spaces.match(/\\n/g)" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"newlines\",JSOperator \"=\",JSMemberDot [JSIdentifier \"spaces\"] (JSIdentifier \"match\"),JSArguments [[JSRegEx \"/\\\\n/g\"]]]])")
+    , testCase "min_100_animals2" (testRoundTrip "Animal=function(){return this.name};")
 
-    , testCase "05_regex2" (testProg "x=/\\n/g" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSRegEx \"/\\\\n/g\"]])")
+    , testCase "min_100_animals3" (testRoundTrip "if(a)x=1;y=2")
 
-    , testCase "05_regex3" (testProg "x=i(/[?|^&(){}\\[\\]+\\-*\\/\\.]/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"i\",JSArguments [[JSRegEx \"/[?|^&(){}\\\\[\\\\]+\\\\-*\\\\/\\\\.]/g\"],[JSStringLiteral '\"' \"\\\\\\\\$&\"]]]])")
+    , testCase "min_100_animals4" (testRoundTrip "if(a)x=a()y=2")
 
-    , testCase "05_regex4" (testProg "x=i(/^$/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSIdentifier \"i\",JSArguments [[JSRegEx \"/^$/g\"],[JSStringLiteral '\"' \"\\\\\\\\$&\"]]]])")
+    , testCase "05_regex"  (testRoundTrip "newlines=spaces.match(/\\n/g)")
 
-   , testCase "05_regex5" (testProg "if(/^[a-z]/.test(t)){consts+=t.toUpperCase();keywords[t]=i}else consts+=(/^\\W/.test(t)?opTypeNames[t]:t);" "Right (JSSourceElementsTop [JSIfElse (JSExpression [JSMemberDot [JSRegEx \"/^[a-z]/\"] (JSIdentifier \"test\"),JSArguments [[JSIdentifier \"t\"]]]) (JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"consts\",JSOperator \"+=\",JSMemberDot [JSIdentifier \"t\"] (JSIdentifier \"toUpperCase\"),JSArguments []],JSLiteral \";\",JSExpression [JSMemberSquare [JSIdentifier \"keywords\"] (JSExpression [JSIdentifier \"t\"]),JSOperator \"=\",JSIdentifier \"i\"]])) (JSExpression [JSIdentifier \"consts\",JSOperator \"+=\",JSExpressionParen (JSExpression [JSExpressionTernary [JSMemberDot [JSRegEx \"/^\\\\W/\"] (JSIdentifier \"test\"),JSArguments [[JSIdentifier \"t\"]]] [JSMemberSquare [JSIdentifier \"opTypeNames\"] (JSExpression [JSIdentifier \"t\"])] [JSIdentifier \"t\"]])]),JSLiteral \";\"])")
+    , testCase "05_regex2" (testRoundTrip "x=/\\n/g")
 
-   , testCase "if_semi" (testProg "if(x);x=1" "Right (JSSourceElementsTop [JSIf (JSExpression [JSIdentifier \"x\"]) (JSLiteral \";\"),JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"]])")
+    , testCase "05_regex3" (testRoundTrip "x=i(/[?|^&(){}\\[\\]+\\-*\\/\\.]/g,\"\\\\$&\")")
 
-   , testCase "67_bob" (testProg "(match = /^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/(input))" "Right (JSSourceElementsTop [JSExpression [JSExpressionParen (JSExpression [JSIdentifier \"match\",JSOperator \"=\",JSRegEx \"/^\\\"(?:\\\\\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\\\\\.)*'/\",JSArguments [[JSIdentifier \"input\"]]])]])")
+    , testCase "05_regex4" (testRoundTrip "x=i(/^$/g,\"\\\\$&\")")
 
-   , testCase "122_jsexec" (testProg "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"v\",JSOperator \"=\",JSExpressionBinary \" in \" [JSIdentifier \"getValue\",JSArguments [[JSIdentifier \"execute\",JSArguments [[JSMemberSquare [JSIdentifier \"n\"] (JSExpression [JSDecimal \"0\"])],[JSIdentifier \"x\"]]]]] [JSIdentifier \"getValue\",JSArguments [[JSIdentifier \"execute\",JSArguments [[JSMemberSquare [JSIdentifier \"n\"] (JSExpression [JSDecimal \"1\"])],[JSIdentifier \"x\"]]]]]],JSLiteral \";\"])")
+   , testCase "05_regex5" (testRoundTrip "if(/^[a-z]/.test(t)){consts+=t.toUpperCase();keywords[t]=i}else consts+=(/^\\W/.test(t)?opTypeNames[t]:t);")
 
-   , testCase "bug1" (testProg "/* */\nfunction f() {\n/*  */\n}\n" "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"f\") [] (JSFunctionBody [])])")
-   , testCase "bug1" (testProg "/* **/\nfunction f() {\n/*  */\n}\n" "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"f\") [] (JSFunctionBody [])])")
+   , testCase "if_semi" (testRoundTrip "if(x);x=1")
 
-   , testCase "unicode1-ws" (testProg "a \f\v\t\r\n=\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\&1;" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"])")
+   , testCase "67_bob" (testRoundTrip "(match = /^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/(input))")
 
-   , testCase "unicode2-lt" (testProg "//comment\x000Ax=1;" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"])")
-   , testCase "unicode3-lt" (testProg "//comment\x000Dx=1;" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"])")
-   , testCase "unicode4-lt" (testProg "//comment\x2028x=1;" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"])")
-   , testCase "unicode5-lt" (testProg "//comment\x2029x=1;" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"])")
+   , testCase "122_jsexec" (testRoundTrip "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));")
 
-   , testCase "unicode2" (testProg "àáâãäå = 1;" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"])")
+   , testCase "bug1" (testRoundTrip "/* */\nfunction f() {\n/*  */\n}\n")
+   , testCase "bug1" (testRoundTrip "/* **/\nfunction f() {\n/*  */\n}\n")
 
-   , testCase "unicode3" (testProg "$aà = 1;_b=2;\0065a=2"  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"$a\\224\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\",JSExpression [JSIdentifier \"_b\",JSOperator \"=\",JSDecimal \"2\"],JSLiteral \";\",JSExpression [JSIdentifier \"Aa\",JSOperator \"=\",JSDecimal \"2\"]])")
+   , testCase "unicode1-ws" (testRoundTrip "a \f\v\t\r\n=\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\&1;")
 
-   , testCase "unicode4" (testProg "x=\"àáâãäå\";y='\3012a\0068'" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"\\224\\225\\226\\227\\228\\229\"],JSLiteral \";\",JSExpression [JSIdentifier \"y\",JSOperator \"=\",JSStringLiteral '\\'' \"\\3012aD\"]])")
+   , testCase "unicode2-lt" (testRoundTrip "//comment\x000Ax=1;")
+   , testCase "unicode3-lt" (testRoundTrip "//comment\x000Dx=1;")
+   , testCase "unicode4-lt" (testRoundTrip "//comment\x2028x=1;")
+   , testCase "unicode5-lt" (testRoundTrip "//comment\x2029x=1;")
 
-   , testCase "unicode5" (testFile "./test/Unicode.js" "JSSourceElementsTop [JSExpression [JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSOperator \"=\",JSDecimal \"1\"],JSLiteral \";\"]")
+   , testCase "unicode2" (testRoundTrip "àáâãäå = 1;")
 
-   , testCase "bug2.a" (testProg "function() {\nz = function /*z*/(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSExpression [JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"z\",JSOperator \"=\",JSFunctionExpression [] [JSIdentifier \"o\"] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSIdentifier \"r\"],JSLiteral \";\"]]])],JSLiteral \";\"]])]])")
+   , testCase "unicode3" (testRoundTrip "$aà = 1;_b=2;\0065a=2")
 
-   , testCase "bug2.b" (testProg "function() {\nz = function z(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSExpression [JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"z\",JSOperator \"=\",JSFunctionExpression [JSIdentifier \"z\"] [JSIdentifier \"o\"] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSIdentifier \"r\"],JSLiteral \";\"]]])],JSLiteral \";\"]])]])")
+   , testCase "unicode4" (testRoundTrip "x=\"àáâãäå\";y='\3012a\0068'")
+
+   -- , testCase "unicode5" (testFile "./test/Unicode.js")
+
+   , testCase "bug2.a" (testRoundTrip "function() {\nz = function /*z*/(o) {\nreturn r;\n};}")
+
+   , testCase "bug2.b" (testRoundTrip "function() {\nz = function z(o) {\nreturn r;\n};}")
 
    -- https://github.com/alanz/hjsmin/issues/#issue/3
-   , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"myLatlng\") [JSLiteral \"new \",JSMemberDot [JSMemberDot [JSIdentifier \"google\"] (JSIdentifier \"maps\")] (JSIdentifier \"LatLng\"),JSArguments [[JSDecimal \"56.8379100\"],[JSDecimal \"60.5806664\"]]]]])")
+   , testCase "bug3" (testRoundTrip "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);")
 
    -- https://github.com/alanz/hjsmin/issues/#issue/4
-   , testCase "bug4" (testProg "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\"]])")
+   , testCase "bug4" (testRoundTrip "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x")
 
+   , testCase "02_sm.js"   (testRoundTrip "{zero}\none1;two\n{three\nfour;five;\n{\nsix;{seven;}\n}\n}")
 
+   , testCase "02_sm.js.2" (testRoundTrip "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}")
 
-   , testCase "02_sm.js"   (testProg "{zero}\none1;two\n{three\nfour;five;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"zero\"]]),JSExpression [JSIdentifier \"one1\"],JSLiteral \";\",JSExpression [JSIdentifier \"two\"],JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"three\"],JSExpression [JSIdentifier \"four\"],JSLiteral \";\",JSExpression [JSIdentifier \"five\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"six\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"seven\"],JSLiteral \";\"])])])])")
-
-   , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"zero\"]]),JSExpression [JSIdentifier \"get\"],JSLiteral \";\",JSExpression [JSIdentifier \"two\"],JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"three\"],JSExpression [JSIdentifier \"four\"],JSLiteral \";\",JSExpression [JSIdentifier \"set\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"six\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"seven\"],JSLiteral \";\"])])])])")
-
-   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [NoComment],NS (JSOperator \"=\") (TokenPn 2 1 3) [NoComment],NS (JSDecimal \"1\") (TokenPn 4 1 5) [NoComment]]) (TokenPn 0 1 1) [],NS (JSExpression [NS (JSIdentifier \"y\") (TokenPn 8 2 3) [NoComment],NS (JSOperator \"=\") (TokenPn 9 2 4) [NoComment],NS (JSDecimal \"2\") (TokenPn 10 2 5) [NoComment]]) (TokenPn 8 2 3) [],NS (JSLiteral \";\") (TokenPn 11 2 6) [NoComment]]) (TokenPn 0 1 1) [])")
+   , testCase "loc1" (testRoundTrip "x = 1\n  y=2;")
 
    -- https://github.com/alanz/language-javascript/issues/2
-   , testCase "issue2" (testProg "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"img\") [JSMemberDot [JSIdentifier \"document\"] (JSIdentifier \"createElement\"),JSArguments [[JSStringLiteral '\\'' \"img\"]]]],JSExpression [JSMemberDot [JSIdentifier \"img\"] (JSIdentifier \"src\"),JSOperator \"=\",JSStringLiteral '\"' \"mylogo.jpg\"],JSLiteral \";\",JSExpression [JSIdentifier \"$\",JSArguments [[JSIdentifier \"img\"]],JSCallExpression \".\" [JSIdentifier \"click\"],JSCallExpression \"()\" [JSArguments [[JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"alert\",JSArguments [[JSStringLiteral '\\'' \"clicked!\"]]],JSLiteral \";\"]])]]]],JSLiteral \";\"])")
+   , testCase "issue2" (testRoundTrip "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});")
 
 
    -- Working in ECMASCRIPT 5.1 changes
-   , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"    "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\\'' \"abcdef\"],JSLiteral \";\"])")
-   , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
-   , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
-   , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\"])")
-   , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\"])")
-   , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\"])")
+   , testCase "lineTerminatorInString1" (testRoundTrip "x='abc\\\ndef';")
+   , testCase "lineTerminatorInString2" (testRoundTrip "x=\"abc\\\ndef\";")
+   , testCase "lineTerminatorInString3" (testRoundTrip "x=\"abc\\\rdef\";")
+   , testCase "lineTerminatorInString4" (testRoundTrip "x=\"abc\\\x2028 def\";")
+   , testCase "lineTerminatorInString5" (testRoundTrip "x=\"abc\\\x2029 def\";")
+   , testCase "lineTerminatorInString6" (testRoundTrip "x=\"abc\\\r\ndef\";")
 
 
      -- https://github.com/alanz/language-javascript/issues/4
-   , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"somename\"]]]]])")
-   , testCase "issue4bug1" (testProg "var k = {\ny: code\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"code\"]]]]])")
-   , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"k\") [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"mode\"]]]]])")
+   , testCase "issue4ok"   (testRoundTrip "var k = {\ny: somename\n}")
+   , testCase "issue4bug1" (testRoundTrip "var k = {\ny: code\n}")
+   , testCase "issue4bug2" (testRoundTrip "var k = {\ny: mode\n}")
 
      -- https://github.com/alanz/language-javascript/issues/5
-   , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"1e8\"]]]])")
-   , testCase "issue5ok2" (testProg "{ y: 1e8 }" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSLabelled (JSIdentifier \"y\") (JSExpression [JSDecimal \"1e8\"])])])")
-   , testCase "issue5ok3" (testProg "{ y: 18 }" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSLabelled (JSIdentifier \"y\") (JSExpression [JSDecimal \"18\"])])])")
-   , testCase "issue5ok4" (testProg "x = { y: 18 }" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"18\"]]]])")
- -}
+   , testCase "issue5bug1" (testRoundTrip "x = { y: 1e8 }")
+   , testCase "issue5ok2" (testRoundTrip "{ y: 1e8 }")
+   , testCase "issue5ok3" (testRoundTrip "{ y: 18 }")
+   , testCase "issue5ok4" (testRoundTrip "x = { y: 18 }")
+
     ]
 
 -- ---------------------------------------------------------------------

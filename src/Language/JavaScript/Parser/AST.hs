@@ -49,8 +49,7 @@ data Node = JSArguments JSNode [JSNode] JSNode -- lb, args, rb
               | JSFunctionExpression JSNode [JSNode] JSNode [JSNode] JSNode JSNode JSNode JSNode  -- fn,[name],lb, parameter list,rb,lb, body,rb
               | JSHexInteger String  -- Was Integer
               | JSIdentifier String
-              | JSIf     JSNode JSNode JSNode JSNode JSNode        -- if,(,expr,),stmt
-              | JSIfElse JSNode JSNode JSNode JSNode JSNode JSNode -- if,(,expr,),stmt,rest
+              | JSIf JSNode JSNode JSNode JSNode JSNode [JSNode] -- if,(,expr,),stmt,optional rest
               | JSLabelled JSNode JSNode JSNode -- identifier,colon,stmt
               | JSLiteral String
               | JSMemberDot [JSNode] JSNode JSNode -- firstpart, dot, name
@@ -122,8 +121,7 @@ showStrippedNode (JSFunctionBody xs) = "JSFunctionBody " ++ sss xs
 showStrippedNode (JSFunctionExpression f x1s lb x2s rb lb2 x3 rb2) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSHexInteger s) = "JSHexInteger " ++ show s
 showStrippedNode (JSIdentifier s) = "JSIdentifier " ++ show s
-showStrippedNode (JSIf i lb x1 rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
-showStrippedNode (JSIfElse i lb x1 rb x2 x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+showStrippedNode (JSIf i lb x1 rb x2 x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ sss x3s ++ ")"
 showStrippedNode (JSLabelled x1 c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 showStrippedNode (JSLiteral s) = "JSLiteral " ++ show s
 showStrippedNode (JSMemberDot x1s d x2 ) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"

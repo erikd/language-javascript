@@ -301,7 +301,7 @@ Case :: { AST.JSNode }
 Case : 'case' { fp (AST.NS (AST.JSLiteral "case") (ss $1) (gc $1))}
 
 Default :: { AST.JSNode }
-Default : 'default' { fp (AST.NS (AST.JSLiteral "Default") (ss $1) (gc $1))}
+Default : 'default' { fp (AST.NS (AST.JSLiteral "default") (ss $1) (gc $1))}
 
 Throw :: { AST.JSNode }
 Throw : 'throw' { fp (AST.NS (AST.JSLiteral "throw") (ss $1) (gc $1))}
@@ -938,10 +938,10 @@ IfStatement : If LParen Expression RParen StatementSemi  IfElseRest
                   { (if ($6 /= []) then
                        (if (length $6 == 1)
                         then
-                          (fp (AST.NS (AST.JSIfElse $1 $2 $3 $4 $5 (head $6)) (ex $1) [] ))
+                          (fp (AST.NS (AST.JSIf $1 $2 $3 $4 $5 $6) (ex $1) [] ))
                         else
                           (fp (AST.NS
-                             (AST.JSIfElse
+                             (AST.JSIf
                                 $1 $2
                                 $3
                                 $4
@@ -949,12 +949,12 @@ IfStatement : If LParen Expression RParen StatementSemi  IfElseRest
                                    (AST.JSBlock [] (AST.NS (AST.JSStatementList [$5]) (ex $5) []) [] )
                                    (ex $5) []
                                    ))
-                                (last $6)
+                                $6
                              )
                              (ex $1) []
                            ))
                        )
-                     else (fp (AST.NS (AST.JSIf $1 $2 $3 $4 $5) (ex $1) [] )) ) }
+                     else (fp (AST.NS (AST.JSIf $1 $2 $3 $4 $5 []) (ex $1) [] )) ) }
 
 IfElseRest :: { [AST.JSNode] }
 IfElseRest : Else Statement     { [$1,$2] }
