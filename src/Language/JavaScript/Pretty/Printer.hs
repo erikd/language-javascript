@@ -112,6 +112,15 @@ rn (NS (JSFunctionBody xs) p []) foo = (rJS [] p xs foo)
 
 rn (NS (JSReturn xs) p []) foo = (rJS [] p xs foo)
 
+rn (NS (JSExpressionParen lb e rb) p []) foo   = (rJS [] p [rb] (rJS  [] p [e] (rJS [] p [lb] foo)))
+rn (NS (JSExpressionTernary cond h v1 c v2) p []) foo  =  (rJS [] p v2
+                                                           (rJS [] p [c]
+                                                            (rJS [] p v1
+                                                             (rJS [] p [h]
+                                                              (rJS [] p cond foo)))))
+
+rn (NS (JSExpressionBinary s lhs op rhs) p []) foo   = (rJS [] p rhs (rJS  [] p [op] (rJS [] p lhs foo)))
+
 -- Debug helper
 rn what foo = rs (show what) foo
 
