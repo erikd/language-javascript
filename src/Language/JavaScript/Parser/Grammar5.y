@@ -1205,12 +1205,15 @@ mpc ((AST.NS node span cs2):xs) cs1 =  (AST.NS node span (cs1++cs2)):xs
 -- ---------------------------------------------------------------------
 
 fp :: AST.JSNode -> AST.JSNode
+fp (AST.NS x p cs) = (AST.NS x p cs)
+{-
 fp (AST.NS x p cs) = (AST.NS x p' cs)
   where
     p' = case (filter (/= NoComment) cs) of
       [] -> p
       [(CommentA posn _)]    -> posn
       ((CommentA posn _):_)  -> posn
+-}
 
 }
 
