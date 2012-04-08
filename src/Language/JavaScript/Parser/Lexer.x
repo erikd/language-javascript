@@ -335,7 +335,7 @@ classifyToken aToken =
       _other      -> reg
 
 
-
+{-
 --lexToken :: Alex Token
 lexToken = do
   inp <- alexGetInput
@@ -352,6 +352,30 @@ lexToken = do
        token <- action (ignorePendingBytes inp) len
        setLastToken token
        return token
+-}
+
+--lexToken :: Alex Token
+lexToken = do
+  inp <- alexGetInput
+  lt  <- getLastToken
+  case lt of
+    TailToken {} -> alexEOF
+    _other ->
+      case alexScan inp (classifyToken lt) of
+        AlexEOF        -> do
+          token <- tailToken
+          setLastToken token
+          return token
+        AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+                                                 " and column " ++ show (getColumnNum(pos)))
+        AlexSkip inp' _len -> do
+          alexSetInput inp'
+          lexToken
+        AlexToken inp' len action -> do
+          alexSetInput inp'
+          token <- action (ignorePendingBytes inp) len
+          setLastToken token
+          return token
 
 
 -- This is called by the Happy parser.
@@ -408,6 +432,9 @@ setComment cs = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comment=cs }}, ())
 
 alexEOF :: Alex Token
 alexEOF = do return (EOFToken tokenPosnEmpty [])
+
+tailToken :: Alex Token
+tailToken = do return (TailToken tokenPosnEmpty [])
 
 adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
 adapt f loc@(p@(AlexPn offset line col),_,inp) len =

@@ -130,7 +130,8 @@ data Token
    | CondcommentEndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
 
    -- Special cases
-   | EOFToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }                          -- ^ End of file
+   | TailToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  } -- ^ Stuff between last JS and EOF
+   | EOFToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }  -- ^ End of file
    deriving (Eq,{-Ord,-}Show,Typeable{-,Data-})
 
 

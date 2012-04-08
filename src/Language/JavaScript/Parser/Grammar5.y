@@ -21,9 +21,9 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 -- The name of the generated function to be exported from the module
 %name parseProgram           Program
-%name parseLiteral           Literal
-%name parsePrimaryExpression PrimaryExpression
-%name parseStatement         Statement
+%name parseLiteral           LiteralMain
+%name parsePrimaryExpression PrimaryExpressionMain
+%name parseStatement         StatementMain
 
 %tokentype { Token }
 %error { parseError }
@@ -115,6 +115,9 @@ import qualified Language.JavaScript.Parser.AST as AST
      'assign'     { AssignToken {} }
 
      'future'     { FutureToken {} }
+
+     'tail'       { TailToken {} }
+     'eof'        { EOFToken {} }
 
 
 %%
@@ -318,6 +321,8 @@ FinallyL : 'finally' { fp (AST.NS (AST.JSLiteral "finally") (ss $1) (gc $1))}
 Function :: { AST.JSNode }
 Function : 'function' { fp (AST.NS (AST.JSLiteral "function") (ss $1) (gc $1))}
 
+Eof :: { AST.JSNode }
+Eof : 'tail' { fp (AST.NS (AST.JSLiteral "") (ss $1) (gc $1))}
 
 -- Literal ::                                                                See 7.8
 --         NullLiteral
@@ -792,7 +797,6 @@ AssignmentOperator : Assign       { fp (AST.NS (AST.JSOperator $1) (ex $1) [])}
 --         Expression , AssignmentExpression
 Expression :: { AST.JSNode }
 Expression : AssignmentExpression { fp (AST.NS (AST.JSExpression $1) (mex $1) []) {- Expression -} }
-           -- | Expression ',' AssignmentExpression  { flattenExpression $1 (mpc $3 (gc $2)) }
            | Expression Comma AssignmentExpression  { fp (AST.NS (AST.JSExpression ($1:[$2]++$3)) (ex $1) []) {- Expression2 -} }
 
 -- ExpressionNoIn :                                               See 11.14
@@ -800,7 +804,6 @@ Expression : AssignmentExpression { fp (AST.NS (AST.JSExpression $1) (mex $1) []
 --         ExpressionNoIn , AssignmentExpressionNoIn
 ExpressionNoIn :: { AST.JSNode }
 ExpressionNoIn : AssignmentExpressionNoIn { fp (AST.NS (AST.JSExpression $1) (mex $1) []) {- ExpressionNoIn -} }
-               -- | ExpressionNoIn ',' AssignmentExpressionNoIn  { flattenExpression $1 (mpc $3 (gc $2)) }
                | ExpressionNoIn Comma AssignmentExpressionNoIn  { fp (AST.NS (AST.JSExpression ($1:[$2]++$3)) (ex $1) []) {- ExpressionNoIn2 -} }
 
 -- TODO: still required?
@@ -1128,7 +1131,18 @@ FunctionBody : SourceElements { (AST.NS (AST.JSFunctionBody [$1]) (ex $1)       
 --        SourceElementsopt
 
 Program :: { AST.JSNode }
-Program : SourceElementsTop { $1 {- Program -}}
+Program : SourceElementsTop Eof { (combineTop $1 $2) {- Program -}}
+
+-- For debugging/other entry points
+LiteralMain :: { AST.JSNode }
+LiteralMain : Literal Eof { $1 }
+
+PrimaryExpressionMain :: { AST.JSNode }
+PrimaryExpressionMain : PrimaryExpression Eof { $1 }
+
+StatementMain :: { AST.JSNode }
+StatementMain : Statement Eof { $1 }
+
 
 -- SourceElements :                                                           See clause 14
 --        SourceElement
@@ -1156,6 +1170,9 @@ combineSourceElements (AST.NS (AST.JSSourceElements xs) s1 c1) x1@(AST.NS x s2 c
 combineSourceElementsTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElementsTop (AST.NS (AST.JSSourceElementsTop xs) s1 c1) x1@(AST.NS x s2 c2) = fp (AST.NS (AST.JSSourceElementsTop (xs++[x1])) s1 c1)
 
+combineTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
+combineTop (AST.NS (AST.JSSourceElementsTop xs) s1 c1) x1 = fp (AST.NS (AST.JSSourceElementsTop (xs++[x1])) s1 c1)
+
 combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineStatements (AST.NS (AST.JSStatementList xs) s1 c1) (AST.NS (AST.JSStatementList ys) s2 c2) = fp (AST.NS (AST.JSStatementList (xs++ys) ) s1 c2)
 combineStatements (AST.NS (AST.JSStatementList xs) s1 c1) y = fp (AST.NS (AST.JSStatementList (xs++[y])) s1 c1)
@@ -1163,12 +1180,6 @@ combineStatements (AST.NS (AST.JSStatementList xs) s1 c1) y = fp (AST.NS (AST.JS
 parseError :: Token -> Alex a
 -- parseError = throwError . UnexpectedToken
 parseError tok = alexError (show tok)
-
-flattenExpression :: AST.JSNode -> [AST.JSNode] -> AST.JSNode
-flattenExpression (AST.NS (AST.JSExpression xs) s1 c1) e = fp (AST.NS (AST.JSExpression (xs++litComma++e)) s1 c1)
-                        where
-                          litComma :: [AST.JSNode]
-                          litComma = [AST.NS (AST.JSLiteral ",") tokenPosnEmpty []]
 
 -- --------------------------------
 

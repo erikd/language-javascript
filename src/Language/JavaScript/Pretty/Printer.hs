@@ -304,13 +304,13 @@ rs s (Foo (r,c) bb) = (Foo (r',c') (bb <> (text s)))
   where
     (r',c') = foldl' (\(row,col) char -> go (row,col) char) (r,c) s
 
-    go (r,c) '\n' = (r+1,0)
+    go (r,c) '\n' = (r+1,1)
     go (r,c) _    = (r,c+1)
 
 
 goto :: TokenPosn -> Foo -> Foo
 goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
---goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = trace ("goto " ++ (show $ (ltgt,ctgt)) ++ "," ++ (show $ (lcur,ccur)) ++ "," ++ (show $ (lnew,cnew)) ) $  (Foo (lnew,cnew) (bb <> bb'))
+-- goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = trace ("goto " ++ (show $ (ltgt,ctgt)) ++ "," ++ (show $ (lcur,ccur)) ++ "," ++ (show $ (lnew,cnew)) ) $  (Foo (lnew,cnew) (bb <> bb'))
   where
     (bbline,ccur') = if (lcur < ltgt) then (text $ (take (ltgt - lcur) $ repeat '\n'),1) else (mempty,ccur)
     bbcol  = if (ccur' < ctgt) then (text $ take (ctgt - ccur') $ repeat ' ' ) else mempty
@@ -321,18 +321,6 @@ goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
 
 rJS :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
 rJS cs p xs foo = foldl' (flip rn) (rc cs foo) xs
-
-{-
--- A space is needed if this expression starts with an identifier etc, but not if with a '('
-spaceNeeded :: [JSNode] -> Bool
-spaceNeeded xs =
-  let
-   -- str = show $ rJS xs
-    str = LB.unpack $ BB.toLazyByteString $ rJS xs
-  in
-   head str /= (fromIntegral $ ord '(')
--}
-
 
 
 -- ++AZ++
@@ -348,16 +336,6 @@ commaList cs p (x:xs) foo = go x xs
     (xs', trail) = if (x' == JSLiteral ",") then (init xs, [comma]) else (xs,[])
     (NS x' _ _) = last xs
 -}
-
-{-
--- From pretty print library
-punctuate :: Doc -> [Doc] -> [Doc]
-punctuate _ []     = []
-punctuate p (x:xs) = go x xs
-                   where go y []     = [y]
-                         go y (z:zs) = (y <> p) : go z zs
--}
-
 
 renderToString :: JSNode -> String
 renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
