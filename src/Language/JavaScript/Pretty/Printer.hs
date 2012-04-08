@@ -310,13 +310,13 @@ rs s (Foo (r,c) bb) = (Foo (r',c') (bb <> (text s)))
 
 goto :: TokenPosn -> Foo -> Foo
 goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
--- goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = trace ("goto (" ++ (show ltgt) ++ "," ++ (show ctgt) ++ ")," ++ (show $ (lcur,ccur)) ) $  (Foo (lnew,cnew) (bb <> bb'))
+--goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = trace ("goto " ++ (show $ (ltgt,ctgt)) ++ "," ++ (show $ (lcur,ccur)) ++ "," ++ (show $ (lnew,cnew)) ) $  (Foo (lnew,cnew) (bb <> bb'))
   where
-    lnew = if (lcur < ltgt) then ltgt else lcur
-    cnew = if (ccur < ctgt) then ctgt else ccur
-    bbline = if (lcur < ltgt) then (text $ take (ltgt - lcur) $ repeat '\n') else mempty
-    bbcol  = if (ccur < ctgt) then (text $ take (ctgt - ccur) $ repeat ' ' ) else mempty
+    (bbline,ccur') = if (lcur < ltgt) then (text $ (take (ltgt - lcur) $ repeat '\n'),1) else (mempty,ccur)
+    bbcol  = if (ccur' < ctgt) then (text $ take (ctgt - ccur') $ repeat ' ' ) else mempty
     bb' = bbline <> bbcol
+    lnew = if (lcur < ltgt) then ltgt else lcur
+    cnew = if (ccur' < ctgt) then ctgt else ccur'
 
 
 rJS :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
