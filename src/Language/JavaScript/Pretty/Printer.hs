@@ -4,8 +4,6 @@ module Language.JavaScript.Pretty.Printer (
   , renderToString
   ) where
 
---import Control.Applicative
---import Control.Monad (MonadPlus(..), ap)
 import Data.Char
 import Data.List
 import Data.Monoid (Monoid, mappend, mempty, mconcat)
@@ -16,8 +14,8 @@ import Language.JavaScript.Parser.Token
 import qualified Blaze.ByteString.Builder as BB
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
 import qualified Data.ByteString.Lazy as LB
+import qualified Data.ByteString.Lazy.Char8 as S8
 import qualified Data.ByteString.UTF8 as UB
--- import qualified Data.ByteString as B
 import qualified Codec.Binary.UTF8.String as US
 
 import Debug.Trace
@@ -25,7 +23,6 @@ import Debug.Trace
 -- ---------------------------------------------------------------------
 
 data Foo = Foo (Int,Int) BB.Builder
---data Foo a = Foom (Int,Int) a
 
 -- ---------------------------------------------------------------------
 -- Pretty printer stuff via blaze-builder
@@ -343,7 +340,11 @@ commaList cs p (x:xs) foo = go x xs
 renderToString :: JSNode -> String
 --renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
 renderToString js = US.decode $ LB.unpack $ BB.toLazyByteString $ renderJS js
---renderToString js = UB.toString $ LB.fromChunks [ BB.toLazyByteString $ renderJS js ]
+--renderToString js = lbToStr $ S8.fromChunks [ BB.toLazyByteString $ renderJS js ]
+--renderToString js = lbToStr $ BB.toByteString $ renderJS js
+
+--lbToStr :: S8.ByteString -> [Char]
+--lbToStr = unpack . decodeUtf8With lenientDecode
 
 --rn _ _ = undefined
 

@@ -64,8 +64,8 @@ regExToken loc str = RegExToken loc str []
 stringToken :: TokenPosn -> String -> Token
 stringToken loc str = StringToken loc str1 delimiter []
   where
-    -- str1 = init $ tail str
-    str1 = stripLineContinuations $ init $ tail str
+    str1 = init $ tail str
+    -- str1 = stripLineContinuations $ init $ tail str
     delimiter = head str
 
 commentToken :: TokenPosn -> String -> Token

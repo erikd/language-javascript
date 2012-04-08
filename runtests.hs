@@ -296,12 +296,12 @@ testSuite = testGroup "Parser"
 
 
    -- Working in ECMASCRIPT 5.1 changes
-   , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\\'' \"abcdef\"],JSLiteral \";\",JSLiteral \"\"])")
-   , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\",JSLiteral \"\"])")
-   , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\",JSLiteral \"\"])")
-   , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\",JSLiteral \"\"])")
-   , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc def\"],JSLiteral \";\",JSLiteral \"\"])")
-   , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abcdef\"],JSLiteral \";\",JSLiteral \"\"])")
+   , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\\'' \"abc\\\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
+   , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
+   , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\rdef\"],JSLiteral \";\",JSLiteral \"\"])")
+   , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\8232 def\"],JSLiteral \";\",JSLiteral \"\"])")
+   , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\8233 def\"],JSLiteral \";\",JSLiteral \"\"])")
+   , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\r\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
 
 
      -- https://github.com/alanz/language-javascript/issues/4
