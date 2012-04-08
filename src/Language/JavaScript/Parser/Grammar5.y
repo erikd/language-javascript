@@ -520,14 +520,14 @@ MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}}
                  | FunctionExpression  { [$1] {- MemberExpression -}}
                  | MemberExpression LSquare Expression RSquare { [fp (AST.NS (AST.JSMemberSquare $1 $2 $3 $4) (mex $1) [])] }
                  | MemberExpression Dot IdentifierName { [fp (AST.NS (AST.JSMemberDot $1 $2 $3) (mex $1) [])] }
-                 | 'new' MemberExpression Arguments    { (((fp (AST.NS (AST.JSLiteral "new ") (ss $1) (gc $1))):$2)++[$3])}
+                 | 'new' MemberExpression Arguments    { (((fp (AST.NS (AST.JSLiteral "new") (ss $1) (gc $1))):$2)++[$3])}
 
 -- NewExpression :                                              See 11.2
 --        MemberExpression
 --        new NewExpression
 NewExpression :: { [AST.JSNode] }
 NewExpression : MemberExpression {$1 {- NewExpression -}}
-              | 'new' NewExpression { (fp (AST.NS (AST.JSLiteral "new ") (ss $1) (gc $1))):$2 }
+              | 'new' NewExpression { (fp (AST.NS (AST.JSLiteral "new") (ss $1) (gc $1))):$2 }
 
 -- CallExpression :                                             See 11.2
 --        MemberExpression Arguments

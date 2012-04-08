@@ -26,6 +26,7 @@ import Data.Data
 import Language.JavaScript.Parser.SrcLocation
 
 data CommentAnnotation = CommentA TokenPosn String
+                       | WhiteSpace TokenPosn String
                        | NoComment
    deriving (Eq,{-Ord,-}Show,Typeable,Data,Read)
 
@@ -34,6 +35,7 @@ data CommentAnnotation = CommentA TokenPosn String
 data Token
    -- Comment
    = CommentToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation] } -- ^ Single line comment.
+   | WsToken      { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation] } -- ^ White space, for preservation.
 
    -- Identifiers
    | IdentifierToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }            -- ^ Identifier.

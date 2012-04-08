@@ -18,6 +18,7 @@ module Language.JavaScript.Parser.LexerUtils (
   , symbolToken
   , mkString
   , commentToken
+  , wsToken
   , regExToken
   , decimalToken
   -- , endOfLine
@@ -69,6 +70,9 @@ stringToken loc str = StringToken loc str1 delimiter []
 
 commentToken :: TokenPosn -> String -> Token
 commentToken loc str = CommentToken loc str []
+
+wsToken :: TokenPosn -> String -> Token
+wsToken loc str = WsToken loc str []
 
 -- ---------------------------------------------------------------------
 -- Strip out any embedded line continuations

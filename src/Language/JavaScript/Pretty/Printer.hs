@@ -16,6 +16,9 @@ import Language.JavaScript.Parser.Token
 import qualified Blaze.ByteString.Builder as BB
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
 import qualified Data.ByteString.Lazy as LB
+import qualified Data.ByteString.UTF8 as UB
+-- import qualified Data.ByteString as B
+import qualified Codec.Binary.UTF8.String as US
 
 import Debug.Trace
 
@@ -338,7 +341,9 @@ commaList cs p (x:xs) foo = go x xs
 -}
 
 renderToString :: JSNode -> String
-renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
+--renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
+renderToString js = US.decode $ LB.unpack $ BB.toLazyByteString $ renderJS js
+--renderToString js = UB.toString $ LB.fromChunks [ BB.toLazyByteString $ renderJS js ]
 
 --rn _ _ = undefined
 

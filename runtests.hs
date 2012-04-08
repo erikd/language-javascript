@@ -141,9 +141,9 @@ testSuite = testGroup "Parser"
     , testCase "MemberExpression1f" (testStmt "x.y"      "Right (JSExpression [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
     , testCase "MemberExpression1g" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")] (JSIdentifier \"z\")])")
 
-    , testCase "MemberExpression1h" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new \",JSIdentifier \"x\",JSArguments []])")
+    , testCase "MemberExpression1h" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new\",JSIdentifier \"x\",JSArguments []])")
 
-    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new \",JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
+    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new\",JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
 
     , testCase "CallExpression1" (testStmt "x()"     "Right (JSExpression [JSIdentifier \"x\",JSArguments []])")
     , testCase "CallExpression2" (testStmt "x()()"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"()\" [JSArguments []]])")
@@ -230,7 +230,7 @@ testSuite = testGroup "Parser"
     , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"  "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"z\",JSOperator JSLiteral \"=\",JSDecimal \"2\"],JSLiteral \";\",JSExpression [JSIdentifier \"a\"],JSLiteral \"\"])")
 
     , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\""
-                                   "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new \",JSIdentifier \"Error\",JSArguments [JSStringLiteral '\\'' \"Must specify an animal name\"]]),JSLiteral \";\"])) ([]),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator JSLiteral \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator JSLiteral \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator JSLiteral \"=\",JSLiteral \"new \",JSIdentifier \"Animal\",JSArguments [JSStringLiteral '\"' \"bob\"]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]],JSLiteral \"\"])")
+                                   "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new\",JSIdentifier \"Error\",JSArguments [JSStringLiteral '\\'' \"Must specify an animal name\"]]),JSLiteral \";\"])) ([]),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator JSLiteral \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator JSLiteral \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator JSLiteral \"=\",JSLiteral \"new\",JSIdentifier \"Animal\",JSArguments [JSStringLiteral '\"' \"bob\"]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]],JSLiteral \"\"])")
 
     , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"Animal\",JSOperator JSLiteral \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSLiteral \"\"])")
 
@@ -278,7 +278,7 @@ testSuite = testGroup "Parser"
    , testCase "bug2.b" (testProg "function() {\nz = function z(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSExpression [JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"z\",JSOperator JSLiteral \"=\",JSFunctionExpression [JSIdentifier \"z\"] [JSIdentifier \"o\"] (JSFunctionBody [JSSourceElements [JSReturn [JSLiteral \"return\",JSExpression [JSIdentifier \"r\"],JSLiteral \";\"]]])],JSLiteral \";\"]])],JSLiteral \"\"])")
 
    -- https://github.com/alanz/hjsmin/issues/#issue/3
-   , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"myLatlng\") [JSLiteral \"=\",JSLiteral \"new \",JSMemberDot [JSMemberDot [JSIdentifier \"google\"] (JSIdentifier \"maps\")] (JSIdentifier \"LatLng\"),JSArguments [JSDecimal \"56.8379100\",JSLiteral \",\",JSDecimal \"60.5806664\"]]],JSLiteral \"\"])")
+   , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"myLatlng\") [JSLiteral \"=\",JSLiteral \"new\",JSMemberDot [JSMemberDot [JSIdentifier \"google\"] (JSIdentifier \"maps\")] (JSIdentifier \"LatLng\"),JSArguments [JSDecimal \"56.8379100\",JSLiteral \",\",JSDecimal \"60.5806664\"]]],JSLiteral \"\"])")
 
    -- https://github.com/alanz/hjsmin/issues/#issue/4
    , testCase "bug4" (testProg "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\"],JSLiteral \"\"])")
@@ -289,7 +289,7 @@ testSuite = testGroup "Parser"
 
    , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"zero\"]]),JSExpression [JSIdentifier \"get\"],JSLiteral \";\",JSExpression [JSIdentifier \"two\"],JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"three\"],JSExpression [JSIdentifier \"four\"],JSLiteral \";\",JSExpression [JSIdentifier \"set\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"six\"],JSLiteral \";\",JSStatementBlock (JSStatementList [JSExpression [JSIdentifier \"seven\"],JSLiteral \";\"])])]),JSLiteral \"\"])")
 
-   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [NoComment],NS (JSOperator (NS (JSLiteral \"=\") (TokenPn 2 1 3) [NoComment])) (TokenPn 2 1 3) [],NS (JSDecimal \"1\") (TokenPn 4 1 5) [NoComment]]) (TokenPn 0 1 1) [],NS (JSExpression [NS (JSIdentifier \"y\") (TokenPn 8 2 3) [NoComment],NS (JSOperator (NS (JSLiteral \"=\") (TokenPn 9 2 4) [NoComment])) (TokenPn 9 2 4) [],NS (JSDecimal \"2\") (TokenPn 10 2 5) [NoComment]]) (TokenPn 8 2 3) [],NS (JSLiteral \";\") (TokenPn 11 2 6) [NoComment],NS (JSLiteral \"\") (TokenPn 0 0 0) [NoComment]]) (TokenPn 0 1 1) [])")
+   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [NoComment],NS (JSOperator (NS (JSLiteral \"=\") (TokenPn 2 1 3) [CommentA (TokenPn 1 1 2) \" \"])) (TokenPn 2 1 3) [],NS (JSDecimal \"1\") (TokenPn 4 1 5) [CommentA (TokenPn 3 1 4) \" \"]]) (TokenPn 0 1 1) [],NS (JSExpression [NS (JSIdentifier \"y\") (TokenPn 8 2 3) [CommentA (TokenPn 5 1 6) \"\\n  \"],NS (JSOperator (NS (JSLiteral \"=\") (TokenPn 9 2 4) [NoComment])) (TokenPn 9 2 4) [],NS (JSDecimal \"2\") (TokenPn 10 2 5) [NoComment]]) (TokenPn 8 2 3) [],NS (JSLiteral \";\") (TokenPn 11 2 6) [NoComment],NS (JSLiteral \"\") (TokenPn 0 0 0) [NoComment]]) (TokenPn 0 1 1) [])")
 
    -- https://github.com/alanz/language-javascript/issues/2
    , testCase "issue2" (testProg "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"img\") [JSLiteral \"=\",JSMemberDot [JSIdentifier \"document\"] (JSIdentifier \"createElement\"),JSArguments [JSStringLiteral '\\'' \"img\"]]],JSExpression [JSMemberDot [JSIdentifier \"img\"] (JSIdentifier \"src\"),JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"mylogo.jpg\"],JSLiteral \";\",JSExpression [JSIdentifier \"$\",JSArguments [JSIdentifier \"img\"],JSCallExpression \".\" [JSIdentifier \"click\"],JSCallExpression \"()\" [JSArguments [JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"alert\",JSArguments [JSStringLiteral '\\'' \"clicked!\"]],JSLiteral \";\"]])]]],JSLiteral \";\",JSLiteral \"\"])")
@@ -439,9 +439,9 @@ commentSuite = testGroup "Comments"
     , testCase "MemberExpression1" (testStmt "x.y"      "Right (JSExpression [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
     , testCase "MemberExpression1" (testStmt "x.y.z"    "Right (JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")] (JSIdentifier \"z\")])")
 
-    , testCase "MemberExpression1" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new \",JSIdentifier \"x\",JSArguments []])")
+    , testCase "MemberExpression1" (testStmt "new x()"  "Right (JSExpression [JSLiteral \"new\",JSIdentifier \"x\",JSArguments []])")
 
-    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new \",JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
+    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSExpression [JSLiteral \"new\",JSMemberDot [JSIdentifier \"x\"] (JSIdentifier \"y\")])")
 
     , testCase "CallExpression1" (testStmt "x()"     "Right (JSExpression [JSIdentifier \"x\",JSArguments []])")
     , testCase "CallExpression2" (testStmt "x()()"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"()\" [JSArguments []]])")
@@ -527,7 +527,7 @@ commentSuite = testGroup "Comments"
 
     , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"z\",JSOperator \"=\",JSDecimal \"2\"],JSLiteral \";\",JSExpression [JSIdentifier \"a\"]])")
 
-    , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new \",JSIdentifier \"Error\",JSArguments [[JSStringLiteral '\\'' \"Must specify an animal name\"]]])])),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator \"=\",JSLiteral \"new \",JSIdentifier \"Animal\",JSArguments [[JSStringLiteral '\"' \"bob\"]]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]]])")
+    , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\"" "Right (JSSourceElementsTop [JSFunction (JSIdentifier \"Animal\") [JSIdentifier \"name\"] (JSFunctionBody [JSSourceElements [JSIf (JSExpression [JSUnary \"!\",JSIdentifier \"name\"]) (JSBlock (JSStatementList [JSThrow (JSExpression [JSLiteral \"new\",JSIdentifier \"Error\",JSArguments [[JSStringLiteral '\\'' \"Must specify an animal name\"]]])])),JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\"),JSOperator \"=\",JSIdentifier \"name\"]]]),JSLiteral \";\",JSExpression [JSMemberDot [JSMemberDot [JSIdentifier \"Animal\"] (JSIdentifier \"prototype\")] (JSIdentifier \"toString\"),JSOperator \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\",JSExpression [JSIdentifier \"o\",JSOperator \"=\",JSLiteral \"new\",JSIdentifier \"Animal\",JSArguments [[JSStringLiteral '\"' \"bob\"]]],JSLiteral \";\",JSExpression [JSExpressionBinary \"==\" [JSMemberDot [JSIdentifier \"o\"] (JSIdentifier \"toString\"),JSArguments []] [JSStringLiteral '\"' \"bob\"]]])")
 
     , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"Animal\",JSOperator \"=\",JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSMemberDot [JSLiteral \"this\"] (JSIdentifier \"name\")],JSLiteral \"\"]]])],JSLiteral \";\"])")
 
@@ -574,7 +574,7 @@ commentSuite = testGroup "Comments"
    , testCase "bug2.b" (testProg "function() {\nz = function z(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSExpression [JSFunctionExpression [] [] (JSFunctionBody [JSSourceElements [JSExpression [JSIdentifier \"z\",JSOperator \"=\",JSFunctionExpression [JSIdentifier \"z\"] [JSIdentifier \"o\"] (JSFunctionBody [JSSourceElements [JSReturn [JSExpression [JSIdentifier \"r\"],JSLiteral \";\"]]])],JSLiteral \";\"]])]])")
 
    -- https://github.com/alanz/hjsmin/issues/#issue/3
-   , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"myLatlng\") [JSLiteral \"new \",JSMemberDot [JSMemberDot [JSIdentifier \"google\"] (JSIdentifier \"maps\")] (JSIdentifier \"LatLng\"),JSArguments [[JSDecimal \"56.8379100\"],[JSDecimal \"60.5806664\"]]]]])")
+   , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariables \"var\" [JSVarDecl (JSIdentifier \"myLatlng\") [JSLiteral \"new\",JSMemberDot [JSMemberDot [JSIdentifier \"google\"] (JSIdentifier \"maps\")] (JSIdentifier \"LatLng\"),JSArguments [[JSDecimal \"56.8379100\"],[JSDecimal \"60.5806664\"]]]]])")
 
    -- https://github.com/alanz/hjsmin/issues/#issue/4
    , testCase "bug4" (testProg "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\"]])")
@@ -720,16 +720,16 @@ commentPrintSuite = testGroup "Comments"
     , testCase "Statement28"       (testRoundTrip "y--")
 
       -- Member Expressions
-    , testCase "MemberExpression1" (testRoundTrip "function(){}")
-    , testCase "MemberExpression1" (testRoundTrip "function(a){}")
-    , testCase "MemberExpression1" (testRoundTrip "function(a,b){}")
+    , testCase "MemberExpression1a" (testRoundTrip "function(){}")
+    , testCase "MemberExpression1b" (testRoundTrip "function(a){}")
+    , testCase "MemberExpression1c" (testRoundTrip "function(a,b){}")
 
-    , testCase "MemberExpression1" (testRoundTrip "x[y]")
-    , testCase "MemberExpression1" (testRoundTrip "x[y][z]")
-    , testCase "MemberExpression1" (testRoundTrip "x.y")
-    , testCase "MemberExpression1" (testRoundTrip "x.y.z")
+    , testCase "MemberExpression1d" (testRoundTrip "x[y]")
+    , testCase "MemberExpression1e" (testRoundTrip "x[y][z]")
+    , testCase "MemberExpression1f" (testRoundTrip "x.y")
+    , testCase "MemberExpression1g" (testRoundTrip "x.y.z")
 
-    , testCase "MemberExpression1" (testRoundTrip "new x()")
+    , testCase "MemberExpression1h" (testRoundTrip "new x()")
 
     , testCase "NewExpression1" (testRoundTrip "new x.y")
 

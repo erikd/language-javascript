@@ -172,7 +172,8 @@ tokens :-
 <0> () ; -- { registerStates lexToken reg divide }
 
 -- Skip Whitespace
-<reg,divide> $white_char+   ;
+-- <reg,divide> $white_char+   ;
+<reg,divide> $white_char+   { adapt (mkString wsToken) }
 
 -- Skip one line comment
 -- <reg,divide> "//"($not_eol_char)*   ;
@@ -389,7 +390,9 @@ lexCont cont = do
       tok <- lexToken
       case tok of
          CommentToken {} -> do
-            -- setComment [tok]
+            addComment tok
+            lexLoop
+         WsToken {} -> do
             addComment tok
             lexLoop
          _other -> do
