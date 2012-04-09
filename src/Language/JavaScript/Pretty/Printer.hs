@@ -70,209 +70,208 @@ renderJS node = bb
 -- rn :: (Int, Int) -> JSNode -> ((Int, Int), BB.Builder)
 rn :: JSNode -> Foo -> Foo
 
-rn (NS (JSSourceElementsTop xs) p cs) foo = rJS cs p xs foo
-rn (NS (JSSourceElements    xs) p cs) foo = rJS cs p xs foo
-rn (NS (JSExpression xs) p cs) foo        = rJS cs p xs foo
-rn (NS (JSIdentifier s) p cs) foo         = rcs cs p s  foo
-rn (NS (JSOperator n) p cs) foo           = rJS cs p [n] foo
-rn (NS (JSDecimal i) p cs) foo            = rcs cs p i foo
-rn (NS (JSLiteral l) p cs) foo            = rcs cs p l foo
-rn (NS (JSUnary l n) p cs) foo            = rJS cs p [n] foo
-rn (NS (JSHexInteger i) p cs) foo         = rcs cs p i foo
-rn (NS (JSStringLiteral s l) p cs) foo    = rcs cs p ((s:l)++[s]) foo
-rn (NS (JSRegEx s) p cs) foo              = rcs cs p s foo
+-- Terminals
+rn (NS (JSIdentifier s     ) p cs) foo = rcs cs p s  foo
+rn (NS (JSDecimal i        ) p cs) foo = rcs cs p i foo
+rn (NS (JSLiteral l        ) p cs) foo = rcs cs p l foo
+rn (NS (JSHexInteger i     ) p cs) foo = rcs cs p i foo
+rn (NS (JSStringLiteral s l) p cs) foo = rcs cs p ((s:l)++[s]) foo
+rn (NS (JSRegEx s          ) p cs) foo = rcs cs p s foo
 
-rn (NS (JSArrayLiteral lb xs rb) p []) foo  = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
 
-rn (NS (JSElision xs) p cs) foo             = rJS [] p xs foo
-rn (NS (JSStatementBlock lb x rb) p []) foo = (rJS [] p [rb] (rJS [] p [x] (rJS [] p [lb] foo)))
-rn (NS (JSStatementList xs) p cs) foo       = rJS cs p xs foo
-rn (NS (JSLabelled l c v) p cs) foo           = (rJS [] p [v] (rJS cs p [c] (rJS [] p [l] foo)))
+-- Non-Terminals
+rn (NS (JSSourceElementsTop xs) p cs) foo = rJS xs foo
+rn (NS (JSSourceElements    xs) p cs) foo = rJS xs foo
+rn (NS (JSExpression xs) p cs) foo        = rJS xs foo
+rn (NS (JSOperator n) p cs) foo           = rJS [n] foo
+rn (NS (JSUnary l n) p cs) foo            = rJS [n] foo
 
-rn (NS (JSObjectLiteral lb xs rb) p []) foo     = (rJS [] p [rb] (rJS  [] p xs (rJS [] p [lb] foo)))
-rn (NS (JSPropertyNameandValue n colon vs) p []) foo  = (rJS [] p vs (rJS [] p [colon] (rJS [] p [n] foo)))
+rn (NS (JSArrayLiteral lb xs rb) p []) foo  = (rJS [rb] (rJS xs (rJS [lb] foo)))
 
--- rn (NS (JSPropertyAccessor s n ps b) p cs) foo = (rcs [] p s (rcs [] p " " (rJS [] p [n] (rcs [] p ")" (rJS [] p ps (rcs [] p "(" (rJS [] p [b] foo)))))))
+rn (NS (JSElision c) p cs) foo              = rJS [c] foo
+rn (NS (JSStatementBlock lb x rb) p []) foo = (rJS [rb] (rJS [x] (rJS [lb] foo)))
+rn (NS (JSStatementList xs) p cs) foo       = rJS xs foo
+rn (NS (JSLabelled l c v) p cs) foo         = (rJS [v] (rJS [c] (rJS [l] foo)))
+
+rn (NS (JSObjectLiteral lb xs rb) p []) foo     = (rJS [rb] (rJS xs (rJS [lb] foo)))
+rn (NS (JSPropertyNameandValue n colon vs) p []) foo  = (rJS vs (rJS [colon] (rJS [n] foo)))
 
 rn (NS (JSPropertyAccessor s n lb1 ps rb1 lb2 b rb2) p []) foo =
-  (rJS [] p [rb2]
-  (rJS [] p [b]
-  (rJS [] p [lb2]
-  (rJS [] p [rb1]
-  (rJS [] p ps
-  (rJS [] p [lb1]
-  (rJS [] p [n]
-  (rJS [] p [s] foo))))))))
+  (rJS [rb2]
+   (rJS [b]
+    (rJS [lb2]
+     (rJS [rb1]
+      (rJS ps
+       (rJS [lb1]
+        (rJS [n]
+         (rJS [s] foo))))))))
 
--- NOTE: the braces are attached to the surrounding production
-rn (NS (JSFunctionBody xs) p []) foo = (rJS [] p xs foo)
+rn (NS (JSFunctionBody xs) p []) foo = (rJS xs foo)
 
+rn (NS (JSReturn r xs as) p []) foo = (rJS [as] (rJS xs (rJS [r] foo)))
 
--- rn (JSReturn [])                 = (text "return")
--- rn (JSReturn [(NS (JSLiteral ";") _ _)])    = (text "return;")
--- rn (JSReturn xs)                 = (text "return") <> (if (spaceNeeded xs) then (text " ") else (empty)) <> (rJS xs)
+rn (NS (JSExpressionParen lb e rb) p []) foo   = (rJS [rb] (rJS [e] (rJS [lb] foo)))
+rn (NS (JSExpressionTernary cond h v1 c v2) p []) foo  =  (rJS v2
+                                                           (rJS [c]
+                                                            (rJS v1
+                                                             (rJS [h]
+                                                              (rJS cond foo)))))
 
-rn (NS (JSReturn xs) p []) foo = (rJS [] p xs foo)
+rn (NS (JSExpressionBinary s lhs op rhs) p []) foo   = (rJS rhs (rJS [op] (rJS lhs foo)))
+rn (NS (JSExpressionPostfix s xs op) p []) foo       = (rJS [op] (rJS xs foo))
 
-rn (NS (JSExpressionParen lb e rb) p []) foo   = (rJS [] p [rb] (rJS  [] p [e] (rJS [] p [lb] foo)))
-rn (NS (JSExpressionTernary cond h v1 c v2) p []) foo  =  (rJS [] p v2
-                                                           (rJS [] p [c]
-                                                            (rJS [] p v1
-                                                             (rJS [] p [h]
-                                                              (rJS [] p cond foo)))))
+rn (NS (JSFunctionExpression f x1s lb x2s rb lb2 x3 rb2) p []) foo = (rJS [rb2 ]
+                                                                      (rJS [x3]
+                                                                       (rJS [lb2]
+                                                                        (rJS [rb]
+                                                                         (rJS x2s
+                                                                          (rJS [lb]
+                                                                           (rJS x1s
+                                                                            (rJS [f] foo))))))))
+rn (NS (JSMemberSquare xs lb e rb) p []) foo = (rJS [rb]
+                                                (rJS [e]
+                                                 (rJS [lb]
+                                                  (rJS xs foo))))
 
-rn (NS (JSExpressionBinary s lhs op rhs) p []) foo   = (rJS [] p rhs (rJS  [] p [op] (rJS [] p lhs foo)))
-rn (NS (JSExpressionPostfix s xs op) p []) foo   = (rJS  [] p [op] (rJS [] p xs foo))
+rn (NS (JSMemberDot xs dot n) p []) foo = (rJS [n]
+                                           (rJS [dot]
+                                            (rJS xs foo)))
 
-rn (NS (JSFunctionExpression f x1s lb x2s rb lb2 x3 rb2) p []) foo = (rJS [] p [rb2 ]
-                                                                      (rJS [] p [x3]
-                                                                       (rJS [] p [lb2]
-                                                                        (rJS [] p [rb]
-                                                                         (rJS [] p x2s
-                                                                          (rJS [] p [lb]
-                                                                           (rJS [] p x1s
-                                                                            (rJS [] p [f] foo))))))))
-rn (NS (JSMemberSquare xs lb e rb) p []) foo = (rJS [] p [rb]
-                                                (rJS [] p [e]
-                                                 (rJS [] p [lb]
-                                                  (rJS [] p xs foo))))
+rn (NS (JSArguments lb xs rb) p []) foo = (rJS [rb]
+                                           (rJS xs
+                                            (rJS [lb] foo)))
 
-rn (NS (JSMemberDot xs dot n) p []) foo = (rJS [] p [n]
-                                           (rJS [] p [dot]
-                                            (rJS [] p xs foo)))
+rn (NS (JSCallExpression s os xs cs) p []) foo = (rJS cs
+                                                  (rJS xs
+                                                   (rJS os foo)))
 
-rn (NS (JSArguments lb xs rb) p []) foo = (rJS [] p [rb]
-                                           (rJS [] p xs
-                                            (rJS [] p [lb] foo)))
+rn (NS (JSIf i lb x1 rb x2 x3s) p []) foo = (rJS x3s
+                                             (rJS [x2]
+                                              (rJS [rb]
+                                               (rJS [x1]
+                                                (rJS [lb]
+                                                 (rJS [i] foo))))))
 
-rn (NS (JSCallExpression s os xs cs) p []) foo = (rJS [] p cs
-                                                  (rJS [] p xs
-                                                   (rJS [] p os foo)))
+rn (NS (JSBlock lb x rb) p []) foo = (rJS rb
+                                      (rJS [x]
+                                       (rJS lb foo)))
 
-rn (NS (JSIf i lb x1 rb x2 x3s) p []) foo = (rJS [] p x3s
-                                             (rJS [] p [x2]
-                                              (rJS [] p [rb]
-                                               (rJS [] p [x1]
-                                                (rJS [] p [lb]
-                                                 (rJS [] p [i] foo))))))
+rn (NS (JSDoWhile d x1 w lb x2 rb x3) p []) foo = (rJS [x3]
+                                                   (rJS [rb]
+                                                    (rJS [x2]
+                                                     (rJS [lb]
+                                                      (rJS [w]
+                                                       (rJS [x1]
+                                                        (rJS [d] foo)))))))
 
-rn (NS (JSBlock lb x rb) p []) foo = (rJS [] p rb
-                                      (rJS [] p [x]
-                                       (rJS [] p lb foo)))
+rn (NS (JSWhile w lb x1 rb x2) p []) foo = (rJS [x2]
+                                            (rJS [rb]
+                                             (rJS [x1]
+                                              (rJS [lb]
+                                               (rJS [w] foo)))))
 
-rn (NS (JSDoWhile d x1 w lb x2 rb x3) p []) foo = (rJS [] p [x3]
-                                                   (rJS [] p [rb]
-                                                    (rJS [] p [x2]
-                                                     (rJS [] p [lb]
-                                                      (rJS [] p [w]
-                                                       (rJS [] p [x1]
-                                                        (rJS [] p [d] foo)))))))
+rn (NS (JSFor f lb x1s s1 x2s s2 x3s rb x4) p []) foo = (rJS [x4]
+                                                         (rJS [rb]
+                                                          (rJS x3s
+                                                           (rJS [s2]
+                                                            (rJS x2s
+                                                             (rJS [s1]
+                                                              (rJS x1s
+                                                               (rJS [lb]
+                                                                (rJS [f] foo)))))))))
 
-rn (NS (JSWhile w lb x1 rb x2) p []) foo = (rJS [] p [x2]
-                                            (rJS [] p [rb]
-                                             (rJS [] p [x1]
-                                              (rJS [] p [lb]
-                                               (rJS [] p [w] foo)))))
+rn (NS (JSForVar f lb v x1s s1 x2s s2 x3s rb x4) p []) foo = (rJS [x4]
+                                                              (rJS [rb]
+                                                               (rJS x3s
+                                                                (rJS [s2]
+                                                                 (rJS x2s
+                                                                  (rJS [s1]
+                                                                   (rJS x1s
+                                                                    (rJS [v]
+                                                                     (rJS [lb]
+                                                                      (rJS [f] foo))))))))))
 
-rn (NS (JSFor f lb x1s s1 x2s s2 x3s rb x4) p []) foo = (rJS [] p [x4]
-                                                         (rJS [] p [rb]
-                                                          (rJS [] p x3s
-                                                           (rJS [] p [s2]
-                                                            (rJS [] p x2s
-                                                             (rJS [] p [s1]
-                                                              (rJS [] p x1s
-                                                               (rJS [] p [lb]
-                                                                (rJS [] p [f] foo)))))))))
+rn (NS (JSForIn f lb x1s i x2 rb x3) p []) foo = (rJS [x3]
+                                                  (rJS [rb]
+                                                   (rJS [x2]
+                                                    (rJS [i]
+                                                     (rJS x1s
+                                                      (rJS [lb]
+                                                       (rJS [f] foo)))))))
 
-rn (NS (JSForVar f lb v x1s s1 x2s s2 x3s rb x4) p []) foo = (rJS [] p [x4]
-                                                              (rJS [] p [rb]
-                                                               (rJS [] p x3s
-                                                                (rJS [] p [s2]
-                                                                 (rJS [] p x2s
-                                                                  (rJS [] p [s1]
-                                                                   (rJS [] p x1s
-                                                                    (rJS [] p [v]
-                                                                     (rJS [] p [lb]
-                                                                      (rJS [] p [f] foo))))))))))
+rn (NS (JSForVarIn f lb v x1 i x2 rb x3) p []) foo = (rJS [x3]
+                                                      (rJS [rb]
+                                                       (rJS [x2]
+                                                        (rJS [i]
+                                                         (rJS [x1]
+                                                          (rJS [v]
+                                                           (rJS [lb]
+                                                            (rJS [f] foo))))))))
 
-rn (NS (JSForIn f lb x1s i x2 rb x3) p []) foo = (rJS [] p [x3]
-                                                  (rJS [] p [rb]
-                                                   (rJS [] p [x2]
-                                                    (rJS [] p [i]
-                                                     (rJS [] p x1s
-                                                      (rJS [] p [lb]
-                                                       (rJS [] p [f] foo)))))))
+rn (NS (JSVarDecl x1 x2s) p []) foo = (rJS x2s
+                                       (rJS [x1] foo))
 
-rn (NS (JSForVarIn f lb v x1 i x2 rb x3) p []) foo = (rJS [] p [x3]
-                                                      (rJS [] p [rb]
-                                                       (rJS [] p [x2]
-                                                        (rJS [] p [i]
-                                                         (rJS [] p [x1]
-                                                          (rJS [] p [v]
-                                                           (rJS [] p [lb]
-                                                            (rJS [] p [f] foo))))))))
+rn (NS (JSVariables n xs as) p []) foo = (rJS [as]
+                                          (rJS xs
+                                           (rJS [n] foo)))
 
-rn (NS (JSVarDecl x1 x2s) p []) foo = (rJS [] p x2s
-                                       (rJS [] p [x1] foo))
+rn (NS (JSContinue c xs as) p []) foo = (rJS [as] (rJS xs (rJS [c] foo)))
 
-rn (NS (JSVariables n xs as) p []) foo = (rJS [] p [as]
-                                          (rJS [] p xs
-                                           (rJS [] p [n] foo)))
+rn (NS (JSBreak b x1s as) p []) foo = (rJS [as]
+                                       (rJS x1s
+                                        (rJS [b] foo)))
 
-rn (NS (JSContinue xs) p []) foo = (rJS [] p xs foo)
+rn (NS (JSWith w lb x1 rb x2s) p []) foo = (rJS x2s
+                                            (rJS [rb]
+                                             (rJS [x1]
+                                              (rJS [lb]
+                                               (rJS [w] foo)))))
 
-rn (NS (JSBreak x1s x2s) p []) foo = (rJS [] p x2s
-                                      (rJS [] p x1s foo))
+rn (NS (JSSwitch s lb x rb x2s) p []) foo = (rJS x2s
+                                             (rJS [rb]
+                                              (rJS [x]
+                                               (rJS [lb]
+                                                (rJS [s] foo)))))
 
-rn (NS (JSWith w lb x1 rb x2s) p []) foo = (rJS [] p x2s
-                                            (rJS [] p [rb]
-                                             (rJS [] p [x1]
-                                              (rJS [] p [lb]
-                                               (rJS [] p [w] foo)))))
+rn (NS (JSThrow t x) p []) foo = (rJS [x]
+                                  (rJS [t] foo))
 
-rn (NS (JSSwitch s lb x rb x2s) p []) foo = (rJS [] p x2s
-                                             (rJS [] p [rb]
-                                              (rJS [] p [x]
-                                               (rJS [] p [lb]
-                                                (rJS [] p [s] foo)))))
+rn (NS (JSCase ca x1 c x2) p []) foo = (rJS [x2]
+                                        (rJS [c]
+                                         (rJS [x1]
+                                          (rJS [ca] foo))))
 
-rn (NS (JSThrow t x) p []) foo = (rJS [] p [x]
-                                  (rJS [] p [t] foo))
+rn (NS (JSDefault d c x) p []) foo = (rJS [x]
+                                      (rJS [c]
+                                       (rJS [d] foo)))
 
-rn (NS (JSCase ca x1 c x2) p []) foo = (rJS [] p [x2]
-                                        (rJS [] p [c]
-                                         (rJS [] p [x1]
-                                          (rJS [] p [ca] foo))))
+rn (NS (JSTry t x1 x2s) p []) foo = (rJS x2s
+                                     (rJS [x1]
+                                      (rJS [t] foo)))
 
-rn (NS (JSDefault d c x) p []) foo = (rJS [] p [x]
-                                      (rJS [] p [c]
-                                       (rJS [] p [d] foo)))
+rn (NS (JSFunction f x1 lb x2s rb lb2 x3 rb2) p []) foo = (rJS [rb2]
+                                                           (rJS [x3]
+                                                            (rJS [lb2]
+                                                             (rJS [rb]
+                                                              (rJS x2s
+                                                               (rJS [lb]
+                                                                (rJS [x1]
+                                                                 (rJS [f] foo))))))))
 
-rn (NS (JSTry t x1 x2s) p []) foo = (rJS [] p x2s
-                                     (rJS [] p [x1]
-                                      (rJS [] p [t] foo)))
+rn (NS (JSCatch c lb x1 x2s rb x3) p []) foo = (rJS [x3]
+                                                (rJS [rb]
+                                                 (rJS x2s
+                                                  (rJS [x1]
+                                                   (rJS [lb]
+                                                    (rJS [c] foo))))))
 
-rn (NS (JSFunction f x1 lb x2s rb lb2 x3 rb2) p []) foo = (rJS [] p [rb2]
-                                                           (rJS [] p [x3]
-                                                            (rJS [] p [lb2]
-                                                             (rJS [] p [rb]
-                                                              (rJS [] p x2s
-                                                               (rJS [] p [lb]
-                                                                (rJS [] p [x1]
-                                                                 (rJS [] p [f] foo))))))))
-
-rn (NS (JSCatch c lb x1 x2s rb x3) p []) foo = (rJS [] p [x3]
-                                                (rJS [] p [rb]
-                                                 (rJS [] p x2s
-                                                  (rJS [] p [x1]
-                                                   (rJS [] p [lb]
-                                                    (rJS [] p [c] foo))))))
-
-rn (NS (JSFinally f x) p []) foo = (rJS [] p [x]
-                                    (rJS [] p [f] foo))
+rn (NS (JSFinally f x) p []) foo = (rJS [x]
+                                    (rJS [f] foo))
 
 -- Debug helper
 rn what foo = rs (show what) foo
+
+--rn _ _ = undefined
 
 -- ---------------------------------------------------------------------
 -- Helper functions
@@ -319,23 +318,11 @@ goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
     cnew = if (ccur' < ctgt) then ctgt else ccur'
 
 
-rJS :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
-rJS cs p xs foo = foldl' (flip rn) (rc cs foo) xs
+rJS :: [JSNode] -> Foo -> Foo
+--rJS cs p xs foo = foldl' (flip rn) (rc cs foo) xs
+rJS xs foo = foldl' (flip rn) foo xs
+--rJS p xs foo = foldl' (flip rn) (rc [] foo) xs
 
-
--- ++AZ++
-{-
-commaList :: [CommentAnnotation] -> TokenPosn -> [JSNode] -> Foo -> Foo
-commaList _cs _p [] foo = foo
-commaList cs p (x:xs) foo = go x xs
-  where
-    go y [] = rn y foo
-    go y (z:zs) = (rn y foo <> comma) : go z zs
-
-    -- (xs', trail) = if (last xs == JSLiteral ",") then (init xs, [comma]) else (xs,[])
-    (xs', trail) = if (x' == JSLiteral ",") then (init xs, [comma]) else (xs,[])
-    (NS x' _ _) = last xs
--}
 
 renderToString :: JSNode -> String
 --renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
@@ -343,10 +330,7 @@ renderToString js = US.decode $ LB.unpack $ BB.toLazyByteString $ renderJS js
 --renderToString js = lbToStr $ S8.fromChunks [ BB.toLazyByteString $ renderJS js ]
 --renderToString js = lbToStr $ BB.toByteString $ renderJS js
 
---lbToStr :: S8.ByteString -> [Char]
---lbToStr = unpack . decodeUtf8With lenientDecode
 
---rn _ _ = undefined
 
 -- ---------------------------------------------------------------------
 -- Test stuff

@@ -6,16 +6,11 @@ module Language.JavaScript.Parser
        , PA.showStripped
        , PA.showStrippedMaybe
        , JSNode(..)
-       --, SrcSpan(..)
-       --, AlexSpan(..)
        , Node(..)
        -- , ParseError(..)
        -- Source locations
        , TokenPosn(..)
        , tokenPosnEmpty
-       -- ParserMonad
-       -- , P
-       -- , ParseState (..)
        -- * Pretty Printing
        , renderJS
        , renderToString

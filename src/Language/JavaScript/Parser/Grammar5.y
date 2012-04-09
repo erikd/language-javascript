@@ -369,7 +369,6 @@ PrimaryExpression : 'this'                   { fp (AST.NS (AST.JSLiteral "this")
                   | Literal                  { $1 {- PrimaryExpression2 -}}
                   | ArrayLiteral             { $1 {- PrimaryExpression3 -}}
                   | ObjectLiteral            { $1 {- PrimaryExpression4 -}}
-                  -- | '(' Expression ')'       { fp (AST.NS (AST.JSExpressionParen $2) (ss $1) ((gc $1)++(gnc $2)++(gc $3)))}
                   | LParen Expression RParen  { fp (AST.NS (AST.JSExpressionParen $1 $2 $3) (ex $1) []) }
 
 -- Identifier ::                                                            See 7.6
@@ -427,11 +426,6 @@ IdentifierName : Identifier {$1}
 --        [ ElementList ]
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSNode }
--- ArrayLiteral : '[' ']'                         { fp (AST.NS (AST.JSArrayLiteral []) (ss $1) ((gc $1)++(gc $2)))}
---              | '[' Elision ']'                 { fp (AST.NS (AST.JSArrayLiteral $2) (ss $1) (mgc [$1,$3]))}
---              | '[' ElementList ']'             { fp (AST.NS (AST.JSArrayLiteral $2) (ss $1) (mgc [$1,$3]))}
---              | '[' ElementList ',' Elision ']' { fp (AST.NS (AST.JSArrayLiteral ($2++$4)) (ss $1) (mgc [$1,$3,$5]))}
---              | '[' ElementList ',' ']'         { fp (AST.NS (AST.JSArrayLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) (gc $3)])) (ss $1) (mgc [$1,$4]))}
 ArrayLiteral : LSquare RSquare                 { fp (AST.NS (AST.JSArrayLiteral $1 [] $2) (ex $1) [])}
              | LSquare Elision RSquare         { fp (AST.NS (AST.JSArrayLiteral $1 $2 $3) (ex $1) [])}
              | LSquare ElementList RSquare     { fp (AST.NS (AST.JSArrayLiteral $1 $2 $3) (ex $1) [])}
@@ -446,25 +440,22 @@ ArrayLiteral : LSquare RSquare                 { fp (AST.NS (AST.JSArrayLiteral 
 ElementList :: { [AST.JSNode] }
 ElementList : Elision AssignmentExpression                 { (($1)++($2)) {- ElementList -}}
             | AssignmentExpression                         { $1           {- ElementList -}}
-            | ElementList Comma Elision AssignmentExpression { (($1)++[fp (AST.NS (AST.JSElision [$2]) (ex $2) [])]++($3)++($4)) {- ElementList -}}
-            | ElementList Comma AssignmentExpression         { (($1)++[fp (AST.NS (AST.JSElision [$2]) (ex $2) [])]++($3)) {- ElementList -}}
+            | ElementList Comma Elision AssignmentExpression { (($1)++[fp (AST.NS (AST.JSElision $2) (ex $2) [])]++($3)++($4)) {- ElementList -}}
+            | ElementList Comma AssignmentExpression         { (($1)++[fp (AST.NS (AST.JSElision $2) (ex $2) [])]++($3)) {- ElementList -}}
 
 
 -- Elision :                                                             See 11.1.4
 --        ,
 --        Elision ,
 Elision :: { [AST.JSNode] }
-Elision : Comma        { [        fp (AST.NS (AST.JSElision [$1]) ( ex $1) [])] }
-        | Elision Comma { ($1 ++ [fp (AST.NS (AST.JSElision [$2]) (mex $1) [])]) }
+Elision : Comma        { [        fp (AST.NS (AST.JSElision $1) ( ex $1) [])] }
+        | Elision Comma { ($1 ++ [fp (AST.NS (AST.JSElision $2) (mex $1) [])]) }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
 --        { PropertyNameAndValueList }
 --        { PropertyNameAndValueList , }
 ObjectLiteral :: { AST.JSNode }
--- ObjectLiteral : '{' '}'                          { fp (AST.NS (AST.JSObjectLiteral []) (ss $1) ((gc $1)++(gc $2)))}
---               | '{' PropertyNameandValueList '}' { fp (AST.NS (AST.JSObjectLiteral $2) (ss $1) ((gc $1)++(gc $3)))}
---               | '{' PropertyNameandValueList ',' '}' { fp (AST.NS (AST.JSObjectLiteral ($2++[AST.NS (AST.JSLiteral ",") (ss $3) (gc $3)])) (ss $1) ((gc $1)++(gc $4)))}
 ObjectLiteral : LBrace RBrace                                { fp (AST.NS (AST.JSObjectLiteral $1 [] $2)         (ex $1) [])}
               | LBrace PropertyNameandValueList RBrace       { fp (AST.NS (AST.JSObjectLiteral $1 $2 $3)         (ex $1) [])}
               | LBrace PropertyNameandValueList Comma RBrace { fp (AST.NS (AST.JSObjectLiteral $1 ($2++[$3]) $4) (ex $1) [])}
@@ -853,13 +844,7 @@ StatementNoEmpty : StatementBlock     { $1 {- StatementNoEmpty1 -}}
                  | TryStatement       { $1 {- StatementNoEmpty14 -}}
                  | DebuggerStatement  { $1 {- StatementNoEmpty15 -}}
 
--- FIXME: not producing true reflection of parse, doing minimisation transformationsa  in place
--- StatementBlock :: { AST.JSNode }
--- StatementBlock : '{' '}'               { (AST.NS (AST.JSLiteral ";") (ss $1) []) }
---                | '{' StatementList '}' { (if ($2 == AST.JSStatementList [AST.JSLiteral ";"])
---                                             then (AST.NS (AST.JSLiteral ";") (ss $1) [])
---                                             else (AST.NS (AST.JSBlock $2   ) (ss $1) []))
---                                        }
+
 StatementBlock :: { AST.JSNode }
 StatementBlock : LBrace RBrace               { fp (AST.NS (AST.JSStatementBlock $1 (AST.NS (AST.JSStatementList []) (ex $1) []) $2) (ex $1) []) }
                | LBrace StatementList RBrace { fp (AST.NS (AST.JSStatementBlock $1 $2                                           $3) (ex $1) []) }
@@ -994,22 +979,22 @@ IterationStatement : Do Statement While LParen Expression RParen AutoSemi
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSNode }
-ContinueStatement : Continue AutoSemi             { fp (AST.NS (AST.JSContinue [$1,$2])    (ex $1) []) }
-                  | Continue Identifier AutoSemi  { fp (AST.NS (AST.JSContinue [$1,$2,$3]) (ex $1) []) }
+ContinueStatement : Continue AutoSemi             { fp (AST.NS (AST.JSContinue $1 []   $2) (ex $1) []) }
+                  | Continue Identifier AutoSemi  { fp (AST.NS (AST.JSContinue $1 [$2] $3) (ex $1) []) }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSNode }
-BreakStatement : Break AutoSemi             { fp (AST.NS (AST.JSBreak [$1]    [$2]) (ex $1) []) }
-               | Break Identifier AutoSemi  { fp (AST.NS (AST.JSBreak [$1,$2] [$3]) (ex $1) []) }
+BreakStatement : Break AutoSemi             { fp (AST.NS (AST.JSBreak $1 []   $2) (ex $1) []) }
+               | Break Identifier AutoSemi  { fp (AST.NS (AST.JSBreak $1 [$2] $3) (ex $1) []) }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSNode }
-ReturnStatement : Return AutoSemi             { fp (AST.NS (AST.JSReturn [$1,$2])    (ex $1) []) }
-                | Return Expression AutoSemi  { fp (AST.NS (AST.JSReturn [$1,$2,$3]) (ex $1) []) }
+ReturnStatement : Return AutoSemi             { fp (AST.NS (AST.JSReturn $1 []   $2) (ex $1) []) }
+                | Return Expression AutoSemi  { fp (AST.NS (AST.JSReturn $1 [$2] $3) (ex $1) []) }
 
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement
