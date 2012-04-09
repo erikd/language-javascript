@@ -402,8 +402,12 @@ lexCont cont = do
             cont tok'
 
 toCommentAnnotation []    = [NoComment]
--- toCommentAnnotation [tok] = [(CommentA (token_span tok) (token_literal tok))]
-toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
+--toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
+
+toCommentAnnotation xs =  reverse $ map go xs
+  where
+    go tok@(CommentToken {}) = (CommentA (token_span tok) (token_literal tok))
+    go tok@(WsToken      {}) = (WhiteSpace (token_span tok) (token_literal tok))
 
 -- ---------------------------------------------------------------------
 

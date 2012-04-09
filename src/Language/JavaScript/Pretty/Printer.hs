@@ -14,8 +14,6 @@ import Language.JavaScript.Parser.Token
 import qualified Blaze.ByteString.Builder as BB
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
 import qualified Data.ByteString.Lazy as LB
-import qualified Data.ByteString.Lazy.Char8 as S8
-import qualified Data.ByteString.UTF8 as UB
 import qualified Codec.Binary.UTF8.String as US
 
 import Debug.Trace
@@ -72,59 +70,59 @@ renderJS node = bb
 rn :: JSNode -> Foo -> Foo
 
 -- Terminals
-rn (NS (JSIdentifier s     ) p cs) foo = rcs cs p s  foo
-rn (NS (JSDecimal i        ) p cs) foo = rcs cs p i foo
-rn (NS (JSLiteral l        ) p cs) foo = rcs cs p l foo
-rn (NS (JSHexInteger i     ) p cs) foo = rcs cs p i foo
-rn (NS (JSStringLiteral s l) p cs) foo = rcs cs p ((s:l)++[s]) foo
-rn (NS (JSRegEx s          ) p cs) foo = rcs cs p s foo
+rn (NT (JSIdentifier s     ) p cs) foo = rcs cs p s  foo
+rn (NT (JSDecimal i        ) p cs) foo = rcs cs p i foo
+rn (NT (JSLiteral l        ) p cs) foo = rcs cs p l foo
+rn (NT (JSHexInteger i     ) p cs) foo = rcs cs p i foo
+rn (NT (JSStringLiteral s l) p cs) foo = rcs cs p ((s:l)++[s]) foo
+rn (NT (JSRegEx s          ) p cs) foo = rcs cs p s foo
 
 -- Non-Terminals
-rn (NS (JSArguments lb xs rb) p [])                    foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (NS (JSArrayLiteral lb xs rb) p [])                 foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (NS (JSBlock lb x rb) p [])                         foo = rJS (lb ++ [x] ++ rb) foo
-rn (NS (JSBreak b x1s as) p [])                        foo = rJS ([b]++x1s++[as]) foo
-rn (NS (JSCallExpression s os xs cs) p [])             foo = rJS (os ++ xs ++ cs) foo
-rn (NS (JSCase ca x1 c x2) p [])                       foo = rJS [ca,x1,c,x2] foo
-rn (NS (JSCatch c lb x1 x2s rb x3) p [])               foo = rJS ([c,lb,x1]++x2s++[rb,x3]) foo
-rn (NS (JSContinue c xs as) p [])                      foo = rJS ([c]++xs++[as]) foo
-rn (NS (JSDefault d c x) p [])                         foo = rJS [d,c,x] foo
-rn (NS (JSDoWhile d x1 w lb x2 rb x3) p [])            foo = rJS ([d,x1,w,lb,x2,rb,x3]) foo
-rn (NS (JSElision c) p cs)                             foo = rJS [c] foo
-rn (NS (JSExpression xs) p cs)                         foo = rJS xs foo
-rn (NS (JSExpressionBinary s lhs op rhs) p [])         foo = rJS (lhs ++ [op] ++ rhs) foo
-rn (NS (JSExpressionParen lb e rb) p [])               foo = rJS ([lb,e,rb]) foo
-rn (NS (JSExpressionPostfix s xs op) p [])             foo = rJS (xs ++ [op]) foo
-rn (NS (JSExpressionTernary cond h v1 c v2) p [])      foo = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) foo
-rn (NS (JSFinally f x) p [])                           foo = rJS [f,x] foo
-rn (NS (JSFor f lb x1s s1 x2s s2 x3s rb x4) p [])      foo = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
-rn (NS (JSForIn f lb x1s i x2 rb x3) p [])             foo = rJS ([f,lb]++x1s++[i,x2,rb,x3]) foo
-rn (NS (JSForVar f lb v x1s s1 x2s s2 x3s rb x4) p []) foo = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
-rn (NS (JSForVarIn f lb v x1 i x2 rb x3) p [])         foo = rJS [f,lb,v,x1,i,x2,rb,x3] foo
-rn (NS (JSFunction f x1 lb x2s rb lb2 x3 rb2) p [])    foo = rJS ([f,x1,lb]++x2s++[rb,lb2,x3,rb2]) foo
-rn (NS (JSFunctionBody xs) p [])                       foo = rJS xs foo
-rn (NS (JSFunctionExpression f x1s lb x2s rb lb2 x3 rb2) p []) foo = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,lb2,x3,rb2]) foo
-rn (NS (JSIf i lb x1 rb x2 x3s) p [])                  foo = rJS ([i,lb,x1,rb,x2]++x3s) foo
-rn (NS (JSLabelled l c v) p cs)                        foo = rJS [l,c,v] foo
-rn (NS (JSMemberDot xs dot n) p [])                    foo = rJS (xs ++ [dot,n]) foo
-rn (NS (JSMemberSquare xs lb e rb) p [])               foo = rJS (xs ++ [lb,e,rb]) foo
-rn (NS (JSObjectLiteral lb xs rb) p [])                foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (NS (JSOperator n) p cs)                            foo = rJS [n] foo
-rn (NS (JSPropertyAccessor s n lb1 ps rb1 lb2 b rb2) p []) foo = rJS ([s,n,lb1] ++ ps ++ [rb1,lb2,b,rb2]) foo
-rn (NS (JSPropertyNameandValue n colon vs) p [])       foo = rJS ([n,colon] ++ vs) foo
-rn (NS (JSReturn r xs as) p [])                        foo = rJS ([r] ++ xs ++ [as]) foo
-rn (NS (JSSourceElements    xs) p cs)                  foo = rJS xs foo
-rn (NS (JSSourceElementsTop xs) p cs)                  foo = rJS xs foo
-rn (NS (JSStatementBlock lb x rb) p [])                foo = rJS [lb,x,rb] foo
-rn (NS (JSStatementList xs) p cs)                      foo = rJS xs foo
-rn (NS (JSSwitch s lb x rb x2s) p [])                  foo = rJS ([s,lb,x,rb]++x2s) foo
-rn (NS (JSThrow t x) p [])                             foo = rJS [t,x] foo
-rn (NS (JSTry t x1 x2s) _p [])                         foo = rJS ([t,x1]++x2s) foo
-rn (NS (JSUnary l n) p cs)                             foo = rJS [n] foo
-rn (NS (JSVarDecl x1 x2s) p [])                        foo = rJS ([x1]++x2s) foo
-rn (NS (JSVariables n xs as) p [])                     foo = rJS ([n]++xs++[as]) foo
-rn (NS (JSWhile w lb x1 rb x2) p [])                   foo = rJS [w,lb,x1,rb,x2] foo
-rn (NS (JSWith w lb x1 rb x2s) p [])                   foo = rJS ([w,lb,x1,rb]++x2s) foo
+rn (NN (JSArguments lb xs rb))                    foo = rJS ([lb] ++ xs ++ [rb]) foo
+rn (NN (JSArrayLiteral lb xs rb))                 foo = rJS ([lb] ++ xs ++ [rb]) foo
+rn (NN (JSBlock lb x rb))                         foo = rJS (lb ++ [x] ++ rb) foo
+rn (NN (JSBreak b x1s as))                        foo = rJS ([b]++x1s++[as]) foo
+rn (NN (JSCallExpression s os xs cs))             foo = rJS (os ++ xs ++ cs) foo
+rn (NN (JSCase ca x1 c x2))                       foo = rJS [ca,x1,c,x2] foo
+rn (NN (JSCatch c lb x1 x2s rb x3))               foo = rJS ([c,lb,x1]++x2s++[rb,x3]) foo
+rn (NN (JSContinue c xs as))                      foo = rJS ([c]++xs++[as]) foo
+rn (NN (JSDefault d c x))                         foo = rJS [d,c,x] foo
+rn (NN (JSDoWhile d x1 w lb x2 rb x3))            foo = rJS ([d,x1,w,lb,x2,rb,x3]) foo
+rn (NN (JSElision c))                             foo = rJS [c] foo
+rn (NN (JSExpression xs))                         foo = rJS xs foo
+rn (NN (JSExpressionBinary s lhs op rhs))         foo = rJS (lhs ++ [op] ++ rhs) foo
+rn (NN (JSExpressionParen lb e rb))               foo = rJS ([lb,e,rb]) foo
+rn (NN (JSExpressionPostfix s xs op))             foo = rJS (xs ++ [op]) foo
+rn (NN (JSExpressionTernary cond h v1 c v2))      foo = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) foo
+rn (NN (JSFinally f x))                           foo = rJS [f,x] foo
+rn (NN (JSFor f lb x1s s1 x2s s2 x3s rb x4))      foo = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
+rn (NN (JSForIn f lb x1s i x2 rb x3))             foo = rJS ([f,lb]++x1s++[i,x2,rb,x3]) foo
+rn (NN (JSForVar f lb v x1s s1 x2s s2 x3s rb x4)) foo = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
+rn (NN (JSForVarIn f lb v x1 i x2 rb x3))         foo = rJS [f,lb,v,x1,i,x2,rb,x3] foo
+rn (NN (JSFunction f x1 lb x2s rb lb2 x3 rb2))    foo = rJS ([f,x1,lb]++x2s++[rb,lb2,x3,rb2]) foo
+rn (NN (JSFunctionBody xs))                       foo = rJS xs foo
+rn (NN (JSFunctionExpression f x1s lb x2s rb lb2 x3 rb2)) foo = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,lb2,x3,rb2]) foo
+rn (NN (JSIf i lb x1 rb x2 x3s))                  foo = rJS ([i,lb,x1,rb,x2]++x3s) foo
+rn (NN (JSLabelled l c v))                        foo = rJS [l,c,v] foo
+rn (NN (JSMemberDot xs dot n))                    foo = rJS (xs ++ [dot,n]) foo
+rn (NN (JSMemberSquare xs lb e rb))               foo = rJS (xs ++ [lb,e,rb]) foo
+rn (NN (JSObjectLiteral lb xs rb))                foo = rJS ([lb] ++ xs ++ [rb]) foo
+rn (NN (JSOperator n))                            foo = rJS [n] foo
+rn (NN (JSPropertyAccessor s n lb1 ps rb1 lb2 b rb2)) foo = rJS ([s,n,lb1] ++ ps ++ [rb1,lb2,b,rb2]) foo
+rn (NN (JSPropertyNameandValue n colon vs))       foo = rJS ([n,colon] ++ vs) foo
+rn (NN (JSReturn r xs as))                        foo = rJS ([r] ++ xs ++ [as]) foo
+rn (NN (JSSourceElements    xs))                  foo = rJS xs foo
+rn (NN (JSSourceElementsTop xs))                  foo = rJS xs foo
+rn (NN (JSStatementBlock lb x rb))                foo = rJS [lb,x,rb] foo
+rn (NN (JSStatementList xs))                      foo = rJS xs foo
+rn (NN (JSSwitch s lb x rb x2s))                  foo = rJS ([s,lb,x,rb]++x2s) foo
+rn (NN (JSThrow t x))                             foo = rJS [t,x] foo
+rn (NN (JSTry t x1 x2s))                          foo = rJS ([t,x1]++x2s) foo
+rn (NN (JSUnary l n))                             foo = rJS [n] foo
+rn (NN (JSVarDecl x1 x2s))                        foo = rJS ([x1]++x2s) foo
+rn (NN (JSVariables n xs as))                     foo = rJS ([n]++xs++[as]) foo
+rn (NN (JSWhile w lb x1 rb x2))                   foo = rJS [w,lb,x1,rb,x2] foo
+rn (NN (JSWith w lb x1 rb x2s))                   foo = rJS ([w,lb,x1,rb]++x2s) foo
 
 -- Debug helper
 rn what foo = rs (show what) foo
@@ -147,7 +145,8 @@ rc cs foo = foldl' go foo cs
   where
     go :: Foo -> CommentAnnotation -> Foo
     go foo NoComment = foo
-    go foo (CommentA p s) = rps p s foo
+    go foo (CommentA   p s) = rps p s foo
+    go foo (WhiteSpace p s) = rps p s foo
 
 -- Render a string at the given position
 rps :: TokenPosn -> String -> Foo -> Foo
@@ -198,29 +197,28 @@ _t str = _r $ readJs str
 
 
 -- readJs "/*a*/x"
-_ax = (NS
+_ax = (NN
      (JSExpression
-       [NS
+       [NT
         (JSIdentifier "x")
         (TokenPn 5 1 6)
         [CommentA (TokenPn 0 1 1) "/*a*/"]])
-     (TokenPn 5 1 6)
-     [])
+      )
 
 
 -- readJs "//j\nthis_"
 -- NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier "this_") (TokenPn 4 2 1) [CommentA (TokenPn 0 1 1) "//j"]]) (TokenPn 4 2 1) []]) (TokenPn 4 2 1) []
 
-_r1 = NS
+_r1 = NN
       (
         JSExpression
           [
-            NS
+            NT
               (JSIdentifier "this_")
               (TokenPn 4 2 1)
               [CommentA (TokenPn 0 1 1) "//j"]
           ])
-      (TokenPn 4 2 1) []
+
 
 -- EOF
 

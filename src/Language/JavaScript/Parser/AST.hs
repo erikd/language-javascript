@@ -15,10 +15,12 @@ import Language.JavaScript.Parser.Token
 -- ---------------------------------------------------------------------
 
 -- |The JSNode is the building block of the AST.
--- Each has a syntactic part 'Node', the position of the first leaf element
--- 'TokenPosn', as well as an array (length 0 or 1) of comments that were collected
--- while parsing. The comments will only decorate leaf elements.
-data JSNode = NS Node TokenPosn [CommentAnnotation]
+-- Each has a syntactic part 'Node'. In addition, the leaf elements
+-- (terminals) have a position 'TokenPosn', as well as an array of comments
+-- and/or whitespace that was collected while parsing.
+
+data JSNode = NN Node -- ^Non Terminal node, does not have any position or comment information
+            | NT Node TokenPosn [CommentAnnotation] -- ^Terminal node, including position and comment/whitespace information
     deriving (Show, Eq, Read, Data, Typeable)
 
 data Node =
@@ -85,7 +87,8 @@ showStripped = ss
 
 -- Alias for internal use
 ss :: JSNode -> String
-ss (NS node _ _) = showStrippedNode node
+ss (NN node    ) = showStrippedNode node
+ss (NT node _ _) = showStrippedNode node
 
 sss :: [JSNode] -> String
 --sss xs = "[" ++ (concatMap ss xs) ++ "]"
