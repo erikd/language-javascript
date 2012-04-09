@@ -31,6 +31,7 @@ data Node =
               | JSRegEx String
 
               -- | Non Terminals
+
               | JSArguments JSNode [JSNode] JSNode    -- ^lb, args, rb
               | JSArrayLiteral JSNode [JSNode] JSNode -- ^lb, contents, rb
               | JSBlock [JSNode] JSNode [JSNode]      -- ^optional lb,block,optional rb
@@ -90,61 +91,57 @@ sss :: [JSNode] -> String
 --sss xs = "[" ++ (concatMap ss xs) ++ "]"
 sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
 
-ssss :: [[JSNode]] -> String
---ssss xss = "[" ++ (concatMap sss xss) ++ "]"
-ssss xss = "[" ++ (concat (intersperse "," $ map sss xss)) ++ "]"
-
 showStrippedNode :: Node -> String
-showStrippedNode (JSArguments lb xs rb) = "JSArguments " ++ sss xs
-showStrippedNode (JSArrayLiteral lb xs rb) = "JSArrayLiteral " ++ sss xs
-showStrippedNode (JSBlock lb x rb) = "JSBlock (" ++ ss x ++ ")"
-showStrippedNode (JSBreak b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as
-showStrippedNode (JSCallExpression s os xs cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
-showStrippedNode (JSCase ca x1 c x2) = "JSCase (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
-showStrippedNode (JSCatch c lb x1 x2s rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
-showStrippedNode (JSContinue c xs as) = "JSContinue " ++ sss xs ++ " " ++ ss as
+showStrippedNode (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
+showStrippedNode (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
+showStrippedNode (JSBlock _lb x _rb) = "JSBlock (" ++ ss x ++ ")"
+showStrippedNode (JSBreak _b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as
+showStrippedNode (JSCallExpression s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
+showStrippedNode (JSCase _ca x1 _c x2) = "JSCase (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+showStrippedNode (JSCatch _c _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSContinue _c xs as) = "JSContinue " ++ sss xs ++ " " ++ ss as
 showStrippedNode (JSDecimal s) = "JSDecimal " ++ show s
-showStrippedNode (JSDefault d c x) = "JSDefault (" ++ ss x ++ ")"
-showStrippedNode (JSDoWhile d x1 w lb x2 rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+showStrippedNode (JSDefault _d _c x) = "JSDefault (" ++ ss x ++ ")"
+showStrippedNode (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 showStrippedNode (JSElision c) = "JSElision " ++ ss c
 showStrippedNode (JSExpression xs) = "JSExpression " ++ sss xs
-showStrippedNode (JSExpressionBinary s x2s op x3s) = "JSExpressionBinary " ++ show s ++ " " ++ sss x2s ++ " " ++ sss x3s
-showStrippedNode (JSExpressionParen lp x rp) = "JSExpressionParen (" ++ ss x ++ ")"
-showStrippedNode (JSExpressionPostfix s xs op) = "JSExpressionPostfix " ++ show s ++ " " ++ sss xs
-showStrippedNode (JSExpressionTernary x1s q x2s c x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
-showStrippedNode (JSFinally f x) = "JSFinally (" ++ ss x ++ ")"
-showStrippedNode (JSFor f lb x1s s1 x2s s2 x3s rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
-showStrippedNode (JSForIn f lb x1s i x2 rb x3) = "JSForIn " ++ sss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
-showStrippedNode (JSForVar f lb v x1s s1 x2s s2 x3s rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
-showStrippedNode (JSForVarIn f lb v x1 i x2 rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
-showStrippedNode (JSFunction f x1 lb x2s rb lb2 x3 rb2) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSExpressionBinary s x2s _op x3s) = "JSExpressionBinary " ++ show s ++ " " ++ sss x2s ++ " " ++ sss x3s
+showStrippedNode (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
+showStrippedNode (JSExpressionPostfix s xs _op) = "JSExpressionPostfix " ++ show s ++ " " ++ sss xs
+showStrippedNode (JSExpressionTernary x1s _q x2s _c x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
+showStrippedNode (JSFinally _f x) = "JSFinally (" ++ ss x ++ ")"
+showStrippedNode (JSFor _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
+showStrippedNode (JSForIn _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ sss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+showStrippedNode (JSForVar _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
+showStrippedNode (JSForVarIn _f _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+showStrippedNode (JSFunction _f x1 _lb x2s _rb _lb2 x3 _rb2) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSFunctionBody xs) = "JSFunctionBody " ++ sss xs
-showStrippedNode (JSFunctionExpression f x1s lb x2s rb lb2 x3 rb2) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSFunctionExpression _f x1s _lb x2s _rb _lb2 x3 _rb2) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSHexInteger s) = "JSHexInteger " ++ show s
 showStrippedNode (JSIdentifier s) = "JSIdentifier " ++ show s
-showStrippedNode (JSIf i lb x1 rb x2 x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ sss x3s ++ ")"
-showStrippedNode (JSLabelled x1 c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+showStrippedNode (JSIf _i _lb x1 _rb x2 x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ sss x3s ++ ")"
+showStrippedNode (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 showStrippedNode (JSLiteral s) = "JSLiteral " ++ show s
-showStrippedNode (JSMemberDot x1s d x2 ) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
-showStrippedNode (JSMemberSquare x1s lb x2 rb) = "JSMemberSquare " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
-showStrippedNode (JSObjectLiteral lb xs rb) = "JSObjectLiteral " ++ sss xs
+showStrippedNode (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
+showStrippedNode (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
+showStrippedNode (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 showStrippedNode (JSOperator n) = "JSOperator " ++ ss n
-showStrippedNode (JSPropertyNameandValue x1 colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
-showStrippedNode (JSPropertyAccessor s x1 lb1 x2s rb1 lb2 x3 rb2) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
+showStrippedNode (JSPropertyAccessor s x1 _lb1 x2s _rb1 _lb2 x3 _rb2) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSRegEx s) = "JSRegEx " ++ show s
-showStrippedNode (JSReturn r xs as) = "JSReturn " ++ sss xs ++ " " ++ ss as
+showStrippedNode (JSReturn _r xs as) = "JSReturn " ++ sss xs ++ " " ++ ss as
 showStrippedNode (JSSourceElements xs) = "JSSourceElements " ++ sss xs
 showStrippedNode (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ sss xs
-showStrippedNode (JSStatementBlock lb x rb) = "JSStatementBlock (" ++ ss x ++ ")"
+showStrippedNode (JSStatementBlock _lb x _rb) = "JSStatementBlock (" ++ ss x ++ ")"
 showStrippedNode (JSStatementList xs) = "JSStatementList " ++ sss xs
 showStrippedNode (JSStringLiteral c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
-showStrippedNode (JSSwitch s lb x rb x2s) = "JSSwitch (" ++ ss x ++ ") " ++ sss x2s
-showStrippedNode (JSThrow t x) = "JSThrow (" ++ ss x ++ ")"
-showStrippedNode (JSTry t x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
-showStrippedNode (JSUnary s x) = "JSUnary " ++ show s
+showStrippedNode (JSSwitch _s _lb x _rb x2s) = "JSSwitch (" ++ ss x ++ ") " ++ sss x2s
+showStrippedNode (JSThrow _t x) = "JSThrow (" ++ ss x ++ ")"
+showStrippedNode (JSTry _t x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
+showStrippedNode (JSUnary s _x) = "JSUnary " ++ show s
 showStrippedNode (JSVarDecl x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
-showStrippedNode (JSVariables n xs as) = "JSVariables " ++ ss n ++ " " ++ sss xs
-showStrippedNode (JSWhile w lb x1 rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
-showStrippedNode (JSWith w lb x1 rb x2s) = "JSWith (" ++ ss x1 ++ ") " ++ sss x2s
+showStrippedNode (JSVariables n xs _as) = "JSVariables " ++ ss n ++ " " ++ sss xs
+showStrippedNode (JSWhile _w _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+showStrippedNode (JSWith _w _lb x1 _rb x2s) = "JSWith (" ++ ss x1 ++ ") " ++ sss x2s
 
 -- EOF
