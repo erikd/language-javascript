@@ -2,7 +2,11 @@
 
 module Language.JavaScript.Parser.Lexer (
     Token(..)
+    , AlexPosn(..)
+    , Alex
     , lexCont
+    , alexError
+    , runAlex
     ) where
 
 --import Control.Monad
@@ -17,10 +21,9 @@ import Codec.Binary.UTF8.Light as UTF8
 
 }
 
--- Not using a wrapper, rolling own below.
---%wrapper "basic"
---%wrapper "monad"
---%wrapper "monadUserState"
+-- %wrapper "basic"
+-- %wrapper "monad"
+%wrapper "monadUserState"
 -- %wrapper "monad-bytestring"
 
 -- character sets
@@ -169,11 +172,13 @@ tokens :-
 <0> () ; -- { registerStates lexToken reg divide }
 
 -- Skip Whitespace
-<reg,divide> $white_char+   ;
+-- <reg,divide> $white_char+   ;
+<reg,divide> $white_char+   { adapt (mkString wsToken) }
 
 -- Skip one line comment
-<reg,divide> "//"($not_eol_char)*   ;
-
+-- <reg,divide> "//"($not_eol_char)*   ;
+<reg,divide> "//"($not_eol_char)*   { adapt (mkString commentToken) }
+-- <reg,divide> "//"($not_eol_char)*   { mkComment }
 
 -- ---------------------------------------------------------------------
 -- Comment definition from the ECMAScript spec, ver 3
@@ -193,27 +198,27 @@ tokens :-
 
 -- Skip multi-line comments. Note: may not nest
 -- <reg,divide> "/*"($any_char)*"*/"  ;
-<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;
-
+-- <reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  ;
+<reg,divide> "/*" (($MultiLineNotAsteriskChar)*| ("*")+ ($MultiLineNotForwardSlashOrAsteriskChar) )* ("*")+ "/"  { adapt (mkString commentToken) }
 
 
 -- Identifier    = {ID Head}{ID Tail}*
---<reg,divide> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
-<reg,divide> @IdentifierStart(@IdentifierPart)*  { \loc len str -> keywordOrIdent (take len str) loc }
+-- <reg,divide> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
+<reg,divide> @IdentifierStart(@IdentifierPart)*  { \ap@(loc,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc) }
 
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"'
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
 <reg,divide>  $dq ( $StringChars1 | \\ $printable | @LineContinuation )* $dq
-            | $sq ( $StringChars2 | \\ $printable | @LineContinuation )* $sq { mkString stringToken }
+            | $sq ( $StringChars2 | \\ $printable | @LineContinuation )* $sq { adapt (mkString stringToken) }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
-<reg,divide> ("0x"|"0X") @HexDigit+ { mkString hexIntegerToken }
+<reg,divide> ("0x"|"0X") @HexDigit+ { adapt (mkString hexIntegerToken) }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
 -- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
 -- Based on the Jint version
-<reg> "/" ($RegExpFirstChar | "\" $NonTerminator)  ($RegExpChars | "\" $NonTerminator)* "/" ("g"|"i"|"m")* { mkString regExToken }
+<reg> "/" ($RegExpFirstChar | "\" $NonTerminator)  ($RegExpChars | "\" $NonTerminator)* "/" ("g"|"i"|"m")* { adapt (mkString regExToken) }
 
 
 
@@ -238,67 +243,67 @@ tokens :-
     |                "." $digit+          ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
     |        "0"                          ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
     | $non_zero_digit $digit*             ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
-
+-- ++FOO++
     |        "0"              "." $digit*
     | $non_zero_digit $digit* "." $digit*
     |                "." $digit+
     |        "0"
-    | $non_zero_digit $digit*         { mkString decimalToken }
+    | $non_zero_digit $digit*         { adapt (mkString decimalToken) }
 
 
 -- beginning of file
 <bof> {
    @eol_pattern                         ;
    -- @eol_pattern                         { endOfLine lexToken }
-   --@eol_pattern                         { endOfLine alexMonadScan }
+   -- @eol_pattern                         { endOfLine alexMonadScan }
 }
 
 -- / or /= only allowed in state 1
 <divide> {
-     "/="       { mkString assignToken}
-     "/"	{ symbolToken  DivToken}
+     "/="       { adapt (mkString assignToken)}
+     "/"	{ adapt (symbolToken DivToken)}
     }
 
 <reg,divide> {
-      \;	{ symbolToken  SemiColonToken}
-      ","	{ symbolToken  CommaToken}
-     "?"	{ symbolToken  HookToken}
-     ":"	{ symbolToken  ColonToken}
-     "||"	{ symbolToken  OrToken}
-     "&&"	{ symbolToken  AndToken}
-     "|"	{ symbolToken  BitwiseOrToken}
-     "^"	{ symbolToken  BitwiseXorToken}
-     "&"	{ symbolToken  BitwiseAndToken}
-     "==="	{ symbolToken  StrictEqToken}
-     "=="	{ symbolToken  EqToken}
+      \;	{ adapt (symbolToken  SemiColonToken)}
+      ","	{ adapt (symbolToken  CommaToken)}
+     "?"	{ adapt (symbolToken  HookToken)}
+     ":"	{ adapt (symbolToken  ColonToken)}
+     "||"	{ adapt (symbolToken  OrToken)}
+     "&&"	{ adapt (symbolToken  AndToken)}
+     "|"	{ adapt (symbolToken  BitwiseOrToken)}
+     "^"	{ adapt (symbolToken  BitwiseXorToken)}
+     "&"	{ adapt (symbolToken  BitwiseAndToken)}
+     "==="	{ adapt (symbolToken  StrictEqToken)}
+     "=="	{ adapt (symbolToken  EqToken)}
      "*=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
-      	        { mkString assignToken}
-     "="        { symbolToken  SimpleAssignToken}
-     "!=="	{ symbolToken  StrictNeToken}
-     "!="	{ symbolToken  NeToken}
-     "<<"	{ symbolToken  LshToken}
-     "<="	{ symbolToken  LeToken}
-     "<"	{ symbolToken  LtToken}
-     ">>>"	{ symbolToken  UrshToken}
-     ">>"	{ symbolToken  RshToken}
-     ">="	{ symbolToken  GeToken}
-     ">"	{ symbolToken  GtToken}
-     "++"	{ symbolToken  IncrementToken}
-     "--"	{ symbolToken  DecrementToken}
-     "+"	{ symbolToken  PlusToken}
-     "-"	{ symbolToken  MinusToken}
-     "*"	{ symbolToken  MulToken}
-     "%"	{ symbolToken  ModToken}
-     "!"	{ symbolToken  NotToken}
-     "~"	{ symbolToken  BitwiseNotToken}
-     "."	{ symbolToken  DotToken}
-     "["	{ symbolToken  LeftBracketToken}
-     "]"	{ symbolToken  RightBracketToken}
-     "{"	{ symbolToken  LeftCurlyToken}
-     "}"	{ symbolToken  RightCurlyToken}
-     "("	{ symbolToken  LeftParenToken}
-     ")"	{ symbolToken  RightParenToken}
-     "@*/"	{ symbolToken  CondcommentEndToken}
+      	        { adapt (mkString assignToken)}
+     "="        { adapt (symbolToken  SimpleAssignToken)}
+     "!=="	{ adapt (symbolToken  StrictNeToken)}
+     "!="	{ adapt (symbolToken  NeToken)}
+     "<<"	{ adapt (symbolToken  LshToken)}
+     "<="	{ adapt (symbolToken  LeToken)}
+     "<"	{ adapt (symbolToken  LtToken)}
+     ">>>"	{ adapt (symbolToken  UrshToken)}
+     ">>"	{ adapt (symbolToken  RshToken)}
+     ">="	{ adapt (symbolToken  GeToken)}
+     ">"	{ adapt (symbolToken  GtToken)}
+     "++"	{ adapt (symbolToken  IncrementToken)}
+     "--"	{ adapt (symbolToken  DecrementToken)}
+     "+"	{ adapt (symbolToken  PlusToken)}
+     "-"	{ adapt (symbolToken  MinusToken)}
+     "*"	{ adapt (symbolToken  MulToken)}
+     "%"	{ adapt (symbolToken  ModToken)}
+     "!"	{ adapt (symbolToken  NotToken)}
+     "~"	{ adapt (symbolToken  BitwiseNotToken)}
+     "."	{ adapt (symbolToken  DotToken)}
+     "["	{ adapt (symbolToken  LeftBracketToken)}
+     "]"	{ adapt (symbolToken  RightBracketToken)}
+     "{"	{ adapt (symbolToken  LeftCurlyToken)}
+     "}"	{ adapt (symbolToken  RightCurlyToken)}
+     "("	{ adapt (symbolToken  LeftParenToken)}
+     ")"	{ adapt (symbolToken  RightParenToken)}
+     "@*/"	{ adapt (symbolToken  CondcommentEndToken)}
 }
 
 
@@ -315,8 +320,8 @@ The method is inspired by the lexer in http://jint.codeplex.com/
 
 -}
 classifyToken :: Token -> Int
-classifyToken token =
-   case token of
+classifyToken aToken =
+   case aToken of
       IdentifierToken {} -> divide
       NullToken {} -> divide
       TrueToken {} -> divide
@@ -331,90 +336,142 @@ classifyToken token =
       _other      -> reg
 
 
--- Each right-hand side has type :: String -> Token
-
-lexToken :: P Token
+{-
+--lexToken :: Alex Token
 lexToken = do
-  -- location <- getLocation
-  -- input <- getInput
-  input@(_,_,_,inp) <- alexGetInput
-  -- startCode <- getStartCode
-  lt <- getLastToken
-  -- case alexScan (location, input) (classifyToken lt) of
-  case alexScan input (classifyToken lt) of
-    AlexEOF -> return endOfFileToken
-    AlexError _ -> lexicalError
-    AlexSkip rest _len -> do
-       -- setLocation nextLocation
-       -- setInput rest
-       alexSetInput rest
+  inp <- alexGetInput
+  lt  <- getLastToken
+  case alexScan inp (classifyToken lt) of
+    AlexEOF        -> alexEOF
+    AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+                                             " and column " ++ show (getColumnNum(pos)))
+    AlexSkip inp' _len -> do
+       alexSetInput inp'
        lexToken
-    AlexToken rest len action -> do
-       --setLocation nextLocation
-       --setInput rest
-       alexSetInput rest
-       --token <- action (mkSrcSpan location $ decColumn 1 nextLocation) len input
-       token <- action (ignorePendingBytes input) len inp
+    AlexToken inp' len action -> do
+       alexSetInput inp'
+       token <- action (ignorePendingBytes inp) len
        setLastToken token
        return token
+-}
+
+--lexToken :: Alex Token
+lexToken = do
+  inp <- alexGetInput
+  lt  <- getLastToken
+  case lt of
+    TailToken {} -> alexEOF
+    _other ->
+      case alexScan inp (classifyToken lt) of
+        AlexEOF        -> do
+          token <- tailToken
+          setLastToken token
+          return token
+        AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+                                                 " and column " ++ show (getColumnNum(pos)))
+        AlexSkip inp' _len -> do
+          alexSetInput inp'
+          lexToken
+        AlexToken inp' len action -> do
+          alexSetInput inp'
+          token <- action (ignorePendingBytes inp) len
+          setLastToken token
+          return token
+
 
 -- This is called by the Happy parser.
-lexCont :: (Token -> P a) -> P a
+--lexCont :: (Token -> P a) -> P a
+--lexCont :: (Token -> Alex Token) -> Alex Token
 lexCont cont = do
    lexLoop
    where
    -- lexLoop :: P a
    lexLoop = do
       tok <- lexToken
-      --tok <- alexMonadScan
       case tok of
-         {-
          CommentToken {} -> do
             addComment tok
             lexLoop
-         LineJoinToken {} -> lexLoop
-         -}
-         _other -> cont tok
+         WsToken {} -> do
+            addComment tok
+            lexLoop
+         _other -> do
+            cs <- getComment
+            let tok' = tok{ token_comment=(toCommentAnnotation cs) }
+            setComment []
+            cont tok'
+
+toCommentAnnotation []    = [NoComment]
+--toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
+
+toCommentAnnotation xs =  reverse $ map go xs
+  where
+    go tok@(CommentToken {}) = (CommentA (token_span tok) (token_literal tok))
+    go tok@(WsToken      {}) = (WhiteSpace (token_span tok) (token_literal tok))
+
+-- ---------------------------------------------------------------------
+
+getLineNum :: AlexPosn -> Int
+getLineNum (AlexPn _offset lineNum _colNum) = lineNum
+
+getColumnNum :: AlexPosn -> Int
+getColumnNum (AlexPn _offset _lineNum colNum) = colNum
+
+-- ---------------------------------------------------------------------
+
+getLastToken :: Alex Token
+getLastToken = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, previousToken ust)
+
+setLastToken :: Token -> Alex ()
+setLastToken tok = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
+
+getComment :: Alex [Token]
+--getComments = reverse <$> Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)
+getComment = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comment ust)
 
 
-utf8Encode :: Char -> [Byte]
-utf8Encode c = head (UTF8.encodeUTF8' [UTF8.c2w c])
-
---alexEOF = EOFToken alexSpanEmpty
-
--- ignorePendingBytes :: forall t t1 t2 t3. (t, t1, t2, t3) -> (t, t1, t3)
-ignorePendingBytes (p,c,_ps,s) = (p,c,s)
+addComment :: Token -> Alex ()
+addComment c = Alex $ \s ->  Right (s{alex_ust=(alex_ust s){comment=c:(  comment (alex_ust s)  )}}, ())
 
 
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar (p,c,bs,s) = c
+setComment :: [Token] -> Alex ()
+setComment cs = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comment=cs }}, ())
 
-alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
-alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
-alexGetByte (_p,_c,[],[]) = Nothing
-alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
-                                  (b:bs) = utf8Encode c
-                              in p' `seq`  Just (b, (p', c, bs, s))
+alexEOF :: Alex Token
+alexEOF = do return (EOFToken tokenPosnEmpty [])
 
-alexMove :: AlexPosn -> Char -> AlexPosn
-alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
-alexMove (AlexPn a l _c) '\n' = AlexPn (a+1) (l+1)   1
-alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
+tailToken :: Alex Token
+tailToken = do return (TailToken tokenPosnEmpty [])
+
+adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
+adapt f loc@(p@(AlexPn offset line col),_,inp) len =
+  (f (TokenPn offset line col) len inp)
+
+{-
+mkComment :: (AlexPosn,Char,String) -> Int -> Alex Token
+mkComment loc@(p@(AlexPn offset line col),_,inp) len = do
+  return (CommentToken (TokenPn offset line col) (take len inp))
+-}
+
+toTokenPosn :: AlexPosn -> TokenPosn
+toTokenPosn (AlexPn offset line col) = (TokenPn offset line col)
 
 -- ---------------------------------------------------------------------
 
 -- a keyword or an identifier (the syntax overlaps)
-keywordOrIdent :: String -> AlexSpan -> P Token
+keywordOrIdent :: String -> TokenPosn -> Alex Token
 keywordOrIdent str location
    = return $ case Map.lookup str keywords of
-         Just symbol -> symbol location str
-         Nothing -> IdentifierToken location str
+         Just symbol -> symbol location str []
+         Nothing -> IdentifierToken location str []
 
 -- mapping from strings to keywords
-keywords :: Map.Map String (AlexSpan -> String -> Token)
+--keywords :: Map.Map String (TokenPosn -> String -> Token)
+keywords :: Map.Map String (TokenPosn -> String -> [CommentAnnotation] -> Token)
 keywords = Map.fromList keywordNames
 
-keywordNames :: [(String, AlexSpan -> String -> Token)]
+--keywordNames :: [(String, TokenPosn -> String -> Token)]
+keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
    [
     ("break",BreakToken),

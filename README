@@ -35,6 +35,9 @@ dependency in the cabal file.
 
 Changes
 
+0.5.0 Rework AST to allow full round-trip parsing and output of
+      JavaScript. Breaks AST compatibility with prior versions
+
 0.4.10 Moved Lexer.x into a separate directory, and made a script to
        call alex to generate Lexer.hs. This means alex is not required
        at install time

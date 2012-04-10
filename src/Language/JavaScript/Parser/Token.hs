@@ -1,8 +1,8 @@
 {-# LANGUAGE CPP, DeriveDataTypeable #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      : Language.Python.Common.Token 
--- Copyright   : (c) 2009 Bernie Pope 
+-- Module      : Language.Python.Common.Token
+-- Copyright   : (c) 2009 Bernie Pope
 -- License     : BSD-style
 -- Maintainer  : bjpop@csse.unimelb.edu.au
 -- Stability   : experimental
@@ -12,151 +12,139 @@
 -- version 2 and version 3 of Python (they are mostly the same).
 -----------------------------------------------------------------------------
 
-module Language.JavaScript.Parser.Token ( 
-   -- * The tokens 
-   Token (..),
+module Language.JavaScript.Parser.Token (
+   -- * The tokens
+   Token (..)
+   , CommentAnnotation(..)
    -- * String conversion
-   debugTokenString,
-   -- tokenString,
+   , debugTokenString
    -- * Classification
    -- TokenClass (..),
    ) where
 
---import Language.JavaScript.Parser.Pretty
-import Language.JavaScript.Parser.SrcLocation (AlexSpan)
 import Data.Data
+import Language.JavaScript.Parser.SrcLocation
+
+data CommentAnnotation = CommentA TokenPosn String
+                       | WhiteSpace TokenPosn String
+                       | NoComment
+   deriving (Eq,{-Ord,-}Show,Typeable,Data,Read)
 
 -- | Lexical tokens.
-data Token 
+-- Each may be annotated with any comment occuring between the prior token and this one
+data Token
    -- Comment
-   = CommentToken { token_span :: !AlexSpan, token_literal :: !String } -- ^ Single line comment.
+   = CommentToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation] } -- ^ Single line comment.
+   | WsToken      { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation] } -- ^ White space, for preservation.
 
-   -- Identifiers 
-   | IdentifierToken { token_span :: !AlexSpan, token_literal :: !String }            -- ^ Identifier.
+   -- Identifiers
+   | IdentifierToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }            -- ^ Identifier.
 
-   -- Javascript Literals  
-     
-   | DecimalToken { token_span :: !AlexSpan, token_literal :: !String  }
-     -- ^ Literal: Decimal 
-   | HexIntegerToken { token_span :: !AlexSpan, token_literal :: !String  }
+   -- Javascript Literals
+
+   | DecimalToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
+     -- ^ Literal: Decimal
+   | HexIntegerToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
      -- ^ Literal: Hexadecimal Integer
-   | StringToken { token_span :: !AlexSpan, token_literal :: !String, token_delimiter :: !Char }                   
+   | StringToken { token_span :: !TokenPosn, token_literal :: !String, token_delimiter :: !Char, token_comment :: ![CommentAnnotation]  }
      -- ^ Literal: string, delimited by either single or double quotes
-   | RegExToken { token_span :: !AlexSpan, token_literal :: !String  }
+   | RegExToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
      -- ^ Literal: Regular Expression
 
    -- Keywords
-   | BreakToken { token_span :: !AlexSpan, token_literal :: !String }
-   | CaseToken { token_span :: !AlexSpan, token_literal :: !String }
-   | CatchToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ConstToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ContinueToken { token_span :: !AlexSpan, token_literal :: !String }
-   | DebuggerToken { token_span :: !AlexSpan, token_literal :: !String }
-   | DefaultToken { token_span :: !AlexSpan, token_literal :: !String }
-   | DeleteToken { token_span :: !AlexSpan, token_literal :: !String }
-   | DoToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ElseToken { token_span :: !AlexSpan, token_literal :: !String }
-   | EnumToken { token_span :: !AlexSpan, token_literal :: !String }
-   | FalseToken { token_span :: !AlexSpan, token_literal :: !String }
-   | FinallyToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ForToken { token_span :: !AlexSpan, token_literal :: !String }
-   | FunctionToken { token_span :: !AlexSpan, token_literal :: !String }
-   | IfToken { token_span :: !AlexSpan, token_literal :: !String }
-   | InToken { token_span :: !AlexSpan, token_literal :: !String }
-   | InstanceofToken { token_span :: !AlexSpan, token_literal :: !String }
-   | NewToken { token_span :: !AlexSpan, token_literal :: !String }
-   | NullToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ReturnToken { token_span :: !AlexSpan, token_literal :: !String }
-   | SwitchToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ThisToken { token_span :: !AlexSpan, token_literal :: !String }
-   | ThrowToken { token_span :: !AlexSpan, token_literal :: !String }
-   | TrueToken { token_span :: !AlexSpan, token_literal :: !String }
-   | TryToken { token_span :: !AlexSpan, token_literal :: !String }
-   | TypeofToken { token_span :: !AlexSpan, token_literal :: !String }
-   | VarToken { token_span :: !AlexSpan, token_literal :: !String }
-   | VoidToken { token_span :: !AlexSpan, token_literal :: !String }
-   | WhileToken { token_span :: !AlexSpan, token_literal :: !String }
-   | WithToken { token_span :: !AlexSpan, token_literal :: !String }
-   -- Future reserved words  
-   | FutureToken { token_span :: !AlexSpan, token_literal :: !String }
-   -- Needed, not sure what they are though.  
-   | GetToken { token_span :: !AlexSpan, token_literal :: !String }
-   | SetToken { token_span :: !AlexSpan, token_literal :: !String }
-   
+   | BreakToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | CaseToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | CatchToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ConstToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ContinueToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | DebuggerToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | DefaultToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | DeleteToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | DoToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ElseToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | EnumToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | FalseToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | FinallyToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ForToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | FunctionToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | IfToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | InToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | InstanceofToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | NewToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | NullToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ReturnToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | SwitchToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ThisToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | ThrowToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | TrueToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | TryToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | TypeofToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | VarToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | VoidToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | WhileToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | WithToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   -- Future reserved words
+   | FutureToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   -- Needed, not sure what they are though.
+   | GetToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | SetToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+
    -- Delimiters
    -- Operators
-   | SemiColonToken { token_span :: !AlexSpan }
-   | CommaToken { token_span :: !AlexSpan }
-   | HookToken { token_span :: !AlexSpan }
-   | ColonToken { token_span :: !AlexSpan }
-   | OrToken { token_span :: !AlexSpan }
-   | AndToken { token_span :: !AlexSpan }
-   | BitwiseOrToken { token_span :: !AlexSpan }
-   | BitwiseXorToken { token_span :: !AlexSpan }
-   | BitwiseAndToken { token_span :: !AlexSpan }
-   | StrictEqToken { token_span :: !AlexSpan }
-   | EqToken { token_span :: !AlexSpan }
-   | AssignToken { token_span :: !AlexSpan, token_literal :: !String }
-   | SimpleAssignToken { token_span :: !AlexSpan }
-   | StrictNeToken { token_span :: !AlexSpan }
-   | NeToken { token_span :: !AlexSpan }
-   | LshToken { token_span :: !AlexSpan }
-   | LeToken { token_span :: !AlexSpan }
-   | LtToken { token_span :: !AlexSpan }
-   | UrshToken { token_span :: !AlexSpan }
-   | RshToken { token_span :: !AlexSpan }
-   | GeToken { token_span :: !AlexSpan }
-   | GtToken { token_span :: !AlexSpan }
-   | IncrementToken { token_span :: !AlexSpan }
-   | DecrementToken { token_span :: !AlexSpan }
-   | PlusToken { token_span :: !AlexSpan }
-   | MinusToken { token_span :: !AlexSpan }
-   | MulToken { token_span :: !AlexSpan }
-   | DivToken { token_span :: !AlexSpan }
-   | ModToken { token_span :: !AlexSpan }
-   | NotToken { token_span :: !AlexSpan }
-   | BitwiseNotToken { token_span :: !AlexSpan }
-   | DotToken { token_span :: !AlexSpan }
-   | LeftBracketToken { token_span :: !AlexSpan }
-   | RightBracketToken { token_span :: !AlexSpan }
-   | LeftCurlyToken { token_span :: !AlexSpan }
-   | RightCurlyToken { token_span :: !AlexSpan }
-   | LeftParenToken { token_span :: !AlexSpan }
-   | RightParenToken { token_span :: !AlexSpan }
-   | CondcommentEndToken { token_span :: !AlexSpan }
+   | SemiColonToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | CommaToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | HookToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | ColonToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | OrToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | AndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | BitwiseOrToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | BitwiseXorToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | BitwiseAndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | StrictEqToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | EqToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | AssignToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+   | SimpleAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | StrictNeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | NeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LshToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LtToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | UrshToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | RshToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | GeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | GtToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | IncrementToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | DecrementToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | PlusToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | MinusToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | MulToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | DivToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | ModToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | NotToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | BitwiseNotToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | DotToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LeftBracketToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | RightBracketToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LeftCurlyToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | RightCurlyToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LeftParenToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | RightParenToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | CondcommentEndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
 
    -- Special cases
-   | EOFToken { token_span :: !AlexSpan }                          -- ^ End of file 
+   | TailToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  } -- ^ Stuff between last JS and EOF
+   | EOFToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }  -- ^ End of file
    deriving (Eq,{-Ord,-}Show,Typeable{-,Data-})
 
-{-
-instance Span Token where
-  getSpan = token_span 
--}   
 
--- | Produce a string from a token containing detailed information. Mainly intended for debugging. 
+-- | Produce a string from a token containing detailed information. Mainly intended for debugging.
 debugTokenString :: Token -> String
-debugTokenString token = 
+debugTokenString _token =
   "blah"
   {-
    render (text (show $ toConstr token) <+> pretty (token_span token) <+>
           if hasLiteral token then text (token_literal token) else empty)
    -}
 
-{-
--- | Classification of tokens
-data TokenClass
-   = Comment
-   | Number
-   | Identifier
-   | Punctuation
-   | Bracket
-   | Layout 
-   | Keyword
-   | String
-   | Operator
-   | Assignment
-   deriving (Show, Eq, Ord)
--}
 
 -- EOF

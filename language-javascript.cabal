@@ -1,7 +1,10 @@
 Name:                language-javascript
-Version:             0.4.10
+Version:             0.5.0
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
+                     .
+                     Note: Version 0.5.0 breaks compatibility with prior versions, the AST has been reworked to allow
+                     round trip processing of JavaScript.
 Homepage:            https://github.com/alanz/language-javascript
 License:             BSD3
 License-file:        LICENSE
@@ -29,9 +32,11 @@ Library
                    , mtl              >= 1.1     && < 2.9
                    , containers       >= 0.2     && < 0.5
                    , utf8-light       >= 0.4     && < 1.0
+                   -- For the round trip output
+                   , blaze-builder    >= 0.2     && < 1
+                   , bytestring       >= 0.9.1   && < 1
+                   , utf8-string      >= 0.3.7   && < 1
   build-tools:       happy >= 1.18.5
-                   -- , alex >= 3.0
-
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.Parser
@@ -45,7 +50,6 @@ Library
                        Language.JavaScript.Parser.StringEscape
                        Language.JavaScript.Parser.Token
   Build-tools:         happy
-                      -- , alex
   ghc-options:         -Wall
 
 executable             runtests

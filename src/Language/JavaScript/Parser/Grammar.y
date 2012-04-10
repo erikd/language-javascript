@@ -10,7 +10,7 @@ import Control.Monad.Error.Class (throwError)
 import Data.Char
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad
-import Language.JavaScript.Parser.SrcLocation
+--import Language.JavaScript.Parser.SrcLocation
 import qualified Language.JavaScript.Parser.AST as AST
 
 }
@@ -27,7 +27,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 %lexer { lexCont } { EOFToken {} }
 
 
-%token 
+%token
 
      ';'	{ SemiColonToken {} }
      ','	{ CommaToken {} }
@@ -67,7 +67,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      '('	{ LeftParenToken {} }
      ')'	{ RightParenToken {} }
      '@*/'	{ CondcommentEndToken {} }
-  
+
      'break'      { BreakToken {} }
      'case'       { CaseToken {} }
      'catch'      { CatchToken {} }
@@ -99,8 +99,8 @@ import qualified Language.JavaScript.Parser.AST as AST
      'void'       { VoidToken {} }
      'while'      { WhileToken {} }
      'with'       { WithToken {} }
-     
-     
+
+
      'ident'      { IdentifierToken {} }
      'decimal'    { DecimalToken {} }
      'hexinteger' { HexIntegerToken {} }
@@ -123,13 +123,13 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 -- "Start Symbol" = <Program>
 -- "Case Sensitive" = 'True'
- 
+
 -- ! ------------------------------------------------- Sets
 
 -- {ID Head}      = {Letter} + [_] + [$]
 -- {ID Tail}      = {Alphanumeric} + [_] + [$]
--- {String Chars1} = {Printable} + {HT} - ["\] 
--- {String Chars2} = {Printable} + {HT} - [\''] 
+-- {String Chars1} = {Printable} + {HT} - ["\]
+-- {String Chars2} = {Printable} + {HT} - [\'']
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
@@ -159,7 +159,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 AutoSemi : ';' { AST.JSLiteral ";"}
          |     { AST.JSLiteral ""}
-           
+
 -- ---------------------------------------------------------------------
 
 -- <Literal> ::= <Null Literal>
@@ -184,12 +184,12 @@ NumericLiteral : 'decimal'    { AST.JSDecimal (token_literal $1)}
 
 StringLiteral : 'string'  {AST.JSStringLiteral (token_delimiter $1) (token_literal $1)}
 
--- <Regular Expression Literal> ::= RegExp 
+-- <Regular Expression Literal> ::= RegExp
 RegularExpressionLiteral : 'regex' {AST.JSRegEx (token_literal $1)}
 
 -- <Primary Expression> ::= 'this'
 --                        | Identifier
---                        | <Literal> 
+--                        | <Literal>
 --                        | <Array Literal>
 --                        | <Object Literal>
 --                        | '(' <Expression> ')'
@@ -202,7 +202,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral "this" }
                   | ObjectLiteral            { $1 {- PrimaryExpression4 -}}
                   | '(' Expression ')'       { AST.JSExpressionParen $2 }
                   | RegularExpressionLiteral { $1 {- PrimaryExpression5 -}} -- Not in ECMA ed 5?
-                  
+
 Identifier : 'ident' { AST.JSIdentifier (token_literal $1) }
 
 -- <Array Literal> ::= '[' ']'
@@ -237,18 +237,18 @@ ObjectLiteral : '{' PropertyNameandValueList '}' { AST.JSObjectLiteral $2 }
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
 
--- Seems we can have function declarations in the value part too                           
+-- Seems we can have function declarations in the value part too
 -- TODO: And can end with a comma
 PropertyNameandValueList :: { [ AST.JSNode ] }
 PropertyNameandValueList : PropertyName ':' AssignmentExpression { [(AST.JSPropertyNameandValue $1 $3)] }
                          | PropertyName ':' FunctionDeclaration { [(AST.JSPropertyNameandValue $1 [$3])] }
-                         | PropertyNameandValueList ',' PropertyName ':' AssignmentExpression 
-                           { ($1 ++ [(AST.JSPropertyNameandValue $3 $5)])  } 
-                         | PropertyNameandValueList ',' PropertyName ':' FunctionDeclaration 
-                           { ($1 ++ [(AST.JSPropertyNameandValue $3 [$5])])  } 
-                         | PropertyNameandValueList ',' 
-                           { ($1 ++ [(AST.JSLiteral ",")])  } 
-                         |    { [] }  
+                         | PropertyNameandValueList ',' PropertyName ':' AssignmentExpression
+                           { ($1 ++ [(AST.JSPropertyNameandValue $3 $5)])  }
+                         | PropertyNameandValueList ',' PropertyName ':' FunctionDeclaration
+                           { ($1 ++ [(AST.JSPropertyNameandValue $3 [$5])])  }
+                         | PropertyNameandValueList ','
+                           { ($1 ++ [(AST.JSLiteral ",")])  }
+                         |    { [] }
 
 
 -- <Property Name> ::= Identifier
@@ -264,23 +264,23 @@ PropertyName : Identifier     { $1 {- PropertyName1 -}}
 --                        | <Member Expression> '.' Identifier
 --                        | 'new' <Member Expression> <Arguments>
 MemberExpression :: { [AST.JSNode] }
-MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}} 
+MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}}
                  | FunctionExpression  { [$1] {- MemberExpression -}}
                  | MemberExpression '[' Expression ']' { [AST.JSMemberSquare $1 $3] }
-                 | MemberExpression '.' Identifier { [AST.JSMemberDot $1 $3] } 
+                 | MemberExpression '.' Identifier { [AST.JSMemberDot $1 $3] }
                  | 'new' MemberExpression Arguments { (((AST.JSLiteral "new "):$2)++[$3])}
 
 -- <New Expression> ::= <Member Expression>
 --                    | new <New Expression>
-NewExpression : MemberExpression {$1 {- NewExpression -}} 
+NewExpression : MemberExpression {$1 {- NewExpression -}}
               | 'new' NewExpression { (AST.JSLiteral "new "):$2 }
 
 -- <Call Expression> ::= <Member Expression> <Arguments>
---                     | <Call Expression> <Arguments> 
+--                     | <Call Expression> <Arguments>
 --                     | <Call Expression> '[' <Expression> ']'
 --                     | <Call Expression> '.' Identifier
 CallExpression :: { [AST.JSNode] }
-CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression -} } 
+CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression -} }
                | CallExpression Arguments          { ($1++[(AST.JSCallExpression "()" [$2])]) }
                | CallExpression '[' Expression ']' { ($1++[(AST.JSCallExpression "[]" [$3])]) }
                | CallExpression '.' Identifier     { ($1++[(AST.JSCallExpression "."  [$3])]) }
@@ -288,7 +288,7 @@ CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression 
 
 -- <Arguments> ::= '(' ')'
 --               | '(' <Argument List> ')'
-Arguments : '(' ')'               { (AST.JSArguments []) } 
+Arguments : '(' ')'               { (AST.JSArguments []) }
           | '(' ArgumentList ')'  { (AST.JSArguments $2) }
 
 -- <Argument List> ::= <Assignment Expression>
@@ -298,15 +298,15 @@ ArgumentList : AssignmentExpression { [$1] {- ArgumentList -}}
              | ArgumentList ',' AssignmentExpression { $1++[$3] {- ArgumentList2 -} }
 
 
--- <Left Hand Side Expression> ::= <New Expression> 
+-- <Left Hand Side Expression> ::= <New Expression>
 --                               | <Call Expression>
 LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
-                       | CallExpression { $1 {- LeftHandSideExpression12 -}} 
+                       | CallExpression { $1 {- LeftHandSideExpression12 -}}
 
 -- <Postfix Expression> ::= <Left Hand Side Expression>
 --                        | <Postfix Expression> '++'
 --                        | <Postfix Expression> '--'
-PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} } 
+PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
                   | PostfixExpression '++' {[(AST.JSExpressionPostfix "++" $1)]}
                   | PostfixExpression '--' {[(AST.JSExpressionPostfix "--" $1)]}
 
@@ -321,11 +321,11 @@ PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
 --                      | '~' <Unary Expression>
 --                      | '!' <Unary Expression>
 UnaryExpression :: { [AST.JSNode] }
-UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} } 
+UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
                 | 'delete' UnaryExpression { ((AST.JSUnary "delete "):$2)}
                 | 'void'   UnaryExpression { ((AST.JSUnary "void "):$2)}
                 | 'typeof' UnaryExpression { ((AST.JSUnary "typeof "):$2)}
-                | '++'     UnaryExpression { ((AST.JSUnary "++"):$2) } 
+                | '++'     UnaryExpression { ((AST.JSUnary "++"):$2) }
                 | '--'     UnaryExpression { ((AST.JSUnary "--"):$2)}
                 | '+'      UnaryExpression { ((AST.JSUnary "+"):$2)}
                 | '-'      UnaryExpression { ((AST.JSUnary "-"):$2)}
@@ -334,22 +334,22 @@ UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
 
 
 -- <Multiplicative Expression> ::= <Unary Expression>
---                               | <Unary Expression> '*' <Multiplicative Expression> 
---                               | <Unary Expression> '/' <Multiplicative Expression>                               
---                               | <Unary Expression> '%' <Multiplicative Expression> 
+--                               | <Unary Expression> '*' <Multiplicative Expression>
+--                               | <Unary Expression> '/' <Multiplicative Expression>
+--                               | <Unary Expression> '%' <Multiplicative Expression>
 MultiplicativeExpression :: { [AST.JSNode] }
-MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}} 
+MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}}
                          | UnaryExpression '*' MultiplicativeExpression { [(AST.JSExpressionBinary "*" $1 $3)]}
                          | UnaryExpression '/' MultiplicativeExpression { [(AST.JSExpressionBinary "/" $1 $3)]}
                          | UnaryExpression '%' MultiplicativeExpression { [(AST.JSExpressionBinary "%" $1 $3)]}
 
--- <Additive Expression> ::= <Additive Expression>'+'<Multiplicative Expression> 
---                         | <Additive Expression>'-'<Multiplicative Expression>  
---                         | <Multiplicative Expression> 
+-- <Additive Expression> ::= <Additive Expression>'+'<Multiplicative Expression>
+--                         | <Additive Expression>'-'<Multiplicative Expression>
+--                         | <Multiplicative Expression>
 AdditiveExpression :: { [AST.JSNode] }
 AdditiveExpression : AdditiveExpression '+' MultiplicativeExpression { [(AST.JSExpressionBinary "+" $1 $3)]}
                    | AdditiveExpression '-' MultiplicativeExpression { [(AST.JSExpressionBinary "-" $1 $3)]}
-                   | MultiplicativeExpression { $1 {- (goRegExp $1)-} {- AdditiveExpression -} } 
+                   | MultiplicativeExpression { $1 {- (goRegExp $1)-} {- AdditiveExpression -} }
 
 
 
@@ -361,25 +361,25 @@ ShiftExpression :: { [AST.JSNode] }
 ShiftExpression : ShiftExpression '<<'  AdditiveExpression { [(AST.JSExpressionBinary "<<" $1 $3)]}
                 | ShiftExpression '>>'  AdditiveExpression { [(AST.JSExpressionBinary ">>" $1 $3)]}
                 | ShiftExpression '>>>' AdditiveExpression { [(AST.JSExpressionBinary ">>>" $1 $3)]}
-                | AdditiveExpression { $1 {- ShiftExpression -}} 
+                | AdditiveExpression { $1 {- ShiftExpression -}}
 
--- <Relational Expression>::= <Shift Expression> 
---                          | <Relational Expression> '<' <Shift Expression> 
---                          | <Relational Expression> '>' <Shift Expression> 
---                          | <Relational Expression> '<=' <Shift Expression> 
---                          | <Relational Expression> '>=' <Shift Expression> 
---                          | <Relational Expression> 'instanceof' <Shift Expression> 
+-- <Relational Expression>::= <Shift Expression>
+--                          | <Relational Expression> '<' <Shift Expression>
+--                          | <Relational Expression> '>' <Shift Expression>
+--                          | <Relational Expression> '<=' <Shift Expression>
+--                          | <Relational Expression> '>=' <Shift Expression>
+--                          | <Relational Expression> 'instanceof' <Shift Expression>
 RelationalExpression :: { [AST.JSNode] }
-RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}} 
+RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
                      | RelationalExpression '<'  ShiftExpression { [(AST.JSExpressionBinary "<" $1 $3)]}
                      | RelationalExpression '>'  ShiftExpression { [(AST.JSExpressionBinary ">" $1 $3)]}
                      | RelationalExpression '<=' ShiftExpression { [(AST.JSExpressionBinary "<=" $1 $3)]}
                      | RelationalExpression '>=' ShiftExpression { [(AST.JSExpressionBinary ">=" $1 $3)]}
                      | RelationalExpression 'instanceof' ShiftExpression { [(AST.JSExpressionBinary " instanceof " $1 $3)]}
-                       -- Strictly speaking should have all the NoIn variants of expressions,    
-                       -- but we assume syntax is checked so no problem. Cross fingers.    
+                       -- Strictly speaking should have all the NoIn variants of expressions,
+                       -- but we assume syntax is checked so no problem. Cross fingers.
                      | RelationalExpression 'in' ShiftExpression { [(AST.JSExpressionBinary " in " $1 $3)]}
-                       
+
 
 -- <Equality Expression> ::= <Relational Expression>
 --                         | <Equality Expression> '==' <Relational Expression>
@@ -387,7 +387,7 @@ RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
 --                         | <Equality Expression> '===' <Relational Expression>
 --                         | <Equality Expression> '!==' <Relational Expression>
 EqualityExpression :: { [AST.JSNode] }
-EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} } 
+EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
                    | EqualityExpression '=='  RelationalExpression { [(AST.JSExpressionBinary "==" $1 $3)]}
                    | EqualityExpression '!='  RelationalExpression { [(AST.JSExpressionBinary "!=" $1 $3)]}
                    | EqualityExpression '===' RelationalExpression { [(AST.JSExpressionBinary "===" $1 $3)]}
@@ -397,48 +397,48 @@ EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
 -- <Bitwise And Expression> ::= <Equality Expression>
 --                            | <Bitwise And Expression> '&' <Equality Expression>
 BitwiseAndExpression :: { [AST.JSNode] }
-BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} } 
+BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} }
                      | BitwiseAndExpression '&' EqualityExpression { [(AST.JSExpressionBinary "&" $1 $3)]}
 
 -- <Bitwise XOr Expression> ::= <Bitwise And Expression>
 --                            | <Bitwise XOr Expression> '^' <Bitwise And Expression>
 BitwiseXOrExpression :: { [AST.JSNode] }
-BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} } 
+BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} }
                      | BitwiseXOrExpression '^' BitwiseAndExpression { [(AST.JSExpressionBinary "^" $1 $3)]}
 
 -- <Bitwise Or Expression> ::= <Bitwise XOr Expression>
 --                           | <Bitwise Or Expression> '|' <Bitwise XOr Expression>
 BitwiseOrExpression :: { [AST.JSNode] }
-BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} } 
+BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} }
                     | BitwiseOrExpression '|' BitwiseXOrExpression { [(AST.JSExpressionBinary "|" $1 $3)]}
 
 -- <Logical And Expression> ::= <Bitwise Or Expression>
 --                            | <Logical And Expression> '&&' <Bitwise Or Expression>
 LogicalAndExpression :: { [AST.JSNode] }
-LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} } 
+LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} }
                      | LogicalAndExpression '&&' BitwiseOrExpression { [(AST.JSExpressionBinary "&&" $1 $3)]}
 
 -- <Logical Or Expression> ::= <Logical And Expression>
 --                           | <Logical Or Expression> '||' <Logical And Expression>
 LogicalOrExpression :: { [AST.JSNode] }
-LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} } 
+LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} }
                     | LogicalOrExpression '||' LogicalAndExpression { [(AST.JSExpressionBinary "||" $1 $3)]}
 
--- <Conditional Expression> ::= <Logical Or Expression> 
+-- <Conditional Expression> ::= <Logical Or Expression>
 --                            | <Logical Or Expression> '?' <Assignment Expression> ':' <Assignment Expression>
 ConditionalExpression :: { [AST.JSNode] }
 ConditionalExpression : LogicalOrExpression { $1 {- ConditionalExpression -} }
-                    | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression 
-                      { [AST.JSExpressionTernary $1 $3 $5] } 
-                    
-  
+                    | LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
+                      { [AST.JSExpressionTernary $1 $3 $5] }
+
+
 -- <Assignment Expression> ::= <Conditional Expression>
---                           | <Left Hand Side Expression> <Assignment Operator> <Assignment Expression> 
+--                           | <Left Hand Side Expression> <Assignment Operator> <Assignment Expression>
 AssignmentExpression :: { [AST.JSNode] }
-AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}} 
-                     | LeftHandSideExpression AssignmentOperator AssignmentExpression 
+AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}}
+                     | LeftHandSideExpression AssignmentOperator AssignmentExpression
                        { ($1++[$2]++$3) }
-                       
+
 -- <Assignment Operator> ::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator :: { AST.JSNode }
 AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
@@ -447,13 +447,13 @@ AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
 -- <Expression> ::= <Assignment Expression>
 --                | <Expression> ',' <Assignment Expression>
 Expression :: { AST.JSNode }
-Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} } 
+Expression : AssignmentExpression { AST.JSExpression $1 {- Expression -} }
            | Expression ',' AssignmentExpression  { flattenExpression $1 $3 }
 
 ExpressionOpt :: { [AST.JSNode] }
 ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
               |            { []   {- ExpressionOpt -}}
-                           
+
 -- <Statement> ::= <Block>
 --               | <Variable Statement>
 --               | <Empty Statement>
@@ -468,7 +468,7 @@ ExpressionOpt : Expression { [$1] {- ExpressionOpt -}}
 --               | <Switch Statement>
 --               | <Throw Statement>
 --               | <Try Statement>
---               | <Expression> 
+--               | <Expression>
 Statement :: { AST.JSNode }
 Statement : StatementNoEmpty   { $1 {- Statement1 -}}
           | EmptyStatement     { $1 {- Statement3 -}}
@@ -521,7 +521,7 @@ EmptyStatement : ';' { (AST.JSLiteral ";") }
 
 
 {-
--- <If Statement> ::= 'if' '(' <Expression> ')' <Statement> 
+-- <If Statement> ::= 'if' '(' <Expression> ')' <Statement>
 IfStatement : 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
 
 -- <If Else Statement> ::= 'if' '(' <Expression> ')' <Statement> 'else' <Statement>
@@ -529,73 +529,73 @@ IfElseStatement : 'if' '(' Expression ')' StatementSemi 'else' Statement { (AST.
 -}
 
 {-
-IfElseStatement : 'if' '(' Expression ')' Statement  ';' 'else' Statement  
+IfElseStatement : 'if' '(' Expression ')' Statement  ';' 'else' Statement
                   { (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) $8) }
-                | 'if' '(' Expression ')' Statement  'else' Statement    
+                | 'if' '(' Expression ')' Statement  'else' Statement
                    { (AST.JSIfElse $3 $5 $7) }
                 | 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
--}                  
+-}
 
 
 IfElseStatement :: { AST.JSNode }
-IfElseStatement : 'if' '(' Expression ')' StatementSemi  IfElseRest 
-                  { (if ($6 /= []) then  
-                       (if (length $6 == 1) then (AST.JSIfElse $3 $5 (head $6)) 
-                                            else (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) (last $6))) 
+IfElseStatement : 'if' '(' Expression ')' StatementSemi  IfElseRest
+                  { (if ($6 /= []) then
+                       (if (length $6 == 1) then (AST.JSIfElse $3 $5 (head $6))
+                                            else (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) (last $6)))
                      else (AST.JSIf $3 $5)) }
 
-                  
-IfElseRest :: { [AST.JSNode] }                  
+
+IfElseRest :: { [AST.JSNode] }
 IfElseRest : -- ';' 'else' Statement { [$3,$3] } -- Horrible, but a type-compliant signal nevertheless
            {- | -} 'else' Statement     { [$2] }
-           |                      { [] } 
+           |                      { [] }
 
 {-
 ElsePart : 'else'      { 1 }
          | ';' 'else'  { 2 }
 -}
-StatementSemi : StatementNoEmpty ';' { (AST.JSBlock (AST.JSStatementList [$1])) } 
+StatementSemi : StatementNoEmpty ';' { (AST.JSBlock (AST.JSStatementList [$1])) }
               | StatementNoEmpty     { $1 {- StatementSemi -}}
-              | ';'                  { AST.JSLiteral ";" }  
+              | ';'                  { AST.JSLiteral ";" }
 
 
 -- <Iteration Statement> ::= 'do' <Statement> 'while' '(' <Expression> ')' ';'
---                         | 'while' '(' <Expression> ')' <Statement> 
---                         | 'for' '(' <Expression> ';' <Expression> ';' <Expression> ')' <Statement> 
---                         | 'for' '(' 'var' <Variable Declaration List> ';' <Expression> ';' <Expression> ')' <Statement> 
---                         | 'for' '(' <Left Hand Side Expression> in <Expression> ')' <Statement> 
---                         | 'for' '(' 'var' <Variable Declaration> in <Expression> ')' <Statement> 
+--                         | 'while' '(' <Expression> ')' <Statement>
+--                         | 'for' '(' <Expression> ';' <Expression> ';' <Expression> ')' <Statement>
+--                         | 'for' '(' 'var' <Variable Declaration List> ';' <Expression> ';' <Expression> ')' <Statement>
+--                         | 'for' '(' <Left Hand Side Expression> in <Expression> ')' <Statement>
+--                         | 'for' '(' 'var' <Variable Declaration> in <Expression> ')' <Statement>
 IterationStatement :: { AST.JSNode }
-IterationStatement : 'do' Statement 'while' '(' Expression ')' AutoSemi { (AST.JSDoWhile $2 $5 $7) } 
+IterationStatement : 'do' Statement 'while' '(' Expression ')' AutoSemi { (AST.JSDoWhile $2 $5 $7) }
                    | 'while' '(' Expression ')' Statement { (AST.JSWhile $3 $5) }
                    | 'for' '(' ExpressionOpt ';' ExpressionOpt ';' ExpressionOpt ')' Statement { (AST.JSFor $3 $5 $7 $9) }
-                   | 'for' '(' 'var' VariableDeclarationList ';' ExpressionOpt ';' ExpressionOpt ')' Statement 
+                   | 'for' '(' 'var' VariableDeclarationList ';' ExpressionOpt ';' ExpressionOpt ')' Statement
                      { (AST.JSForVar $4 $6 $8 $10) }
-                   | 'for' '(' LeftHandSideExpression 'in' Expression ')' Statement 
+                   | 'for' '(' LeftHandSideExpression 'in' Expression ')' Statement
                      { (AST.JSForIn $3 $5 $7) }
                    | 'for' '(' 'var' VariableDeclaration 'in' Expression ')' Statement
                      { (AST.JSForVarIn $4 $6 $8) }
 
 -- <Continue Statement> ::= 'continue' ';'
 --                        | 'continue' Identifier ';'
-ContinueStatement : 'continue' AutoSemi             { (AST.JSContinue [$2]) } 
-                  | 'continue' Identifier AutoSemi  { (AST.JSContinue [$2,$3]) } 
+ContinueStatement : 'continue' AutoSemi             { (AST.JSContinue [$2]) }
+                  | 'continue' Identifier AutoSemi  { (AST.JSContinue [$2,$3]) }
 
 -- <Break Statement> ::= 'break' ';'
 --                        | 'break' Identifier ';'
-BreakStatement : 'break' AutoSemi             { (AST.JSBreak [] [$2]) } 
-               | 'break' Identifier AutoSemi  { (AST.JSBreak [$2] [$3]) } 
+BreakStatement : 'break' AutoSemi             { (AST.JSBreak [] [$2]) }
+               | 'break' Identifier AutoSemi  { (AST.JSBreak [$2] [$3]) }
 
 -- <Return Statement> ::= 'return' ';'
 --                        | 'return' <Expression> ';'
-ReturnStatement : 'return' AutoSemi             { (AST.JSReturn [$2]) } 
-                | 'return' Expression AutoSemi  { (AST.JSReturn [$2,$3]) } 
+ReturnStatement : 'return' AutoSemi             { (AST.JSReturn [$2]) }
+                | 'return' Expression AutoSemi  { (AST.JSReturn [$2,$3]) }
 
 -- <With Statement> ::= 'with' '(' <Expression> ')' <Statement> ';'
 WithStatement : 'with' '(' Expression ')' Statement AutoSemi  { (AST.JSWith $3 [$5,$6]) }
 
--- <Switch Statement> ::= 'switch' '(' <Expression> ')' <Case Block>  
-SwitchStatement : 'switch' '(' Expression ')' CaseBlock { (AST.JSSwitch $3 $5) } 
+-- <Switch Statement> ::= 'switch' '(' <Expression> ')' <Case Block>
+SwitchStatement : 'switch' '(' Expression ')' CaseBlock { (AST.JSSwitch $3 $5) }
 
 -- <Case Block> ::= '{' '}'
 --                | '{' <Case Clauses> '}'
@@ -623,13 +623,13 @@ CaseClause :: { AST.JSNode }
 CaseClause : 'case' Expression ':' StatementList  { (AST.JSCase $2 $4) }
            | 'case' Expression ':'                { (AST.JSCase $2 (AST.JSStatementList [])) }
 
--- <Default Clause> ::= 'default' ':' 
+-- <Default Clause> ::= 'default' ':'
 --                    | 'default' ':' <Statement List>
 DefaultClause :: { AST.JSNode }
 DefaultClause : 'default' ':'                { (AST.JSDefault (AST.JSStatementList [])) }
               | 'default' ':' StatementList  { (AST.JSDefault $3) }
 
--- <Labelled Statement> ::= Identifier ':' <Statement> 
+-- <Labelled Statement> ::= Identifier ':' <Statement>
 LabelledStatement : Identifier ':' Statement { (AST.JSLabelled $1 $3) }
 
 -- <Throw Statement> ::= 'throw' <Expression>
@@ -684,10 +684,10 @@ FormalParameterList : Identifier                          { [$1] {- FormalParame
                     | FormalParameterList ',' Identifier  { ($1++[$3]) }
 
 -- <Function Body> ::= <Source Elements>
---                   | 
+--                   |
 FunctionBody :: { AST.JSNode }
 FunctionBody : SourceElements { (AST.JSFunctionBody [$1]) }
-             |                { (AST.JSFunctionBody []) } 
+             |                { (AST.JSFunctionBody []) }
 
 -- <Program> ::= <Source Elements>
 Program : SourceElementsTop { $1 {- Program -}}
@@ -707,7 +707,7 @@ SourceElementsTop : SourceElement                   { (AST.JSSourceElementsTop [
 --                    | <Function Declaration>
 SourceElement :: { AST.JSNode }
 SourceElement : Statement            { $1 {- SourceElement1 -} }
-              | FunctionDeclaration  { $1 {- SourceElement2 -} } 
+              | FunctionDeclaration  { $1 {- SourceElement2 -} }
 
 {
 
@@ -721,8 +721,8 @@ combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineStatements (AST.JSStatementList xs) (AST.JSStatementList ys) = (AST.JSStatementList (xs++ys) )
 combineStatements (AST.JSStatementList xs) y = (AST.JSStatementList (xs++[y]) )
 
-parseError :: Token -> P a 
-parseError = throwError . UnexpectedToken 
+parseError :: Token -> P a
+parseError = throwError . UnexpectedToken
 
 flattenExpression :: AST.JSNode -> [AST.JSNode] -> AST.JSNode
 flattenExpression (AST.JSExpression xs) e = AST.JSExpression (xs++litComma++e)
@@ -734,6 +734,6 @@ flattenExpression (AST.JSExpression xs) e = AST.JSExpression (xs++litComma++e)
 }
 
 -- Set emacs mode
--- Local Variables: 
+-- Local Variables:
 -- mode:haskell
--- End:             
+-- End:

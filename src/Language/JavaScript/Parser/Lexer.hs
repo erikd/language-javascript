@@ -4,7 +4,11 @@
 
 module Language.JavaScript.Parser.Lexer (
     Token(..)
+    , AlexPosn(..)
+    , Alex
     , lexCont
+    , alexError
+    , runAlex
     ) where
 
 --import Control.Monad
@@ -36,6 +40,228 @@ import GHC.Exts
 #else
 import GlaExts
 #endif
+{-# LINE 1 "templates/wrappers.hs" #-}
+{-# LINE 1 "templates/wrappers.hs" #-}
+{-# LINE 1 "<built-in>" #-}
+{-# LINE 1 "<command-line>" #-}
+{-# LINE 1 "templates/wrappers.hs" #-}
+-- -----------------------------------------------------------------------------
+-- Alex wrapper code.
+--
+-- This code is in the PUBLIC DOMAIN; you may copy it freely and use
+-- it for any purpose whatsoever.
+
+import Data.Word (Word8)
+{-# LINE 22 "templates/wrappers.hs" #-}
+
+import qualified Data.Bits
+
+-- | Encode a Haskell String to a list of Word8 values, in UTF8 format.
+utf8Encode :: Char -> [Word8]
+utf8Encode = map fromIntegral . go . ord
+ where
+  go oc
+   | oc <= 0x7f       = [oc]
+
+   | oc <= 0x7ff      = [ 0xc0 + (oc `Data.Bits.shiftR` 6)
+                        , 0x80 + oc Data.Bits..&. 0x3f
+                        ]
+
+   | oc <= 0xffff     = [ 0xe0 + (oc `Data.Bits.shiftR` 12)
+                        , 0x80 + ((oc `Data.Bits.shiftR` 6) Data.Bits..&. 0x3f)
+                        , 0x80 + oc Data.Bits..&. 0x3f
+                        ]
+   | otherwise        = [ 0xf0 + (oc `Data.Bits.shiftR` 18)
+                        , 0x80 + ((oc `Data.Bits.shiftR` 12) Data.Bits..&. 0x3f)
+                        , 0x80 + ((oc `Data.Bits.shiftR` 6) Data.Bits..&. 0x3f)
+                        , 0x80 + oc Data.Bits..&. 0x3f
+                        ]
+
+
+
+type Byte = Word8
+
+-- -----------------------------------------------------------------------------
+-- The input type
+
+
+type AlexInput = (AlexPosn,     -- current position,
+                  Char,         -- previous char
+                  [Byte],       -- pending bytes on current char
+                  String)       -- current input string
+
+ignorePendingBytes (p,c,ps,s) = (p,c,s)
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar (p,c,bs,s) = c
+
+alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
+alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
+alexGetByte (p,c,[],[]) = Nothing
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
+                                  (b:bs) = utf8Encode c
+                              in p' `seq`  Just (b, (p', c, bs, s))
+
+
+{-# LINE 88 "templates/wrappers.hs" #-}
+
+{-# LINE 102 "templates/wrappers.hs" #-}
+
+{-# LINE 117 "templates/wrappers.hs" #-}
+
+-- -----------------------------------------------------------------------------
+-- Token positions
+
+-- `Posn' records the location of a token in the input text.  It has three
+-- fields: the address (number of chacaters preceding the token), line number
+-- and column of a token within the file. `start_pos' gives the position of the
+-- start of the file and `eof_pos' a standard encoding for the end of file.
+-- `move_pos' calculates the new position after traversing a given character,
+-- assuming the usual eight character tab stops.
+
+
+data AlexPosn = AlexPn !Int !Int !Int
+        deriving (Eq,Show)
+
+alexStartPos :: AlexPosn
+alexStartPos = AlexPn 0 1 1
+
+alexMove :: AlexPosn -> Char -> AlexPosn
+alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
+alexMove (AlexPn a l c) '\n' = AlexPn (a+1) (l+1)   1
+alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
+
+
+-- -----------------------------------------------------------------------------
+-- Default monad
+
+
+data AlexState = AlexState {
+        alex_pos :: !AlexPosn,  -- position at current input location
+        alex_inp :: String,     -- the current input
+        alex_chr :: !Char,      -- the character before the input
+        alex_bytes :: [Byte],
+        alex_scd :: !Int        -- the current startcode
+
+      , alex_ust :: AlexUserState -- AlexUserState will be defined in the user program
+
+    }
+
+-- Compile with -funbox-strict-fields for best results!
+
+runAlex :: String -> Alex a -> Either String a
+runAlex input (Alex f) 
+   = case f (AlexState {alex_pos = alexStartPos,
+                        alex_inp = input,       
+                        alex_chr = '\n',
+                        alex_bytes = [],
+
+                        alex_ust = alexInitUserState,
+
+                        alex_scd = 0}) of Left msg -> Left msg
+                                          Right ( _, a ) -> Right a
+
+newtype Alex a = Alex { unAlex :: AlexState -> Either String (AlexState, a) }
+
+instance Monad Alex where
+  m >>= k  = Alex $ \s -> case unAlex m s of 
+                                Left msg -> Left msg
+                                Right (s',a) -> unAlex (k a) s'
+  return a = Alex $ \s -> Right (s,a)
+
+alexGetInput :: Alex AlexInput
+alexGetInput
+ = Alex $ \s@AlexState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} -> 
+        Right (s, (pos,c,bs,inp))
+
+alexSetInput :: AlexInput -> Alex ()
+alexSetInput (pos,c,bs,inp)
+ = Alex $ \s -> case s{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} of
+                  s@(AlexState{}) -> Right (s, ())
+
+alexError :: String -> Alex a
+alexError message = Alex $ \s -> Left message
+
+alexGetStartCode :: Alex Int
+alexGetStartCode = Alex $ \s@AlexState{alex_scd=sc} -> Right (s, sc)
+
+alexSetStartCode :: Int -> Alex ()
+alexSetStartCode sc = Alex $ \s -> Right (s{alex_scd=sc}, ())
+
+alexMonadScan = do
+  inp <- alexGetInput
+  sc <- alexGetStartCode
+  case alexScan inp sc of
+    AlexEOF -> alexEOF
+    AlexError inp' -> alexError "lexical error"
+    AlexSkip  inp' len -> do
+        alexSetInput inp'
+        alexMonadScan
+    AlexToken inp' len action -> do
+        alexSetInput inp'
+        action (ignorePendingBytes inp) len
+
+-- -----------------------------------------------------------------------------
+-- Useful token actions
+
+type AlexAction result = AlexInput -> Int -> Alex result
+
+-- just ignore this token and scan another one
+-- skip :: AlexAction result
+skip input len = alexMonadScan
+
+-- ignore this token, but set the start code to a new value
+-- begin :: Int -> AlexAction result
+begin code input len = do alexSetStartCode code; alexMonadScan
+
+-- perform an action for this token, and set the start code to a new value
+andBegin :: AlexAction result -> Int -> AlexAction result
+(action `andBegin` code) input len = do alexSetStartCode code; action input len
+
+token :: (AlexInput -> Int -> token) -> AlexAction token
+token t input len = return (t input len)
+
+
+
+-- -----------------------------------------------------------------------------
+-- Monad (with ByteString input)
+
+{-# LINE 319 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Basic wrapper
+
+{-# LINE 345 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Basic wrapper, ByteString version
+
+{-# LINE 363 "templates/wrappers.hs" #-}
+
+{-# LINE 376 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Posn wrapper
+
+-- Adds text positions to the basic model.
+
+{-# LINE 393 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Posn wrapper, ByteString version
+
+{-# LINE 408 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- GScan wrapper
+
+-- For compatibility with previous versions of Alex, and because we can.
+
 alex_base :: AlexAddr
 alex_base = AlexA# "\x00\x00\x00\x00\xf7\xff\xff\xff\xfc\xff\xff\xff\xe4\x00\x00\x00\xdc\xff\xff\xff\x63\xff\xff\xff\x44\xff\xff\xff\xa6\x00\x00\x00\xb5\x01\x00\x00\x2a\x02\x00\x00\xa9\x02\x00\x00\x28\x03\x00\x00\xa7\x03\x00\x00\x26\x04\x00\x00\xa5\x04\x00\x00\x89\xff\xff\xff\x24\x05\x00\x00\xa3\x05\x00\x00\xdd\x05\x00\x00\x10\x06\x00\x00\x8f\x06\x00\x00\xfd\xff\xff\xff\x0e\x07\x00\x00\x40\x07\x00\x00\x7d\x07\x00\x00\xb2\x01\x00\x00\xb8\x07\x00\x00\xe5\x07\x00\x00\x1a\x08\x00\x00\x36\x08\x00\x00\x6e\x08\x00\x00\x8c\xff\xff\xff\xe9\x08\x00\x00\x22\x09\x00\x00\x9d\x09\x00\x00\xcc\x09\x00\x00\x05\x0a\x00\x00\x3e\x0a\x00\x00\x77\x0a\x00\x00\xb0\x0a\x00\x00\xe9\x0a\x00\x00\x8d\xff\xff\xff\x18\x0b\x00\x00\x8b\x0b\x00\x00\xbc\x0b\x00\x00\x8a\xff\xff\xff\x29\x0c\x00\x00\x83\xff\xff\xff\x92\x0c\x00\x00\xfb\xff\xff\xff\x7e\xff\xff\xff\xf1\x0c\x00\x00\x09\x0d\x00\x00\x64\x0d\x00\x00\xb5\xff\xff\xff\x07\x00\x00\x00\xcd\xff\xff\xff\xdb\xff\xff\xff\xc8\xff\xff\xff\xc7\xff\xff\xff\x5b\x0e\x00\x00\x47\x0f\x00\x00\x1c\x10\x00\x00\xc7\x00\x00\x00\x3b\x02\x00\x00\x56\x00\x00\x00\x37\x0e\x00\x00\xdd\xff\xff\xff\x91\x10\x00\x00\x7d\x08\x00\x00\x48\x0f\x00\x00\x1d\x10\x00\x00\xe5\x0d\x00\x00\x3e\x08\x00\x00\x11\x11\x00\x00\x35\x00\x00\x00\x51\x11\x00\x00\x83\x11\x00\x00\x0b\x06\x00\x00\x91\x07\x00\x00\x53\x0e\x00\x00\x91\x11\x00\x00\x43\x00\x00\x00\x75\x00\x00\x00\xb1\x11\x00\x00\x47\x00\x00\x00\xe5\xff\xff\xff\xf0\x11\x00\x00\x60\x12\x00\x00\x71\x12\x00\x00\xa1\x12\x00\x00\x21\x13\x00\x00\xa1\x13\x00\x00\x21\x14\x00\x00\xa1\x14\x00\x00\x21\x15\x00\x00\xa1\x15\x00\x00\x27\x00\x00\x00\x00\x00\x00\x00\x12\x16\x00\x00\x00\x00\x00\x00\x83\x16\x00\x00\x00\x00\x00\x00\xf4\x16\x00\x00\xc4\x17\x00\x00\x00\x00\x00\x00\x6c\x17\x00\x00\x00\x00\x00\x00\xad\x17\x00\x00\x00\x00\x00\x00\xee\x17\x00\x00\x00\x00\x00\x00\x2f\x18\x00\x00\xff\x18\x00\x00\x0c\x00\x00\x00\x66\x19\x00\x00\x26\x19\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x97\x19\x00\x00\x8a\x00\x00\x00\x97\x1a\x00\x00\xf7\x1a\x00\x00\xb7\x1a\x00\x00\x00\x00\x00\x00\xec\x1b\x00\x00\x62\x1c\x00\x00\x22\x1c\x00\x00\x00\x00\x00\x00\x57\x1d\x00\x00\xcd\x1d\x00\x00\x8d\x1d\x00\x00\x00\x00\x00\x00\x68\x00\x00\x00\x4b\x00\x00\x00\x2e\x01\x00\x00\x3d\x00\x00\x00\x48\x00\x00\x00\x92\x1e\x00\x00\x66\x11\x00\x00\x7b\x17\x00\x00\xc2\x0e\x00\x00\xa2\x1e\x00\x00\x73\x00\x00\x00\x00\x00\x00\x00\xe3\x1e\x00\x00\x32\x01\x00\x00\x82\x00\x00\x00\xc6\x18\x00\x00\x63\x1f\x00\x00\x59\x1e\x00\x00\x4f\x01\x00\x00\xfd\x00\x00\x00\xb8\x1e\x00\x00\x05\x20\x00\x00\xf1\x20\x00\x00\x2c\x21\x00\x00\x90\x00\x00\x00\x69\x0b\x00\x00\x49\x0f\x00\x00\x1e\x10\x00\x00\x7c\x21\x00\x00\x93\x01\x00\x00\xdc\x21\x00\x00\xe5\x1f\x00\x00\x57\x12\x00\x00\x2f\x07\x00\x00\x32\x08\x00\x00\x1a\x01\x00\x00\x4c\x22\x00\x00\x12\x20\x00\x00\xe1\x20\x00\x00\xbc\x22\x00\x00\x2c\x23\x00\x00\x4f\x23\x00\x00\xe0\x1b\x00\x00\x70\x23\x00\x00\xe0\x23\x00\x00\x3b\x01\x00\x00\x48\x07\x00\x00\x03\x24\x00\x00\x33\x24\x00\x00\x55\x24\x00\x00\x64\x1e\x00\x00\xbd\x01\x00\x00\x8b\x24\x00\x00\x01\x25\x00\x00\xa2\x06\x00\x00\x36\x25\x00\x00\xb0\x01\x00\x00\x65\x25\x00\x00\xe1\x25\x00\x00\x1b\x26\x00\x00\x4c\x26\x00\x00\x88\x26\x00\x00\x06\x27\x00\x00\x84\x27\x00\x00\x65\x24\x00\x00\x02\x28\x00\x00\xdb\x01\x00\x00\x34\x28\x00\x00\x6f\x28\x00\x00\xaf\x28\x00\x00\xbe\x01\x00\x00\x2f\x29\x00\x00\x6f\x29\x00\x00\xef\x29\x00\x00\x6f\x2a\x00\x00\x9c\x2a\x00\x00\xda\x2a\x00\x00\xf4\x2a\x00\x00\x74\x2b\x00\x00\xf4\x2b\x00\x00\x5b\x1d\x00\x00\x30\x2c\x00\x00\xb0\x2c\x00\x00\xe1\x2c\x00\x00\x15\x2d\x00\x00\x4f\x2d\x00\x00\x82\x2d\x00\x00\xab\x2d\x00\x00\xc7\x2d\x00\x00\x47\x2e\x00\x00\xc7\x2e\x00\x00\xeb\x2e\x00\x00\x11\x2f\x00\x00\x91\x2f\x00\x00\xbd\x2f\x00\x00\x3d\x30\x00\x00\x6b\x30\x00\x00\xeb\x30\x00\x00\x29\x31\x00\x00\xa9\x31\x00\x00\xdd\x31\x00\x00\x5d\x32\x00\x00\x93\x32\x00\x00\xce\x32\x00\x00\x06\x33\x00\x00\xc6\x33\x00\x00\xc7\x33\x00\x00\x02\x34\x00\x00\x39\x34\x00\x00\x6e\x34\x00\x00\xad\x34\x00\x00\x2d\x35\x00\x00\xad\x35\x00\x00\xed\x35\x00\x00\x6d\x36\x00\x00\xa7\x36\x00\x00\xe1\x36\x00\x00\x0a\x37\x00\x00\x8a\x37\x00\x00\xca\x37\x00\x00\xed\x37\x00\x00\x6d\x38\x00\x00\x8a\x38\x00\x00\xc6\x38\x00\x00\x46\x39\x00\x00\x5f\x39\x00\x00\xdf\x39\x00\x00\x1e\x3a\x00\x00\x9e\x3a\x00\x00\xb8\x3a\x00\x00\xea\x3a\x00\x00\x1f\x3b\x00\x00\x5e\x3b\x00\x00\x16\x07\x00\x00\x9d\x3b\x00\x00\xd1\x3b\x00\x00\xf0\x3b\x00\x00\x14\x24\x00\x00\x30\x3c\x00\x00\xb0\x3c\x00\x00\xbc\x18\x00\x00\xce\x3c\x00\x00\xc3\x01\x00\x00\xed\x3c\x00\x00\x1d\x3d\x00\x00\x51\x3d\x00\x00\x7a\x12\x00\x00\x21\x3e\x00\x00\xe6\x3d\x00\x00\xdb\x02\x00\x00\x64\x3e\x00\x00\x2b\x0d\x00\x00\x82\x3e\x00\x00\xcb\x01\x00\x00\xfe\x3e\x00\x00\x78\x3f\x00\x00\xf2\x3f\x00\x00\x6c\x40\x00\x00\xe6\x40\x00\x00\x5e\x41\x00\x00\xd6\x41\x00\x00\x4e\x42\x00\x00\xc4\x42\x00\x00\x38\x43\x00\x00\xaa\x43\x00\x00\xc2\x01\x00\x00\x16\x44\x00\x00\x82\x44\x00\x00\xee\x44\x00\x00\x5a\x45\x00\x00\xc4\x45\x00\x00\x5b\x0a\x00\x00\x7f\x0d\x00\x00\x2a\x46\x00\x00\x8c\x46\x00\x00\xee\x46\x00\x00\xb9\x01\x00\x00\x4a\x47\x00\x00\xa4\x47\x00\x00\xfe\x47\x00\x00\x58\x48\x00\x00\xcf\x01\x00\x00\x6b\x0e\x00\x00\xb0\x48\x00\x00\x86\x04\x00\x00\x07\x03\x00\x00\x00\x49\x00\x00\x4e\x49\x00\x00\x77\x02\x00\x00\x98\x49\x00\x00\xe0\x49\x00\x00\x22\x4a\x00\x00\x62\x4a\x00\x00\x00\x00\x00\x00\xa3\x4a\x00\x00\xe6\x4a\x00\x00\x2b\x4b\x00\x00\x70\x4b\x00\x00\xb7\x4b\x00\x00\x02\x4c\x00\x00\x4d\x4c\x00\x00\x9e\x4c\x00\x00\xf1\x4c\x00\x00\x46\x4d\x00\x00\xa1\x4d\x00\x00\xfc\x4d\x00\x00\x59\x4e\x00\x00\x98\x02\x00\x00\xba\x4e\x00\x00\xe5\x3f\x00\x00\x1f\x4f\x00\x00\x84\x4f\x00\x00\x84\x17\x00\x00\x35\x08\x00\x00\x65\x20\x00\x00\xef\x4f\x00\x00\xa6\x02\x00\x00\x24\x03\x00\x00\x5e\x50\x00\x00\xcb\x03\x00\x00\xcf\x50\x00\x00\xa9\x03\x00\x00\x42\x51\x00\x00\xb5\x51\x00\x00\x28\x52\x00\x00\x57\x03\x00\x00\x9d\x52\x00\x00\x71\x40\x00\x00\x14\x53\x00\x00\x8b\x53\x00\x00\x02\x54\x00\x00\xe0\x3d\x00\x00\xad\x04\x00\x00\x7b\x54\x00\x00\xf4\x54\x00\x00\x6d\x55\x00\x00\xe8\x55\x00\x00\x63\x56\x00\x00\xde\x56\x00\x00\x59\x57\x00\x00\xd4\x57\x00\x00\x4f\x58\x00\x00\xca\x58\x00\x00\x47\x59\x00\x00\xc4\x59\x00\x00\x41\x5a\x00\x00\xbe\x5a\x00\x00\x3b\x5b\x00\x00\xba\x5b\x00\x00\x51\x07\x00\x00\xba\x5c\x00\x00\x8c\x03\x00\x00\x7a\x5c\x00\x00\x00\x00\x00\x00\xb2\x02\x00\x00\x16\x0a\x00\x00\xcc\x02\x00\x00\xec\x5c\x00\x00\xff\x3a\x00\x00\x6c\x5d\x00\x00\xec\x5d\x00\x00\x2c\x03\x00\x00\x6b\x5e\x00\x00\xdb\x5e\x00\x00\x00\x00\x00\x00\xb7\x5f\x00\x00\x00\x00\x00\x00\x79\x5e\x00\x00\x5c\x07\x00\x00\xaf\x57\x00\x00\xd6\x20\x00\x00\x5e\x5e\x00\x00\x94\x5e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xe6\x07\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x57\x07\x00\x00\x7d\x03\x00\x00\x13\x04\x00\x00\x00\x00\x00\x00\x94\x03\x00\x00\x00\x00\x00\x00\x9f\x03\x00\x00\x00\x00\x00\x00\xee\x03\x00\x00\x1d\x04\x00\x00\x00\x00\x00\x00\xa4\x04\x00\x00\x1e\x04\x00\x00\x22\x05\x00\x00\x00\x00\x00\x00\x77\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xe0\x07\x00\x00\x99\x08\x00\x00\x6d\x04\x00\x00\x76\x04\x00\x00\x7a\x04\x00\x00\x00\x00\x00\x00\x6f\x21\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"#
 
@@ -48,8 +274,8 @@ alex_check = AlexA# "\xff\xff\x0a\x00\x9f\x00\xbf\x00\x0d\x00\x09\x00\x0a\x00\x0
 alex_deflt :: AlexAddr
 alex_deflt = AlexA# "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x01\xff\xff\x8e\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x6b\x00\x6b\x00\x6d\x00\x6d\x00\x6f\x00\x6f\x00\xff\xff\x75\x00\x75\x00\x7c\x00\x7c\x00\x80\x00\x80\x00\x84\x00\x84\x00\xff\xff\xff\xff\x8e\x00\x8e\x00\x8e\x00\x90\x00\x90\x00\xff\xff\x3e\x00\xff\xff\x3e\x00\x3e\x00\x3c\x00\xff\xff\x3c\x00\x3c\x00\x9a\x00\xff\xff\x9a\x00\x9a\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x00\x82\x01\x82\x01\x82\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8c\x01\x8c\x01\x8c\x01\x8c\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8c\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
-alex_accept = listArray (0::Int,446) [[(AlexAccSkip)],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[(AlexAccSkip)],[(AlexAccSkip)],[(AlexAccSkip)],[(AlexAcc (alex_action_4))],[(AlexAcc (alex_action_5))],[(AlexAcc (alex_action_6))],[(AlexAcc (alex_action_7))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_8))],[(AlexAccSkip)],[(AlexAcc (alex_action_10))],[(AlexAcc (alex_action_11))],[(AlexAcc (alex_action_12))],[(AlexAcc (alex_action_13))],[(AlexAcc (alex_action_14))],[(AlexAcc (alex_action_15))],[(AlexAcc (alex_action_16))],[(AlexAcc (alex_action_17))],[(AlexAcc (alex_action_18))],[(AlexAcc (alex_action_19))],[(AlexAcc (alex_action_20))],[(AlexAcc (alex_action_21))],[(AlexAcc (alex_action_22))],[(AlexAcc (alex_action_23))],[(AlexAcc (alex_action_24))],[(AlexAcc (alex_action_25))],[(AlexAcc (alex_action_26))],[(AlexAcc (alex_action_27))],[(AlexAcc (alex_action_28))],[(AlexAcc (alex_action_29))],[(AlexAcc (alex_action_30))],[(AlexAcc (alex_action_31))],[(AlexAcc (alex_action_32))],[(AlexAcc (alex_action_33))],[(AlexAcc (alex_action_34))],[(AlexAcc (alex_action_35))],[(AlexAcc (alex_action_36))],[(AlexAcc (alex_action_37))],[(AlexAcc (alex_action_38))],[(AlexAcc (alex_action_39))],[(AlexAcc (alex_action_40))],[(AlexAcc (alex_action_41))],[(AlexAcc (alex_action_42))],[(AlexAcc (alex_action_43))],[(AlexAcc (alex_action_44))],[(AlexAcc (alex_action_45))],[(AlexAcc (alex_action_46))],[(AlexAcc (alex_action_47))],[(AlexAcc (alex_action_48))],[(AlexAcc (alex_action_49))]]
-{-# LINE 308 "src-dev/Language/JavaScript/Parser/Lexer.x" #-}
+alex_accept = listArray (0::Int,446) [[(AlexAccSkip)],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[(AlexAcc (alex_action_1))],[(AlexAcc (alex_action_2))],[(AlexAcc (alex_action_3))],[(AlexAcc (alex_action_4))],[(AlexAcc (alex_action_5))],[(AlexAcc (alex_action_6))],[(AlexAcc (alex_action_7))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_8))],[(AlexAccSkip)],[(AlexAcc (alex_action_10))],[(AlexAcc (alex_action_11))],[(AlexAcc (alex_action_12))],[(AlexAcc (alex_action_13))],[(AlexAcc (alex_action_14))],[(AlexAcc (alex_action_15))],[(AlexAcc (alex_action_16))],[(AlexAcc (alex_action_17))],[(AlexAcc (alex_action_18))],[(AlexAcc (alex_action_19))],[(AlexAcc (alex_action_20))],[(AlexAcc (alex_action_21))],[(AlexAcc (alex_action_22))],[(AlexAcc (alex_action_23))],[(AlexAcc (alex_action_24))],[(AlexAcc (alex_action_25))],[(AlexAcc (alex_action_26))],[(AlexAcc (alex_action_27))],[(AlexAcc (alex_action_28))],[(AlexAcc (alex_action_29))],[(AlexAcc (alex_action_30))],[(AlexAcc (alex_action_31))],[(AlexAcc (alex_action_32))],[(AlexAcc (alex_action_33))],[(AlexAcc (alex_action_34))],[(AlexAcc (alex_action_35))],[(AlexAcc (alex_action_36))],[(AlexAcc (alex_action_37))],[(AlexAcc (alex_action_38))],[(AlexAcc (alex_action_39))],[(AlexAcc (alex_action_40))],[(AlexAcc (alex_action_41))],[(AlexAcc (alex_action_42))],[(AlexAcc (alex_action_43))],[(AlexAcc (alex_action_44))],[(AlexAcc (alex_action_45))],[(AlexAcc (alex_action_46))],[(AlexAcc (alex_action_47))],[(AlexAcc (alex_action_48))],[(AlexAcc (alex_action_49))]]
+{-# LINE 313 "src-dev/Language/JavaScript/Parser/Lexer.x" #-}
 
 
 {-
@@ -60,8 +286,8 @@ The method is inspired by the lexer in http://jint.codeplex.com/
 
 -}
 classifyToken :: Token -> Int
-classifyToken token =
-   case token of
+classifyToken aToken =
+   case aToken of
       IdentifierToken {} -> divide
       NullToken {} -> divide
       TrueToken {} -> divide
@@ -76,90 +302,142 @@ classifyToken token =
       _other      -> reg
 
 
--- Each right-hand side has type :: String -> Token
-
-lexToken :: P Token
+{-
+--lexToken :: Alex Token
 lexToken = do
-  -- location <- getLocation
-  -- input <- getInput
-  input@(_,_,_,inp) <- alexGetInput
-  -- startCode <- getStartCode
-  lt <- getLastToken
-  -- case alexScan (location, input) (classifyToken lt) of
-  case alexScan input (classifyToken lt) of
-    AlexEOF -> return endOfFileToken
-    AlexError _ -> lexicalError
-    AlexSkip rest _len -> do
-       -- setLocation nextLocation
-       -- setInput rest
-       alexSetInput rest
+  inp <- alexGetInput
+  lt  <- getLastToken
+  case alexScan inp (classifyToken lt) of
+    AlexEOF        -> alexEOF
+    AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+                                             " and column " ++ show (getColumnNum(pos)))
+    AlexSkip inp' _len -> do
+       alexSetInput inp'
        lexToken
-    AlexToken rest len action -> do
-       --setLocation nextLocation
-       --setInput rest
-       alexSetInput rest
-       --token <- action (mkSrcSpan location $ decColumn 1 nextLocation) len input
-       token <- action (ignorePendingBytes input) len inp
+    AlexToken inp' len action -> do
+       alexSetInput inp'
+       token <- action (ignorePendingBytes inp) len
        setLastToken token
        return token
+-}
+
+--lexToken :: Alex Token
+lexToken = do
+  inp <- alexGetInput
+  lt  <- getLastToken
+  case lt of
+    TailToken {} -> alexEOF
+    _other ->
+      case alexScan inp (classifyToken lt) of
+        AlexEOF        -> do
+          token <- tailToken
+          setLastToken token
+          return token
+        AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+                                                 " and column " ++ show (getColumnNum(pos)))
+        AlexSkip inp' _len -> do
+          alexSetInput inp'
+          lexToken
+        AlexToken inp' len action -> do
+          alexSetInput inp'
+          token <- action (ignorePendingBytes inp) len
+          setLastToken token
+          return token
+
 
 -- This is called by the Happy parser.
-lexCont :: (Token -> P a) -> P a
+--lexCont :: (Token -> P a) -> P a
+--lexCont :: (Token -> Alex Token) -> Alex Token
 lexCont cont = do
    lexLoop
    where
    -- lexLoop :: P a
    lexLoop = do
       tok <- lexToken
-      --tok <- alexMonadScan
       case tok of
-         {-
          CommentToken {} -> do
             addComment tok
             lexLoop
-         LineJoinToken {} -> lexLoop
-         -}
-         _other -> cont tok
+         WsToken {} -> do
+            addComment tok
+            lexLoop
+         _other -> do
+            cs <- getComment
+            let tok' = tok{ token_comment=(toCommentAnnotation cs) }
+            setComment []
+            cont tok'
+
+toCommentAnnotation []    = [NoComment]
+--toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
+
+toCommentAnnotation xs =  reverse $ map go xs
+  where
+    go tok@(CommentToken {}) = (CommentA (token_span tok) (token_literal tok))
+    go tok@(WsToken      {}) = (WhiteSpace (token_span tok) (token_literal tok))
+
+-- ---------------------------------------------------------------------
+
+getLineNum :: AlexPosn -> Int
+getLineNum (AlexPn _offset lineNum _colNum) = lineNum
+
+getColumnNum :: AlexPosn -> Int
+getColumnNum (AlexPn _offset _lineNum colNum) = colNum
+
+-- ---------------------------------------------------------------------
+
+getLastToken :: Alex Token
+getLastToken = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, previousToken ust)
+
+setLastToken :: Token -> Alex ()
+setLastToken tok = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
+
+getComment :: Alex [Token]
+--getComments = reverse <$> Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)
+getComment = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comment ust)
 
 
-utf8Encode :: Char -> [Byte]
-utf8Encode c = head (UTF8.encodeUTF8' [UTF8.c2w c])
-
---alexEOF = EOFToken alexSpanEmpty
-
--- ignorePendingBytes :: forall t t1 t2 t3. (t, t1, t2, t3) -> (t, t1, t3)
-ignorePendingBytes (p,c,_ps,s) = (p,c,s)
+addComment :: Token -> Alex ()
+addComment c = Alex $ \s ->  Right (s{alex_ust=(alex_ust s){comment=c:(  comment (alex_ust s)  )}}, ())
 
 
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar (p,c,bs,s) = c
+setComment :: [Token] -> Alex ()
+setComment cs = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comment=cs }}, ())
 
-alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
-alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
-alexGetByte (_p,_c,[],[]) = Nothing
-alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
-                                  (b:bs) = utf8Encode c
-                              in p' `seq`  Just (b, (p', c, bs, s))
+alexEOF :: Alex Token
+alexEOF = do return (EOFToken tokenPosnEmpty [])
 
-alexMove :: AlexPosn -> Char -> AlexPosn
-alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
-alexMove (AlexPn a l _c) '\n' = AlexPn (a+1) (l+1)   1
-alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
+tailToken :: Alex Token
+tailToken = do return (TailToken tokenPosnEmpty [])
+
+adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
+adapt f loc@(p@(AlexPn offset line col),_,inp) len =
+  (f (TokenPn offset line col) len inp)
+
+{-
+mkComment :: (AlexPosn,Char,String) -> Int -> Alex Token
+mkComment loc@(p@(AlexPn offset line col),_,inp) len = do
+  return (CommentToken (TokenPn offset line col) (take len inp))
+-}
+
+toTokenPosn :: AlexPosn -> TokenPosn
+toTokenPosn (AlexPn offset line col) = (TokenPn offset line col)
 
 -- ---------------------------------------------------------------------
 
 -- a keyword or an identifier (the syntax overlaps)
-keywordOrIdent :: String -> AlexSpan -> P Token
+keywordOrIdent :: String -> TokenPosn -> Alex Token
 keywordOrIdent str location
    = return $ case Map.lookup str keywords of
-         Just symbol -> symbol location str
-         Nothing -> IdentifierToken location str
+         Just symbol -> symbol location str []
+         Nothing -> IdentifierToken location str []
 
 -- mapping from strings to keywords
-keywords :: Map.Map String (AlexSpan -> String -> Token)
+--keywords :: Map.Map String (TokenPosn -> String -> Token)
+keywords :: Map.Map String (TokenPosn -> String -> [CommentAnnotation] -> Token)
 keywords = Map.fromList keywordNames
 
-keywordNames :: [(String, AlexSpan -> String -> Token)]
+--keywordNames :: [(String, TokenPosn -> String -> Token)]
+keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
    [
     ("break",BreakToken),
@@ -250,51 +528,54 @@ bof,divide,reg :: Int
 bof = 1
 divide = 2
 reg = 3
-alex_action_4 =  \loc len str -> keywordOrIdent (take len str) loc 
-alex_action_5 =  mkString stringToken 
-alex_action_6 =  mkString hexIntegerToken 
-alex_action_7 =  mkString regExToken 
-alex_action_8 =  mkString decimalToken 
-alex_action_10 =  mkString assignToken
-alex_action_11 =  symbolToken  DivToken
-alex_action_12 =  symbolToken  SemiColonToken
-alex_action_13 =  symbolToken  CommaToken
-alex_action_14 =  symbolToken  HookToken
-alex_action_15 =  symbolToken  ColonToken
-alex_action_16 =  symbolToken  OrToken
-alex_action_17 =  symbolToken  AndToken
-alex_action_18 =  symbolToken  BitwiseOrToken
-alex_action_19 =  symbolToken  BitwiseXorToken
-alex_action_20 =  symbolToken  BitwiseAndToken
-alex_action_21 =  symbolToken  StrictEqToken
-alex_action_22 =  symbolToken  EqToken
-alex_action_23 =  mkString assignToken
-alex_action_24 =  symbolToken  SimpleAssignToken
-alex_action_25 =  symbolToken  StrictNeToken
-alex_action_26 =  symbolToken  NeToken
-alex_action_27 =  symbolToken  LshToken
-alex_action_28 =  symbolToken  LeToken
-alex_action_29 =  symbolToken  LtToken
-alex_action_30 =  symbolToken  UrshToken
-alex_action_31 =  symbolToken  RshToken
-alex_action_32 =  symbolToken  GeToken
-alex_action_33 =  symbolToken  GtToken
-alex_action_34 =  symbolToken  IncrementToken
-alex_action_35 =  symbolToken  DecrementToken
-alex_action_36 =  symbolToken  PlusToken
-alex_action_37 =  symbolToken  MinusToken
-alex_action_38 =  symbolToken  MulToken
-alex_action_39 =  symbolToken  ModToken
-alex_action_40 =  symbolToken  NotToken
-alex_action_41 =  symbolToken  BitwiseNotToken
-alex_action_42 =  symbolToken  DotToken
-alex_action_43 =  symbolToken  LeftBracketToken
-alex_action_44 =  symbolToken  RightBracketToken
-alex_action_45 =  symbolToken  LeftCurlyToken
-alex_action_46 =  symbolToken  RightCurlyToken
-alex_action_47 =  symbolToken  LeftParenToken
-alex_action_48 =  symbolToken  RightParenToken
-alex_action_49 =  symbolToken  CondcommentEndToken
+alex_action_1 =  adapt (mkString wsToken) 
+alex_action_2 =  adapt (mkString commentToken) 
+alex_action_3 =  adapt (mkString commentToken) 
+alex_action_4 =  \ap@(loc,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc) 
+alex_action_5 =  adapt (mkString stringToken) 
+alex_action_6 =  adapt (mkString hexIntegerToken) 
+alex_action_7 =  adapt (mkString regExToken) 
+alex_action_8 =  adapt (mkString decimalToken) 
+alex_action_10 =  adapt (mkString assignToken)
+alex_action_11 =  adapt (symbolToken DivToken)
+alex_action_12 =  adapt (symbolToken  SemiColonToken)
+alex_action_13 =  adapt (symbolToken  CommaToken)
+alex_action_14 =  adapt (symbolToken  HookToken)
+alex_action_15 =  adapt (symbolToken  ColonToken)
+alex_action_16 =  adapt (symbolToken  OrToken)
+alex_action_17 =  adapt (symbolToken  AndToken)
+alex_action_18 =  adapt (symbolToken  BitwiseOrToken)
+alex_action_19 =  adapt (symbolToken  BitwiseXorToken)
+alex_action_20 =  adapt (symbolToken  BitwiseAndToken)
+alex_action_21 =  adapt (symbolToken  StrictEqToken)
+alex_action_22 =  adapt (symbolToken  EqToken)
+alex_action_23 =  adapt (mkString assignToken)
+alex_action_24 =  adapt (symbolToken  SimpleAssignToken)
+alex_action_25 =  adapt (symbolToken  StrictNeToken)
+alex_action_26 =  adapt (symbolToken  NeToken)
+alex_action_27 =  adapt (symbolToken  LshToken)
+alex_action_28 =  adapt (symbolToken  LeToken)
+alex_action_29 =  adapt (symbolToken  LtToken)
+alex_action_30 =  adapt (symbolToken  UrshToken)
+alex_action_31 =  adapt (symbolToken  RshToken)
+alex_action_32 =  adapt (symbolToken  GeToken)
+alex_action_33 =  adapt (symbolToken  GtToken)
+alex_action_34 =  adapt (symbolToken  IncrementToken)
+alex_action_35 =  adapt (symbolToken  DecrementToken)
+alex_action_36 =  adapt (symbolToken  PlusToken)
+alex_action_37 =  adapt (symbolToken  MinusToken)
+alex_action_38 =  adapt (symbolToken  MulToken)
+alex_action_39 =  adapt (symbolToken  ModToken)
+alex_action_40 =  adapt (symbolToken  NotToken)
+alex_action_41 =  adapt (symbolToken  BitwiseNotToken)
+alex_action_42 =  adapt (symbolToken  DotToken)
+alex_action_43 =  adapt (symbolToken  LeftBracketToken)
+alex_action_44 =  adapt (symbolToken  RightBracketToken)
+alex_action_45 =  adapt (symbolToken  LeftCurlyToken)
+alex_action_46 =  adapt (symbolToken  RightCurlyToken)
+alex_action_47 =  adapt (symbolToken  LeftParenToken)
+alex_action_48 =  adapt (symbolToken  RightParenToken)
+alex_action_49 =  adapt (symbolToken  CondcommentEndToken)
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}
