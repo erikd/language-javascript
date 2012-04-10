@@ -179,11 +179,8 @@ rJS :: [JSNode] -> Foo -> Foo
 rJS xs foo = foldl' (flip rn) foo xs
 
 renderToString :: JSNode -> String
---renderToString js = map (\x -> chr (fromIntegral x)) $ LB.unpack $ BB.toLazyByteString $ renderJS js
+-- need to be careful to not lose the unicode encoding on output
 renderToString js = US.decode $ LB.unpack $ BB.toLazyByteString $ renderJS js
---renderToString js = lbToStr $ S8.fromChunks [ BB.toLazyByteString $ renderJS js ]
---renderToString js = lbToStr $ BB.toByteString $ renderJS js
-
 
 
 -- ---------------------------------------------------------------------
