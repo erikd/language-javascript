@@ -39,10 +39,10 @@ data Node =
               | JSBlock [JSNode] [JSNode] [JSNode]      -- ^optional lb,optional block statements,optional rb
               | JSBreak JSNode [JSNode] JSNode        -- ^break, optional identifier, autosemi
               | JSCallExpression String [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
-              | JSCase JSNode JSNode JSNode JSNode    -- ^case,expr,colon,stmtlist
+              | JSCase JSNode JSNode JSNode [JSNode]    -- ^case,expr,colon,stmtlist
               | JSCatch JSNode JSNode JSNode [JSNode] JSNode JSNode -- ^ catch,lb,ident,[if,expr],rb,block
               | JSContinue JSNode [JSNode] JSNode     -- ^continue,optional identifier,autosemi
-              | JSDefault JSNode JSNode JSNode -- ^default,colon,stmtlist
+              | JSDefault JSNode JSNode [JSNode] -- ^default,colon,stmtlist
               | JSDoWhile JSNode JSNode JSNode JSNode JSNode JSNode JSNode -- ^do,stmt,while,lb,expr,rb,autosemi
               | JSElision JSNode               -- ^comma
               | JSExpression [JSNode]          -- ^expression components
@@ -69,8 +69,8 @@ data Node =
               | JSReturn JSNode [JSNode] JSNode -- ^return,optional expression,autosemi
               | JSSourceElements [JSNode] -- ^source elements
               | JSSourceElementsTop [JSNode] -- ^source elements
-              | JSStatementBlock JSNode JSNode JSNode -- ^lb,block,rb
-              | JSStatementList [JSNode] -- ^statements
+              -- | JSStatementBlock JSNode JSNode JSNode -- ^lb,block,rb
+              -- | JSStatementList [JSNode] -- ^statements
               | JSSwitch JSNode JSNode JSNode JSNode JSNode -- ^switch,lb,expr,rb,caseblock
               | JSThrow JSNode JSNode -- ^throw val
               | JSTry JSNode JSNode [JSNode] -- ^try,block,rest
@@ -100,11 +100,11 @@ showStrippedNode (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
 showStrippedNode (JSBlock _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
 showStrippedNode (JSBreak _b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as
 showStrippedNode (JSCallExpression s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
-showStrippedNode (JSCase _ca x1 _c x2) = "JSCase (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+showStrippedNode (JSCase _ca x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ sss x2s ++ ")"
 showStrippedNode (JSCatch _c _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSContinue _c xs as) = "JSContinue " ++ sss xs ++ " " ++ ss as
 showStrippedNode (JSDecimal s) = "JSDecimal " ++ show s
-showStrippedNode (JSDefault _d _c x) = "JSDefault (" ++ ss x ++ ")"
+showStrippedNode (JSDefault _d _c xs) = "JSDefault (" ++ sss xs ++ ")"
 showStrippedNode (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 showStrippedNode (JSElision c) = "JSElision " ++ ss c
 showStrippedNode (JSExpression xs) = "JSExpression " ++ sss xs
@@ -135,8 +135,8 @@ showStrippedNode (JSRegEx s) = "JSRegEx " ++ show s
 showStrippedNode (JSReturn _r xs as) = "JSReturn " ++ sss xs ++ " " ++ ss as
 showStrippedNode (JSSourceElements xs) = "JSSourceElements " ++ sss xs
 showStrippedNode (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ sss xs
-showStrippedNode (JSStatementBlock _lb x _rb) = "JSStatementBlock (" ++ ss x ++ ")"
-showStrippedNode (JSStatementList xs) = "JSStatementList " ++ sss xs
+-- showStrippedNode (JSStatementBlock _lb x _rb) = "JSStatementBlock (" ++ ss x ++ ")"
+-- showStrippedNode (JSStatementList xs) = "JSStatementList " ++ sss xs
 showStrippedNode (JSStringLiteral c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 showStrippedNode (JSSwitch _s _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
 showStrippedNode (JSThrow _t x) = "JSThrow (" ++ ss x ++ ")"

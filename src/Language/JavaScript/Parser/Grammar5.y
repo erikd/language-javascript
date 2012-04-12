@@ -845,21 +845,21 @@ StatementNoEmpty : StatementBlock      { $1 {- StatementNoEmpty1 -}}
 
 
 StatementBlock :: { AST.JSNode }
-StatementBlock : LBrace RBrace               { fp (AST.NN (AST.JSStatementBlock $1 (AST.NN (AST.JSStatementList [])) $2)) }
-               | LBrace StatementList RBrace { fp (AST.NN (AST.JSStatementBlock $1 $2                                $3)) }
+StatementBlock : LBrace RBrace               { fp (AST.NN (AST.JSBlock [$1] [] [$2])) }
+               | LBrace StatementList RBrace { fp (AST.NN (AST.JSBlock [$1] $2 [$3])) }
 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
 Block :: { AST.JSNode }
-Block : LBrace RBrace               { fp (AST.NN (AST.JSBlock [$1] [  ] [$2])) }
-      | LBrace StatementList RBrace { fp (AST.NN (AST.JSBlock [$1] [$2] [$3])) }
+Block : LBrace RBrace               { fp (AST.NN (AST.JSBlock [$1] [] [$2])) }
+      | LBrace StatementList RBrace { fp (AST.NN (AST.JSBlock [$1] $2 [$3])) }
 
 -- StatementList :                                                See 12.1
 --         Statement
 --         StatementList Statement
-StatementList :: { AST.JSNode }
-StatementList : Statement               { fp (AST.NN (AST.JSStatementList [$1])) }
-              | StatementList Statement { (combineStatements $1 $2) }
+StatementList :: { [AST.JSNode] }
+StatementList : Statement               { [$1]       {- StatementList1 -} }
+              | StatementList Statement { ($1++[$2]) {- StatementList2 -} }
 
 -- VariableStatement :                                            See 12.2
 --         var VariableDeclarationList ;
@@ -1007,12 +1007,12 @@ CaseClausesOpt : CaseClause                { [$1] {- CaseClauses1 -}}
 --        case Expression : StatementListopt
 CaseClause :: { AST.JSNode }
 CaseClause : Case Expression Colon StatementList  { fp (AST.NN (AST.JSCase $1 $2 $3 $4)) }
-           | Case Expression Colon                { fp (AST.NN (AST.JSCase $1 $2 $3 (AST.NN (AST.JSStatementList [])))) }
+           | Case Expression Colon                { fp (AST.NN (AST.JSCase $1 $2 $3 [])) }
 
 -- DefaultClause :                                                            See 12.11
 --        default : StatementListopt
 DefaultClause :: { AST.JSNode }
-DefaultClause : Default Colon                { fp (AST.NN (AST.JSDefault $1 $2 (AST.NN (AST.JSStatementList [])))) }
+DefaultClause : Default Colon                { fp (AST.NN (AST.JSDefault $1 $2 [])) }
               | Default Colon StatementList  { fp (AST.NN (AST.JSDefault $1 $2 $3)) }
 
 -- LabelledStatement :                                                        See 12.12
@@ -1140,9 +1140,11 @@ combineSourceElementsTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (
 combineTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (AST.JSSourceElementsTop (xs++[x1])))
 
+{-
 combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineStatements (AST.NN (AST.JSStatementList xs)) (AST.NN (AST.JSStatementList ys)) = fp (AST.NN (AST.JSStatementList (xs++ys) ))
 combineStatements (AST.NN (AST.JSStatementList xs)) y = fp (AST.NN (AST.JSStatementList (xs++[y])))
+-}
 
 parseError :: Token -> Alex a
 -- parseError = throwError . UnexpectedToken
