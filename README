@@ -35,6 +35,8 @@ dependency in the cabal file.
 
 Changes
 
+0.5.1 Export CommentAnnotation(..)
+
 0.5.0 Rework AST to allow full round-trip parsing and output of
       JavaScript. Breaks AST compatibility with prior versions
 

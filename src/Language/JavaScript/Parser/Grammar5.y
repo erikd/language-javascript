@@ -828,21 +828,20 @@ Statement : StatementNoEmpty   { $1 {- Statement1 -}}
           | EmptyStatement     { $1 {- Statement3 -}}
 
 StatementNoEmpty :: { AST.JSNode }
-StatementNoEmpty : StatementBlock     { $1 {- StatementNoEmpty1 -}}
-                 | VariableStatement     { $1 {- StatementNoEmpty2 -}}
-                   -- | EmptyStatement     { $1 {- StatementNoEmpty3 -}}
-                 | ExpressionStatement  { $1 {- StatementNoEmpty4 -}}
-                 | IfStatement        { $1 {- StatementNoEmpty5 -}}
-                 | IterationStatement { $1 {- StatementNoEmpty6 -}}
-                 | ContinueStatement  { $1 {- StatementNoEmpty7 -}}
-                 | BreakStatement     { $1 {- StatementNoEmpty8 -}}
-                 | ReturnStatement    { $1 {- StatementNoEmpty9 -}}
-                 | WithStatement      { $1 {- StatementNoEmpty10 -}}
-                 | LabelledStatement  { $1 {- StatementNoEmpty11 -}}
-                 | SwitchStatement    { $1 {- StatementNoEmpty12 -}}
-                 | ThrowStatement     { $1 {- StatementNoEmpty13 -}}
-                 | TryStatement       { $1 {- StatementNoEmpty14 -}}
-                 | DebuggerStatement  { $1 {- StatementNoEmpty15 -}}
+StatementNoEmpty : StatementBlock      { $1 {- StatementNoEmpty1 -}}
+                 | VariableStatement   { $1 {- StatementNoEmpty2 -}}
+                 | ExpressionStatement { $1 {- StatementNoEmpty4 -}}
+                 | IfStatement         { $1 {- StatementNoEmpty5 -}}
+                 | IterationStatement  { $1 {- StatementNoEmpty6 -}}
+                 | ContinueStatement   { $1 {- StatementNoEmpty7 -}}
+                 | BreakStatement      { $1 {- StatementNoEmpty8 -}}
+                 | ReturnStatement     { $1 {- StatementNoEmpty9 -}}
+                 | WithStatement       { $1 {- StatementNoEmpty10 -}}
+                 | LabelledStatement   { $1 {- StatementNoEmpty11 -}}
+                 | SwitchStatement     { $1 {- StatementNoEmpty12 -}}
+                 | ThrowStatement      { $1 {- StatementNoEmpty13 -}}
+                 | TryStatement        { $1 {- StatementNoEmpty14 -}}
+                 | DebuggerStatement   { $1 {- StatementNoEmpty15 -}}
 
 
 StatementBlock :: { AST.JSNode }
@@ -852,8 +851,8 @@ StatementBlock : LBrace RBrace               { fp (AST.NN (AST.JSStatementBlock 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
 Block :: { AST.JSNode }
-Block : LBrace RBrace               { fp (AST.NN (AST.JSBlock [$1] (AST.NN (AST.JSStatementList [])) [$2])) }
-      | LBrace StatementList RBrace { fp (AST.NN (AST.JSBlock [$1] $2                                [$3])) }
+Block : LBrace RBrace               { fp (AST.NN (AST.JSBlock [$1] [  ] [$2])) }
+      | LBrace StatementList RBrace { fp (AST.NN (AST.JSBlock [$1] [$2] [$3])) }
 
 -- StatementList :                                                See 12.1
 --         Statement
@@ -922,35 +921,17 @@ ExpressionStatement : Expression { $1 {- ExpressionStatement -} }
 --         if ( Expression ) Statement else Statement
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSNode } -- +++XXXX++
-IfStatement : If LParen Expression RParen StatementSemi  IfElseRest
-                  { (if ($6 /= []) then
-                       (if (length $6 == 1)
-                        then
-                          (fp (AST.NN (AST.JSIf $1 $2 $3 $4 $5 $6) ))
-                        else
-                          (fp (AST.NN
-                             (AST.JSIf
-                                $1 $2
-                                $3
-                                $4
-                                (fp (AST.NN
-                                   (AST.JSBlock [] (AST.NN (AST.JSStatementList [$5])) [] )
-                                   ))
-                                $6
-                             )
-
-                           ))
-                       )
-                     else (fp (AST.NN (AST.JSIf $1 $2 $3 $4 $5 []) )) ) }
+IfStatement : If LParen Expression RParen StatementSemi IfElseRest
+                  { (fp (AST.NN (AST.JSIf $1 $2 $3 $4 $5 $6)) ) }
 
 IfElseRest :: { [AST.JSNode] }
 IfElseRest : Else Statement     { [$1,$2] }
            |                    { [] }
 
-StatementSemi :: { AST.JSNode }
-StatementSemi : StatementNoEmpty Semi { fp (AST.NN (AST.JSBlock [] (AST.NN (AST.JSStatementList [$1,$2])) [])) }
-              | StatementNoEmpty      { $1 {- StatementSemi -}}
-              | Semi                  { $1 }
+StatementSemi :: { [AST.JSNode] }
+StatementSemi : StatementNoEmpty Semi { [$1,$2] {- StatementSemi1 -}}
+              | StatementNoEmpty      { [$1]    {- StatementSemi2 -}}
+              | Semi                  { [$1]    {- StatementSemi3 -}}
 
 
 -- IterationStatement :                                                                     See 12.6
@@ -1008,9 +989,11 @@ SwitchStatement : Switch LParen Expression RParen CaseBlock { (AST.NN (AST.JSSwi
 -- CaseBlock :                                                                              See 12.11
 --         { CaseClausesopt }
 --         { CaseClausesopt DefaultClause CaseClausesopt }
-CaseBlock :: { [AST.JSNode] }
-CaseBlock : LBrace CaseClausesOpt RBrace                              { ($1:$2)++[$3]           {- CaseBlock1 -}}
-          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { ($1:$2)++[$3]++$4++[$5] {- CaseBlock2 -}}
+CaseBlock :: { AST.JSNode }
+CaseBlock : LBrace CaseClausesOpt RBrace                              { fp (AST.NN (AST.JSBlock [$1] $2           [$3])) {- CaseBlock1 -}}
+          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { fp (AST.NN (AST.JSBlock [$1] ($2++[$3]++$4) [$5])){- CaseBlock2 -}}
+--CaseBlock : LBrace CaseClausesOpt RBrace                              { ($1:$2)++[$3]           {- CaseBlock1 -}}
+--          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { ($1:$2)++[$3]++$4++[$5] {- CaseBlock2 -}}
 
 -- CaseClauses :                                                                            See 12.11
 --         CaseClause

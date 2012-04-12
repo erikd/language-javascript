@@ -36,7 +36,7 @@ data Node =
 
               | JSArguments JSNode [JSNode] JSNode    -- ^lb, args, rb
               | JSArrayLiteral JSNode [JSNode] JSNode -- ^lb, contents, rb
-              | JSBlock [JSNode] JSNode [JSNode]      -- ^optional lb,block,optional rb
+              | JSBlock [JSNode] [JSNode] [JSNode]      -- ^optional lb,optional block statements,optional rb
               | JSBreak JSNode [JSNode] JSNode        -- ^break, optional identifier, autosemi
               | JSCallExpression String [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCase JSNode JSNode JSNode JSNode    -- ^case,expr,colon,stmtlist
@@ -58,7 +58,7 @@ data Node =
               | JSFunction JSNode JSNode JSNode [JSNode] JSNode JSNode JSNode JSNode  -- ^fn,name, lb,parameter list,rb,lb,body,rb
               | JSFunctionBody [JSNode] -- ^body
               | JSFunctionExpression JSNode [JSNode] JSNode [JSNode] JSNode JSNode JSNode JSNode  -- ^fn,[name],lb, parameter list,rb,lb, body,rb
-              | JSIf JSNode JSNode JSNode JSNode JSNode [JSNode] -- ^if,(,expr,),stmt,optional rest
+              | JSIf JSNode JSNode JSNode JSNode [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
               | JSLabelled JSNode JSNode JSNode -- ^identifier,colon,stmt
               | JSMemberDot [JSNode] JSNode JSNode -- ^firstpart, dot, name
               | JSMemberSquare [JSNode] JSNode JSNode JSNode -- ^firstpart, lb, expr, rb
@@ -71,7 +71,7 @@ data Node =
               | JSSourceElementsTop [JSNode] -- ^source elements
               | JSStatementBlock JSNode JSNode JSNode -- ^lb,block,rb
               | JSStatementList [JSNode] -- ^statements
-              | JSSwitch JSNode JSNode JSNode JSNode [JSNode] -- ^switch,lb,expr,rb,stmt
+              | JSSwitch JSNode JSNode JSNode JSNode JSNode -- ^switch,lb,expr,rb,caseblock
               | JSThrow JSNode JSNode -- ^throw val
               | JSTry JSNode JSNode [JSNode] -- ^try,block,rest
               | JSUnary String JSNode -- ^type, operator
@@ -97,7 +97,7 @@ sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
 showStrippedNode :: Node -> String
 showStrippedNode (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
 showStrippedNode (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
-showStrippedNode (JSBlock _lb x _rb) = "JSBlock (" ++ ss x ++ ")"
+showStrippedNode (JSBlock _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
 showStrippedNode (JSBreak _b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as
 showStrippedNode (JSCallExpression s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
 showStrippedNode (JSCase _ca x1 _c x2) = "JSCase (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
@@ -122,7 +122,7 @@ showStrippedNode (JSFunctionBody xs) = "JSFunctionBody " ++ sss xs
 showStrippedNode (JSFunctionExpression _f x1s _lb x2s _rb _lb2 x3 _rb2) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSHexInteger s) = "JSHexInteger " ++ show s
 showStrippedNode (JSIdentifier s) = "JSIdentifier " ++ show s
-showStrippedNode (JSIf _i _lb x1 _rb x2 x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ sss x3s ++ ")"
+showStrippedNode (JSIf _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
 showStrippedNode (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 showStrippedNode (JSLiteral s) = "JSLiteral " ++ show s
 showStrippedNode (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
@@ -138,7 +138,7 @@ showStrippedNode (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ sss xs
 showStrippedNode (JSStatementBlock _lb x _rb) = "JSStatementBlock (" ++ ss x ++ ")"
 showStrippedNode (JSStatementList xs) = "JSStatementList " ++ sss xs
 showStrippedNode (JSStringLiteral c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
-showStrippedNode (JSSwitch _s _lb x _rb x2s) = "JSSwitch (" ++ ss x ++ ") " ++ sss x2s
+showStrippedNode (JSSwitch _s _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
 showStrippedNode (JSThrow _t x) = "JSThrow (" ++ ss x ++ ")"
 showStrippedNode (JSTry _t x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
 showStrippedNode (JSUnary s _x) = "JSUnary " ++ show s
