@@ -480,11 +480,11 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 PropertyAssignment :: { AST.JSNode }
 PropertyAssignment : PropertyName Colon AssignmentExpression { fp (AST.NN (AST.JSPropertyNameandValue $1 $2 $3)) }
                    -- Should be "get" in next, but is not a Token
-                   | 'get' PropertyName LParen RParen LBrace FunctionBody RBrace
-                       { fp (AST.NN (AST.JSPropertyAccessor (AST.NT (AST.JSLiteral "get") (ss $1) (gc $1)) $2 $3 [] $4 $5 $6 $7)) }
+                   | 'get' PropertyName LParen RParen FunctionBody
+                       { fp (AST.NN (AST.JSPropertyAccessor (AST.NT (AST.JSLiteral "get") (ss $1) (gc $1)) $2 $3 [] $4 $5)) }
                    -- Should be "set" in next, but is not a Token
-                   | 'set' PropertyName LParen PropertySetParameterList RParen LBrace FunctionBody RBrace
-                       { fp (AST.NN (AST.JSPropertyAccessor (AST.NT (AST.JSLiteral "set") (ss $1) (gc $1)) $2 $3 [$4] $5 $6 $7 $8)) }
+                   | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
+                       { fp (AST.NN (AST.JSPropertyAccessor (AST.NT (AST.JSLiteral "set") (ss $1) (gc $1)) $2 $3 [$4] $5 $6)) }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName
@@ -1064,18 +1064,18 @@ DebuggerStatement : 'debugger' AutoSemi { fp (AST.NT (AST.JSLiteral "debugger") 
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSNode }
-FunctionDeclaration : Function Identifier LParen FormalParameterList RParen LBrace FunctionBody RBrace
-                      { fp (AST.NN (AST.JSFunction $1 $2 $3 $4 $5 $6 $7 $8) ) }
-                    | Function Identifier LParen RParen LBrace FunctionBody RBrace
-                      { fp (AST.NN (AST.JSFunction $1 $2 $3 [] $4 $5 $6 $7) ) }
+FunctionDeclaration : Function Identifier LParen FormalParameterList RParen FunctionBody
+                      { fp (AST.NN (AST.JSFunction $1 $2 $3 $4 $5 $6) ) }
+                    | Function Identifier LParen RParen FunctionBody
+                      { fp (AST.NN (AST.JSFunction $1 $2 $3 [] $4 $5) ) }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
 FunctionExpression :: { AST.JSNode }
-FunctionExpression : Function IdentifierOpt LParen RParen LBrace FunctionBody RBrace
-                     { fp (AST.NN (AST.JSFunctionExpression $1 $2 $3 [] $4 $5 $6 $7) ) }
-                   | Function IdentifierOpt LParen FormalParameterList RParen LBrace FunctionBody RBrace
-                     { fp (AST.NN (AST.JSFunctionExpression $1 $2 $3 $4 $5 $6 $7 $8) ) }
+FunctionExpression : Function IdentifierOpt LParen RParen FunctionBody
+                     { fp (AST.NN (AST.JSFunctionExpression $1 $2 $3 [] $4 $5) ) }
+                   | Function IdentifierOpt LParen FormalParameterList RParen FunctionBody
+                     { fp (AST.NN (AST.JSFunctionExpression $1 $2 $3 $4 $5 $6) ) }
 
 IdentifierOpt :: { [AST.JSNode] }
 IdentifierOpt : Identifier { [$1] {- IdentifierOpt -}}
@@ -1091,8 +1091,8 @@ FormalParameterList : Identifier                          { [$1] {- FormalParame
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
 FunctionBody :: { AST.JSNode }
-FunctionBody : SourceElements { (AST.NN (AST.JSFunctionBody [$1]) ) }
-             |                { (AST.NN (AST.JSFunctionBody []  ) ) }
+FunctionBody : LBrace SourceElements RBrace { (AST.NN (AST.JSBlock [$1] $2 [$3]) ) }
+             | LBrace                RBrace { (AST.NN (AST.JSBlock [$1] [] [$2]) ) }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
@@ -1114,9 +1114,9 @@ StatementMain : Statement Eof { $1 }
 -- SourceElements :                                                           See clause 14
 --        SourceElement
 --        SourceElements SourceElement
-SourceElements :: { AST.JSNode }
-SourceElements : SourceElement                { fp (AST.NN (AST.JSSourceElements [$1]) ) }
-               | SourceElements SourceElement { (combineSourceElements $1 $2) }
+SourceElements :: { [AST.JSNode] }
+SourceElements : SourceElement                { [$1]     {- SourceElements -} }
+               | SourceElements SourceElement { $1++[$2] {- SourceElements -} }
 
 SourceElementsTop :: { AST.JSNode }
 SourceElementsTop : SourceElement                   { fp (AST.NN (AST.JSSourceElementsTop [$1]) ) }
@@ -1130,10 +1130,10 @@ SourceElement : Statement            { $1 {- SourceElement1 -} }
               | FunctionDeclaration  { $1 {- SourceElement2 -} }
 
 {
-
+{-
 combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElements (AST.NN (AST.JSSourceElements xs)) x1 = fp (AST.NN (AST.JSSourceElements (xs++[x1])))
-
+-}
 combineSourceElementsTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElementsTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (AST.JSSourceElementsTop (xs++[x1])))
 

@@ -55,19 +55,19 @@ data Node =
               | JSForIn JSNode JSNode [JSNode] JSNode JSNode JSNode JSNode -- ^for,lb,expr,in,expr,rb,stmt
               | JSForVar JSNode JSNode JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSNode JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
               | JSForVarIn JSNode JSNode JSNode JSNode JSNode JSNode JSNode JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
-              | JSFunction JSNode JSNode JSNode [JSNode] JSNode JSNode JSNode JSNode  -- ^fn,name, lb,parameter list,rb,lb,body,rb
-              | JSFunctionBody [JSNode] -- ^body
-              | JSFunctionExpression JSNode [JSNode] JSNode [JSNode] JSNode JSNode JSNode JSNode  -- ^fn,[name],lb, parameter list,rb,lb, body,rb
+              | JSFunction JSNode JSNode JSNode [JSNode] JSNode JSNode  -- ^fn,name, lb,parameter list,rb,block
+              -- | JSFunctionBody [JSNode] -- ^body
+              | JSFunctionExpression JSNode [JSNode] JSNode [JSNode] JSNode JSNode  -- ^fn,[name],lb, parameter list,rb,block`
               | JSIf JSNode JSNode JSNode JSNode [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
               | JSLabelled JSNode JSNode JSNode -- ^identifier,colon,stmt
               | JSMemberDot [JSNode] JSNode JSNode -- ^firstpart, dot, name
               | JSMemberSquare [JSNode] JSNode JSNode JSNode -- ^firstpart, lb, expr, rb
               | JSObjectLiteral JSNode [JSNode] JSNode -- ^lbrace contents rbrace
               | JSOperator JSNode -- ^opnode
-              | JSPropertyAccessor JSNode JSNode JSNode [JSNode] JSNode JSNode JSNode JSNode -- ^(get|set), name, lb, params, rb, lb, functionbody, rb
+              | JSPropertyAccessor JSNode JSNode JSNode [JSNode] JSNode JSNode -- ^(get|set), name, lb, params, rb, block
               | JSPropertyNameandValue JSNode JSNode [JSNode] -- ^name, colon, value
               | JSReturn JSNode [JSNode] JSNode -- ^return,optional expression,autosemi
-              | JSSourceElements [JSNode] -- ^source elements
+              -- | JSSourceElements [JSNode] -- ^source elements
               | JSSourceElementsTop [JSNode] -- ^source elements
               -- | JSStatementBlock JSNode JSNode JSNode -- ^lb,block,rb
               -- | JSStatementList [JSNode] -- ^statements
@@ -117,9 +117,9 @@ showStrippedNode (JSFor _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s
 showStrippedNode (JSForIn _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ sss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 showStrippedNode (JSForVar _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
 showStrippedNode (JSForVarIn _f _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
-showStrippedNode (JSFunction _f x1 _lb x2s _rb _lb2 x3 _rb2) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
-showStrippedNode (JSFunctionBody xs) = "JSFunctionBody " ++ sss xs
-showStrippedNode (JSFunctionExpression _f x1s _lb x2s _rb _lb2 x3 _rb2) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSFunction _f x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+--showStrippedNode (JSFunctionBody xs) = "JSFunctionBody " ++ sss xs
+showStrippedNode (JSFunctionExpression _f x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSHexInteger s) = "JSHexInteger " ++ show s
 showStrippedNode (JSIdentifier s) = "JSIdentifier " ++ show s
 showStrippedNode (JSIf _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
@@ -130,10 +130,10 @@ showStrippedNode (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ sss x1s 
 showStrippedNode (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 showStrippedNode (JSOperator n) = "JSOperator " ++ ss n
 showStrippedNode (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
-showStrippedNode (JSPropertyAccessor s x1 _lb1 x2s _rb1 _lb2 x3 _rb2) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+showStrippedNode (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSRegEx s) = "JSRegEx " ++ show s
 showStrippedNode (JSReturn _r xs as) = "JSReturn " ++ sss xs ++ " " ++ ss as
-showStrippedNode (JSSourceElements xs) = "JSSourceElements " ++ sss xs
+--showStrippedNode (JSSourceElements xs) = "JSSourceElements " ++ sss xs
 showStrippedNode (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ sss xs
 -- showStrippedNode (JSStatementBlock _lb x _rb) = "JSStatementBlock (" ++ ss x ++ ")"
 -- showStrippedNode (JSStatementList xs) = "JSStatementList " ++ sss xs
