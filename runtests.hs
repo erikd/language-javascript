@@ -1,3 +1,5 @@
+module Main where
+
 import Test.Framework (defaultMain, testGroup, Test)
 import Test.Framework.Providers.HUnit
 import Test.HUnit hiding (Test)
@@ -8,6 +10,23 @@ import Language.JavaScript.Parser.Parser
 import Language.JavaScript.Parser
 --import Language.JavaScript.Parser.Grammar
 import Language.JavaScript.Parser.Grammar5
+
+{-
+import Distribution.TestSuite
+
+instance TestOptions (String, Bool) where
+    name = fst
+    options = const []
+    defaultOptions _ = return (Options [])
+    check _ _ = []
+
+instance PureTestable (String, Bool) where
+    run (name, result) _ | result == True = Pass
+                         | result == False = Fail (name ++ " failed!")
+
+test :: (String, Bool) -> Test
+test = pure
+-}
 
 main :: IO ()
 main = defaultMain [testSuite,{- ++AZ++temporary++ commentSuite ,-}commentPrintSuite]

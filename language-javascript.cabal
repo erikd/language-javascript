@@ -19,12 +19,44 @@ Extra-source-files:  README
                      .ghci
                      buildall.sh
 
-Cabal-version:   >= 1.6
+-- Version requirement upped for test support in later Cabal
+Cabal-version:   >= 1.9.2
+
+Test-Suite test-language-javascript
+  Type: exitcode-stdio-1.0
+  Main-is: runtests.hs
+  build-depends: base, Cabal >= 1.9.2
+                 , QuickCheck >= 2 && < 3
+                 , HUnit
+                 , test-framework-hunit
+                 , test-framework
+                 , array            >= 0.3     && < 0.5
+                 , utf8-light       >= 0.4     && < 1.0
+                 , containers       >= 0.2     && < 0.5
+                 , mtl              >= 1.1     && < 2.9
+                 , utf8-string      >= 0.3.7   && < 1
+                 , bytestring       >= 0.9.1   && < 1
+                 , blaze-builder    >= 0.2     && < 1
+  hs-source-dirs: . src ./dist/build
 
 
-flag buildtests
-  description: Build the executable to run unit tests
-  default: False
+-- executable             runtests
+--     if flag(buildtests)
+--         Buildable: True
+--         cpp-options:   -DTEST
+--         build-depends: QuickCheck >= 2 && < 3,
+--                        HUnit,
+--                        test-framework-hunit,
+--                        test-framework
+--         hs-source-dirs: . src ./dist/build
+--     else
+--         Buildable: False
+--     main-is:         runtests.hs
+
+
+-- flag buildtests
+--   description: Build the executable to run unit tests
+--   default: False
 
 Library
   Build-depends:     base             >= 4       && < 5
@@ -53,18 +85,6 @@ Library
   Build-tools:         happy
   ghc-options:         -Wall
 
-executable             runtests
-    if flag(buildtests)
-        Buildable: True
-        cpp-options:   -DTEST
-        build-depends: QuickCheck >= 2 && < 3,
-                       HUnit,
-                       test-framework-hunit,
-                       test-framework
-        hs-source-dirs: . src ./dist/build
-    else
-        Buildable: False
-    main-is:         runtests.hs
 
 source-repository head
   type:     git
