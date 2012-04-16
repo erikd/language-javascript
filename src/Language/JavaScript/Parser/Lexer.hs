@@ -289,17 +289,17 @@ classifyToken :: Token -> Int
 classifyToken aToken =
    case aToken of
       IdentifierToken {} -> divide
-      NullToken {} -> divide
-      TrueToken {} -> divide
-      FalseToken {} -> divide
-      ThisToken {} -> divide
+      NullToken {}       -> divide
+      TrueToken {}       -> divide
+      FalseToken {}      -> divide
+      ThisToken {}       -> divide
       -- OctalToken {} -> divide -- May have to extend parser to cope with these
-      DecimalToken {} -> divide
+      DecimalToken {}    -> divide
       HexIntegerToken {} -> divide
-      StringToken {} -> divide
+      StringToken {}     -> divide
       RightCurlyToken {} -> divide
       RightParenToken {} -> divide
-      _other      -> reg
+      _other             -> reg
 
 
 {-
@@ -389,7 +389,8 @@ getLastToken :: Alex Token
 getLastToken = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, previousToken ust)
 
 setLastToken :: Token -> Alex ()
-setLastToken tok = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
+setLastToken (WsToken {}) = Alex $ \s -> Right (s, ())
+setLastToken tok          = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
 
 getComment :: Alex [Token]
 --getComments = reverse <$> Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)

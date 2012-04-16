@@ -721,6 +721,8 @@ commentPrintSuite = testGroup "Comments"
    , testCase "fn2" (testRoundTrip "var foo = function() { return 5; }")
    , testCase "fn3" (testRoundTrip "var foo = function foo() { return 5; }")
 
+   -- Parse failure in hjsmin
+   , testCase "parsefail" (testRoundTrip "switch(t){case DIV:         v = u / v; break;}")
     ]
 
 -- ---------------------------------------------------------------------

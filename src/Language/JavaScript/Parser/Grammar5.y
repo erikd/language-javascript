@@ -469,7 +469,6 @@ ObjectLiteral : LBrace RBrace                                { fp (AST.NN (AST.J
 --        PropertyNameAndValueList , PropertyAssignment
 PropertyNameandValueList :: { [ AST.JSNode ] }
 PropertyNameandValueList : PropertyAssignment                              { [$1] {- PropertyNameandValueList1 -} }
-                         -- | PropertyNameandValueList ',' PropertyAssignment { ($1 ++ [(AST.NT (AST.JSLiteral ",") (ss $2) (gc $2))] ++ [$3]) {- PropertyNameandValueList2 -} }
                          | PropertyNameandValueList Comma PropertyAssignment { ($1++[$2]++[$3]) {- PropertyNameandValueList2 -} }
 
 -- PropertyAssignment :                                                  See 11.1.5
@@ -510,8 +509,8 @@ MemberExpression :: { [AST.JSNode] }
 MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}}
                  | FunctionExpression  { [$1] {- MemberExpression -}}
                  | MemberExpression LSquare Expression RSquare { [fp (AST.NN (AST.JSMemberSquare $1 $2 $3 $4))] }
-                 | MemberExpression Dot IdentifierName { [fp (AST.NN (AST.JSMemberDot $1 $2 $3))] }
-                 | 'new' MemberExpression Arguments    { (((fp (AST.NT (AST.JSLiteral "new") (ss $1) (gc $1))):$2)++[$3])}
+                 | MemberExpression Dot IdentifierName         { [fp (AST.NN (AST.JSMemberDot $1 $2 $3))] }
+                 | 'new' MemberExpression Arguments            { (((fp (AST.NT (AST.JSLiteral "new") (ss $1) (gc $1))):$2)++[$3])}
 
 -- NewExpression :                                              See 11.2
 --        MemberExpression
@@ -990,10 +989,8 @@ SwitchStatement : Switch LParen Expression RParen CaseBlock { (AST.NN (AST.JSSwi
 --         { CaseClausesopt }
 --         { CaseClausesopt DefaultClause CaseClausesopt }
 CaseBlock :: { AST.JSNode }
-CaseBlock : LBrace CaseClausesOpt RBrace                              { fp (AST.NN (AST.JSBlock [$1] $2           [$3])) {- CaseBlock1 -}}
+CaseBlock : LBrace CaseClausesOpt RBrace                              { fp (AST.NN (AST.JSBlock [$1] $2             [$3])){- CaseBlock1 -}}
           | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { fp (AST.NN (AST.JSBlock [$1] ($2++[$3]++$4) [$5])){- CaseBlock2 -}}
---CaseBlock : LBrace CaseClausesOpt RBrace                              { ($1:$2)++[$3]           {- CaseBlock1 -}}
---          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { ($1:$2)++[$3]++$4++[$5] {- CaseBlock2 -}}
 
 -- CaseClauses :                                                                            See 12.11
 --         CaseClause
@@ -1048,7 +1045,7 @@ Catches : Catch         { [$1]       {- Catches 1 -} }
 -- <Catch> ::= 'catch' '(' Identifier ')' <Block>
 --           | 'catch' '(' Identifier 'if' ConditionalExpression ')' <Block>
 Catch :: { AST.JSNode }
-Catch : CatchL LParen Identifier RParen Block                 { fp (AST.NN (AST.JSCatch $1 $2 $3 [] $4 $5) ) }
+Catch : CatchL LParen Identifier                          RParen Block { fp (AST.NN (AST.JSCatch $1 $2 $3 [     ] $4 $5)) }
       | CatchL LParen Identifier If ConditionalExpression RParen Block { fp (AST.NN (AST.JSCatch $1 $2 $3 ($4:$5) $6 $7)) }
 
 -- Finally :                                                                  See 12.14
@@ -1130,21 +1127,12 @@ SourceElement : Statement            { $1 {- SourceElement1 -} }
               | FunctionDeclaration  { $1 {- SourceElement2 -} }
 
 {
-{-
-combineSourceElements :: AST.JSNode -> AST.JSNode -> AST.JSNode
-combineSourceElements (AST.NN (AST.JSSourceElements xs)) x1 = fp (AST.NN (AST.JSSourceElements (xs++[x1])))
--}
 combineSourceElementsTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineSourceElementsTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (AST.JSSourceElementsTop (xs++[x1])))
 
 combineTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (AST.JSSourceElementsTop (xs++[x1])))
 
-{-
-combineStatements :: AST.JSNode -> AST.JSNode -> AST.JSNode
-combineStatements (AST.NN (AST.JSStatementList xs)) (AST.NN (AST.JSStatementList ys)) = fp (AST.NN (AST.JSStatementList (xs++ys) ))
-combineStatements (AST.NN (AST.JSStatementList xs)) y = fp (AST.NN (AST.JSStatementList (xs++[y])))
--}
 
 parseError :: Token -> Alex a
 -- parseError = throwError . UnexpectedToken
@@ -1171,20 +1159,6 @@ gc :: Token -> [CommentAnnotation]
 gc token = token_comment token
 mgc :: [Token] -> [CommentAnnotation]
 mgc xs = concatMap gc xs
-
-{-
--- Get node comment
-gnc   (AST.NN _ _ ca)  = ca
-mgnc [(AST.NN _ _ ca)] = ca
-
--- Prepend a comment
-pc :: AST.JSNode -> [CommentAnnotation] -> AST.JSNode
-pc (AST.NN node span cs2) cs1 = (AST.NN node span (cs1++cs2))
-
-mpc :: [AST.JSNode] -> [CommentAnnotation] -> [AST.JSNode]
--- mpc [(AST.NN node span cs2)]    cs1 = [(AST.NN node span (cs1++cs2))]
-mpc ((AST.NN node span cs2):xs) cs1 =  (AST.NN node span (cs1++cs2)):xs
--}
 
 -- ---------------------------------------------------------------------
 
