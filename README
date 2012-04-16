@@ -35,7 +35,11 @@ dependency in the cabal file.
 
 Changes
 
-0.5.1 Export CommentAnnotation(..)
+0.5.1 Export CommentAnnotation(..). Simplify AST by getting rid of
+      JSFunctionBody, JSSourceElements, JSStatementBlock, JSStatementList.
+      They are replaced by JSBlock or a simple list.
+      Also fix lexer mode in presence of whitespace.
+      Changed way tests are invoked, to allow Travis integration.
 
 0.5.0 Rework AST to allow full round-trip parsing and output of
       JavaScript. Breaks AST compatibility with prior versions
