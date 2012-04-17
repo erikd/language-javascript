@@ -516,7 +516,7 @@ MemberExpression : PrimaryExpression   { [$1] {- MemberExpression -}}
 --        MemberExpression
 --        new NewExpression
 NewExpression :: { [AST.JSNode] }
-NewExpression : MemberExpression {$1 {- NewExpression -}}
+NewExpression : MemberExpression    { $1 {- NewExpression -}}
               | 'new' NewExpression { (fp (AST.NT (AST.JSLiteral "new") (ss $1) (gc $1))):$2 }
 
 -- CallExpression :                                             See 11.2
@@ -1082,7 +1082,7 @@ IdentifierOpt : Identifier { [$1] {- IdentifierOpt -}}
 --        Identifier
 --        FormalParameterList , Identifier
 FormalParameterList :: { [AST.JSNode] }
-FormalParameterList : Identifier                          { [$1] {- FormalParameterList -}}
+FormalParameterList : Identifier                            { [$1] {- FormalParameterList -}}
                     | FormalParameterList Comma Identifier  { ($1++[$2]++[$3]) }
 
 -- FunctionBody :                                                             See clause 13
