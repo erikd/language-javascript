@@ -35,6 +35,10 @@ dependency in the cabal file.
 
 Changes
 
+0.5.2 Merged pull request from markwright added some missing test
+      files to the cabal file.
+      Added runalex.sh and Lexer.x to the cabal file.
+
 0.5.1 Export CommentAnnotation(..). Simplify AST by getting rid of
       JSFunctionBody, JSSourceElements, JSStatementBlock, JSStatementList.
       They are replaced by JSBlock or a simple list.
