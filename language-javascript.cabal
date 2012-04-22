@@ -18,6 +18,9 @@ bug-reports:         http://github.com/alanz//language-javascript/issues
 Extra-source-files:  README
                      .ghci
                      buildall.sh
+                     test/Unicode.js
+                     test/k.js
+                     test/unicode.txt
 
 -- Version requirement upped for test support in later Cabal
 Cabal-version:   >= 1.9.2
