@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.5.1
+Version:             0.5.2
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -21,6 +21,8 @@ Extra-source-files:  README
                      test/Unicode.js
                      test/k.js
                      test/unicode.txt
+                     runalex.sh
+                     src-dev/Language/JavaScript/Parser/Lexer.x
 
 -- Version requirement upped for test support in later Cabal
 Cabal-version:   >= 1.9.2
