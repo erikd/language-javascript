@@ -238,11 +238,11 @@ tokens :-
 --     | "0"
 --     | "0." $digit+                    { mkString decimalToken }
 
-<reg,divide> "0"              "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
-    | $non_zero_digit $digit* "." $digit* ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
-    |                "." $digit+          ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
-    |        "0"                          ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
-    | $non_zero_digit $digit*             ("e"|"E") ("+"|"-")? $non_zero_digit+ $digit*
+<reg,divide> "0"              "." $digit* ("e"|"E") ("+"|"-")? $digit+
+    | $non_zero_digit $digit* "." $digit* ("e"|"E") ("+"|"-")? $digit+
+    |                "." $digit+          ("e"|"E") ("+"|"-")? $digit+
+    |        "0"                          ("e"|"E") ("+"|"-")? $digit+
+    | $non_zero_digit $digit*             ("e"|"E") ("+"|"-")? $digit+
 -- ++FOO++
     |        "0"              "." $digit*
     | $non_zero_digit $digit* "." $digit*
