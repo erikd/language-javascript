@@ -64,6 +64,7 @@ testSuite = testGroup "Parser"
     , testCase "LiteralDecimal13"  (testLiteral "1e18"     "Right (JSDecimal \"1e18\")")
     , testCase "LiteralDecimal14"  (testLiteral "1e+18"    "Right (JSDecimal \"1e+18\")")
     , testCase "LiteralDecimal15"  (testLiteral "1e-18"    "Right (JSDecimal \"1e-18\")")
+    , testCase "LiteralDecimal16"  (testLiteral "1E-01"    "Right (JSDecimal \"1E-01\")")
 
     , testCase "LiteralOctal"      (testLiteral "010"      "Right (JSOctal \"010\")")
 
