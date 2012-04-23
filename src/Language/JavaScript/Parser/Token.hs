@@ -46,6 +46,8 @@ data Token
      -- ^ Literal: Decimal
    | HexIntegerToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
      -- ^ Literal: Hexadecimal Integer
+   | OctalToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
+     -- ^ Literal: Octal Integer
    | StringToken { token_span :: !TokenPosn, token_literal :: !String, token_delimiter :: !Char, token_comment :: ![CommentAnnotation]  }
      -- ^ Literal: string, delimited by either single or double quotes
    | RegExToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }

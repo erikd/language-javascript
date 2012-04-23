@@ -29,6 +29,7 @@ data Node =
               | JSDecimal String
               | JSLiteral String
               | JSHexInteger String
+              | JSOctal String
               | JSStringLiteral Char [Char]
               | JSRegEx String
 
@@ -121,6 +122,7 @@ showStrippedNode (JSFunction _f x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ 
 --showStrippedNode (JSFunctionBody xs) = "JSFunctionBody " ++ sss xs
 showStrippedNode (JSFunctionExpression _f x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 showStrippedNode (JSHexInteger s) = "JSHexInteger " ++ show s
+showStrippedNode (JSOctal s) = "JSOctal " ++ show s
 showStrippedNode (JSIdentifier s) = "JSIdentifier " ++ show s
 showStrippedNode (JSIf _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
 showStrippedNode (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
