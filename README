@@ -35,7 +35,10 @@ dependency in the cabal file.
 
 Changes
 
-0.5.2 Merged pull request from markwright added some missing test
+0.5.3 Merge pull requests from @aszlig to add octal support, and to
+      allow leading zeros in exponents
+
+0.5.2 Merged pull request from @markwright added some missing test
       files to the cabal file.
       Added runalex.sh and Lexer.x to the cabal file.
 
