@@ -65,6 +65,8 @@ testSuite = testGroup "Parser"
     , testCase "LiteralDecimal14"  (testLiteral "1e+18"    "Right (JSDecimal \"1e+18\")")
     , testCase "LiteralDecimal15"  (testLiteral "1e-18"    "Right (JSDecimal \"1e-18\")")
 
+    , testCase "LiteralOctal"      (testLiteral "010"      "Right (JSOctal \"010\")")
+
     , testCase "LiteralString1"    (testLiteral "\"hello\\nworld\"" "Right (JSStringLiteral '\"' \"hello\\\\nworld\")")
     , testCase "LiteralString2"    (testLiteral "'hello\\nworld'"  "Right (JSStringLiteral '\\'' \"hello\\\\nworld\")")
 
@@ -358,6 +360,7 @@ commentSuite = testGroup "Comments"
 
     , testCase "LiteralHexInteger" (testLiteralC "/*d*/0x1234fF" "Right (NS (JSHexInteger \"0x1234fF\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*d*/\"])")
     , testCase "LiteralDecimal"    (testLiteralC "/*e*/1.0e4"    "Right (NS (JSDecimal \"1.0e4\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*e*/\"])")
+    , testCase "LiteralOctal"      (testLiteralC "/*x*/011"      "Right (NS (JSOctal \"011\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*x*/\"])")
     , testCase "LiteralString1"    (testLiteralC "/*f*/\"hello\\nworld\"" "Right (NS (JSStringLiteral '\"' \"hello\\\\nworld\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*f*/\"])")
     , testCase "LiteralString2"    (testLiteralC "/*g*/'hello\\nworld'"   "Right (NS (JSStringLiteral '\\'' \"hello\\\\nworld\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*g*/\"])")
 
@@ -439,6 +442,7 @@ commentPrintSuite = testGroup "Comments"
 
     , testCase "LiteralHexInteger" (testRoundTrip "/*d*/0x1234fF")
     , testCase "LiteralDecimal"    (testRoundTrip "/*e*/1.0e4")
+    , testCase "LiteralOctal"      (testRoundTrip "/*x*/011")
     , testCase "LiteralString1"    (testRoundTrip "/*f*/\"hello\\nworld\"")
     , testCase "LiteralString2"    (testRoundTrip "/*g*/'hello\\nworld'")
 
