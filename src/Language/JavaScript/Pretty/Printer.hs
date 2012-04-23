@@ -74,6 +74,7 @@ rn (NT (JSIdentifier s     ) p cs) foo = rcs cs p s  foo
 rn (NT (JSDecimal i        ) p cs) foo = rcs cs p i foo
 rn (NT (JSLiteral l        ) p cs) foo = rcs cs p l foo
 rn (NT (JSHexInteger i     ) p cs) foo = rcs cs p i foo
+rn (NT (JSOctal i          ) p cs) foo = rcs cs p i foo
 rn (NT (JSStringLiteral s l) p cs) foo = rcs cs p ((s:l)++[s]) foo
 rn (NT (JSRegEx s          ) p cs) foo = rcs cs p s foo
 

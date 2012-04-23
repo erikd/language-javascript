@@ -73,6 +73,8 @@ $short_str_char = [^ \n \r ' \" \\]
 
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 @HexDigit = $digit | [a-fA-F]
+-- {Oct Digit}    = {Digit} + [012345678]
+@OctDigit = $digit | [0-8]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
 --$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
 --$RegExpChars = [$printable] # [\\]
@@ -214,6 +216,9 @@ tokens :-
 -- HexIntegerLiteral = '0x' {Hex Digit}+
 <reg,divide> ("0x"|"0X") @HexDigit+ { adapt (mkString hexIntegerToken) }
 
+-- OctalLiteral = '0' {Octal Digit}+
+<reg,divide> ("0") @OctDigit+ { adapt (mkString octalToken) }
+
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
 -- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
@@ -327,7 +332,7 @@ classifyToken aToken =
       TrueToken {}       -> divide
       FalseToken {}      -> divide
       ThisToken {}       -> divide
-      -- OctalToken {} -> divide -- May have to extend parser to cope with these
+      OctalToken {}      -> divide
       DecimalToken {}    -> divide
       HexIntegerToken {} -> divide
       StringToken {}     -> divide

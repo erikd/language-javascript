@@ -25,6 +25,7 @@ module Language.JavaScript.Parser.LexerUtils (
   , endOfFileToken
   , assignToken
   , hexIntegerToken
+  , octalToken
   , stringToken
   --, lexicalError
   ) where
@@ -54,6 +55,9 @@ decimalToken loc str = DecimalToken loc str []
 
 hexIntegerToken :: TokenPosn -> String -> Token
 hexIntegerToken loc str = HexIntegerToken loc str []
+
+octalToken :: TokenPosn -> String -> Token
+octalToken loc str = OctalToken loc str []
 
 assignToken :: TokenPosn -> String -> Token
 assignToken loc str = AssignToken loc str []

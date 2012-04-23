@@ -110,6 +110,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'ident'      { IdentifierToken {} }
      'decimal'    { DecimalToken {} }
      'hexinteger' { HexIntegerToken {} }
+     'octal'      { OctalToken {} }
      'string'     { StringToken {} }
      'regex'      { RegExToken {} }
      'assign'     { AssignToken {} }
@@ -345,9 +346,11 @@ BooleanLiteral : 'true'  { fp (AST.NT (AST.JSLiteral "true")  (ss $1) (gc $1)) }
 
 -- <Numeric Literal> ::= DecimalLiteral
 --                     | HexIntegerLiteral
+--                     | OctalLiteral
 NumericLiteral :: { AST.JSNode }
 NumericLiteral : 'decimal'    { fp (AST.NT (AST.JSDecimal (token_literal $1)) (ss $1) (gc $1))}
                | 'hexinteger' { fp (AST.NT (AST.JSHexInteger (token_literal $1)) (ss $1) (gc $1)) }
+               | 'octal'      { fp (AST.NT (AST.JSOctal (token_literal $1)) (ss $1) (gc $1)) }
 
 StringLiteral :: { AST.JSNode }
 StringLiteral : 'string'  { fp (AST.NT (AST.JSStringLiteral (token_delimiter $1) (token_literal $1)) (ss $1) (gc $1)) }
