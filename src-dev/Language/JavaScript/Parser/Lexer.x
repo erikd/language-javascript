@@ -174,13 +174,10 @@ tokens :-
 <0> () ; -- { registerStates lexToken reg divide }
 
 -- Skip Whitespace
--- <reg,divide> $white_char+   ;
 <reg,divide> $white_char+   { adapt (mkString wsToken) }
 
 -- Skip one line comment
--- <reg,divide> "//"($not_eol_char)*   ;
 <reg,divide> "//"($not_eol_char)*   { adapt (mkString commentToken) }
--- <reg,divide> "//"($not_eol_char)*   { mkComment }
 
 -- ---------------------------------------------------------------------
 -- Comment definition from the ECMAScript spec, ver 3
@@ -270,8 +267,9 @@ tokens :-
     }
 
 <reg,divide> {
-      \;	{ adapt (symbolToken  SemiColonToken)}
-      ","	{ adapt (symbolToken  CommaToken)}
+   --   \;	{ adapt (symbolToken  SemiColonToken)}
+     ";"	{ adapt (symbolToken  SemiColonToken)}
+     ","	{ adapt (symbolToken  CommaToken)}
      "?"	{ adapt (symbolToken  HookToken)}
      ":"	{ adapt (symbolToken  ColonToken)}
      "||"	{ adapt (symbolToken  OrToken)}
@@ -327,18 +325,19 @@ The method is inspired by the lexer in http://jint.codeplex.com/
 classifyToken :: Token -> Int
 classifyToken aToken =
    case aToken of
-      IdentifierToken {} -> divide
-      NullToken {}       -> divide
-      TrueToken {}       -> divide
-      FalseToken {}      -> divide
-      ThisToken {}       -> divide
-      OctalToken {}      -> divide
-      DecimalToken {}    -> divide
-      HexIntegerToken {} -> divide
-      StringToken {}     -> divide
-      RightCurlyToken {} -> divide
-      RightParenToken {} -> divide
-      _other             -> reg
+      IdentifierToken {}   -> divide
+      NullToken {}         -> divide
+      TrueToken {}         -> divide
+      FalseToken {}        -> divide
+      ThisToken {}         -> divide
+      OctalToken {}        -> divide
+      DecimalToken {}      -> divide
+      HexIntegerToken {}   -> divide
+      StringToken {}       -> divide
+      RightCurlyToken {}   -> divide
+      RightParenToken {}   -> divide
+      RightBracketToken {} -> divide
+      _other               -> reg
 
 
 {-

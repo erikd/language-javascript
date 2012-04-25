@@ -338,6 +338,8 @@ testSuite = testGroup "Parser"
    , testCase "issue5ok3" (testProg "{ y: 18 }" "Right (JSSourceElementsTop [JSBlock ([JSLabelled (JSIdentifier \"y\") (JSExpression [JSDecimal \"18\"])]),JSLiteral \"\"])")
    , testCase "issue5ok4" (testProg "x = { y: 18 }" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"18\"]]],JSLiteral \"\"])")
 
+     -- https://github.com/alanz/language-javascript/issues/14
+   , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"z\") [JSLiteral \"=\",JSExpressionBinary \"/\" [JSMemberSquare [JSIdentifier \"x\"] (JSExpression [JSIdentifier \"i\"])] [JSIdentifier \"y\"]]],JSLiteral \"\"])")
 
     ]
 
@@ -728,6 +730,9 @@ commentPrintSuite = testGroup "Comments"
 
    -- Parse failure in hjsmin
    , testCase "parsefail" (testRoundTrip "switch(t){case DIV:         v = u / v; break;}")
+
+   -- https://github.com/alanz/language-javascript/issues/14
+   , testCase "issue14" (testRoundTrip "var z = x[i] / y;")
     ]
 
 -- ---------------------------------------------------------------------
