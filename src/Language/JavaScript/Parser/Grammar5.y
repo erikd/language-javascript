@@ -911,7 +911,7 @@ EmptyStatement :: { AST.JSNode }
 EmptyStatement : Semi { $1 }
 
 -- ExpressionStatement :                                                                    See 12.4
---         [lookahead ∉ {{, function}] Expression  ;
+--         [lookahead not in {{, function}] Expression  ;
 -- TODO: Sort out lookahead issue. Maybe by just putting production lower to set reduce/reduce conflict
 --       According to http://sideshowbarker.github.com/es5-spec/#x12.4, the ambiguity is with
 --       Block or FunctionDeclaration
