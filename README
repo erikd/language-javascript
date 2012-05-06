@@ -35,6 +35,9 @@ dependency in the cabal file.
 
 Changes
 
+0.5.4 Fixed bug where lexer switches to regexp mode after a ']'
+      char, reported by @aszlig
+
 0.5.3 Merge pull requests from @aszlig to add octal support, and to
       allow leading zeros in exponents
 
