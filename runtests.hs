@@ -9,9 +9,11 @@ import Control.Monad (liftM)
 import Language.JavaScript.Parser.Parser
 import Language.JavaScript.Parser
 import Language.JavaScript.Parser.Grammar5
+-- TODO: decide on names for AST/SAST, and re-export them through L.J.P
+import qualified Language.JavaScript.Parser.SAST as SAST
 
 main :: IO ()
-main = defaultMain [testSuite,{- ++AZ++temporary++ commentSuite ,-}commentPrintSuite]
+main = defaultMain [testSuite,{- ++AZ++temporary++ commentSuite ,-}commentPrintSuite, semanticASTSuite]
 
 one :: IO ()
 one = defaultMain [oneSuite]
@@ -722,6 +724,52 @@ commentPrintSuite = testGroup "Comments"
    ]
 
 -- ---------------------------------------------------------------------
+
+semanticASTSuite :: Test
+semanticASTSuite = testGroup "Semantic AST"
+    [
+      testCase "sast1"  (testProgS "x=/*x*/new x[a];" "JSSourceElementsTop [JSExpression [JSExpressionAssign [JSIdentifier \"x\"] (JSOperator (JSLiteral \"=\")) [JSLiteral \"new\",JSMemberSquare [JSIdentifier \"x\"] (JSExpression [JSIdentifier \"a\"])]],JSLiteral \";\",JSLiteral \"\"]")
+
+    , testCase "sast2"  (testProgS "a=x(0123,0x123,42);" "JSSourceElementsTop [JSExpression [JSExpressionAssign [JSIdentifier \"a\"] (JSOperator (JSLiteral \"=\")) [JSIdentifier \"x\",JSArguments [JSOctal \"0123\",JSHexInteger \"0x123\",JSDecimal \"42\"]]],JSLiteral \";\",JSLiteral \"\"]")
+
+    , testCase "sast3"  (testProgS "[,,,'abc',3]" "JSSourceElementsTop [JSExpression [JSArrayLiteral [JSElision,JSElision,JSElision,JSStringLiteral '\\'' \"abc\",JSElision,JSDecimal \"3\"]],JSLiteral \"\"]")
+
+    , testCase "sast4"  (testProgS "a.b=a[4,5]" "JSSourceElementsTop [JSExpression [JSExpressionAssign [JSMemberDot [JSIdentifier \"a\"] (JSIdentifier \"b\")] (JSOperator (JSLiteral \"=\")) [JSMemberSquare [JSIdentifier \"a\"] (JSExpression [JSExpression [JSDecimal \"4\"],JSDecimal \"5\"])]],JSLiteral \"\"]")
+
+    , testCase "sast5"  (testProgS "x(/a/,b=2).x" "JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSArguments [JSRegEx \"/a/\",JSExpressionAssign [JSIdentifier \"b\"] (JSOperator (JSLiteral \"=\")) [JSDecimal \"2\"]],JSCallExpression \".\" [JSIdentifier \"x\"]],JSLiteral \"\"]")
+
+    , testCase "sast6"  (testProgS "if(x==1){}else{a=2}" "JSSourceElementsTop [JSIf (JSExpression [JSExpressionBinary \"==\" [JSIdentifier \"x\"] [JSDecimal \"1\"]]) [JSBlock []] [JSBlock [JSExpression [JSExpressionAssign [JSIdentifier \"a\"] (JSOperator (JSLiteral \"=\")) [JSDecimal \"2\"]]]],JSLiteral \"\"]")
+
+    , testCase "sast7"  (testProgS "switch (x) {default:a=1\ncase 1:break abc;}" "JSSourceElementsTop [JSSwitch (JSExpression [JSIdentifier \"x\"]) (JSBlock [JSDefault [JSExpression [JSExpressionAssign [JSIdentifier \"a\"] (JSOperator (JSLiteral \"=\")) [JSDecimal \"1\"]]],JSCase (JSExpression [JSDecimal \"1\"]) [JSBreak [JSIdentifier \"abc\"]]]),JSLiteral \"\"]")
+
+    , testCase "sast8"  (testProgS "try{}catch(a){}catch(b){}finally{}" "JSSourceElementsTop [JSTry (JSBlock []) [JSCatch (JSIdentifier \"a\") [] (JSBlock []),JSCatch (JSIdentifier \"b\") [] (JSBlock []),JSFinally (JSBlock [])],JSLiteral \"\"]")
+
+    , testCase "sast9"  (testProgS "for(x=1;x<10;x++){continue d}" "JSSourceElementsTop [JSFor [JSExpression [JSIdentifier \"x\",JSOperator (JSLiteral \"=\"),JSDecimal \"1\"]] [JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"10\"]]] [JSExpression [JSExpressionPostfix \"++\" [JSIdentifier \"x\"]]] (JSBlock [JSContinue [JSIdentifier \"d\"]]),JSLiteral \"\"]")
+
+    , testCase "sast10"  (testProgS "do {x=1} while (true);" "JSSourceElementsTop [JSDoWhile (JSBlock [JSExpression [JSExpressionAssign [JSIdentifier \"x\"] (JSOperator (JSLiteral \"=\")) [JSDecimal \"1\"]]]) (JSExpression [JSLiteral \"true\"]),JSLiteral \"\"]")
+
+    , testCase "sast11"  (testProgS "for(x in a){a>1?2:1}" "JSSourceElementsTop [JSForIn [JSIdentifier \"x\"] (JSExpression [JSIdentifier \"a\"]) (JSBlock [JSExpression [JSExpressionTernary [JSExpressionBinary \">\" [JSIdentifier \"a\"] [JSDecimal \"1\"]] [JSDecimal \"2\"] [JSDecimal \"1\"]]]),JSLiteral \"\"]")
+
+    , testCase "sast12"  (testProgS "for(var x=(1);x<9;){s=function m (a){return 3}}" "JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier \"x\") [JSLiteral \"=\",JSExpressionParen (JSExpression [JSDecimal \"1\"])]] [JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"9\"]]] [] (JSBlock [JSExpression [JSExpressionAssign [JSIdentifier \"s\"] (JSOperator (JSLiteral \"=\")) [JSFunctionExpression [JSIdentifier \"m\"] [JSIdentifier \"a\"] (JSBlock [JSReturn [JSExpression [JSDecimal \"3\"]]])]]]),JSLiteral \"\"]")
+
+
+    ]
+{-
+              | JSForVarIn  JSNode JSNode JSNode -- ^vardecl,expr,stmt
+              | JSFunction  JSNode [JSNode] JSNode  -- ^name,parameter list,block
+              | JSLabelled  JSNode JSNode -- ^identifier,stmt
+              | JSObjectLiteral  [JSNode] -- ^contents
+              | JSPropertyAccessor JSNode JSNode [JSNode] JSNode -- ^(get|set), name,params,block
+              | JSPropertyNameandValue  JSNode [JSNode] -- ^name,value
+              | JSThrow  JSNode -- ^val
+              | JSUnary  String JSNode -- ^type, operator
+              | JSVarDecl  JSNode [JSNode] -- ^identifier, optional initializer
+              | JSVariables  JSNode [JSNode] -- ^var|const, decl
+              | JSWhile  JSNode JSNode -- ^expr,stmt
+              | JSWith  JSNode [JSNode] -- ^expr,stmt list
+-}
+
+-- ---------------------------------------------------------------------
 -- Test utilities
 
 testRoundTrip str = str @=? (renderToString $ readJs str)
@@ -747,6 +795,8 @@ testProg :: String -> String -> Assertion
 testProg  str expected = expected @=? (showStrippedMaybe $ parseUsing parseProgram str "src")
 testProgC :: String -> String -> Assertion
 testProgC str expected = expected @=? (show              $ parseUsing parseProgram str "src")
+testProgS :: String -> String -> Assertion
+testProgS str expected = expected @=? (show $ readJsS str)
 
 testProgUn :: String -> String -> Assertion
 testProgUn str expected = expected @=? (show $ parseUsing parseProgram str "src")

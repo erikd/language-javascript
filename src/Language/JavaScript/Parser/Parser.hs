@@ -2,6 +2,7 @@ module Language.JavaScript.Parser.Parser (
    -- * Parsing
      parse
    , readJs
+   , readJsS
    -- , readJsKeepComments
    , parseFile
    -- * Parsing expressions
@@ -15,6 +16,7 @@ import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import qualified Language.JavaScript.Parser.AST as AST
+import qualified Language.JavaScript.Parser.SAST as SAST
 
 
 -- | Parse one compound statement, or a sequence of simple statements.
@@ -33,6 +35,13 @@ readJs input = do
   case (parse input "src") of
     Left msg -> error (show msg)
     Right p -> p
+
+readJsS :: String -> SAST.JSNode
+readJsS input = do
+  case (parse input "src") of
+    Left msg -> error (show msg)
+    Right p -> SAST.fromAST p
+
 
 -- | Parse the given file.
 -- For UTF-8 support, make sure your locale is set such that
