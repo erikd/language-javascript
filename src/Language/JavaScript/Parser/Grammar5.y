@@ -767,7 +767,8 @@ ConditionalExpressionNoIn : LogicalOrExpressionNoIn { $1 {- ConditionalExpressio
 AssignmentExpression :: { [AST.JSNode] }
 AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}}
                      | LeftHandSideExpression AssignmentOperator AssignmentExpression
-                       { ($1++[$2]++$3) }
+                       -- { ($1++[$2]++$3) } -- ++AZ++ TODO: make this a sub-expression
+                       { [(fp (AST.JSExpressionAssign AST.JSNoAnnot $1 $2 $3))] }
 
 -- AssignmentExpressionNoIn :                                                            See 11.13
 --        ConditionalExpressionNoIn
@@ -999,7 +1000,8 @@ CaseBlock : LBrace CaseClausesOpt RBrace                              { fp (AST.
 CaseClausesOpt :: { [AST.JSNode] }
 CaseClausesOpt : CaseClause                { [$1] {- CaseClauses1 -}}
                | CaseClausesOpt CaseClause { ($1++[$2]) {- CaseClauses2 -}}
-               |                           { [fp (AST.JSLiteral AST.JSNoAnnot "") ] } -- { [] }
+               -- |                           { [fp (AST.JSLiteral AST.JSNoAnnot "") ] } -- { [] }
+               |                           { [] }
 
 -- CaseClause :                                                               See 12.11
 --        case Expression : StatementListopt

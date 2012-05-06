@@ -50,6 +50,7 @@ data JSNode =
               | JSDoWhile JSAnnot JSNode JSNode JSNode JSNode JSNode JSNode JSNode -- ^do,stmt,while,lb,expr,rb,autosemi
               | JSElision JSAnnot JSNode               -- ^comma
               | JSExpression JSAnnot [JSNode]          -- ^expression components
+              | JSExpressionAssign JSAnnot [JSNode] JSNode [JSNode] -- ^lhs, assignop, rhs
               | JSExpressionBinary JSAnnot String [JSNode] JSNode [JSNode] -- ^what, lhs, op, rhs
               | JSExpressionParen JSAnnot JSNode JSNode JSNode -- ^lb,expression,rb
               | JSExpressionPostfix JSAnnot String [JSNode] JSNode -- ^type, expression, operator
@@ -100,6 +101,7 @@ ss (JSDefault _ _d _c xs) = "JSDefault (" ++ sss xs ++ ")"
 ss (JSDoWhile _ _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression _ xs) = "JSExpression " ++ sss xs
+ss (JSExpressionAssign _ x2s op x3s) = "JSExpressionAssign " ++ sss x2s ++ " " ++ ss op ++ " " ++ sss x3s
 ss (JSExpressionBinary _ s x2s _op x3s) = "JSExpressionBinary " ++ show s ++ " " ++ sss x2s ++ " " ++ sss x3s
 ss (JSExpressionParen _ _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix _ s xs _op) = "JSExpressionPostfix " ++ show s ++ " " ++ sss xs
