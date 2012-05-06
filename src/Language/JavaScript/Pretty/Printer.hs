@@ -162,6 +162,7 @@ rs s (Foo (r,c) bb) = (Foo (r',c') (bb <> (text s)))
     (r',c') = foldl' (\(row,col) char -> go (row,col) char) (r,c) s
 
     go (r,c) '\n' = (r+1,1)
+    go (r,c) '\t' = (r,c+8)
     go (r,c) _    = (r,c+1)
 
 
