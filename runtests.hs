@@ -8,25 +8,7 @@ import Test.HUnit hiding (Test)
 import Control.Monad (liftM)
 import Language.JavaScript.Parser.Parser
 import Language.JavaScript.Parser
---import Language.JavaScript.Parser.Grammar
 import Language.JavaScript.Parser.Grammar5
-
-{-
-import Distribution.TestSuite
-
-instance TestOptions (String, Bool) where
-    name = fst
-    options = const []
-    defaultOptions _ = return (Options [])
-    check _ _ = []
-
-instance PureTestable (String, Bool) where
-    run (name, result) _ | result == True = Pass
-                         | result == False = Fail (name ++ " failed!")
-
-test :: (String, Bool) -> Test
-test = pure
--}
 
 main :: IO ()
 main = defaultMain [testSuite,{- ++AZ++temporary++ commentSuite ,-}commentPrintSuite]
@@ -103,7 +85,7 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral6"    (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"values\") [JSDecimal \"7\"],JSLiteral \",\"]],JSLiteral \"\"])")
 
     -- Edition 5 extensions
-    , testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSObjectLiteral [JSPropertyAccessor NT (JSLiteral \"get\") (TokenPn 3 1 4) [NoComment] (JSIdentifier \"foo\") [] (JSBlock ([JSReturn [JSExpression [JSDecimal \"1\"]] JSLiteral \"\"])),JSLiteral \",\",JSPropertyAccessor NT (JSLiteral \"set\") (TokenPn 24 1 25) [NoComment] (JSIdentifier \"foo\") [JSIdentifier \"a\"] (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSIdentifier \"a\"]]))]],JSLiteral \"\"])")
+    , testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSObjectLiteral [JSPropertyAccessor JSLiteral Annot (TokenPn 3 1 4) [NoComment] \"get\" (JSIdentifier \"foo\") [] (JSBlock ([JSReturn [JSExpression [JSDecimal \"1\"]] JSLiteral \"\"])),JSLiteral \",\",JSPropertyAccessor JSLiteral Annot (TokenPn 24 1 25) [NoComment] \"set\" (JSIdentifier \"foo\") [JSIdentifier \"a\"] (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSIdentifier \"a\"]]))]],JSLiteral \"\"])")
 
     , testCase "ObjectLiteral8"    (testProg "a={if:1,interface:2}" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOperator JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"if\") [JSDecimal \"1\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"interface\") [JSDecimal \"2\"]]],JSLiteral \"\"])")
 
@@ -312,7 +294,7 @@ testSuite = testGroup "Parser"
 
    , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSBlock ([JSExpression [JSIdentifier \"zero\"]]),JSExpression [JSIdentifier \"get\"],JSLiteral \";\",JSExpression [JSIdentifier \"two\"],JSBlock ([JSExpression [JSIdentifier \"three\"],JSExpression [JSIdentifier \"four\"],JSLiteral \";\",JSExpression [JSIdentifier \"set\"],JSLiteral \";\",JSBlock ([JSExpression [JSIdentifier \"six\"],JSLiteral \";\",JSBlock ([JSExpression [JSIdentifier \"seven\"],JSLiteral \";\"])])]),JSLiteral \"\"])")
 
-   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (NN (JSSourceElementsTop [NN (JSExpression [NT (JSIdentifier \"x\") (TokenPn 0 1 1) [NoComment],NN (JSOperator (NT (JSLiteral \"=\") (TokenPn 2 1 3) [WhiteSpace (TokenPn 1 1 2) \" \"])),NT (JSDecimal \"1\") (TokenPn 4 1 5) [WhiteSpace (TokenPn 3 1 4) \" \"]]),NN (JSExpression [NT (JSIdentifier \"y\") (TokenPn 8 2 3) [WhiteSpace (TokenPn 5 1 6) \"\\n  \"],NN (JSOperator (NT (JSLiteral \"=\") (TokenPn 9 2 4) [NoComment])),NT (JSDecimal \"2\") (TokenPn 10 2 5) [NoComment]]),NT (JSLiteral \";\") (TokenPn 11 2 6) [NoComment],NT (JSLiteral \"\") (TokenPn 0 0 0) [NoComment]]))")
+   , testCase "loc1" (testProgUn "x = 1\n  y=2;" "Right (JSSourceElementsTop NoAnnot [JSExpression NoAnnot [JSIdentifier Annot (TokenPn 0 1 1) [NoComment] \"x\",JSOperator NoAnnot (JSLiteral Annot (TokenPn 2 1 3) [WhiteSpace (TokenPn 1 1 2) \" \"] \"=\"),JSDecimal Annot (TokenPn 4 1 5) [WhiteSpace (TokenPn 3 1 4) \" \"] \"1\"],JSExpression NoAnnot [JSIdentifier Annot (TokenPn 8 2 3) [WhiteSpace (TokenPn 5 1 6) \"\\n  \"] \"y\",JSOperator NoAnnot (JSLiteral Annot (TokenPn 9 2 4) [NoComment] \"=\"),JSDecimal Annot (TokenPn 10 2 5) [NoComment] \"2\"],JSLiteral Annot (TokenPn 11 2 6) [NoComment] \";\",JSLiteral Annot (TokenPn 0 0 0) [NoComment] \"\"])")
 
    -- https://github.com/alanz/language-javascript/issues/2
    , testCase "issue2" (testProg "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"img\") [JSLiteral \"=\",JSMemberDot [JSIdentifier \"document\"] (JSIdentifier \"createElement\"),JSArguments [JSStringLiteral '\\'' \"img\"]]],JSExpression [JSMemberDot [JSIdentifier \"img\"] (JSIdentifier \"src\"),JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"mylogo.jpg\"],JSLiteral \";\",JSExpression [JSIdentifier \"$\",JSArguments [JSIdentifier \"img\"],JSCallExpression \".\" [JSIdentifier \"click\"],JSCallExpression \"()\" [JSArguments [JSFunctionExpression [] [] (JSBlock ([JSExpression [JSIdentifier \"alert\",JSArguments [JSStringLiteral '\\'' \"clicked!\"]],JSLiteral \";\"]))]]],JSLiteral \";\",JSLiteral \"\"])")
