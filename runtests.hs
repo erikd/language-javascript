@@ -733,7 +733,11 @@ commentPrintSuite = testGroup "Comments"
 
    -- https://github.com/alanz/language-javascript/issues/14
    , testCase "issue14" (testRoundTrip "var z = x[i] / y;")
-    ]
+
+   -- https://github.com/alanz/language-javascript/issues/15
+   , testCase "issue15" (testRoundTrip "x\t=1;")
+
+   ]
 
 -- ---------------------------------------------------------------------
 -- Test utilities
