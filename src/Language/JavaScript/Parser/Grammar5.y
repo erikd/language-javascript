@@ -560,8 +560,8 @@ LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
 --        LeftHandSideExpression                             --
 PostfixExpression :: { [AST.JSNode] }
 PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
-                  | PostfixExpression Increment {[fp (AST.JSExpressionPostfix AST.JSNoAnnot "++" $1 $2)]}
-                  | PostfixExpression Decrement {[fp (AST.JSExpressionPostfix AST.JSNoAnnot "--" $1 $2)]}
+                  | PostfixExpression Increment {[fp (AST.JSExpressionPostfix AST.JSNoAnnot {- ++ -} $1 $2)]}
+                  | PostfixExpression Decrement {[fp (AST.JSExpressionPostfix AST.JSNoAnnot {- -- -} $1 $2)]}
 
 -- UnaryExpression :                                            See 11.4
 --        PostfixExpression
@@ -576,15 +576,15 @@ PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
 --        ! UnaryExpression
 UnaryExpression :: { [AST.JSNode] }
 UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
-                | Delete    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "delete " $1)):$2)}
-                | Void      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "void "   $1)):$2)}
-                | Typeof    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "typeof " $1)):$2)}
-                | Increment UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "++"      $1)):$2) }
-                | Decrement UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "--"      $1)):$2)}
-                | Plus      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "+"       $1)):$2)}
-                | Minus     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "-"       $1)):$2)}
-                | Tilde     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "~"       $1)):$2)}
-                | Not       UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot "!"       $1)):$2)}
+                | Delete    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- delete -} $1)):$2)}
+                | Void      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- void -}   $1)):$2)}
+                | Typeof    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- typeof -} $1)):$2)}
+                | Increment UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ++ -}     $1)):$2)}
+                | Decrement UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- -- -}     $1)):$2)}
+                | Plus      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- + -}      $1)):$2)}
+                | Minus     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- - -}      $1)):$2)}
+                | Tilde     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ~ -}      $1)):$2)}
+                | Not       UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ! -}      $1)):$2)}
 
 -- MultiplicativeExpression :                                   See 11.5
 --        UnaryExpression
@@ -593,17 +593,17 @@ UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
 --        MultiplicativeExpression % UnaryExpression
 MultiplicativeExpression :: { [AST.JSNode] }
 MultiplicativeExpression : UnaryExpression { $1 {- MultiplicativeExpression -}}
-                         | MultiplicativeExpression Mul UnaryExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "*" $1 $2 $3)]}
-                         | MultiplicativeExpression Div UnaryExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "/" $1 $2 $3)]}
-                         | MultiplicativeExpression Mod UnaryExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "%" $1 $2 $3)]}
+                         | MultiplicativeExpression Mul UnaryExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- * -} $1 $2 $3)]}
+                         | MultiplicativeExpression Div UnaryExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- / -} $1 $2 $3)]}
+                         | MultiplicativeExpression Mod UnaryExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- % -} $1 $2 $3)]}
 
 -- AdditiveExpression :                                        See 11.6
 --        MultiplicativeExpression
 --        AdditiveExpression + MultiplicativeExpression
 --        AdditiveExpression - MultiplicativeExpression
 AdditiveExpression :: { [AST.JSNode] }
-AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "+" $1 $2 $3)]}
-                   | AdditiveExpression Minus MultiplicativeExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "-" $1 $2 $3)]}
+AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- + -} $1 $2 $3)]}
+                   | AdditiveExpression Minus MultiplicativeExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- - -} $1 $2 $3)]}
                    | MultiplicativeExpression { $1 {- (goRegExp $1)-} {- AdditiveExpression -} }
 
 -- ShiftExpression :                                           See 11.7
@@ -612,9 +612,9 @@ AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression { [fp (AS
 --        ShiftExpression >> AdditiveExpression
 --        ShiftExpression >>> AdditiveExpression
 ShiftExpression :: { [AST.JSNode] }
-ShiftExpression : ShiftExpression Lsh  AdditiveExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "<<"  $1 $2 $3)]}
-                | ShiftExpression Rsh  AdditiveExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot ">>"  $1 $2 $3)]}
-                | ShiftExpression Ursh AdditiveExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot ">>>" $1 $2 $3)]}
+ShiftExpression : ShiftExpression Lsh  AdditiveExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- << -}  $1 $2 $3)]}
+                | ShiftExpression Rsh  AdditiveExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- >> -}  $1 $2 $3)]}
+                | ShiftExpression Ursh AdditiveExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- >>> -} $1 $2 $3)]}
                 | AdditiveExpression { $1 {- ShiftExpression -}}
 
 -- RelationalExpression :                                      See 11.8
@@ -627,12 +627,12 @@ ShiftExpression : ShiftExpression Lsh  AdditiveExpression { [fp (AST.JSExpressio
 --        RelationalExpression in ShiftExpression
 RelationalExpression :: { [AST.JSNode] }
 RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
-                     | RelationalExpression Lt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "<"  $1 $2 $3)]}
-                     | RelationalExpression Gt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot ">"  $1 $2 $3)]}
-                     | RelationalExpression Le  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "<=" $1 $2 $3)]}
-                     | RelationalExpression Ge  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot ">=" $1 $2 $3)]}
-                     | RelationalExpression Instanceof ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot " instanceof " $1 $2 $3)]}
-                     | RelationalExpression In         ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot " in "         $1 $2 $3)]}
+                     | RelationalExpression Lt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- < -}  $1 $2 $3)]}
+                     | RelationalExpression Gt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- > -}  $1 $2 $3)]}
+                     | RelationalExpression Le  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- <= -} $1 $2 $3)]}
+                     | RelationalExpression Ge  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- >= -} $1 $2 $3)]}
+                     | RelationalExpression Instanceof ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {-  instanceof -} $1 $2 $3)]}
+                     | RelationalExpression In         ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {-  in         -} $1 $2 $3)]}
 
 -- RelationalExpressionNoIn :                                  See 11.8
 --        ShiftExpression
@@ -643,11 +643,11 @@ RelationalExpression : ShiftExpression { $1 {- RelationalExpression -}}
 --        RelationalExpressionNoIn instanceof ShiftExpression
 RelationalExpressionNoIn :: { [AST.JSNode] }
 RelationalExpressionNoIn : ShiftExpression { $1 {- RelationalExpressionNoIn -}}
-                     | RelationalExpressionNoIn Lt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "<"  $1 $2 $3)]}
-                     | RelationalExpressionNoIn Gt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot ">"  $1 $2 $3)]}
-                     | RelationalExpressionNoIn Le  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "<=" $1 $2 $3)]}
-                     | RelationalExpressionNoIn Ge  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot ">=" $1 $2 $3)]}
-                     | RelationalExpressionNoIn Instanceof ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot " instanceof " $1 $2 $3)]}
+                     | RelationalExpressionNoIn Lt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- < -}  $1 $2 $3)]}
+                     | RelationalExpressionNoIn Gt  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- > -}  $1 $2 $3)]}
+                     | RelationalExpressionNoIn Le  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- <= -} $1 $2 $3)]}
+                     | RelationalExpressionNoIn Ge  ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- >= -} $1 $2 $3)]}
+                     | RelationalExpressionNoIn Instanceof ShiftExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {-  instanceof  -} $1 $2 $3)]}
 
 -- EqualityExpression :                                        See 11.9
 --        RelationalExpression
@@ -657,10 +657,10 @@ RelationalExpressionNoIn : ShiftExpression { $1 {- RelationalExpressionNoIn -}}
 --        EqualityExpression !== RelationalExpression
 EqualityExpression :: { [AST.JSNode] }
 EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
-                   | EqualityExpression Equal    RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "=="  $1 $2 $3)]}
-                   | EqualityExpression Ne       RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "!="  $1 $2 $3)]}
-                   | EqualityExpression StrictEq RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "===" $1 $2 $3)]}
-                   | EqualityExpression StrictNe RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "!==" $1 $2 $3)]}
+                   | EqualityExpression Equal    RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- == -}  $1 $2 $3)]}
+                   | EqualityExpression Ne       RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- != -}  $1 $2 $3)]}
+                   | EqualityExpression StrictEq RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- === -} $1 $2 $3)]}
+                   | EqualityExpression StrictNe RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- !== -} $1 $2 $3)]}
 
 -- EqualityExpressionNoIn :                                    See 11.9
 --        RelationalExpressionNoIn
@@ -670,80 +670,80 @@ EqualityExpression : RelationalExpression { $1 {- EqualityExpression -} }
 --        EqualityExpressionNoIn !== RelationalExpressionNoIn
 EqualityExpressionNoIn :: { [AST.JSNode] }
 EqualityExpressionNoIn : RelationalExpressionNoIn { $1 {- EqualityExpressionNoIn -} }
-                       | EqualityExpressionNoIn Equal    RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "=="  $1 $2 $3)]}
-                       | EqualityExpressionNoIn Ne       RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "!="  $1 $2 $3)]}
-                       | EqualityExpressionNoIn StrictEq RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "===" $1 $2 $3)]}
-                       | EqualityExpressionNoIn StrictNe RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "!==" $1 $2 $3)]}
+                       | EqualityExpressionNoIn Equal    RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- == -}  $1 $2 $3)]}
+                       | EqualityExpressionNoIn Ne       RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- != -}  $1 $2 $3)]}
+                       | EqualityExpressionNoIn StrictEq RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- === -} $1 $2 $3)]}
+                       | EqualityExpressionNoIn StrictNe RelationalExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- !== -} $1 $2 $3)]}
 
 -- BitwiseANDExpression :                                      See 11.10
 --        EqualityExpression
 --        BitwiseANDExpression & EqualityExpression
 BitwiseAndExpression :: { [AST.JSNode] }
 BitwiseAndExpression : EqualityExpression { $1 {- BitwiseAndExpression -} }
-                     | BitwiseAndExpression BitAnd EqualityExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "&" $1 $2 $3)]}
+                     | BitwiseAndExpression BitAnd EqualityExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- & -} $1 $2 $3)]}
 
 -- BitwiseANDExpressionNoIn :                                  See 11.10
 --        EqualityExpressionNoIn
 --        BitwiseANDExpressionNoIn & EqualityExpressionNoIn
 BitwiseAndExpressionNoIn :: { [AST.JSNode] }
 BitwiseAndExpressionNoIn : EqualityExpressionNoIn { $1 {- BitwiseAndExpression -} }
-                     | BitwiseAndExpressionNoIn BitAnd EqualityExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot "&" $1 $2 $3)]}
+                     | BitwiseAndExpressionNoIn BitAnd EqualityExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- & -} $1 $2 $3)]}
 
 -- BitwiseXORExpression :                                                                See 11.10
 --        BitwiseANDExpression
 --        BitwiseXORExpression ^ BitwiseANDExpression
 BitwiseXOrExpression :: { [AST.JSNode] }
 BitwiseXOrExpression : BitwiseAndExpression { $1 {- BitwiseXOrExpression -} }
-                     | BitwiseXOrExpression BitXor BitwiseAndExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "^" $1 $2 $3)]}
+                     | BitwiseXOrExpression BitXor BitwiseAndExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- ^ -} $1 $2 $3)]}
 
 -- BitwiseXORExpressionNoIn :                                                            See 11.10
 --        BitwiseANDExpressionNoIn
 --        BitwiseXORExpressionNoIn ^ BitwiseANDExpressionNoIn
 BitwiseXOrExpressionNoIn :: { [AST.JSNode] }
 BitwiseXOrExpressionNoIn : BitwiseAndExpressionNoIn { $1 {- BitwiseXOrExpression -} }
-                         | BitwiseXOrExpressionNoIn BitXor BitwiseAndExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot "^" $1 $2 $3)]}
+                         | BitwiseXOrExpressionNoIn BitXor BitwiseAndExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- ^ -} $1 $2 $3)]}
 
 -- BitwiseORExpression :                                                                 See 11.10
 --        BitwiseXORExpression
 --        BitwiseORExpression | BitwiseXORExpression
 BitwiseOrExpression :: { [AST.JSNode] }
 BitwiseOrExpression : BitwiseXOrExpression { $1 {- BitwiseOrExpression -} }
-                    | BitwiseOrExpression BitOr BitwiseXOrExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "|" $1 $2 $3)]}
+                    | BitwiseOrExpression BitOr BitwiseXOrExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- | -} $1 $2 $3)]}
 
 -- BitwiseORExpressionNoIn :                                                             See 11.10
 --        BitwiseXORExpressionNoIn
 --        BitwiseORExpressionNoIn | BitwiseXORExpressionNoIn
 BitwiseOrExpressionNoIn :: { [AST.JSNode] }
 BitwiseOrExpressionNoIn : BitwiseXOrExpressionNoIn { $1 {- BitwiseOrExpression -} }
-                        | BitwiseOrExpressionNoIn BitOr BitwiseXOrExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot "|" $1 $2 $3)]}
+                        | BitwiseOrExpressionNoIn BitOr BitwiseXOrExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- | -} $1 $2 $3)]}
 
 -- LogicalANDExpression :                                                                See 11.11
 --        BitwiseORExpression
 --        LogicalANDExpression && BitwiseORExpression
 LogicalAndExpression :: { [AST.JSNode] }
 LogicalAndExpression : BitwiseOrExpression { $1 {- LogicalAndExpression -} }
-                     | LogicalAndExpression And BitwiseOrExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "&&" $1 $2 $3)]}
+                     | LogicalAndExpression And BitwiseOrExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- && -} $1 $2 $3)]}
 
 -- LogicalANDExpressionNoIn :                                                            See 11.11
 --        BitwiseORExpressionNoIn
 --        LogicalANDExpressionNoIn && BitwiseORExpressionNoIn
 LogicalAndExpressionNoIn :: { [AST.JSNode] }
 LogicalAndExpressionNoIn : BitwiseOrExpressionNoIn { $1 {- LogicalAndExpression -} }
-                         | LogicalAndExpressionNoIn And BitwiseOrExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot "&&" $1 $2 $3)]}
+                         | LogicalAndExpressionNoIn And BitwiseOrExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- && -} $1 $2 $3)]}
 
 -- LogicalORExpression :                                                                 See 11.11
 --        LogicalANDExpression
 --        LogicalORExpression || LogicalANDExpression
 LogicalOrExpression :: { [AST.JSNode] }
 LogicalOrExpression : LogicalAndExpression { $1 {- LogicalOrExpression -} }
-                    | LogicalOrExpression Or LogicalAndExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot "||" $1 $2 $3)]}
+                    | LogicalOrExpression Or LogicalAndExpression { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- || -} $1 $2 $3)]}
 
 -- LogicalORExpressionNoIn :                                                             See 11.11
 --        LogicalANDExpressionNoIn
 --        LogicalORExpressionNoIn || LogicalANDExpressionNoIn
 LogicalOrExpressionNoIn :: { [AST.JSNode] }
 LogicalOrExpressionNoIn : LogicalAndExpressionNoIn { $1 {- LogicalOrExpression -} }
-                        | LogicalOrExpressionNoIn Or LogicalAndExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot "||" $1 $2 $3)]}
+                        | LogicalOrExpressionNoIn Or LogicalAndExpressionNoIn { [fp (AST.JSExpressionBinary AST.JSNoAnnot {- || -} $1 $2 $3)]}
 
 -- ConditionalExpression :                                                               See 11.12
 --        LogicalORExpression
