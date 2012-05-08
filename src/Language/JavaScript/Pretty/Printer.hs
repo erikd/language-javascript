@@ -37,68 +37,67 @@ renderJS node = bb
   where
     PA _ bb = rn node (PA (1,1) empty)
 
--- rn : Render node.
-rn :: JSNode -> PosAccum -> PosAccum
 
--- Terminals
-rn (JSIdentifier    (JSAnnot p cs) s  ) foo = rcs cs p s foo
-rn (JSDecimal       (JSAnnot p cs) i  ) foo = rcs cs p i foo
-rn (JSLiteral       (JSAnnot p cs) l  ) foo = rcs cs p l foo
-rn (JSHexInteger    (JSAnnot p cs) i  ) foo = rcs cs p i foo
-rn (JSOctal         (JSAnnot p cs) i  ) foo = rcs cs p i foo
-rn (JSStringLiteral (JSAnnot p cs) s l) foo = rcs cs p ((s:l)++[s]) foo
-rn (JSRegEx         (JSAnnot p cs) s  ) foo = rcs cs p s foo
+class RenderJS a where
+    -- Render node.
+    rn :: a -> PosAccum -> PosAccum
 
--- Non-Terminals
-rn (JSArguments            JSNoAnnot lb xs rb)                        foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (JSArrayLiteral         JSNoAnnot lb xs rb)                        foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (JSBlock                JSNoAnnot lb x rb)                         foo = rJS (lb ++ x ++ rb) foo
-rn (JSBreak                JSNoAnnot b x1s as)                        foo = rJS ([b]++x1s++[as]) foo
-rn (JSCallExpression       JSNoAnnot _s os xs cs)                     foo = rJS (os ++ xs ++ cs) foo
-rn (JSCase                 JSNoAnnot ca x1 c x2s)                     foo = rJS ([ca,x1,c]++x2s) foo
-rn (JSCatch                JSNoAnnot c lb x1 x2s rb x3)               foo = rJS ([c,lb,x1]++x2s++[rb,x3]) foo
-rn (JSContinue             JSNoAnnot c xs as)                         foo = rJS ([c]++xs++[as]) foo
-rn (JSDefault              JSNoAnnot d c xs)                          foo = rJS ([d,c]++xs) foo
-rn (JSDoWhile              JSNoAnnot d x1 w lb x2 rb x3)              foo = rJS [d,x1,w,lb,x2,rb,x3] foo
-rn (JSElision              JSNoAnnot c)                               foo = rJS [c] foo
-rn (JSExpression           JSNoAnnot xs)                              foo = rJS xs foo
-rn (JSExpressionBinary     JSNoAnnot lhs op rhs)                      foo = rJS (lhs ++ [op] ++ rhs) foo
-rn (JSExpressionParen      JSNoAnnot lb e rb)                         foo = rJS [lb,e,rb] foo
-rn (JSExpressionPostfix    JSNoAnnot xs op)                           foo = rJS (xs ++ [op]) foo
-rn (JSExpressionTernary    JSNoAnnot cond h v1 c v2)                  foo = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) foo
-rn (JSFinally              JSNoAnnot f x)                             foo = rJS [f,x] foo
-rn (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    foo = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
-rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             foo = rJS ([f,lb]++x1s++[i,x2,rb,x3]) foo
-rn (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  foo = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
-rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            foo = rJS [f,lb,v,x1,i,x2,rb,x3] foo
-rn (JSFunction             JSNoAnnot f x1 lb x2s rb x3)               foo = rJS ([f,x1,lb]++x2s++[rb,x3]) foo
-rn (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              foo = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,x3]) foo
-rn (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              foo = rJS ([i,lb,x1,rb]++x2s++x3s) foo
-rn (JSLabelled             JSNoAnnot l c v)                           foo = rJS [l,c,v] foo
+instance RenderJS JSNode where
+    -- Terminals
+    rn (JSIdentifier    (JSAnnot p cs) s  ) pacc = rcs cs p s pacc
+    rn (JSDecimal       (JSAnnot p cs) i  ) pacc = rcs cs p i pacc
+    rn (JSLiteral       (JSAnnot p cs) l  ) pacc = rcs cs p l pacc
+    rn (JSHexInteger    (JSAnnot p cs) i  ) pacc = rcs cs p i pacc
+    rn (JSOctal         (JSAnnot p cs) i  ) pacc = rcs cs p i pacc
+    rn (JSStringLiteral (JSAnnot p cs) s l) pacc = rcs cs p ((s:l)++[s]) pacc
+    rn (JSRegEx         (JSAnnot p cs) s  ) pacc = rcs cs p s pacc
 
+    -- Non-Terminals
+    rn (JSArguments            JSNoAnnot lb xs rb)                        pacc = rJS ([lb] ++ xs ++ [rb]) pacc
+    rn (JSArrayLiteral         JSNoAnnot lb xs rb)                        pacc = rJS ([lb] ++ xs ++ [rb]) pacc
+    rn (JSBlock                JSNoAnnot lb x rb)                         pacc = rJS (lb ++ x ++ rb) pacc
+    rn (JSBreak                JSNoAnnot b x1s as)                        pacc = rJS ([b]++x1s++[as]) pacc
+    rn (JSCallExpression       JSNoAnnot _s os xs cs)                     pacc = rJS (os ++ xs ++ cs) pacc
+    rn (JSCase                 JSNoAnnot ca x1 c x2s)                     pacc = rJS ([ca,x1,c]++x2s) pacc
+    rn (JSCatch                JSNoAnnot c lb x1 x2s rb x3)               pacc = rJS ([c,lb,x1]++x2s++[rb,x3]) pacc
+    rn (JSContinue             JSNoAnnot c xs as)                         pacc = rJS ([c]++xs++[as]) pacc
+    rn (JSDefault              JSNoAnnot d c xs)                          pacc = rJS ([d,c]++xs) pacc
+    rn (JSDoWhile              JSNoAnnot d x1 w lb x2 rb x3)              pacc = rJS [d,x1,w,lb,x2,rb,x3] pacc
+    rn (JSElision              JSNoAnnot c)                               pacc = rJS [c] pacc
+    rn (JSExpression           JSNoAnnot xs)                              pacc = rJS xs pacc
+    rn (JSExpressionBinary     JSNoAnnot lhs op rhs)                      pacc = rJS (lhs ++ [op] ++ rhs) pacc
+    rn (JSExpressionParen      JSNoAnnot lb e rb)                         pacc = rJS [lb,e,rb] pacc
+    rn (JSExpressionPostfix    JSNoAnnot xs op)                           pacc = rJS (xs ++ [op]) pacc
+    rn (JSExpressionTernary    JSNoAnnot cond h v1 c v2)                  pacc = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) pacc
+    rn (JSFinally              JSNoAnnot f x)                             pacc = rJS [f,x] pacc
+    rn (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    pacc = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) pacc
+    rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             pacc = rJS ([f,lb]++x1s++[i,x2,rb,x3]) pacc
+    rn (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  pacc = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) pacc
+    rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            pacc = rJS [f,lb,v,x1,i,x2,rb,x3] pacc
+    rn (JSFunction             JSNoAnnot f x1 lb x2s rb x3)               pacc = rJS ([f,x1,lb]++x2s++[rb,x3]) pacc
+    rn (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              pacc = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,x3]) pacc
+    rn (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              pacc = rJS ([i,lb,x1,rb]++x2s++x3s) pacc
+    rn (JSLabelled             JSNoAnnot l c v)                           pacc = rJS [l,c,v] pacc
+    rn (JSLiteral              JSNoAnnot [])                              pacc = rJS [] pacc
+    rn (JSMemberDot            JSNoAnnot xs dot n)                        pacc = rJS (xs ++ [dot,n]) pacc
+    rn (JSMemberSquare         JSNoAnnot xs lb e rb)                      pacc = rJS (xs ++ [lb,e,rb]) pacc
+    rn (JSObjectLiteral        JSNoAnnot lb xs rb)                        pacc = rJS ([lb] ++ xs ++ [rb]) pacc
+    rn (JSOperator             JSNoAnnot n)                               pacc = rJS [n] pacc
+    rn (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                pacc = rJS ([s,n,lb1] ++ ps ++ [rb1,b]) pacc
+    rn (JSPropertyNameandValue JSNoAnnot n colon vs)                      pacc = rJS ([n,colon] ++ vs) pacc
+    rn (JSReturn               JSNoAnnot r xs as)                         pacc = rJS ([r] ++ xs ++ [as]) pacc
+    rn (JSSourceElementsTop    JSNoAnnot xs)                              pacc = rJS xs pacc
+    rn (JSSwitch               JSNoAnnot s lb x rb x2)                    pacc = rJS [s,lb,x,rb,x2] pacc
+    rn (JSThrow                JSNoAnnot t x)                             pacc = rJS [t,x] pacc
+    rn (JSTry                  JSNoAnnot t x1 x2s)                        pacc = rJS ([t,x1]++x2s) pacc
+    rn (JSUnary                JSNoAnnot n)                               pacc = rJS [n] pacc
+    rn (JSVarDecl              JSNoAnnot x1 x2s)                          pacc = rJS (x1:x2s) pacc
+    rn (JSVariables            JSNoAnnot n xs as)                         pacc = rJS ([n]++xs++[as]) pacc
+    rn (JSWhile                JSNoAnnot w lb x1 rb x2)                   pacc = rJS [w,lb,x1,rb,x2] pacc
+    rn (JSWith                 JSNoAnnot w lb x1 rb x2s)                  pacc = rJS ([w,lb,x1,rb]++x2s) pacc
 
-rn (JSLiteral              JSNoAnnot [])                               foo = rJS [] foo
-
-
-rn (JSMemberDot            JSNoAnnot xs dot n)                        foo = rJS (xs ++ [dot,n]) foo
-rn (JSMemberSquare         JSNoAnnot xs lb e rb)                      foo = rJS (xs ++ [lb,e,rb]) foo
-rn (JSObjectLiteral        JSNoAnnot lb xs rb)                        foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (JSOperator             JSNoAnnot n)                               foo = rJS [n] foo
-rn (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                foo = rJS ([s,n,lb1] ++ ps ++ [rb1,b]) foo
-rn (JSPropertyNameandValue JSNoAnnot n colon vs)                      foo = rJS ([n,colon] ++ vs) foo
-rn (JSReturn               JSNoAnnot r xs as)                         foo = rJS ([r] ++ xs ++ [as]) foo
-rn (JSSourceElementsTop    JSNoAnnot xs)                              foo = rJS xs foo
-rn (JSSwitch               JSNoAnnot s lb x rb x2)                    foo = rJS [s,lb,x,rb,x2] foo
-rn (JSThrow                JSNoAnnot t x)                             foo = rJS [t,x] foo
-rn (JSTry                  JSNoAnnot t x1 x2s)                        foo = rJS ([t,x1]++x2s) foo
-rn (JSUnary                JSNoAnnot n)                               foo = rJS [n] foo
-rn (JSVarDecl              JSNoAnnot x1 x2s)                          foo = rJS (x1:x2s) foo
-rn (JSVariables            JSNoAnnot n xs as)                         foo = rJS ([n]++xs++[as]) foo
-rn (JSWhile                JSNoAnnot w lb x1 rb x2)                   foo = rJS [w,lb,x1,rb,x2] foo
-rn (JSWith                 JSNoAnnot w lb x1 rb x2s)                  foo = rJS ([w,lb,x1,rb]++x2s) foo
-
--- Debug helper
-rn what foo = rs ("X " ++ show what ++ " X") foo
+    -- Debug helper
+    rn what pacc = rs ("X " ++ show what ++ " X") pacc
 
 -- ---------------------------------------------------------------------
 -- Helper functions
@@ -109,21 +108,21 @@ rn what foo = rs ("X " ++ show what ++ " X") foo
 -- b) advances to the position of the required string
 -- c) renders the string, advancing the position
 rcs :: [CommentAnnotation] -> TokenPosn -> String -> PosAccum -> PosAccum
-rcs cs p s foo = rps p s (rc cs foo)
+rcs cs p s pacc = rps p s (rc cs pacc)
 
 rc :: [CommentAnnotation] -> PosAccum -> PosAccum
-rc cs foo = foldl' go foo cs
+rc cs pacc = foldl' go pacc cs
   where
     go :: PosAccum -> CommentAnnotation -> PosAccum
-    go foo' NoComment = foo'
-    go foo' (CommentA   p s) = rps p s foo'
-    go foo' (WhiteSpace p s) = rps p s foo'
+    go pacc' NoComment = pacc'
+    go pacc' (CommentA   p s) = rps p s pacc'
+    go pacc' (WhiteSpace p s) = rps p s pacc'
 
 -- Render a string at the given position
 rps :: TokenPosn -> String -> PosAccum -> PosAccum
-rps p s foo = rs s foo'
+rps p s pacc = rs s pacc'
   where
-    foo' = goto p foo
+    pacc' = goto p pacc
 
 -- Render a string
 rs :: String -> PosAccum -> PosAccum
@@ -147,7 +146,7 @@ goto (TokenPn _ ltgt ctgt) (PA (lcur,ccur) bb) = PA (lnew,cnew) (bb <> bb')
 
 
 rJS :: [JSNode] -> PosAccum -> PosAccum
-rJS xs foo = foldl' (flip rn) foo xs
+rJS xs pacc = foldl' (flip rn) pacc xs
 
 renderToString :: JSNode -> String
 -- need to be careful to not lose the unicode encoding on output
