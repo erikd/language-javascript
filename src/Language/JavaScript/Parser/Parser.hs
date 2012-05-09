@@ -34,6 +34,9 @@ readJs input = do
     Left msg -> error (show msg)
     Right p -> p
 
+-- | Parse the given file.
+-- For UTF-8 support, make sure your locale is set such that
+-- "System.IO.localeEncoding" returns "utf8"
 parseFile :: FilePath -> IO AST.JSNode
 parseFile filename =
   do

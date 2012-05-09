@@ -276,7 +276,7 @@ testSuite = testGroup "Parser"
 
    , testCase "unicode4" (testProg "x=\"àáâãäå\";y='\3012a\0068'" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"\\224\\225\\226\\227\\228\\229\"],JSLiteral \";\",JSExpression [JSIdentifier \"y\",JSOperator JSLiteral \"=\",JSStringLiteral '\\'' \"\\3012aD\"],JSLiteral \"\"])")
 
-   , testCase "unicode5" (testFile "./test/Unicode.js" "JSSourceElementsTop [JSExpression [JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\",JSLiteral \"\"]")
+   , testCase "unicode5f" (testFile "./test/Unicode.js" "JSSourceElementsTop [JSExpression [JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\",JSLiteral \"\"]")
 
    , testCase "bug2.a" (testProg "function() {\nz = function /*z*/(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSExpression [JSFunctionExpression [] [] (JSBlock ([JSExpression [JSIdentifier \"z\",JSOperator JSLiteral \"=\",JSFunctionExpression [] [JSIdentifier \"o\"] (JSBlock ([JSReturn [JSExpression [JSIdentifier \"r\"]] JSLiteral \";\"]))],JSLiteral \";\"]))],JSLiteral \"\"])")
 
@@ -719,6 +719,8 @@ commentPrintSuite = testGroup "Comments"
    -- https://github.com/alanz/language-javascript/issues/15
    , testCase "issue15" (testRoundTrip "x\t=1;")
 
+   , testCase "comment-only" (testRoundTrip "// comment\n\n")
+   , testCase "empty-src" (testRoundTrip "")
    ]
 
 -- ---------------------------------------------------------------------

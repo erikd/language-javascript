@@ -1096,6 +1096,7 @@ FunctionBody : LBrace SourceElements RBrace { (AST.JSBlock AST.JSNoAnnot [$1] $2
 
 Program :: { AST.JSNode }
 Program : SourceElementsTop Eof { (combineTop $1 $2) {- Program -}}
+        | Eof                   { fp (AST.NN (AST.JSSourceElementsTop [$1])) }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSNode }
