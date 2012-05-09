@@ -3,6 +3,7 @@ module Language.JavaScript.Parser.AST
        (
            JSNode (..)
          , JSAnnot (..)
+         , JSBinOp (..)
          , showStripped
        ) where
 
@@ -20,6 +21,33 @@ data JSAnnot = JSAnnot TokenPosn [CommentAnnotation]-- ^Annotation: position and
 instance Show JSAnnot where
     show JSNoAnnot = "NoAnnot"
     show (JSAnnot pos cs) = "Annot (" ++ show pos ++ ") " ++ show cs
+
+data JSBinOp
+    = JSBinOpAnd JSAnnot
+    | JSBinOpBitAnd JSAnnot
+    | JSBinOpBitOr JSAnnot
+    | JSBinOpBitXor JSAnnot
+    | JSBinOpDivide JSAnnot
+    | JSBinOpEq JSAnnot
+    | JSBinOpGe JSAnnot
+    | JSBinOpGt JSAnnot
+    | JSBinOpIn JSAnnot
+    | JSBinOpInstanceOf JSAnnot
+    | JSBinOpLe JSAnnot
+    | JSBinOpLsh JSAnnot
+    | JSBinOpLt JSAnnot
+    | JSBinOpMinus JSAnnot
+    | JSBinOpMod JSAnnot
+    | JSBinOpNeq JSAnnot
+    | JSBinOpOr JSAnnot
+    | JSBinOpPlus JSAnnot
+    | JSBinOpRsh JSAnnot
+    | JSBinOpStrictEq JSAnnot
+    | JSBinOpStrictNeq JSAnnot
+    | JSBinOpTimes JSAnnot
+    | JSBinOpUrsh JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
 
 -- |The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
@@ -50,15 +78,15 @@ data JSNode =
               | JSDoWhile JSAnnot JSNode JSNode JSNode JSNode JSNode JSNode JSNode -- ^do,stmt,while,lb,expr,rb,autosemi
               | JSElision JSAnnot JSNode               -- ^comma
               | JSExpression JSAnnot [JSNode]          -- ^expression components
-              | JSExpressionBinary JSAnnot [JSNode] JSNode [JSNode] -- ^lhs, op, rhs
+              | JSExpressionBinary JSAnnot [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
               | JSExpressionParen JSAnnot JSNode JSNode JSNode -- ^lb,expression,rb
               | JSExpressionPostfix JSAnnot [JSNode] JSNode -- ^expression, operator
               | JSExpressionTernary JSAnnot [JSNode] JSNode [JSNode] JSNode [JSNode] -- ^cond, ?, trueval, :, falseval
               | JSFinally JSAnnot JSNode JSNode -- ^finally,block
               | JSFor JSAnnot JSNode JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSNode JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
-              | JSForIn JSAnnot JSNode JSNode [JSNode] JSNode JSNode JSNode JSNode -- ^for,lb,expr,in,expr,rb,stmt
+              | JSForIn JSAnnot JSNode JSNode [JSNode] JSBinOp JSNode JSNode JSNode -- ^for,lb,expr,in,expr,rb,stmt
               | JSForVar JSAnnot JSNode JSNode JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSNode JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
-              | JSForVarIn JSAnnot JSNode JSNode JSNode JSNode JSNode JSNode JSNode JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
+              | JSForVarIn JSAnnot JSNode JSNode JSNode JSNode JSBinOp JSNode JSNode JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
               | JSFunction JSAnnot JSNode JSNode JSNode [JSNode] JSNode JSNode  -- ^fn,name, lb,parameter list,rb,block
               | JSFunctionExpression JSAnnot JSNode [JSNode] JSNode [JSNode] JSNode JSNode  -- ^fn,[name],lb, parameter list,rb,block`
               | JSIf JSAnnot JSNode JSNode JSNode JSNode [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
@@ -100,7 +128,7 @@ ss (JSDefault _ _d _c xs) = "JSDefault (" ++ sss xs ++ ")"
 ss (JSDoWhile _ _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression _ xs) = "JSExpression " ++ sss xs
-ss (JSExpressionBinary _ x2s op x3s) = "JSExpressionBinary " ++ showop op ++ " " ++ sss x2s ++ " " ++ sss x3s
+ss (JSExpressionBinary _ x2s op x3s) = "JSExpressionBinary " ++ sbop op ++ " " ++ sss x2s ++ " " ++ sss x3s
 ss (JSExpressionParen _ _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix _ xs op) = "JSExpressionPostfix " ++ showop op ++ " " ++ sss xs
 ss (JSExpressionTernary _ x1s _q x2s _c x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
@@ -148,6 +176,35 @@ showop (JSLiteral _ str) =
        "delete" -> show "delete "
        "typeof" -> show "typeof "
        s -> show s
-showop _ = undefined
+showop x = error $ "showop : " ++ show x
+
+-- The test suite expects operators to be double quoted.
+sbop :: JSBinOp -> String
+sbop = show . showbinop
+
+showbinop :: JSBinOp -> String
+showbinop (JSBinOpAnd _) = "&&"
+showbinop (JSBinOpBitAnd _) = "&"
+showbinop (JSBinOpBitOr _) = "|"
+showbinop (JSBinOpBitXor _) = "^"
+showbinop (JSBinOpDivide _) = "/"
+showbinop (JSBinOpEq _) = "=="
+showbinop (JSBinOpGe _) = ">="
+showbinop (JSBinOpGt _) = ">"
+showbinop (JSBinOpIn _) = " in "
+showbinop (JSBinOpInstanceOf _) = "instanceof"
+showbinop (JSBinOpLe _) = "<="
+showbinop (JSBinOpLsh _) = "<<"
+showbinop (JSBinOpLt _) = "<"
+showbinop (JSBinOpMinus _) = "-"
+showbinop (JSBinOpMod _) = "%"
+showbinop (JSBinOpNeq _) = "!="
+showbinop (JSBinOpOr _) = "||"
+showbinop (JSBinOpPlus _) = "+"
+showbinop (JSBinOpRsh _) = ">>"
+showbinop (JSBinOpStrictEq _) = "==="
+showbinop (JSBinOpStrictNeq _) = "!=="
+showbinop (JSBinOpTimes _) = "*"
+showbinop (JSBinOpUrsh _) = ">>>"
 
 -- EOF

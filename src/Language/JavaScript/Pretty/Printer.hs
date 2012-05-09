@@ -27,8 +27,8 @@ data PosAccum = PA (Int, Int) Builder
 empty :: Builder
 empty = mempty
 
-text :: String -> Builder
-text = BS.fromString
+str :: String -> Builder
+str = BS.fromString
 
 -- ---------------------------------------------------------------------
 
@@ -36,6 +36,11 @@ renderJS :: JSNode -> Builder
 renderJS node = bb
   where
     PA _ bb = rn node (PA (1,1) empty)
+
+
+renderToString :: JSNode -> String
+-- need to be careful to not lose the unicode encoding on output
+renderToString js = US.decode $ LB.unpack $ toLazyByteString $ renderJS js
 
 
 class RenderJS a where
@@ -65,15 +70,15 @@ instance RenderJS JSNode where
     rn (JSDoWhile              JSNoAnnot d x1 w lb x2 rb x3)              pacc = rJS [d,x1,w,lb,x2,rb,x3] pacc
     rn (JSElision              JSNoAnnot c)                               pacc = rJS [c] pacc
     rn (JSExpression           JSNoAnnot xs)                              pacc = rJS xs pacc
-    rn (JSExpressionBinary     JSNoAnnot lhs op rhs)                      pacc = rJS (lhs ++ [op] ++ rhs) pacc
+    rn (JSExpressionBinary     JSNoAnnot lhs op rhs)                      pacc = rJS rhs (rop op (rJS lhs pacc))
     rn (JSExpressionParen      JSNoAnnot lb e rb)                         pacc = rJS [lb,e,rb] pacc
     rn (JSExpressionPostfix    JSNoAnnot xs op)                           pacc = rJS (xs ++ [op]) pacc
     rn (JSExpressionTernary    JSNoAnnot cond h v1 c v2)                  pacc = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) pacc
     rn (JSFinally              JSNoAnnot f x)                             pacc = rJS [f,x] pacc
     rn (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    pacc = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) pacc
-    rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             pacc = rJS ([f,lb]++x1s++[i,x2,rb,x3]) pacc
+    rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             pacc = rJS [x2,rb,x3] (rop i (rJS ([f,lb]++x1s) pacc))
     rn (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  pacc = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) pacc
-    rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            pacc = rJS [f,lb,v,x1,i,x2,rb,x3] pacc
+    rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            pacc = rJS [x2,rb,x3] (rop i (rJS [f,lb,v,x1] pacc))
     rn (JSFunction             JSNoAnnot f x1 lb x2s rb x3)               pacc = rJS ([f,x1,lb]++x2s++[rb,x3]) pacc
     rn (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              pacc = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,x3]) pacc
     rn (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              pacc = rJS ([i,lb,x1,rb]++x2s++x3s) pacc
@@ -126,7 +131,7 @@ rps p s pacc = rs s pacc'
 
 -- Render a string
 rs :: String -> PosAccum -> PosAccum
-rs s (PA (r,c) bb) = PA (r',c') (bb <> text s)
+rs s (PA (r,c) bb) = PA (r',c') (bb <> str s)
   where
     (r',c') = foldl' (\(row,col) ch -> go (row,col) ch) (r,c) s
 
@@ -138,8 +143,8 @@ rs s (PA (r,c) bb) = PA (r',c') (bb <> text s)
 goto :: TokenPosn -> PosAccum -> PosAccum
 goto (TokenPn _ ltgt ctgt) (PA (lcur,ccur) bb) = PA (lnew,cnew) (bb <> bb')
   where
-    (bbline,ccur') = if lcur < ltgt then (text (replicate (ltgt - lcur) '\n'),1) else (mempty,ccur)
-    bbcol  = if ccur' < ctgt then text (replicate (ctgt - ccur') ' ') else mempty
+    (bbline,ccur') = if lcur < ltgt then (str (replicate (ltgt - lcur) '\n'),1) else (mempty,ccur)
+    bbcol  = if ccur' < ctgt then str (replicate (ctgt - ccur') ' ') else mempty
     bb' = bbline <> bbcol
     lnew = if lcur < ltgt then ltgt else lcur
     cnew = if ccur' < ctgt then ctgt else ccur'
@@ -148,10 +153,33 @@ goto (TokenPn _ ltgt ctgt) (PA (lcur,ccur) bb) = PA (lnew,cnew) (bb <> bb')
 rJS :: [JSNode] -> PosAccum -> PosAccum
 rJS xs pacc = foldl' (flip rn) pacc xs
 
-renderToString :: JSNode -> String
--- need to be careful to not lose the unicode encoding on output
-renderToString js = US.decode $ LB.unpack $ toLazyByteString $ renderJS js
+rop :: JSBinOp -> PosAccum -> PosAccum
+rop (JSBinOpAnd        (JSAnnot p cs))  pacc = rcs cs p "&&" pacc
+rop (JSBinOpBitAnd     (JSAnnot p cs))  pacc = rcs cs p "&"  pacc
+rop (JSBinOpBitOr      (JSAnnot p cs))  pacc = rcs cs p "|"  pacc
+rop (JSBinOpBitXor     (JSAnnot p cs))  pacc = rcs cs p "^"  pacc
+rop (JSBinOpDivide     (JSAnnot p cs))  pacc = rcs cs p "/"  pacc
+rop (JSBinOpEq         (JSAnnot p cs))  pacc = rcs cs p "==" pacc
+rop (JSBinOpGe         (JSAnnot p cs))  pacc = rcs cs p ">=" pacc
+rop (JSBinOpGt         (JSAnnot p cs))  pacc = rcs cs p ">"  pacc
+rop (JSBinOpIn         (JSAnnot p cs))  pacc = rcs cs p "in" pacc
+rop (JSBinOpInstanceOf (JSAnnot p cs))  pacc = rcs cs p "instanceof" pacc
+rop (JSBinOpLe         (JSAnnot p cs))  pacc = rcs cs p "<=" pacc
+rop (JSBinOpLsh        (JSAnnot p cs))  pacc = rcs cs p "<<" pacc
+rop (JSBinOpLt         (JSAnnot p cs))  pacc = rcs cs p "<"  pacc
+rop (JSBinOpMinus      (JSAnnot p cs))  pacc = rcs cs p "-"  pacc
+rop (JSBinOpMod        (JSAnnot p cs))  pacc = rcs cs p "%"  pacc
+rop (JSBinOpNeq        (JSAnnot p cs))  pacc = rcs cs p "!=" pacc
+rop (JSBinOpOr         (JSAnnot p cs))  pacc = rcs cs p "||" pacc
+rop (JSBinOpPlus       (JSAnnot p cs))  pacc = rcs cs p "+"  pacc
+rop (JSBinOpRsh        (JSAnnot p cs))  pacc = rcs cs p ">>"  pacc
+rop (JSBinOpStrictEq   (JSAnnot p cs))  pacc = rcs cs p "===" pacc
+rop (JSBinOpStrictNeq  (JSAnnot p cs))  pacc = rcs cs p "!==" pacc
+rop (JSBinOpTimes      (JSAnnot p cs))  pacc = rcs cs p "*"   pacc
+rop (JSBinOpUrsh       (JSAnnot p cs))  pacc = rcs cs p ">>>" pacc
 
+
+rop op _ = error $ "rop : " ++ show op
 
 -- EOF
 

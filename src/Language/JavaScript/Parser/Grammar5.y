@@ -4,7 +4,6 @@ module Language.JavaScript.Parser.Grammar5 (
   , parseLiteral
   , parsePrimaryExpression
   , parseStatement
-  , fp
   ) where
 
 import Data.Char
@@ -179,11 +178,11 @@ Void : 'void' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "void")}
 Typeof :: { AST.JSNode }
 Typeof : 'typeof' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "typeof")}
 
-Plus :: { AST.JSNode }
-Plus : '+' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "+")}
+Plus :: { AST.JSBinOp }
+Plus : '+' { AST.JSBinOpPlus (AST.JSAnnot (ss $1) (gc $1)) }
 
-Minus :: { AST.JSNode }
-Minus : '-' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "-")}
+Minus :: { AST.JSBinOp }
+Minus : '-' { AST.JSBinOpMinus (AST.JSAnnot (ss $1) (gc $1)) }
 
 Tilde :: { AST.JSNode }
 Tilde : '~' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "~")}
@@ -191,68 +190,68 @@ Tilde : '~' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "~")}
 Not :: { AST.JSNode }
 Not : '!' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "!")}
 
-Mul :: { AST.JSNode }
-Mul : '*' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "*")}
+Mul :: { AST.JSBinOp }
+Mul : '*' { AST.JSBinOpTimes (AST.JSAnnot (ss $1) (gc $1)) }
 
-Div :: { AST.JSNode }
-Div : '/' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "/")}
+Div :: { AST.JSBinOp }
+Div : '/' { AST.JSBinOpDivide (AST.JSAnnot (ss $1) (gc $1)) }
 
-Mod :: { AST.JSNode }
-Mod : '%' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "%")}
+Mod :: { AST.JSBinOp }
+Mod : '%' { AST.JSBinOpMod (AST.JSAnnot (ss $1) (gc $1)) }
 
-Lsh :: { AST.JSNode }
-Lsh : '<<' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "<<")}
+Lsh :: { AST.JSBinOp }
+Lsh : '<<' { AST.JSBinOpLsh (AST.JSAnnot (ss $1) (gc $1)) }
 
-Rsh :: { AST.JSNode }
-Rsh : '>>' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ">>")}
+Rsh :: { AST.JSBinOp }
+Rsh : '>>' { AST.JSBinOpRsh (AST.JSAnnot (ss $1) (gc $1)) }
 
-Ursh :: { AST.JSNode }
-Ursh : '>>>' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ">>>")}
+Ursh :: { AST.JSBinOp }
+Ursh : '>>>' { AST.JSBinOpUrsh (AST.JSAnnot (ss $1) (gc $1)) }
 
-Le :: { AST.JSNode }
-Le : '<=' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "<=")}
+Le :: { AST.JSBinOp }
+Le : '<=' { AST.JSBinOpLe (AST.JSAnnot (ss $1) (gc $1)) }
 
-Lt :: { AST.JSNode }
-Lt : '<' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "<")}
+Lt :: { AST.JSBinOp }
+Lt : '<' { AST.JSBinOpLt (AST.JSAnnot (ss $1) (gc $1)) }
 
-Ge :: { AST.JSNode }
-Ge : '>=' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ">=")}
+Ge :: { AST.JSBinOp }
+Ge : '>=' { AST.JSBinOpGe (AST.JSAnnot (ss $1) (gc $1)) }
 
-Gt :: { AST.JSNode }
-Gt : '>' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ">")}
+Gt :: { AST.JSBinOp }
+Gt : '>' { AST.JSBinOpGt (AST.JSAnnot (ss $1) (gc $1)) }
 
-In :: { AST.JSNode }
-In : 'in' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "in")}
+In :: { AST.JSBinOp }
+In : 'in' { AST.JSBinOpIn (AST.JSAnnot (ss $1) (gc $1)) }
 
-Instanceof :: { AST.JSNode }
-Instanceof : 'instanceof' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "instanceof")}
+Instanceof :: { AST.JSBinOp }
+Instanceof : 'instanceof' { AST.JSBinOpInstanceOf (AST.JSAnnot (ss $1) (gc $1)) }
 
-StrictEq :: { AST.JSNode }
-StrictEq : '===' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "===")}
+StrictEq :: { AST.JSBinOp }
+StrictEq : '===' { AST.JSBinOpStrictEq (AST.JSAnnot (ss $1) (gc $1)) }
 
-Equal :: { AST.JSNode }
-Equal : '==' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "==")}
+Equal :: { AST.JSBinOp }
+Equal : '==' { AST.JSBinOpEq (AST.JSAnnot (ss $1) (gc $1)) }
 
-StrictNe :: { AST.JSNode }
-StrictNe : '!==' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "!==")}
+StrictNe :: { AST.JSBinOp }
+StrictNe : '!==' { AST.JSBinOpStrictNeq (AST.JSAnnot (ss $1) (gc $1)) }
 
-Ne :: { AST.JSNode }
-Ne : '!=' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "!=")}
+Ne :: { AST.JSBinOp }
+Ne : '!=' { AST.JSBinOpNeq (AST.JSAnnot (ss $1) (gc $1))}
 
-Or :: { AST.JSNode }
-Or : '||' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "||")}
+Or :: { AST.JSBinOp }
+Or : '||' { AST.JSBinOpOr (AST.JSAnnot (ss $1) (gc $1)) }
 
-And :: { AST.JSNode }
-And : '&&' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "&&")}
+And :: { AST.JSBinOp }
+And : '&&' { AST.JSBinOpAnd (AST.JSAnnot (ss $1) (gc $1)) }
 
-BitOr :: { AST.JSNode }
-BitOr : '|' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "|")}
+BitOr :: { AST.JSBinOp }
+BitOr : '|' { AST.JSBinOpBitOr (AST.JSAnnot (ss $1) (gc $1)) }
 
-BitAnd :: { AST.JSNode }
-BitAnd : '&' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "&")}
+BitAnd :: { AST.JSBinOp }
+BitAnd : '&' { AST.JSBinOpBitAnd (AST.JSAnnot (ss $1) (gc $1)) }
 
-BitXor :: { AST.JSNode }
-BitXor : '^' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "^")}
+BitXor :: { AST.JSBinOp }
+BitXor : '^' { AST.JSBinOpBitXor (AST.JSAnnot (ss $1) (gc $1))}
 
 Hook :: { AST.JSNode }
 Hook : '?' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "?")}
@@ -581,8 +580,8 @@ UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
                 | Typeof    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- typeof -} $1)):$2)}
                 | Increment UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ++ -}     $1)):$2)}
                 | Decrement UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- -- -}     $1)):$2)}
-                | Plus      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- + -}      $1)):$2)}
-                | Minus     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- - -}      $1)):$2)}
+                | Plus      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- + -}      (mkUnary $1))):$2)}
+                | Minus     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- - -}      (mkUnary $1))):$2)}
                 | Tilde     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ~ -}      $1)):$2)}
                 | Not       UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ! -}      $1)):$2)}
 
@@ -1154,6 +1153,12 @@ mgc xs = concatMap gc xs
 
 fp :: AST.JSNode -> AST.JSNode
 fp = id
+
+mkUnary :: AST.JSBinOp -> AST.JSNode
+mkUnary (AST.JSBinOpMinus annot) = fp (AST.JSLiteral annot "-")
+mkUnary (AST.JSBinOpPlus  annot) = fp (AST.JSLiteral annot "+")
+
+mkUnary x = error $ "Invalid unary op : " ++ show x
 
 }
 
