@@ -4,6 +4,7 @@ module Language.JavaScript.Parser.AST
            JSNode (..)
          , JSAnnot (..)
          , JSBinOp (..)
+         , JSUnaryOp (..)
          , showStripped
        ) where
 
@@ -48,6 +49,17 @@ data JSBinOp
     | JSBinOpUrsh JSAnnot
     deriving (Show, Eq, Read, Data, Typeable)
 
+data JSUnaryOp
+    = JSUnaryOpDecr JSAnnot
+    | JSUnaryOpDelete JSAnnot
+    | JSUnaryOpIncr JSAnnot
+    | JSUnaryOpMinus JSAnnot
+    | JSUnaryOpNot JSAnnot
+    | JSUnaryOpPlus JSAnnot
+    | JSUnaryOpTilde JSAnnot
+    | JSUnaryOpTypeof JSAnnot
+    | JSUnaryOpVoid JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
 
 -- |The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
@@ -80,7 +92,7 @@ data JSNode =
               | JSExpression JSAnnot [JSNode]          -- ^expression components
               | JSExpressionBinary JSAnnot [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
               | JSExpressionParen JSAnnot JSNode JSNode JSNode -- ^lb,expression,rb
-              | JSExpressionPostfix JSAnnot [JSNode] JSNode -- ^expression, operator
+              | JSExpressionPostfix JSAnnot [JSNode] JSUnaryOp -- ^expression, operator
               | JSExpressionTernary JSAnnot [JSNode] JSNode [JSNode] JSNode [JSNode] -- ^cond, ?, trueval, :, falseval
               | JSFinally JSAnnot JSNode JSNode -- ^finally,block
               | JSFor JSAnnot JSNode JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSNode JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
@@ -103,7 +115,7 @@ data JSNode =
               | JSSwitch JSAnnot JSNode JSNode JSNode JSNode JSNode -- ^switch,lb,expr,rb,caseblock
               | JSThrow JSAnnot JSNode JSNode -- ^throw val
               | JSTry JSAnnot JSNode JSNode [JSNode] -- ^try,block,rest
-              | JSUnary JSAnnot JSNode -- ^operator
+              | JSUnary JSUnaryOp
               | JSVarDecl JSAnnot JSNode [JSNode] -- ^identifier, optional initializer
               | JSVariables JSAnnot JSNode [JSNode] JSNode -- ^var|const, decl, autosemi
               | JSWhile JSAnnot JSNode JSNode JSNode JSNode JSNode -- ^while,lb,expr,rb,stmt
@@ -130,7 +142,7 @@ ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression _ xs) = "JSExpression " ++ sss xs
 ss (JSExpressionBinary _ x2s op x3s) = "JSExpressionBinary " ++ sbop op ++ " " ++ sss x2s ++ " " ++ sss x3s
 ss (JSExpressionParen _ _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
-ss (JSExpressionPostfix _ xs op) = "JSExpressionPostfix " ++ showop op ++ " " ++ sss xs
+ss (JSExpressionPostfix _ xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ sss xs
 ss (JSExpressionTernary _ x1s _q x2s _c x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
 ss (JSFinally _ _f x) = "JSFinally (" ++ ss x ++ ")"
 ss (JSFor _ _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
@@ -158,7 +170,7 @@ ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSSwitch _ _s _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
 ss (JSThrow _ _t x) = "JSThrow (" ++ ss x ++ ")"
 ss (JSTry _ _t x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
-ss (JSUnary _ op) = "JSUnary " ++ showop op
+ss (JSUnary op) = "JSUnary " ++ suop op
 ss (JSVarDecl _ x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSVariables _ n xs _as) = "JSVariables " ++ ss n ++ " " ++ sss xs
 ss (JSWhile _ _w _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
@@ -166,17 +178,6 @@ ss (JSWith _ _w _lb x1 _rb x2s) = "JSWith (" ++ ss x1 ++ ") " ++ sss x2s
 
 sss :: [JSNode] -> String
 sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
-
-showop :: JSNode -> String
-showop (JSLiteral _ str) =
-   -- TODO: Fixups to satisfy tests. Remove later and adjust tests.
-   case str of
-       "in" -> show " in "
-       "void" -> show "void "
-       "delete" -> show "delete "
-       "typeof" -> show "typeof "
-       s -> show s
-showop x = error $ "showop : " ++ show x
 
 -- The test suite expects operators to be double quoted.
 sbop :: JSBinOp -> String
@@ -206,5 +207,21 @@ showbinop (JSBinOpStrictEq _) = "==="
 showbinop (JSBinOpStrictNeq _) = "!=="
 showbinop (JSBinOpTimes _) = "*"
 showbinop (JSBinOpUrsh _) = ">>>"
+
+suop :: JSUnaryOp -> String
+suop = show . showuop
+
+showuop :: JSUnaryOp -> String
+showuop (JSUnaryOpDecr _) = "--"
+showuop (JSUnaryOpDelete _) = "delete "
+showuop (JSUnaryOpIncr _) = "++"
+showuop (JSUnaryOpMinus _) = "-"
+showuop (JSUnaryOpNot _) = "!"
+showuop (JSUnaryOpPlus _) = "+"
+showuop (JSUnaryOpTilde _) = "~"
+showuop (JSUnaryOpTypeof _) = "typeof "
+showuop (JSUnaryOpVoid _) = "void "
+
+
 
 -- EOF

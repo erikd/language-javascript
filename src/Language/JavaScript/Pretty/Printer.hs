@@ -70,15 +70,15 @@ instance RenderJS JSNode where
     rn (JSDoWhile              JSNoAnnot d x1 w lb x2 rb x3)              pacc = rJS [d,x1,w,lb,x2,rb,x3] pacc
     rn (JSElision              JSNoAnnot c)                               pacc = rJS [c] pacc
     rn (JSExpression           JSNoAnnot xs)                              pacc = rJS xs pacc
-    rn (JSExpressionBinary     JSNoAnnot lhs op rhs)                      pacc = rJS rhs (rop op (rJS lhs pacc))
+    rn (JSExpressionBinary     JSNoAnnot lhs op rhs)                      pacc = rJS rhs (rbop op (rJS lhs pacc))
     rn (JSExpressionParen      JSNoAnnot lb e rb)                         pacc = rJS [lb,e,rb] pacc
-    rn (JSExpressionPostfix    JSNoAnnot xs op)                           pacc = rJS (xs ++ [op]) pacc
+    rn (JSExpressionPostfix    JSNoAnnot xs op)                           pacc = ruop op (rJS xs pacc)
     rn (JSExpressionTernary    JSNoAnnot cond h v1 c v2)                  pacc = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) pacc
     rn (JSFinally              JSNoAnnot f x)                             pacc = rJS [f,x] pacc
     rn (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    pacc = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) pacc
-    rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             pacc = rJS [x2,rb,x3] (rop i (rJS ([f,lb]++x1s) pacc))
+    rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             pacc = rJS [x2,rb,x3] (rbop i (rJS ([f,lb]++x1s) pacc))
     rn (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  pacc = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) pacc
-    rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            pacc = rJS [x2,rb,x3] (rop i (rJS [f,lb,v,x1] pacc))
+    rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            pacc = rJS [x2,rb,x3] (rbop i (rJS [f,lb,v,x1] pacc))
     rn (JSFunction             JSNoAnnot f x1 lb x2s rb x3)               pacc = rJS ([f,x1,lb]++x2s++[rb,x3]) pacc
     rn (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              pacc = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,x3]) pacc
     rn (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              pacc = rJS ([i,lb,x1,rb]++x2s++x3s) pacc
@@ -95,7 +95,7 @@ instance RenderJS JSNode where
     rn (JSSwitch               JSNoAnnot s lb x rb x2)                    pacc = rJS [s,lb,x,rb,x2] pacc
     rn (JSThrow                JSNoAnnot t x)                             pacc = rJS [t,x] pacc
     rn (JSTry                  JSNoAnnot t x1 x2s)                        pacc = rJS ([t,x1]++x2s) pacc
-    rn (JSUnary                JSNoAnnot n)                               pacc = rJS [n] pacc
+    rn (JSUnary                uop)                                       pacc = ruop uop pacc
     rn (JSVarDecl              JSNoAnnot x1 x2s)                          pacc = rJS (x1:x2s) pacc
     rn (JSVariables            JSNoAnnot n xs as)                         pacc = rJS ([n]++xs++[as]) pacc
     rn (JSWhile                JSNoAnnot w lb x1 rb x2)                   pacc = rJS [w,lb,x1,rb,x2] pacc
@@ -153,33 +153,45 @@ goto (TokenPn _ ltgt ctgt) (PA (lcur,ccur) bb) = PA (lnew,cnew) (bb <> bb')
 rJS :: [JSNode] -> PosAccum -> PosAccum
 rJS xs pacc = foldl' (flip rn) pacc xs
 
-rop :: JSBinOp -> PosAccum -> PosAccum
-rop (JSBinOpAnd        (JSAnnot p cs))  pacc = rcs cs p "&&" pacc
-rop (JSBinOpBitAnd     (JSAnnot p cs))  pacc = rcs cs p "&"  pacc
-rop (JSBinOpBitOr      (JSAnnot p cs))  pacc = rcs cs p "|"  pacc
-rop (JSBinOpBitXor     (JSAnnot p cs))  pacc = rcs cs p "^"  pacc
-rop (JSBinOpDivide     (JSAnnot p cs))  pacc = rcs cs p "/"  pacc
-rop (JSBinOpEq         (JSAnnot p cs))  pacc = rcs cs p "==" pacc
-rop (JSBinOpGe         (JSAnnot p cs))  pacc = rcs cs p ">=" pacc
-rop (JSBinOpGt         (JSAnnot p cs))  pacc = rcs cs p ">"  pacc
-rop (JSBinOpIn         (JSAnnot p cs))  pacc = rcs cs p "in" pacc
-rop (JSBinOpInstanceOf (JSAnnot p cs))  pacc = rcs cs p "instanceof" pacc
-rop (JSBinOpLe         (JSAnnot p cs))  pacc = rcs cs p "<=" pacc
-rop (JSBinOpLsh        (JSAnnot p cs))  pacc = rcs cs p "<<" pacc
-rop (JSBinOpLt         (JSAnnot p cs))  pacc = rcs cs p "<"  pacc
-rop (JSBinOpMinus      (JSAnnot p cs))  pacc = rcs cs p "-"  pacc
-rop (JSBinOpMod        (JSAnnot p cs))  pacc = rcs cs p "%"  pacc
-rop (JSBinOpNeq        (JSAnnot p cs))  pacc = rcs cs p "!=" pacc
-rop (JSBinOpOr         (JSAnnot p cs))  pacc = rcs cs p "||" pacc
-rop (JSBinOpPlus       (JSAnnot p cs))  pacc = rcs cs p "+"  pacc
-rop (JSBinOpRsh        (JSAnnot p cs))  pacc = rcs cs p ">>"  pacc
-rop (JSBinOpStrictEq   (JSAnnot p cs))  pacc = rcs cs p "===" pacc
-rop (JSBinOpStrictNeq  (JSAnnot p cs))  pacc = rcs cs p "!==" pacc
-rop (JSBinOpTimes      (JSAnnot p cs))  pacc = rcs cs p "*"   pacc
-rop (JSBinOpUrsh       (JSAnnot p cs))  pacc = rcs cs p ">>>" pacc
+rbop :: JSBinOp -> PosAccum -> PosAccum
+rbop (JSBinOpAnd        (JSAnnot p cs))  pacc = rcs cs p "&&" pacc
+rbop (JSBinOpBitAnd     (JSAnnot p cs))  pacc = rcs cs p "&"  pacc
+rbop (JSBinOpBitOr      (JSAnnot p cs))  pacc = rcs cs p "|"  pacc
+rbop (JSBinOpBitXor     (JSAnnot p cs))  pacc = rcs cs p "^"  pacc
+rbop (JSBinOpDivide     (JSAnnot p cs))  pacc = rcs cs p "/"  pacc
+rbop (JSBinOpEq         (JSAnnot p cs))  pacc = rcs cs p "==" pacc
+rbop (JSBinOpGe         (JSAnnot p cs))  pacc = rcs cs p ">=" pacc
+rbop (JSBinOpGt         (JSAnnot p cs))  pacc = rcs cs p ">"  pacc
+rbop (JSBinOpIn         (JSAnnot p cs))  pacc = rcs cs p "in" pacc
+rbop (JSBinOpInstanceOf (JSAnnot p cs))  pacc = rcs cs p "instanceof" pacc
+rbop (JSBinOpLe         (JSAnnot p cs))  pacc = rcs cs p "<=" pacc
+rbop (JSBinOpLsh        (JSAnnot p cs))  pacc = rcs cs p "<<" pacc
+rbop (JSBinOpLt         (JSAnnot p cs))  pacc = rcs cs p "<"  pacc
+rbop (JSBinOpMinus      (JSAnnot p cs))  pacc = rcs cs p "-"  pacc
+rbop (JSBinOpMod        (JSAnnot p cs))  pacc = rcs cs p "%"  pacc
+rbop (JSBinOpNeq        (JSAnnot p cs))  pacc = rcs cs p "!=" pacc
+rbop (JSBinOpOr         (JSAnnot p cs))  pacc = rcs cs p "||" pacc
+rbop (JSBinOpPlus       (JSAnnot p cs))  pacc = rcs cs p "+"  pacc
+rbop (JSBinOpRsh        (JSAnnot p cs))  pacc = rcs cs p ">>"  pacc
+rbop (JSBinOpStrictEq   (JSAnnot p cs))  pacc = rcs cs p "===" pacc
+rbop (JSBinOpStrictNeq  (JSAnnot p cs))  pacc = rcs cs p "!==" pacc
+rbop (JSBinOpTimes      (JSAnnot p cs))  pacc = rcs cs p "*"   pacc
+rbop (JSBinOpUrsh       (JSAnnot p cs))  pacc = rcs cs p ">>>" pacc
 
+rbop op _ = error $ "rbop : " ++ show op
 
-rop op _ = error $ "rop : " ++ show op
+ruop :: JSUnaryOp -> PosAccum -> PosAccum
+ruop (JSUnaryOpDecr   (JSAnnot p cs)) pacc = rcs cs p "--"     pacc
+ruop (JSUnaryOpDelete (JSAnnot p cs)) pacc = rcs cs p "delete" pacc
+ruop (JSUnaryOpIncr   (JSAnnot p cs)) pacc = rcs cs p "++"     pacc
+ruop (JSUnaryOpMinus  (JSAnnot p cs)) pacc = rcs cs p "-"      pacc
+ruop (JSUnaryOpNot    (JSAnnot p cs)) pacc = rcs cs p "!"      pacc
+ruop (JSUnaryOpPlus   (JSAnnot p cs)) pacc = rcs cs p "+"      pacc
+ruop (JSUnaryOpTilde  (JSAnnot p cs)) pacc = rcs cs p "~"      pacc
+ruop (JSUnaryOpTypeof (JSAnnot p cs)) pacc = rcs cs p "typeof" pacc
+ruop (JSUnaryOpVoid   (JSAnnot p cs)) pacc = rcs cs p "void"   pacc
+
+ruop op _ = error $ "ruop : " ++ show op
 
 -- EOF
 

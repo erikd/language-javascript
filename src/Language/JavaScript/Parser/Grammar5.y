@@ -163,20 +163,20 @@ Semi : ';' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ";")}
 Dot :: { AST.JSNode }
 Dot : '.' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ".")}
 
-Increment :: { AST.JSNode }
-Increment : '++' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "++")}
+Increment :: { AST.JSUnaryOp }
+Increment : '++' { AST.JSUnaryOpIncr (AST.JSAnnot (ss $1) (gc $1)) }
 
-Decrement :: { AST.JSNode }
-Decrement : '--' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "--")}
+Decrement :: { AST.JSUnaryOp }
+Decrement : '--' { AST.JSUnaryOpDecr (AST.JSAnnot (ss $1) (gc $1)) }
 
-Delete :: { AST.JSNode }
-Delete : 'delete' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "delete")}
+Delete :: { AST.JSUnaryOp }
+Delete : 'delete' { AST.JSUnaryOpDelete (AST.JSAnnot (ss $1) (gc $1)) }
 
-Void :: { AST.JSNode }
-Void : 'void' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "void")}
+Void :: { AST.JSUnaryOp }
+Void : 'void' { AST.JSUnaryOpVoid (AST.JSAnnot (ss $1) (gc $1)) }
 
-Typeof :: { AST.JSNode }
-Typeof : 'typeof' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "typeof")}
+Typeof :: { AST.JSUnaryOp }
+Typeof : 'typeof' { AST.JSUnaryOpTypeof (AST.JSAnnot (ss $1) (gc $1)) }
 
 Plus :: { AST.JSBinOp }
 Plus : '+' { AST.JSBinOpPlus (AST.JSAnnot (ss $1) (gc $1)) }
@@ -184,11 +184,11 @@ Plus : '+' { AST.JSBinOpPlus (AST.JSAnnot (ss $1) (gc $1)) }
 Minus :: { AST.JSBinOp }
 Minus : '-' { AST.JSBinOpMinus (AST.JSAnnot (ss $1) (gc $1)) }
 
-Tilde :: { AST.JSNode }
-Tilde : '~' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "~")}
+Tilde :: { AST.JSUnaryOp }
+Tilde : '~' { AST.JSUnaryOpTilde (AST.JSAnnot (ss $1) (gc $1)) }
 
-Not :: { AST.JSNode }
-Not : '!' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "!")}
+Not :: { AST.JSUnaryOp }
+Not : '!' { AST.JSUnaryOpNot (AST.JSAnnot (ss $1) (gc $1)) }
 
 Mul :: { AST.JSBinOp }
 Mul : '*' { AST.JSBinOpTimes (AST.JSAnnot (ss $1) (gc $1)) }
@@ -559,8 +559,8 @@ LeftHandSideExpression : NewExpression  { $1 {- LeftHandSideExpression1 -}}
 --        LeftHandSideExpression                             --
 PostfixExpression :: { [AST.JSNode] }
 PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
-                  | PostfixExpression Increment {[fp (AST.JSExpressionPostfix AST.JSNoAnnot {- ++ -} $1 $2)]}
-                  | PostfixExpression Decrement {[fp (AST.JSExpressionPostfix AST.JSNoAnnot {- -- -} $1 $2)]}
+                  | PostfixExpression Increment {[fp (AST.JSExpressionPostfix AST.JSNoAnnot $1 $2)]}
+                  | PostfixExpression Decrement {[fp (AST.JSExpressionPostfix AST.JSNoAnnot $1 $2)]}
 
 -- UnaryExpression :                                            See 11.4
 --        PostfixExpression
@@ -575,15 +575,15 @@ PostfixExpression : LeftHandSideExpression { $1 {- PostfixExpression -} }
 --        ! UnaryExpression
 UnaryExpression :: { [AST.JSNode] }
 UnaryExpression : PostfixExpression { $1 {- UnaryExpression -} }
-                | Delete    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- delete -} $1)):$2)}
-                | Void      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- void -}   $1)):$2)}
-                | Typeof    UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- typeof -} $1)):$2)}
-                | Increment UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ++ -}     $1)):$2)}
-                | Decrement UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- -- -}     $1)):$2)}
-                | Plus      UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- + -}      (mkUnary $1))):$2)}
-                | Minus     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- - -}      (mkUnary $1))):$2)}
-                | Tilde     UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ~ -}      $1)):$2)}
-                | Not       UnaryExpression { ((fp (AST.JSUnary AST.JSNoAnnot {- ! -}      $1)):$2)}
+                | Delete    UnaryExpression { ((AST.JSUnary $1):$2) }
+                | Void      UnaryExpression { ((AST.JSUnary $1):$2) }
+                | Typeof    UnaryExpression { ((AST.JSUnary $1):$2) }
+                | Increment UnaryExpression { ((AST.JSUnary $1):$2) }
+                | Decrement UnaryExpression { ((AST.JSUnary $1):$2) }
+                | Plus      UnaryExpression { ((AST.JSUnary (mkUnary $1)):$2) }
+                | Minus     UnaryExpression { ((AST.JSUnary (mkUnary $1)):$2) }
+                | Tilde     UnaryExpression { ((AST.JSUnary $1):$2) }
+                | Not       UnaryExpression { ((AST.JSUnary $1):$2) }
 
 -- MultiplicativeExpression :                                   See 11.5
 --        UnaryExpression
@@ -1154,9 +1154,9 @@ mgc xs = concatMap gc xs
 fp :: AST.JSNode -> AST.JSNode
 fp = id
 
-mkUnary :: AST.JSBinOp -> AST.JSNode
-mkUnary (AST.JSBinOpMinus annot) = fp (AST.JSLiteral annot "-")
-mkUnary (AST.JSBinOpPlus  annot) = fp (AST.JSLiteral annot "+")
+mkUnary :: AST.JSBinOp -> AST.JSUnaryOp
+mkUnary (AST.JSBinOpMinus annot) = AST.JSUnaryOpMinus annot
+mkUnary (AST.JSBinOpPlus  annot) = AST.JSUnaryOpPlus  annot
 
 mkUnary x = error $ "Invalid unary op : " ++ show x
 
