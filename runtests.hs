@@ -737,6 +737,8 @@ commentPrintSuite = testGroup "Comments"
    -- https://github.com/alanz/language-javascript/issues/15
    , testCase "issue15" (testRoundTrip "x\t=1;")
 
+   , testCase "comment-only" (testRoundTrip "// comment\n\n")
+   , testCase "empty-src" (testRoundTrip "")
    ]
 
 -- ---------------------------------------------------------------------
