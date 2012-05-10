@@ -62,8 +62,8 @@ instance RenderJS JSNode where
 
     -- Non-Terminals
     (|>) pacc (JSArguments            lb xs rb)                                  = pacc |> lb |> xs |> rb
-    (|>) pacc (JSArrayLiteral         JSNoAnnot lb xs rb)                        = pacc |> lb |> xs |> rb
-    (|>) pacc (JSBlock                JSNoAnnot lb x rb)                         = pacc |> lb |> x |> rb
+    (|>) pacc (JSArrayLiteral         lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSBlock                lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSBreak                JSNoAnnot b x1s as)                        = pacc |> b |> x1s |> as
     (|>) pacc (JSCallExpression       JSNoAnnot _s os xs cs)                     = pacc |> os |> xs |> cs
     (|>) pacc (JSCallExpressionDot    JSNoAnnot _s os xs)                        = pacc |> os |> xs
@@ -211,28 +211,6 @@ instance RenderJS JSRSquare where
 instance RenderJS JSSemi where
     (|>) pacc (JSSemi annot) = pacc |> annot |> ";"
     (|>) pacc (JSSemiAuto) = pacc
-
-
--- TODO: The following should not be necessary.
-instance RenderJS [JSLBrace] where
-    (|>) pacc [] = pacc
-    (|>) pacc [JSLBrace annot] = pacc |> annot |> "{"
-    (|>) _ _ = error "RenderJS [JSLBrace]"
-
-instance RenderJS [JSRBrace] where
-    (|>) pacc [] = pacc
-    (|>) pacc [JSRBrace annot] = pacc |> annot |> "}"
-    (|>) _ _ = error "RenderJS [JSRBrace]"
-
-instance RenderJS [JSLSquare] where
-    (|>) pacc [] = pacc
-    (|>) pacc [JSLSquare annot] = pacc |> annot |> "["
-    (|>) _ _ = error "RenderJS [JSLSquare]"
-
-instance RenderJS [JSRSquare] where
-    (|>) pacc [] = pacc
-    (|>) pacc [JSRSquare annot] = pacc |> annot |> "]"
-    (|>) _ _ = error "RenderJS [JSRSquare]"
 
 -- EOF
 

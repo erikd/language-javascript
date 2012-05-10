@@ -426,11 +426,11 @@ IdentifierName : Identifier {$1}
 --        [ ElementList ]
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSNode }
-ArrayLiteral : LSquare RSquare                           { fp (AST.JSArrayLiteral AST.JSNoAnnot $1 [] $2)}
-             | LSquare Elision RSquare                   { fp (AST.JSArrayLiteral AST.JSNoAnnot $1 $2 $3)}
-             | LSquare ElementList RSquare               { fp (AST.JSArrayLiteral AST.JSNoAnnot $1 $2 $3)}
-             | LSquare ElementList Comma Elision RSquare { fp (AST.JSArrayLiteral AST.JSNoAnnot $1 ($2++[$3]++$4) $5)}
-             | LSquare ElementList Comma RSquare         { fp (AST.JSArrayLiteral AST.JSNoAnnot $1 ($2++[$3])     $4)}
+ArrayLiteral : LSquare RSquare                           { AST.JSArrayLiteral $1 [] $2 }
+             | LSquare Elision RSquare                   { AST.JSArrayLiteral $1 $2 $3 }
+             | LSquare ElementList RSquare               { AST.JSArrayLiteral $1 $2 $3 }
+             | LSquare ElementList Comma Elision RSquare { AST.JSArrayLiteral $1 ($2++[$3]++$4) $5 }
+             | LSquare ElementList Comma RSquare         { AST.JSArrayLiteral $1 ($2++[$3])     $4 }
 
 
 
@@ -844,14 +844,14 @@ StatementNoEmpty : StatementBlock      { $1 {- StatementNoEmpty1 -}}
 
 
 StatementBlock :: { AST.JSNode }
-StatementBlock : LBrace RBrace               { fp (AST.JSBlock AST.JSNoAnnot [$1] [] [$2]) }
-               | LBrace StatementList RBrace { fp (AST.JSBlock AST.JSNoAnnot [$1] $2 [$3]) }
+StatementBlock : LBrace RBrace               { AST.JSBlock $1 [] $2 }
+               | LBrace StatementList RBrace { AST.JSBlock $1 $2 $3 }
 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
 Block :: { AST.JSNode }
-Block : LBrace RBrace               { fp (AST.JSBlock AST.JSNoAnnot [$1] [] [$2]) }
-      | LBrace StatementList RBrace { fp (AST.JSBlock AST.JSNoAnnot [$1] $2 [$3]) }
+Block : LBrace RBrace               { AST.JSBlock $1 [] $2 }
+      | LBrace StatementList RBrace { AST.JSBlock $1 $2 $3 }
 
 -- StatementList :                                                See 12.1
 --         Statement
@@ -989,8 +989,8 @@ SwitchStatement : Switch LParen Expression RParen CaseBlock { (AST.JSSwitch AST.
 --         { CaseClausesopt }
 --         { CaseClausesopt DefaultClause CaseClausesopt }
 CaseBlock :: { AST.JSNode }
-CaseBlock : LBrace CaseClausesOpt RBrace                              { fp (AST.JSBlock AST.JSNoAnnot [$1] $2             [$3]){- CaseBlock1 -}}
-          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { fp (AST.JSBlock AST.JSNoAnnot [$1] ($2++[$3]++$4) [$5]){- CaseBlock2 -}}
+CaseBlock : LBrace CaseClausesOpt RBrace                              { AST.JSBlock $1 $2             $3 {- CaseBlock1 -}}
+          | LBrace CaseClausesOpt DefaultClause CaseClausesOpt RBrace { AST.JSBlock $1 ($2++[$3]++$4) $5 {- CaseBlock2 -}}
 
 -- CaseClauses :                                                                            See 12.11
 --         CaseClause
@@ -1088,8 +1088,8 @@ FormalParameterList : Identifier                            { [$1] {- FormalPara
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
 FunctionBody :: { AST.JSNode }
-FunctionBody : LBrace SourceElements RBrace { (AST.JSBlock AST.JSNoAnnot [$1] $2 [$3]) }
-             | LBrace                RBrace { (AST.JSBlock AST.JSNoAnnot [$1] [] [$2]) }
+FunctionBody : LBrace SourceElements RBrace { AST.JSBlock $1 $2 $3 }
+             | LBrace                RBrace { AST.JSBlock $1 [] $2 }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt

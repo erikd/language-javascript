@@ -117,8 +117,8 @@ data JSNode =
               | JSUnary JSUnaryOp
 
               | JSArguments JSLParen [JSNode] JSRParen    -- ^lb, args, rb
-              | JSArrayLiteral JSAnnot JSLSquare [JSNode] JSRSquare -- ^lb, contents, rb
-              | JSBlock JSAnnot [JSLBrace] [JSNode] [JSRBrace]      -- ^optional lb,optional block statements,optional rb
+              | JSArrayLiteral JSLSquare [JSNode] JSRSquare -- ^lb, contents, rb
+              | JSBlock JSLBrace [JSNode] JSRBrace      -- ^optional lb,optional block statements,optional rb
               | JSBreak JSAnnot JSNode [JSNode] JSSemi        -- ^break, optional identifier, autosemi
               | JSCallExpression JSAnnot String [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCallExpressionDot JSAnnot String JSNode [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
@@ -167,8 +167,8 @@ showStripped = ss
 
 ss :: JSNode -> String
 ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
-ss (JSArrayLiteral _ _lb xs _rb) = "JSArrayLiteral " ++ sss xs
-ss (JSBlock _ _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
+ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
+ss (JSBlock _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
 ss (JSBreak _ _b x1s s) = "JSBreak " ++ sss x1s ++ " " ++ showsemi s
 ss (JSCallExpression _ s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
 ss (JSCallExpressionDot _ s _os xs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
