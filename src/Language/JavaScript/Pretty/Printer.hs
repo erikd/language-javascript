@@ -103,7 +103,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSVarDecl              JSNoAnnot x1 x2s)                          = pacc |> x1 |> x2s
     (|>) pacc (JSVariables            JSNoAnnot n xs as)                         = pacc |> n |> xs |> as
     (|>) pacc (JSWhile                JSNoAnnot w lb x1 rb x2)                   = pacc |> w |> lb |> x1 |> rb |> x2
-    (|>) pacc (JSWith                 JSNoAnnot w lb x1 rb x2s)                  = pacc |> w |> lb |> x1 |> rb |> x2s
+    (|>) pacc (JSWith                 JSNoAnnot w lb x1 rb x s)                  = pacc |> w |> lb |> x1 |> rb |> x |> s
 
     -- Debug helper
     (|>) pacc what = pacc |> ("X " ++ show what ++ " X")
@@ -207,6 +207,10 @@ instance RenderJS JSLSquare where
 
 instance RenderJS JSRSquare where
     (|>) pacc (JSRSquare annot) = pacc |> annot |> "]"
+
+instance RenderJS JSSemi where
+    (|>) pacc (JSSemi annot) = pacc |> annot |> ";"
+    (|>) pacc (JSSemiAuto) = pacc
 
 
 -- TODO: The following should not be necessary.

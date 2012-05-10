@@ -11,6 +11,7 @@ module Language.JavaScript.Parser.AST
          , JSRBrace (..)
          , JSLSquare (..)
          , JSRSquare (..)
+         , JSSemi (..)
          , showStripped
        ) where
 
@@ -91,6 +92,11 @@ data JSRSquare
     = JSRSquare JSAnnot
     deriving (Show, Eq, Read, Data, Typeable)
 
+data JSSemi
+    = JSSemi JSAnnot
+    | JSSemiAuto
+    deriving (Show, Eq, Read, Data, Typeable)
+
 
 -- |The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
@@ -113,15 +119,15 @@ data JSNode =
               | JSArguments JSLParen [JSNode] JSRParen    -- ^lb, args, rb
               | JSArrayLiteral JSAnnot JSLSquare [JSNode] JSRSquare -- ^lb, contents, rb
               | JSBlock JSAnnot [JSLBrace] [JSNode] [JSRBrace]      -- ^optional lb,optional block statements,optional rb
-              | JSBreak JSAnnot JSNode [JSNode] JSNode        -- ^break, optional identifier, autosemi
+              | JSBreak JSAnnot JSNode [JSNode] JSSemi        -- ^break, optional identifier, autosemi
               | JSCallExpression JSAnnot String [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCallExpressionDot JSAnnot String JSNode [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCallExpressionSquare JSAnnot String JSLSquare [JSNode] JSRSquare  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCase JSAnnot JSNode JSNode JSNode [JSNode]    -- ^case,expr,colon,stmtlist
               | JSCatch JSAnnot JSNode JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
-              | JSContinue JSAnnot JSNode [JSNode] JSNode     -- ^continue,optional identifier,autosemi
+              | JSContinue JSAnnot JSNode [JSNode] JSSemi     -- ^continue,optional identifier,autosemi
               | JSDefault JSAnnot JSNode JSNode [JSNode] -- ^default,colon,stmtlist
-              | JSDoWhile JSAnnot JSNode JSNode JSNode JSLParen JSNode JSRParen JSNode -- ^do,stmt,while,lb,expr,rb,autosemi
+              | JSDoWhile JSAnnot JSNode JSNode JSNode JSLParen JSNode JSRParen JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
               | JSElision JSAnnot JSNode               -- ^comma
               | JSExpression JSAnnot [JSNode]          -- ^expression components
               | JSExpressionBinary JSAnnot [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
@@ -143,16 +149,16 @@ data JSNode =
               | JSOperator JSAnnot JSNode -- ^opnode
               | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode -- ^(get|set), name, lb, params, rb, block
               | JSPropertyNameandValue JSAnnot JSNode JSNode [JSNode] -- ^name, colon, value
-              | JSReturn JSAnnot JSNode [JSNode] JSNode -- ^return,optional expression,autosemi
+              | JSReturn JSAnnot JSNode [JSNode] JSSemi -- ^return,optional expression,autosemi
 
               | JSSourceElementsTop JSAnnot [JSNode] -- ^source elements
               | JSSwitch JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^switch,lb,expr,rb,caseblock
               | JSThrow JSAnnot JSNode JSNode -- ^throw val
               | JSTry JSAnnot JSNode JSNode [JSNode] -- ^try,block,rest
               | JSVarDecl JSAnnot JSNode [JSNode] -- ^identifier, optional initializer
-              | JSVariables JSAnnot JSNode [JSNode] JSNode -- ^var|const, decl, autosemi
+              | JSVariables JSAnnot JSNode [JSNode] JSSemi -- ^var|const, decl, autosemi
               | JSWhile JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
-              | JSWith JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] -- ^with,lb,expr,rb,stmt list
+              | JSWith JSAnnot JSNode JSLParen JSNode JSRParen JSNode JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Show, Eq, Read, Data, Typeable)
 
 -- Strip out the location info, leaving the original JSNode text representation
@@ -163,16 +169,16 @@ ss :: JSNode -> String
 ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
 ss (JSArrayLiteral _ _lb xs _rb) = "JSArrayLiteral " ++ sss xs
 ss (JSBlock _ _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
-ss (JSBreak _ _b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as
+ss (JSBreak _ _b x1s s) = "JSBreak " ++ sss x1s ++ " " ++ showsemi s
 ss (JSCallExpression _ s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
 ss (JSCallExpressionDot _ s _os xs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
 ss (JSCallExpressionSquare _ s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
 ss (JSCase _ _ca x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ sss x2s ++ ")"
 ss (JSCatch _ _c _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
-ss (JSContinue _ _c xs as) = "JSContinue " ++ sss xs ++ " " ++ ss as
+ss (JSContinue _ _c xs s) = "JSContinue " ++ sss xs ++ " " ++ showsemi s
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
 ss (JSDefault _ _d _c xs) = "JSDefault (" ++ sss xs ++ ")"
-ss (JSDoWhile _ _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+ss (JSDoWhile _ _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression _ xs) = "JSExpression " ++ sss xs
 ss (JSExpressionBinary _ x2s op x3s) = "JSExpressionBinary " ++ sbop op ++ " " ++ sss x2s ++ " " ++ sss x3s
@@ -199,7 +205,7 @@ ss (JSOperator _ n) = "JSOperator " ++ ss n
 ss (JSPropertyNameandValue _ x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSPropertyAccessor _ s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
-ss (JSReturn _ _r xs as) = "JSReturn " ++ sss xs ++ " " ++ ss as
+ss (JSReturn _ _r xs s) = "JSReturn " ++ sss xs ++ " " ++ showsemi s
 ss (JSSourceElementsTop _ xs) = "JSSourceElementsTop " ++ sss xs
 ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSSwitch _ _s _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
@@ -209,10 +215,14 @@ ss (JSUnary op) = "JSUnary " ++ suop op
 ss (JSVarDecl _ x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSVariables _ n xs _as) = "JSVariables " ++ ss n ++ " " ++ sss xs
 ss (JSWhile _ _w _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
-ss (JSWith _ _w _lb x1 _rb x2s) = "JSWith (" ++ ss x1 ++ ") " ++ sss x2s
+ss (JSWith _ _w _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ ssss [x] s
 
 sss :: [JSNode] -> String
 sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
+
+ssss :: [JSNode] -> JSSemi -> String
+ssss xs s@JSSemi{} = "[" ++ (concat (intersperse "," ((map ss xs) ++ [showsemi s]))) ++ "]"
+ssss xs JSSemiAuto = sss xs
 
 -- The test suite expects operators to be double quoted.
 sbop :: JSBinOp -> String
@@ -257,6 +267,8 @@ showuop (JSUnaryOpTilde _) = "~"
 showuop (JSUnaryOpTypeof _) = "typeof "
 showuop (JSUnaryOpVoid _) = "void "
 
-
+showsemi :: JSSemi -> String
+showsemi (JSSemi _) = "JSLiteral \";\""
+showsemi JSSemiAuto = ""
 
 -- EOF

@@ -123,9 +123,9 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- ---------------------------------------------------------------------
 -- Sort out automatically inserted semi-colons
 
-AutoSemi :: { AST.JSNode }
-AutoSemi : ';' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ";" }
-         |     { AST.JSLiteral AST.JSNoAnnot "" }
+AutoSemi :: { AST.JSSemi }
+AutoSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
+         |     { AST.JSSemiAuto }
 
 -- ---------------------------------------------------------------------
 
@@ -978,7 +978,7 @@ ReturnStatement : Return AutoSemi             { fp (AST.JSReturn AST.JSNoAnnot $
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement
 WithStatement :: { AST.JSNode }
-WithStatement : With LParen Expression RParen Statement AutoSemi  { fp (AST.JSWith AST.JSNoAnnot $1 $2 $3 $4 [$5,$6]) }
+WithStatement : With LParen Expression RParen Statement AutoSemi  { fp (AST.JSWith AST.JSNoAnnot $1 $2 $3 $4 $5 $6) }
 
 -- SwitchStatement :                                                                        See 12.11
 --         switch ( Expression ) CaseBlock
@@ -1155,6 +1155,9 @@ mgc xs = concatMap gc xs
 fp :: AST.JSNode -> AST.JSNode
 fp = id
 
+-- | mkUnary : The parser detects '+' and '-' as the binary version of these
+-- operator. This function converts from the binary version to the unary
+-- version.
 mkUnary :: AST.JSBinOp -> AST.JSUnaryOp
 mkUnary (AST.JSBinOpMinus annot) = AST.JSUnaryOpMinus annot
 mkUnary (AST.JSBinOpPlus  annot) = AST.JSUnaryOpPlus  annot
