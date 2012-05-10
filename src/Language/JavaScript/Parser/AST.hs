@@ -5,6 +5,8 @@ module Language.JavaScript.Parser.AST
          , JSAnnot (..)
          , JSBinOp (..)
          , JSUnaryOp (..)
+         , JSLParen (..)
+         , JSRParen (..)
          , showStripped
        ) where
 
@@ -61,6 +63,14 @@ data JSUnaryOp
     | JSUnaryOpVoid JSAnnot
     deriving (Show, Eq, Read, Data, Typeable)
 
+data JSLParen
+    = JSLParen JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
+data JSRParen
+    = JSRParen JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
 -- |The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
 -- (terminals) have a position 'TokenPosn', as well as an array of comments
@@ -77,49 +87,49 @@ data JSNode =
               | JSRegEx JSAnnot String
 
               -- | Non Terminals
+              | JSUnary JSUnaryOp
 
-              | JSArguments JSAnnot JSNode [JSNode] JSNode    -- ^lb, args, rb
+              | JSArguments JSLParen [JSNode] JSRParen    -- ^lb, args, rb
               | JSArrayLiteral JSAnnot JSNode [JSNode] JSNode -- ^lb, contents, rb
               | JSBlock JSAnnot [JSNode] [JSNode] [JSNode]      -- ^optional lb,optional block statements,optional rb
               | JSBreak JSAnnot JSNode [JSNode] JSNode        -- ^break, optional identifier, autosemi
               | JSCallExpression JSAnnot String [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCase JSAnnot JSNode JSNode JSNode [JSNode]    -- ^case,expr,colon,stmtlist
-              | JSCatch JSAnnot JSNode JSNode JSNode [JSNode] JSNode JSNode -- ^ catch,lb,ident,[if,expr],rb,block
+              | JSCatch JSAnnot JSNode JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
               | JSContinue JSAnnot JSNode [JSNode] JSNode     -- ^continue,optional identifier,autosemi
               | JSDefault JSAnnot JSNode JSNode [JSNode] -- ^default,colon,stmtlist
-              | JSDoWhile JSAnnot JSNode JSNode JSNode JSNode JSNode JSNode JSNode -- ^do,stmt,while,lb,expr,rb,autosemi
+              | JSDoWhile JSAnnot JSNode JSNode JSNode JSLParen JSNode JSRParen JSNode -- ^do,stmt,while,lb,expr,rb,autosemi
               | JSElision JSAnnot JSNode               -- ^comma
               | JSExpression JSAnnot [JSNode]          -- ^expression components
               | JSExpressionBinary JSAnnot [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
-              | JSExpressionParen JSAnnot JSNode JSNode JSNode -- ^lb,expression,rb
+              | JSExpressionParen JSAnnot JSLParen JSNode JSRParen -- ^lb,expression,rb
               | JSExpressionPostfix JSAnnot [JSNode] JSUnaryOp -- ^expression, operator
               | JSExpressionTernary JSAnnot [JSNode] JSNode [JSNode] JSNode [JSNode] -- ^cond, ?, trueval, :, falseval
               | JSFinally JSAnnot JSNode JSNode -- ^finally,block
-              | JSFor JSAnnot JSNode JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSNode JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
-              | JSForIn JSAnnot JSNode JSNode [JSNode] JSBinOp JSNode JSNode JSNode -- ^for,lb,expr,in,expr,rb,stmt
-              | JSForVar JSAnnot JSNode JSNode JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSNode JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
-              | JSForVarIn JSAnnot JSNode JSNode JSNode JSNode JSBinOp JSNode JSNode JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
-              | JSFunction JSAnnot JSNode JSNode JSNode [JSNode] JSNode JSNode  -- ^fn,name, lb,parameter list,rb,block
-              | JSFunctionExpression JSAnnot JSNode [JSNode] JSNode [JSNode] JSNode JSNode  -- ^fn,[name],lb, parameter list,rb,block`
-              | JSIf JSAnnot JSNode JSNode JSNode JSNode [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
+              | JSFor JSAnnot JSNode JSLParen [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
+              | JSForIn JSAnnot JSNode JSLParen [JSNode] JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
+              | JSForVar JSAnnot JSNode JSLParen JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+              | JSForVarIn JSAnnot JSNode JSLParen JSNode JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
+              | JSFunction JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
+              | JSFunctionExpression JSAnnot JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
+              | JSIf JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
               | JSLabelled JSAnnot JSNode JSNode JSNode -- ^identifier,colon,stmt
               | JSMemberDot JSAnnot [JSNode] JSNode JSNode -- ^firstpart, dot, name
               | JSMemberSquare JSAnnot [JSNode] JSNode JSNode JSNode -- ^firstpart, lb, expr, rb
               | JSObjectLiteral JSAnnot JSNode [JSNode] JSNode -- ^lbrace contents rbrace
               | JSOperator JSAnnot JSNode -- ^opnode
-              | JSPropertyAccessor JSAnnot JSNode JSNode JSNode [JSNode] JSNode JSNode -- ^(get|set), name, lb, params, rb, block
+              | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode -- ^(get|set), name, lb, params, rb, block
               | JSPropertyNameandValue JSAnnot JSNode JSNode [JSNode] -- ^name, colon, value
               | JSReturn JSAnnot JSNode [JSNode] JSNode -- ^return,optional expression,autosemi
 
               | JSSourceElementsTop JSAnnot [JSNode] -- ^source elements
-              | JSSwitch JSAnnot JSNode JSNode JSNode JSNode JSNode -- ^switch,lb,expr,rb,caseblock
+              | JSSwitch JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^switch,lb,expr,rb,caseblock
               | JSThrow JSAnnot JSNode JSNode -- ^throw val
               | JSTry JSAnnot JSNode JSNode [JSNode] -- ^try,block,rest
-              | JSUnary JSUnaryOp
               | JSVarDecl JSAnnot JSNode [JSNode] -- ^identifier, optional initializer
               | JSVariables JSAnnot JSNode [JSNode] JSNode -- ^var|const, decl, autosemi
-              | JSWhile JSAnnot JSNode JSNode JSNode JSNode JSNode -- ^while,lb,expr,rb,stmt
-              | JSWith JSAnnot JSNode JSNode JSNode JSNode [JSNode] -- ^with,lb,expr,rb,stmt list
+              | JSWhile JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
+              | JSWith JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] -- ^with,lb,expr,rb,stmt list
     deriving (Show, Eq, Read, Data, Typeable)
 
 -- Strip out the location info, leaving the original JSNode text representation
@@ -127,7 +137,7 @@ showStripped :: JSNode -> String
 showStripped = ss
 
 ss :: JSNode -> String
-ss (JSArguments _ _lb xs _rb) = "JSArguments " ++ sss xs
+ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
 ss (JSArrayLiteral _ _lb xs _rb) = "JSArrayLiteral " ++ sss xs
 ss (JSBlock _ _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
 ss (JSBreak _ _b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as

@@ -131,11 +131,11 @@ AutoSemi : ';' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ";" }
 
 -- Helpers
 
-LParen :: { AST.JSNode }
-LParen : '(' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "(")}
+LParen :: { AST.JSLParen }
+LParen : '(' { AST.JSLParen (AST.JSAnnot (ss $1) (gc $1)) }
 
-RParen :: { AST.JSNode }
-RParen : ')' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ")")}
+RParen :: { AST.JSRParen }
+RParen : ')' { AST.JSRParen (AST.JSAnnot (ss $1) (gc $1)) }
 
 
 LBrace :: { AST.JSNode }
@@ -534,8 +534,8 @@ CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression 
 --        ()
 --        ( ArgumentList )
 Arguments :: { AST.JSNode }
-Arguments : LParen RParen               { fp (AST.JSArguments AST.JSNoAnnot $1 [] $2) }
-          | LParen ArgumentList RParen  { fp (AST.JSArguments AST.JSNoAnnot $1 $2 $3) }
+Arguments : LParen RParen               { fp (AST.JSArguments $1 [] $2) }
+          | LParen ArgumentList RParen  { fp (AST.JSArguments $1 $2 $3) }
 
 -- ArgumentList :                                               See 11.2
 --        AssignmentExpression
