@@ -138,18 +138,18 @@ RParen :: { AST.JSRParen }
 RParen : ')' { AST.JSRParen (AST.JSAnnot (ss $1) (gc $1)) }
 
 
-LBrace :: { AST.JSNode }
-LBrace : '{' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "{")}
+LBrace :: { AST.JSLBrace }
+LBrace : '{' { AST.JSLBrace (AST.JSAnnot (ss $1) (gc $1)) }
 
-RBrace :: { AST.JSNode }
-RBrace : '}' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "}")}
+RBrace :: { AST.JSRBrace }
+RBrace : '}' { AST.JSRBrace (AST.JSAnnot (ss $1) (gc $1)) }
 
 
-LSquare :: { AST.JSNode }
-LSquare : '[' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "[")}
+LSquare :: { AST.JSLSquare }
+LSquare : '[' { AST.JSLSquare (AST.JSAnnot (ss $1) (gc $1)) }
 
-RSquare :: { AST.JSNode }
-RSquare : ']' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "]")}
+RSquare :: { AST.JSRSquare }
+RSquare : ']' { AST.JSRSquare (AST.JSAnnot (ss $1) (gc $1)) }
 
 Comma :: { AST.JSNode }
 Comma : ',' { fp (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ",")}
@@ -527,8 +527,8 @@ NewExpression : MemberExpression    { $1 {- NewExpression -}}
 CallExpression :: { [AST.JSNode] }
 CallExpression : MemberExpression Arguments        { $1++[$2] {- CallExpression -} }
                | CallExpression Arguments          { ($1++[fp (AST.JSCallExpression AST.JSNoAnnot "()" [] [$2] [])]) }
-               | CallExpression LSquare Expression RSquare { ($1++[fp (AST.JSCallExpression AST.JSNoAnnot "[]" [$2] [$3] [$4])]) }
-               | CallExpression Dot IdentifierName { ($1++[fp (AST.JSCallExpression AST.JSNoAnnot "."  [$2] [$3] [])]) }
+               | CallExpression LSquare Expression RSquare { ($1++[fp (AST.JSCallExpressionSquare AST.JSNoAnnot "[]" $2 [$3] $4)]) }
+               | CallExpression Dot IdentifierName { ($1++[ AST.JSCallExpressionDot AST.JSNoAnnot "."  $2 [$3] ]) }
 
 -- Arguments :                                                  See 11.2
 --        ()
@@ -1096,7 +1096,7 @@ FunctionBody : LBrace SourceElements RBrace { (AST.JSBlock AST.JSNoAnnot [$1] $2
 
 Program :: { AST.JSNode }
 Program : SourceElementsTop Eof { (combineTop $1 $2) {- Program -}}
-        | Eof                   { fp (AST.JSSourceElementsTop AST.JSNoAnnot [$1]) }
+        | Eof                   { AST.JSSourceElementsTop AST.JSNoAnnot [$1] }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSNode }

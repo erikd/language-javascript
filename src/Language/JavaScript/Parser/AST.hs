@@ -7,6 +7,10 @@ module Language.JavaScript.Parser.AST
          , JSUnaryOp (..)
          , JSLParen (..)
          , JSRParen (..)
+         , JSLBrace (..)
+         , JSRBrace (..)
+         , JSLSquare (..)
+         , JSRSquare (..)
          , showStripped
        ) where
 
@@ -71,6 +75,23 @@ data JSRParen
     = JSRParen JSAnnot
     deriving (Show, Eq, Read, Data, Typeable)
 
+data JSLBrace
+    = JSLBrace JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
+data JSRBrace
+    = JSRBrace JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
+data JSLSquare
+    = JSLSquare JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
+data JSRSquare
+    = JSRSquare JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
+
 -- |The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
 -- (terminals) have a position 'TokenPosn', as well as an array of comments
@@ -90,10 +111,12 @@ data JSNode =
               | JSUnary JSUnaryOp
 
               | JSArguments JSLParen [JSNode] JSRParen    -- ^lb, args, rb
-              | JSArrayLiteral JSAnnot JSNode [JSNode] JSNode -- ^lb, contents, rb
-              | JSBlock JSAnnot [JSNode] [JSNode] [JSNode]      -- ^optional lb,optional block statements,optional rb
+              | JSArrayLiteral JSAnnot JSLSquare [JSNode] JSRSquare -- ^lb, contents, rb
+              | JSBlock JSAnnot [JSLBrace] [JSNode] [JSRBrace]      -- ^optional lb,optional block statements,optional rb
               | JSBreak JSAnnot JSNode [JSNode] JSNode        -- ^break, optional identifier, autosemi
               | JSCallExpression JSAnnot String [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
+              | JSCallExpressionDot JSAnnot String JSNode [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
+              | JSCallExpressionSquare JSAnnot String JSLSquare [JSNode] JSRSquare  -- ^type : ., (), []; opening [ or ., contents, closing
               | JSCase JSAnnot JSNode JSNode JSNode [JSNode]    -- ^case,expr,colon,stmtlist
               | JSCatch JSAnnot JSNode JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
               | JSContinue JSAnnot JSNode [JSNode] JSNode     -- ^continue,optional identifier,autosemi
@@ -115,8 +138,8 @@ data JSNode =
               | JSIf JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
               | JSLabelled JSAnnot JSNode JSNode JSNode -- ^identifier,colon,stmt
               | JSMemberDot JSAnnot [JSNode] JSNode JSNode -- ^firstpart, dot, name
-              | JSMemberSquare JSAnnot [JSNode] JSNode JSNode JSNode -- ^firstpart, lb, expr, rb
-              | JSObjectLiteral JSAnnot JSNode [JSNode] JSNode -- ^lbrace contents rbrace
+              | JSMemberSquare JSAnnot [JSNode] JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
+              | JSObjectLiteral JSAnnot JSLBrace [JSNode] JSRBrace -- ^lbrace contents rbrace
               | JSOperator JSAnnot JSNode -- ^opnode
               | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode -- ^(get|set), name, lb, params, rb, block
               | JSPropertyNameandValue JSAnnot JSNode JSNode [JSNode] -- ^name, colon, value
@@ -142,6 +165,8 @@ ss (JSArrayLiteral _ _lb xs _rb) = "JSArrayLiteral " ++ sss xs
 ss (JSBlock _ _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
 ss (JSBreak _ _b x1s as) = "JSBreak " ++ sss x1s ++ " " ++ ss as
 ss (JSCallExpression _ s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
+ss (JSCallExpressionDot _ s _os xs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
+ss (JSCallExpressionSquare _ s _os xs _cs) = "JSCallExpression " ++ show s ++ " " ++ sss xs
 ss (JSCase _ _ca x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ sss x2s ++ ")"
 ss (JSCatch _ _c _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSContinue _ _c xs as) = "JSContinue " ++ sss xs ++ " " ++ ss as

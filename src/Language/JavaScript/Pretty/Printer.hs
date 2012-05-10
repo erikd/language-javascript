@@ -66,6 +66,8 @@ instance RenderJS JSNode where
     (|>) pacc (JSBlock                JSNoAnnot lb x rb)                         = pacc |> lb |> x |> rb
     (|>) pacc (JSBreak                JSNoAnnot b x1s as)                        = pacc |> b |> x1s |> as
     (|>) pacc (JSCallExpression       JSNoAnnot _s os xs cs)                     = pacc |> os |> xs |> cs
+    (|>) pacc (JSCallExpressionDot    JSNoAnnot _s os xs)                        = pacc |> os |> xs
+    (|>) pacc (JSCallExpressionSquare JSNoAnnot _s os xs cs)                     = pacc |> os |> xs |> cs
     (|>) pacc (JSCase                 JSNoAnnot ca x1 c x2s)                     = pacc |> [ca,x1,c] |> x2s
     (|>) pacc (JSCatch                JSNoAnnot c lb x1 x2s rb x3)               = pacc |> c |> lb |> x1 |> x2s |> rb |> x3
     (|>) pacc (JSContinue             JSNoAnnot c xs as)                         = pacc |> c |> xs |> as
@@ -86,9 +88,8 @@ instance RenderJS JSNode where
     (|>) pacc (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
     (|>) pacc (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
     (|>) pacc (JSLabelled             JSNoAnnot l c v)                           = pacc |> [l,c,v]
-    (|>) pacc (JSLiteral              JSNoAnnot [])                              = pacc
     (|>) pacc (JSMemberDot            JSNoAnnot xs dot n)                        = pacc |> xs |> [dot,n]
-    (|>) pacc (JSMemberSquare         JSNoAnnot xs lb e rb)                      = pacc |> xs |> [lb,e,rb]
+    (|>) pacc (JSMemberSquare         JSNoAnnot xs lb e rb)                      = pacc |> xs |> lb |> e |> rb
     (|>) pacc (JSObjectLiteral        JSNoAnnot lb xs rb)                        = pacc |> lb |> xs |> rb
     (|>) pacc (JSOperator             JSNoAnnot n)                               = pacc |> n
     (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> [s,n] |> lb1 |> ps |> rb1 |> b
@@ -176,8 +177,6 @@ instance RenderJS JSBinOp where
     (|>) pacc (JSBinOpTimes      annot)  = pacc |> annot |> "*"
     (|>) pacc (JSBinOpUrsh       annot)  = pacc |> annot |> ">>>"
 
-    (|>) _ op = error $ "RenderJS JSBinOp : " ++ show op
-
 
 instance RenderJS JSUnaryOp where
     (|>) pacc (JSUnaryOpDecr   annot) = pacc |> annot |> "--"
@@ -190,15 +189,46 @@ instance RenderJS JSUnaryOp where
     (|>) pacc (JSUnaryOpTypeof annot) = pacc |> annot |> "typeof"
     (|>) pacc (JSUnaryOpVoid   annot) = pacc |> annot |> "void"
 
-    (|>) _ op = error $ "RenderJS JSUnaryOp : " ++ show op
-
-
 
 instance RenderJS JSLParen where
     (|>) pacc (JSLParen annot) = pacc |> annot |> "("
 
 instance RenderJS JSRParen where
     (|>) pacc (JSRParen annot) = pacc |> annot |> ")"
+
+instance RenderJS JSLBrace where
+    (|>) pacc (JSLBrace annot) = pacc |> annot |> "{"
+
+instance RenderJS JSRBrace where
+    (|>) pacc (JSRBrace annot) = pacc |> annot |> "}"
+
+instance RenderJS JSLSquare where
+    (|>) pacc (JSLSquare annot) = pacc |> annot |> "["
+
+instance RenderJS JSRSquare where
+    (|>) pacc (JSRSquare annot) = pacc |> annot |> "]"
+
+
+-- TODO: The following should not be necessary.
+instance RenderJS [JSLBrace] where
+    (|>) pacc [] = pacc
+    (|>) pacc [JSLBrace annot] = pacc |> annot |> "{"
+    (|>) _ _ = error "RenderJS [JSLBrace]"
+
+instance RenderJS [JSRBrace] where
+    (|>) pacc [] = pacc
+    (|>) pacc [JSRBrace annot] = pacc |> annot |> "}"
+    (|>) _ _ = error "RenderJS [JSRBrace]"
+
+instance RenderJS [JSLSquare] where
+    (|>) pacc [] = pacc
+    (|>) pacc [JSLSquare annot] = pacc |> annot |> "["
+    (|>) _ _ = error "RenderJS [JSLSquare]"
+
+instance RenderJS [JSRSquare] where
+    (|>) pacc [] = pacc
+    (|>) pacc [JSRSquare annot] = pacc |> annot |> "]"
+    (|>) _ _ = error "RenderJS [JSRSquare]"
 
 -- EOF
 
