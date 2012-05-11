@@ -65,20 +65,20 @@ instance RenderJS JSNode where
     (|>) pacc (JSArrayLiteral         lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSBlock                lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSBreak                annot x1s s)                               = pacc |> annot |> "break" |> x1s |> s
-    (|>) pacc (JSCallExpression       JSNoAnnot _s os xs cs)                     = pacc |> os |> xs |> cs
-    (|>) pacc (JSCallExpressionDot    JSNoAnnot _s os xs)                        = pacc |> os |> xs
-    (|>) pacc (JSCallExpressionSquare JSNoAnnot _s os xs cs)                     = pacc |> os |> xs |> cs
+    (|>) pacc (JSCallExpression       os xs cs)                                  = pacc |> os |> xs |> cs
+    (|>) pacc (JSCallExpressionDot    os xs)                                     = pacc |> os |> xs
+    (|>) pacc (JSCallExpressionSquare os xs cs)                                  = pacc |> os |> xs |> cs
     (|>) pacc (JSCase                 annot x1 c x2s)                            = pacc |> annot |> "case" |> x1 |> c |> x2s
     (|>) pacc (JSCatch                annot lb x1 x2s rb x3)                     = pacc |> annot |> "catch" |> lb |> x1 |> x2s |> rb |> x3
     (|>) pacc (JSContinue             annot xs s)                                = pacc |> annot |> "continue" |> xs |> s
     (|>) pacc (JSDefault              annot c xs)                                = pacc |> annot |> "default" |> c |> xs
     (|>) pacc (JSDoWhile              JSNoAnnot d x1 w lb x2 rb x3)              = pacc |> d |> x1 |> w |> lb |> x2 |> rb |> x3
     (|>) pacc (JSElision              JSNoAnnot c)                               = pacc |> c
-    (|>) pacc (JSExpression           JSNoAnnot xs)                              = pacc |> xs
-    (|>) pacc (JSExpressionBinary     JSNoAnnot lhs op rhs)                      = pacc |> lhs |> op |> rhs
-    (|>) pacc (JSExpressionParen      JSNoAnnot lb e rb)                         = pacc |> lb |> e |> rb
-    (|>) pacc (JSExpressionPostfix    JSNoAnnot xs op)                           = pacc |> xs |> op
-    (|>) pacc (JSExpressionTernary    JSNoAnnot cond h v1 c v2)                  = pacc |> cond |> h |> v1 |> c |> v2
+    (|>) pacc (JSExpression           xs)                                        = pacc |> xs
+    (|>) pacc (JSExpressionBinary     lhs op rhs)                                = pacc |> lhs |> op |> rhs
+    (|>) pacc (JSExpressionParen      lb e rb)                                   = pacc |> lb |> e |> rb
+    (|>) pacc (JSExpressionPostfix    xs op)                                     = pacc |> xs |> op
+    (|>) pacc (JSExpressionTernary    cond h v1 c v2)                            = pacc |> cond |> h |> v1 |> c |> v2
     (|>) pacc (JSFinally              annot x)                                   = pacc |> annot |> "finally" |> x
     (|>) pacc (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    = pacc |> f |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
     (|>) pacc (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
@@ -88,10 +88,10 @@ instance RenderJS JSNode where
     (|>) pacc (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
     (|>) pacc (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
     (|>) pacc (JSLabelled             JSNoAnnot l c v)                           = pacc |> l |> c |> v
-    (|>) pacc (JSMemberDot            JSNoAnnot xs dot n)                        = pacc |> xs |> dot |> n
-    (|>) pacc (JSMemberSquare         JSNoAnnot xs lb e rb)                      = pacc |> xs |> lb |> e |> rb
-    (|>) pacc (JSObjectLiteral        JSNoAnnot lb xs rb)                        = pacc |> lb |> xs |> rb
-    (|>) pacc (JSOperator             JSNoAnnot n)                               = pacc |> n
+    (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
+    (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
+    (|>) pacc (JSObjectLiteral        lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSOperator             n)                                         = pacc |> n
     (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
     (|>) pacc (JSPropertyNameandValue JSNoAnnot n colon vs)                      = pacc |> n |> colon |> vs
     (|>) pacc (JSReturn               annot xs s)                                = pacc |> annot |> "return" |> xs |> s
@@ -210,7 +210,7 @@ instance RenderJS JSRSquare where
 
 instance RenderJS JSSemi where
     (|>) pacc (JSSemi annot) = pacc |> annot |> ";"
-    (|>) pacc (JSSemiAuto) = pacc
+    (|>) pacc JSSemiAuto     = pacc
 
 -- EOF
 
