@@ -283,38 +283,38 @@ While : 'while' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "while" }
 For :: { AST.JSNode }
 For : 'for' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "for" }
 
-Continue :: { AST.JSNode }
-Continue : 'continue' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "continue" }
+Continue :: { [AST.JSNode] -> AST.JSSemi -> AST.JSNode }
+Continue : 'continue' { AST.JSContinue (AST.JSAnnot (ss $1) (gc $1)) }
 
-Break :: { AST.JSNode }
-Break : 'break' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "break" }
+Break :: { [AST.JSNode] -> AST.JSSemi -> AST.JSNode }
+Break : 'break' { AST.JSBreak (AST.JSAnnot (ss $1) (gc $1)) }
 
-Return :: { AST.JSNode }
-Return : 'return' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "return" }
+Return :: { [AST.JSNode] -> AST.JSSemi -> AST.JSNode }
+Return : 'return' { AST.JSReturn (AST.JSAnnot (ss $1) (gc $1)) }
 
-With :: { AST.JSNode }
-With : 'with' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "with" }
+With :: { AST.JSLParen -> AST.JSNode -> AST.JSRParen -> AST.JSNode -> AST.JSSemi -> AST.JSNode }
+With : 'with' { AST.JSWith (AST.JSAnnot (ss $1) (gc $1)) }
 
-Switch :: { AST.JSNode }
-Switch : 'switch' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "switch" }
+Switch :: { AST.JSLParen -> AST.JSNode -> AST.JSRParen -> AST.JSNode -> AST.JSNode }
+Switch : 'switch' { AST.JSSwitch (AST.JSAnnot (ss $1) (gc $1)) }
 
-Case :: { AST.JSNode }
-Case : 'case' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "case" }
+Case :: { AST.JSNode -> AST.JSNode -> [AST.JSNode] -> AST.JSNode }
+Case : 'case' { AST.JSCase (AST.JSAnnot (ss $1) (gc $1)) }
 
-Default :: { AST.JSNode }
-Default : 'default' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "default" }
+Default :: { AST.JSNode -> [AST.JSNode] -> AST.JSNode }
+Default : 'default' { AST.JSDefault (AST.JSAnnot (ss $1) (gc $1)) }
 
-Throw :: { AST.JSNode }
-Throw : 'throw' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "throw" }
+Throw :: { AST.JSNode -> AST.JSNode }
+Throw : 'throw' { AST.JSThrow (AST.JSAnnot (ss $1) (gc $1)) }
 
-Try :: { AST.JSNode }
-Try : 'try' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "try" }
+Try :: { AST.JSNode -> [AST.JSNode] -> AST.JSNode }
+Try : 'try' { AST.JSTry (AST.JSAnnot (ss $1) (gc $1)) }
 
-CatchL :: { AST.JSNode }
-CatchL : 'catch' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "catch" }
+CatchL :: { AST.JSLParen -> AST.JSNode -> [AST.JSNode] -> AST.JSRParen -> AST.JSNode -> AST.JSNode }
+CatchL : 'catch' { AST.JSCatch (AST.JSAnnot (ss $1) (gc $1)) }
 
-FinallyL :: { AST.JSNode }
-FinallyL : 'finally' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "finally" }
+FinallyL :: { AST.JSNode -> AST.JSNode }
+FinallyL : 'finally' { AST.JSFinally (AST.JSAnnot (ss $1) (gc $1)) }
 
 Function :: { AST.JSNode }
 Function : 'function' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "function" }
@@ -958,32 +958,32 @@ IterationStatement : Do Statement While LParen Expression RParen AutoSemi
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSNode }
-ContinueStatement : Continue AutoSemi             { AST.JSContinue AST.JSNoAnnot $1 []   $2 }
-                  | Continue Identifier AutoSemi  { AST.JSContinue AST.JSNoAnnot $1 [$2] $3 }
+ContinueStatement : Continue AutoSemi             { $1 []   $2 }
+                  | Continue Identifier AutoSemi  { $1 [$2] $3 }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSNode }
-BreakStatement : Break AutoSemi             { AST.JSBreak AST.JSNoAnnot $1 []   $2 }
-               | Break Identifier AutoSemi  { AST.JSBreak AST.JSNoAnnot $1 [$2] $3 }
+BreakStatement : Break AutoSemi             { $1 []   $2 }
+               | Break Identifier AutoSemi  { $1 [$2] $3 }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSNode }
-ReturnStatement : Return AutoSemi             { AST.JSReturn AST.JSNoAnnot $1 []   $2 }
-                | Return Expression AutoSemi  { AST.JSReturn AST.JSNoAnnot $1 [$2] $3 }
+ReturnStatement : Return AutoSemi             { $1 []   $2 }
+                | Return Expression AutoSemi  { $1 [$2] $3 }
 
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement
 WithStatement :: { AST.JSNode }
-WithStatement : With LParen Expression RParen Statement AutoSemi  { AST.JSWith AST.JSNoAnnot $1 $2 $3 $4 $5 $6 }
+WithStatement : With LParen Expression RParen Statement AutoSemi  { $1 $2 $3 $4 $5 $6 }
 
 -- SwitchStatement :                                                                        See 12.11
 --         switch ( Expression ) CaseBlock
 SwitchStatement :: { AST.JSNode }
-SwitchStatement : Switch LParen Expression RParen CaseBlock { (AST.JSSwitch AST.JSNoAnnot $1 $2 $3 $4 $5) }
+SwitchStatement : Switch LParen Expression RParen CaseBlock { $1 $2 $3 $4 $5 }
 
 -- CaseBlock :                                                                              See 12.11
 --         { CaseClausesopt }
@@ -1003,14 +1003,14 @@ CaseClausesOpt : CaseClause                { [$1] {- CaseClauses1 -}}
 -- CaseClause :                                                               See 12.11
 --        case Expression : StatementListopt
 CaseClause :: { AST.JSNode }
-CaseClause : Case Expression Colon StatementList  { AST.JSCase AST.JSNoAnnot $1 $2 $3 $4 }
-           | Case Expression Colon                { AST.JSCase AST.JSNoAnnot $1 $2 $3 [] }
+CaseClause : Case Expression Colon StatementList  { $1 $2 $3 $4 }
+           | Case Expression Colon                { $1 $2 $3 [] }
 
 -- DefaultClause :                                                            See 12.11
 --        default : StatementListopt
 DefaultClause :: { AST.JSNode }
-DefaultClause : Default Colon                { AST.JSDefault AST.JSNoAnnot $1 $2 [] }
-              | Default Colon StatementList  { AST.JSDefault AST.JSNoAnnot $1 $2 $3 }
+DefaultClause : Default Colon                { $1 $2 [] }
+              | Default Colon StatementList  { $1 $2 $3 }
 
 -- LabelledStatement :                                                        See 12.12
 --        Identifier : Statement
@@ -1022,7 +1022,7 @@ LabelledStatement : Identifier Colon Statement { AST.JSLabelled AST.JSNoAnnot $1
 -- TODO : sort out no LineTerminator here
 --        Does it need a semi at the end?
 ThrowStatement :: { AST.JSNode }
-ThrowStatement : Throw Expression { AST.JSThrow AST.JSNoAnnot $1 $2 }
+ThrowStatement : Throw Expression { $1 $2 }
 
 -- Note: worked in updated syntax as per https://developer.mozilla.org/en/JavaScript/Reference/Statements/try...catch
 --   i.e., 0 or more catches, then an optional finally
@@ -1031,9 +1031,9 @@ ThrowStatement : Throw Expression { AST.JSThrow AST.JSNoAnnot $1 $2 }
 --        try Block Finally
 --        try Block Catch Finally
 TryStatement :: { AST.JSNode }
-TryStatement : Try Block Catches         { AST.JSTry AST.JSNoAnnot $1 $2 $3         {- TryStatement1 -} }
-             | Try Block Finally         { AST.JSTry AST.JSNoAnnot $1 $2 [$3]       {- TryStatement2 -} }
-             | Try Block Catches Finally { AST.JSTry AST.JSNoAnnot $1 $2 ($3++[$4]) {- TryStatement3 -} }
+TryStatement : Try Block Catches         { $1 $2 $3         {- TryStatement1 -} }
+             | Try Block Finally         { $1 $2 [$3]       {- TryStatement2 -} }
+             | Try Block Catches Finally { $1 $2 ($3++[$4]) {- TryStatement3 -} }
 
 Catches :: { [AST.JSNode] }
 Catches : Catch         { [$1]       {- Catches 1 -} }
@@ -1045,13 +1045,13 @@ Catches : Catch         { [$1]       {- Catches 1 -} }
 -- <Catch> ::= 'catch' '(' Identifier ')' <Block>
 --           | 'catch' '(' Identifier 'if' ConditionalExpression ')' <Block>
 Catch :: { AST.JSNode }
-Catch : CatchL LParen Identifier                          RParen Block { AST.JSCatch AST.JSNoAnnot $1 $2 $3 [     ] $4 $5 }
-      | CatchL LParen Identifier If ConditionalExpression RParen Block { AST.JSCatch AST.JSNoAnnot $1 $2 $3 ($4:$5) $6 $7 }
+Catch : CatchL LParen Identifier                          RParen Block { $1 $2 $3 [     ] $4 $5 }
+      | CatchL LParen Identifier If ConditionalExpression RParen Block { $1 $2 $3 ($4:$5) $6 $7 }
 
 -- Finally :                                                                  See 12.14
 --        finally Block
 Finally :: { AST.JSNode }
-Finally : FinallyL Block { AST.JSFinally AST.JSNoAnnot $1 $2 }
+Finally : FinallyL Block { $1 $2 }
 
 -- DebuggerStatement :                                                        See 12.15
 --        debugger ;
