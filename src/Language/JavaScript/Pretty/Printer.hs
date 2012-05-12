@@ -37,7 +37,7 @@ str = BS.fromString
 renderJS :: JSNode -> Builder
 renderJS node = bb
   where
-    PA _ bb = (PA (1,1) empty) |> node
+    PA _ bb = PA (1,1) empty |> node
 
 
 renderToString :: JSNode -> String
@@ -91,7 +91,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
     (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
     (|>) pacc (JSObjectLiteral        lb xs rb)                                  = pacc |> lb |> xs |> rb
-    (|>) pacc (JSOperator             n)                                         = pacc |> n
+    (|>) pacc (JSOpAssign              n)                                        = pacc |> n
     (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
     (|>) pacc (JSPropertyNameandValue JSNoAnnot n colon vs)                      = pacc |> n |> colon |> vs
     (|>) pacc (JSReturn               annot xs s)                                = pacc |> annot |> "return" |> xs |> s
@@ -139,7 +139,7 @@ instance RenderJS TokenPosn where
 
 
 instance RenderJS [CommentAnnotation] where
-    (|>) pacc cs = foldl' (|>) pacc cs
+    (|>) = foldl' (|>)
 
 
 instance RenderJS CommentAnnotation where
@@ -149,7 +149,7 @@ instance RenderJS CommentAnnotation where
 
 
 instance RenderJS [JSNode] where
-    (|>) pacc xs = foldl' (|>) pacc xs
+    (|>) = foldl' (|>)
 
 
 instance RenderJS JSBinOp where
@@ -188,6 +188,21 @@ instance RenderJS JSUnaryOp where
     (|>) pacc (JSUnaryOpTilde  annot) = pacc |> annot |> "~"
     (|>) pacc (JSUnaryOpTypeof annot) = pacc |> annot |> "typeof"
     (|>) pacc (JSUnaryOpVoid   annot) = pacc |> annot |> "void"
+
+
+instance RenderJS JSAssignOp where
+    (|>) pacc (JSAssign       annot) = pacc |> annot |> "="
+    (|>) pacc (JSTimesAssign  annot) = pacc |> annot |> "*="
+    (|>) pacc (JSDivideAssign annot) = pacc |> annot |> "/="
+    (|>) pacc (JSModAssign    annot) = pacc |> annot |> "%="
+    (|>) pacc (JSPlusAssign   annot) = pacc |> annot |> "+="
+    (|>) pacc (JSMinusAssign  annot) = pacc |> annot |> "-="
+    (|>) pacc (JSLshAssign    annot) = pacc |> annot |> "<<="
+    (|>) pacc (JSRshAssign    annot) = pacc |> annot |> ">>="
+    (|>) pacc (JSUrshAssign   annot) = pacc |> annot |> ">>>="
+    (|>) pacc (JSBwAndAssign  annot) = pacc |> annot |> "&="
+    (|>) pacc (JSBwXorAssign  annot) = pacc |> annot |> "^="
+    (|>) pacc (JSBwOrAssign   annot) = pacc |> annot |> "|="
 
 
 instance RenderJS JSLParen where

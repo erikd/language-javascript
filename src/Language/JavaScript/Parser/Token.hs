@@ -104,6 +104,17 @@ data Token
    | BitwiseAndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
    | StrictEqToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
    | EqToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | TimesAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | DivideAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | ModAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | PlusAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | MinusAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | LshAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | RshAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | UrshAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | AndAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | XorAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+   | OrAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
    | AssignToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
    | SimpleAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
    | StrictNeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }

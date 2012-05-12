@@ -11,6 +11,7 @@ module Language.JavaScript.Parser.AST
     , JSLSquare (..)
     , JSRSquare (..)
     , JSSemi (..)
+    , JSAssignOp (..)
     , showStripped
     ) where
 
@@ -96,6 +97,21 @@ data JSSemi
     | JSSemiAuto
     deriving (Show, Eq, Read, Data, Typeable)
 
+data JSAssignOp
+    = JSAssign JSAnnot
+    | JSTimesAssign JSAnnot
+    | JSDivideAssign JSAnnot
+    | JSModAssign JSAnnot
+    | JSPlusAssign JSAnnot
+    | JSMinusAssign JSAnnot
+    | JSLshAssign JSAnnot
+    | JSRshAssign JSAnnot
+    | JSUrshAssign JSAnnot
+    | JSBwAndAssign JSAnnot
+    | JSBwXorAssign JSAnnot
+    | JSBwOrAssign JSAnnot
+    deriving (Show, Eq, Read, Data, Typeable)
+
 
 -- | The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
@@ -143,7 +159,7 @@ data JSNode
     | JSMemberDot [JSNode] JSNode JSNode -- ^firstpart, dot, name
     | JSMemberSquare [JSNode] JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSLBrace [JSNode] JSRBrace -- ^lbrace contents rbrace
-    | JSOperator JSNode -- ^opnode
+    | JSOpAssign JSAssignOp -- ^opnode
     | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSAnnot JSNode JSNode [JSNode] -- ^name, colon, value
     | JSReturn JSAnnot [JSNode] JSSemi -- ^optional expression,autosemi
@@ -198,7 +214,7 @@ ss (JSLiteral _ s) = "JSLiteral " ++ show s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
-ss (JSOperator n) = "JSOperator " ++ ss n
+ss (JSOpAssign n) = "JSOpAssign JSLiteral " ++ show (sopa n)
 ss (JSPropertyNameandValue _ x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSPropertyAccessor _ s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
@@ -218,7 +234,7 @@ sss :: [JSNode] -> String
 sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
 
 ssss :: [JSNode] -> JSSemi -> String
-ssss xs s@JSSemi{} = "[" ++ (concat (intersperse "," ((map ss xs) ++ [showsemi s]))) ++ "]"
+ssss xs s@JSSemi{} = "[" ++ (concat (intersperse "," (map ss xs ++ [showsemi s]))) ++ "]"
 ssss xs JSSemiAuto = sss xs
 
 -- The test suite expects operators to be double quoted.
@@ -267,5 +283,20 @@ showuop (JSUnaryOpVoid _) = "void "
 showsemi :: JSSemi -> String
 showsemi (JSSemi _) = "JSLiteral \";\""
 showsemi JSSemiAuto = ""
+
+sopa :: JSAssignOp -> String
+sopa (JSAssign _) = "="
+sopa (JSTimesAssign _) = "*="
+sopa (JSDivideAssign _) = "/="
+sopa (JSModAssign _) = "%="
+sopa (JSPlusAssign _) = "+="
+sopa (JSMinusAssign _) = "-="
+sopa (JSLshAssign _) = "<<="
+sopa (JSRshAssign _) = ">>="
+sopa (JSUrshAssign _) = ">>>="
+sopa (JSBwAndAssign _) = "&="
+sopa (JSBwXorAssign _) = "^="
+sopa (JSBwOrAssign _) = "|="
+
 
 -- EOF

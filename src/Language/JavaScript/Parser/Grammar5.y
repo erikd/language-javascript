@@ -41,6 +41,17 @@ import qualified Language.JavaScript.Parser.AST as AST
      '&'	{ BitwiseAndToken {} }
      '==='	{ StrictEqToken {} }
      '=='	{ EqToken {} }
+     '*='	{ TimesAssignToken {} }
+     '/='	{ DivideAssignToken {} }
+     '%='	{ ModAssignToken {} }
+     '+='	{ PlusAssignToken {} }
+     '-='	{ MinusAssignToken {} }
+     '<<='	{ LshAssignToken {} }
+     '>>='	{ RshAssignToken {} }
+     '>>>='	{ UrshAssignToken {} }
+     '&='	{ AndAssignToken {} }
+     '^='	{ XorAssignToken {} }
+     '|='	{ OrAssignToken {} }
      '='	{ SimpleAssignToken {} }
      '!=='	{ StrictNeToken {} }
      '!='	{ NeToken {} }
@@ -258,6 +269,19 @@ Hook : '?' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "?" }
 
 SimpleAssign :: { AST.JSNode }
 SimpleAssign : '=' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "=" }
+
+OpAssign :: { AST.JSAssignOp }
+OpAssign : '*='	  { AST.JSTimesAssign  (AST.JSAnnot (ss $1) (gc $1)) }
+         | '/='	  { AST.JSDivideAssign (AST.JSAnnot (ss $1) (gc $1)) }
+         | '%='	  { AST.JSModAssign    (AST.JSAnnot (ss $1) (gc $1)) }
+         | '+='	  { AST.JSPlusAssign   (AST.JSAnnot (ss $1) (gc $1)) }
+         | '-='	  { AST.JSMinusAssign  (AST.JSAnnot (ss $1) (gc $1)) }
+         | '<<='  { AST.JSLshAssign    (AST.JSAnnot (ss $1) (gc $1)) }
+         | '>>='  { AST.JSRshAssign    (AST.JSAnnot (ss $1) (gc $1)) }
+         | '>>>=' { AST.JSUrshAssign   (AST.JSAnnot (ss $1) (gc $1)) }
+         | '&='	  { AST.JSBwAndAssign  (AST.JSAnnot (ss $1) (gc $1)) }
+         | '^='	  { AST.JSBwXorAssign  (AST.JSAnnot (ss $1) (gc $1)) }
+         | '|='	  { AST.JSBwOrAssign   (AST.JSAnnot (ss $1) (gc $1)) }
 
 Assign :: { AST.JSNode }
 Assign : 'assign' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
@@ -779,8 +803,8 @@ AssignmentExpressionNoIn : ConditionalExpressionNoIn { $1 {- AssignmentExpressio
 -- AssignmentOperator : one of                                                           See 11.13
 --     '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator :: { AST.JSNode }
-AssignmentOperator : Assign       { AST.JSOperator $1 }
-                   | SimpleAssign { AST.JSOperator $1 }
+AssignmentOperator : OpAssign     { AST.JSOpAssign $1 }
+                   | SimpleAssign { AST.JSOpAssign (AST.JSAssign (nodePos $1)) {- SimpleAssign -} }
 
 -- Expression :                                                   See 11.14
 --         AssignmentExpression
@@ -1159,6 +1183,9 @@ mkUnary (AST.JSBinOpMinus annot) = AST.JSUnaryOpMinus annot
 mkUnary (AST.JSBinOpPlus  annot) = AST.JSUnaryOpPlus  annot
 
 mkUnary x = error $ "Invalid unary op : " ++ show x
+
+nodePos :: AST.JSNode -> AST.JSAnnot
+nodePos (AST.JSLiteral p _) = p
 
 }
 
