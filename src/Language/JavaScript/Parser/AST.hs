@@ -15,7 +15,6 @@ module Language.JavaScript.Parser.AST
     , showStripped
     ) where
 
-import Data.Data
 import Data.List
 import Language.JavaScript.Parser.SrcLocation (TokenPosn (..))
 import Language.JavaScript.Parser.Token
@@ -24,7 +23,7 @@ import Language.JavaScript.Parser.Token
 
 data JSAnnot = JSAnnot TokenPosn [CommentAnnotation]-- ^Annotation: position and comment/whitespace information
              | JSNoAnnot -- ^No annotation
-    deriving (Eq, Read, Data, Typeable)
+    deriving (Eq)
 
 instance Show JSAnnot where
     show JSNoAnnot = "NoAnnot"
@@ -54,7 +53,7 @@ data JSBinOp
     | JSBinOpStrictNeq JSAnnot
     | JSBinOpTimes JSAnnot
     | JSBinOpUrsh JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSUnaryOp
     = JSUnaryOpDecr JSAnnot
@@ -66,36 +65,36 @@ data JSUnaryOp
     | JSUnaryOpTilde JSAnnot
     | JSUnaryOpTypeof JSAnnot
     | JSUnaryOpVoid JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSLParen
     = JSLParen JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSRParen
     = JSRParen JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSLBrace
     = JSLBrace JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSRBrace
     = JSRBrace JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSLSquare
     = JSLSquare JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSRSquare
     = JSRSquare JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSSemi
     = JSSemi JSAnnot
     | JSSemiAuto
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 data JSAssignOp
     = JSAssign JSAnnot
@@ -110,7 +109,7 @@ data JSAssignOp
     | JSBwAndAssign JSAnnot
     | JSBwXorAssign JSAnnot
     | JSBwOrAssign JSAnnot
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 
 -- | The JSNode is the building block of the AST.
@@ -173,7 +172,7 @@ data JSNode
     | JSVariables JSAnnot JSNode [JSNode] JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSLParen JSNode JSRParen JSNode JSSemi -- ^with,lb,expr,rb,stmt list
-    deriving (Show, Eq, Read, Data, Typeable)
+    deriving (Show, Eq)
 
 -- Strip out the location info, leaving the original JSNode text representation
 showStripped :: JSNode -> String
