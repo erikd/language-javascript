@@ -82,10 +82,10 @@ instance RenderJS JSNode where
     (|>) pacc (JSExpressionPostfix    xs op)                                     = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)                            = pacc |> cond |> h |> v1 |> c |> v2
     (|>) pacc (JSFinally              annot x)                                   = pacc |> annot |> "finally" |> x
-    (|>) pacc (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    = pacc |> f |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
-    (|>) pacc (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
-    (|>) pacc (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  = pacc |> f |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
-    (|>) pacc (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            = pacc |> f |> lb |> v |> x1 |> i |> x2 |> rb |> x3
+    (|>) pacc (JSFor                  f lb x1s s1 x2s s2 x3s rb x4)              = pacc |> f |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
+    (|>) pacc (JSForIn                f lb x1s i x2 rb x3)                       = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
+    (|>) pacc (JSForVar               f lb v x1s s1 x2s s2 x3s rb x4)            = pacc |> f |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
+    (|>) pacc (JSForVarIn             f lb v x1 i x2 rb x3)                      = pacc |> f |> lb |> v |> x1 |> i |> x2 |> rb |> x3
     (|>) pacc (JSFunction             f x1 lb x2s rb x3)                         = pacc |> f |> x1 |> lb |> x2s |> rb |> x3
     (|>) pacc (JSFunctionExpression   f x1s lb x2s rb x3)                        = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
     (|>) pacc (JSIf                   i lb x1 rb x2s x3s)                        = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s

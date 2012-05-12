@@ -970,13 +970,13 @@ IterationStatement : Do Statement While LParen Expression RParen AutoSemi
                    | While LParen Expression RParen Statement
                      { AST.JSWhile (nodePos $1) $2 $3 $4 $5 }
                    | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement
-                     { AST.JSFor AST.JSNoAnnot $1 $2 $3 $4 $5 $6 $7 $8 $9 }
+                     { AST.JSFor $1 $2 $3 $4 $5 $6 $7 $8 $9 }
                    | For LParen Var VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement
-                     { AST.JSForVar AST.JSNoAnnot $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 }
+                     { AST.JSForVar $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 }
                    | For LParen LeftHandSideExpression In Expression RParen Statement
-                     { AST.JSForIn AST.JSNoAnnot $1 $2 $3 $4 $5 $6 $7 }
+                     { AST.JSForIn $1 $2 $3 $4 $5 $6 $7 }
                    | For LParen Var VariableDeclarationNoIn In Expression RParen Statement
-                     { AST.JSForVarIn AST.JSNoAnnot $1 $2 $3 $4 $5 $6 $7 $8 }
+                     { AST.JSForVarIn $1 $2 $3 $4 $5 $6 $7 $8 }
 
 -- ContinueStatement :                                                                      See 12.7
 --         continue [no LineTerminator here] Identifieropt ;

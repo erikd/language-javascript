@@ -148,10 +148,10 @@ data JSNode
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSNode JSNode JSNode JSNode -- ^cond, ?, trueval, :, falseval
     | JSFinally JSAnnot JSNode -- ^block
-    | JSFor JSAnnot JSNode JSLParen [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
-    | JSForIn JSAnnot JSNode JSLParen JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
-    | JSForVar JSAnnot JSNode JSLParen JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
-    | JSForVarIn JSAnnot JSNode JSLParen JSNode JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSFor JSNode JSLParen [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
+    | JSForIn JSNode JSLParen JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
+    | JSForVar JSNode JSLParen JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+    | JSForVarIn JSNode JSLParen JSNode JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
     | JSFunctionExpression JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
     | JSIf JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
@@ -200,10 +200,10 @@ ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
 ss (JSFinally _ x) = "JSFinally (" ++ ss x ++ ")"
-ss (JSFor _ _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
-ss (JSForIn _ _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
-ss (JSForVar _ _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
-ss (JSForVarIn _ _f _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+ss (JSFor  _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
+ss (JSForIn  _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+ss (JSForVar _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
+ss (JSForVarIn _f _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSFunction _f x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSFunctionExpression _f x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
