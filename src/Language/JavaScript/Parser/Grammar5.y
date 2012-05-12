@@ -966,9 +966,9 @@ StatementSemi : StatementNoEmpty Semi { [$1,$2] {- StatementSemi1 -}}
 --         for ( var VariableDeclarationNoIn in Expression ) Statement
 IterationStatement :: { AST.JSNode }
 IterationStatement : Do Statement While LParen Expression RParen AutoSemi
-                     { AST.JSDoWhile AST.JSNoAnnot $1 $2 $3 $4 $5 $6 $7 }
+                     { AST.JSDoWhile (nodePos $1) $2 (nodePos $3) $4 $5 $6 $7 }
                    | While LParen Expression RParen Statement
-                     { AST.JSWhile AST.JSNoAnnot $1 $2 $3 $4 $5 }
+                     { AST.JSWhile (nodePos $1) $2 $3 $4 $5 }
                    | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement
                      { AST.JSFor AST.JSNoAnnot $1 $2 $3 $4 $5 $6 $7 $8 $9 }
                    | For LParen Var VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement
@@ -1086,17 +1086,17 @@ DebuggerStatement : 'debugger' AutoSemi { AST.JSLiteral (AST.JSAnnot (ss $1) (gc
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSNode }
 FunctionDeclaration : Function Identifier LParen FormalParameterList RParen FunctionBody
-                      { AST.JSFunction AST.JSNoAnnot $1 $2 $3 $4 $5 $6 {- FunctionDeclaration1 -} }
+                      { AST.JSFunction $1 $2 $3 $4 $5 $6 {- FunctionDeclaration1 -} }
                     | Function Identifier LParen RParen FunctionBody
-                      { AST.JSFunction AST.JSNoAnnot $1 $2 $3 [] $4 $5 {- FunctionDeclaration2 -} }
+                      { AST.JSFunction $1 $2 $3 [] $4 $5 {- FunctionDeclaration2 -} }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
 FunctionExpression :: { AST.JSNode }
 FunctionExpression : Function IdentifierOpt LParen RParen FunctionBody
-                     { AST.JSFunctionExpression AST.JSNoAnnot $1 $2 $3 [] $4 $5 }
+                     { AST.JSFunctionExpression $1 $2 $3 [] $4 $5 }
                    | Function IdentifierOpt LParen FormalParameterList RParen FunctionBody
-                     { AST.JSFunctionExpression AST.JSNoAnnot $1 $2 $3 $4 $5 $6  }
+                     { AST.JSFunctionExpression $1 $2 $3 $4 $5 $6  }
 
 IdentifierOpt :: { [AST.JSNode] }
 IdentifierOpt : Identifier { [$1] {- IdentifierOpt -}}

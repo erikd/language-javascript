@@ -140,7 +140,7 @@ data JSNode
     | JSCatch JSAnnot JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
     | JSContinue JSAnnot [JSNode] JSSemi     -- ^optional identifier,autosemi
     | JSDefault JSAnnot JSNode [JSNode] -- ^colon,stmtlist
-    | JSDoWhile JSAnnot JSNode JSNode JSNode JSLParen JSNode JSRParen JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
+    | JSDoWhile JSAnnot JSNode JSAnnot JSLParen JSNode JSRParen JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
     | JSElision JSAnnot JSNode               -- ^comma
     | JSExpression [JSNode]          -- ^expression components
     | JSExpressionBinary [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
@@ -152,8 +152,8 @@ data JSNode
     | JSForIn JSAnnot JSNode JSLParen JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSNode JSLParen JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSNode JSLParen JSNode JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
-    | JSFunctionExpression JSAnnot JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
+    | JSFunction JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
+    | JSFunctionExpression JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
     | JSIf JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
     | JSLabelled JSAnnot JSNode JSNode JSNode -- ^identifier,colon,stmt
     | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
@@ -170,7 +170,7 @@ data JSNode
     | JSUnaryExpression JSUnaryOp JSNode
     | JSVarDecl JSAnnot JSNode [JSNode] -- ^identifier, optional initializer
     | JSVariables JSAnnot JSNode [JSNode] JSSemi -- ^var|const, decl, autosemi
-    | JSWhile JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
+    | JSWhile JSAnnot JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSLParen JSNode JSRParen JSNode JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Show, Eq)
 
@@ -192,7 +192,7 @@ ss (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " 
 ss (JSContinue _ xs s) = "JSContinue " ++ sss xs ++ " " ++ showsemi s
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
 ss (JSDefault _ _c xs) = "JSDefault (" ++ sss xs ++ ")"
-ss (JSDoWhile _ _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
+ss (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression xs) = "JSExpression " ++ sss xs
 ss (JSExpressionBinary x2s op x3s) = "JSExpressionBinary " ++ sbop op ++ " " ++ sss x2s ++ " " ++ sss x3s
@@ -204,8 +204,8 @@ ss (JSFor _ _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ s
 ss (JSForIn _ _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSForVar _ _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
 ss (JSForVarIn _ _f _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
-ss (JSFunction _ _f x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
-ss (JSFunctionExpression _ _f x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+ss (JSFunction _f x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+ss (JSFunctionExpression _f x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
@@ -228,7 +228,7 @@ ss (JSTry _ x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
 ss (JSVarDecl _ x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSVariables _ n xs _as) = "JSVariables " ++ ss n ++ " " ++ sss xs
-ss (JSWhile _ _w _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 ss (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ ssss [x] s
 
 sss :: [JSNode] -> String
