@@ -887,8 +887,8 @@ StatementList : Statement               { [$1]       {- StatementList1 -} }
 -- VariableStatement :                                            See 12.2
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSNode }
-VariableStatement : Var   VariableDeclarationList AutoSemi { AST.JSVariables AST.JSNoAnnot $1 $2 $3 }
-                  | Const VariableDeclarationList AutoSemi { AST.JSVariables AST.JSNoAnnot $1 $2 $3 }
+VariableStatement : Var   VariableDeclarationList AutoSemi { AST.JSVariable (nodePos $1) $2 $3 }
+                  | Const VariableDeclarationList AutoSemi { AST.JSConstant (nodePos $1) $2 $3 }
 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration
@@ -907,14 +907,14 @@ VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- VariableDeclarat
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
 VariableDeclaration :: { AST.JSNode }
-VariableDeclaration : Identifier              { AST.JSVarDecl AST.JSNoAnnot $1 [] {- JSVarDecl1 -} }
-                    | Identifier Initializer  { AST.JSVarDecl AST.JSNoAnnot $1 $2 {- JSVarDecl2 -} }
+VariableDeclaration : Identifier              { AST.JSVarDecl $1 [] {- JSVarDecl1 -} }
+                    | Identifier Initializer  { AST.JSVarDecl $1 $2 {- JSVarDecl2 -} }
 
 -- VariableDeclarationNoIn :                                      See 12.2
 --         Identifier InitialiserNoInopt
 VariableDeclarationNoIn :: { AST.JSNode }
-VariableDeclarationNoIn : Identifier InitializerNoIn { AST.JSVarDecl AST.JSNoAnnot $1 $2 {- JSVarDecl3 -} }
-                        | Identifier                 { AST.JSVarDecl AST.JSNoAnnot $1 [] {- JSVarDecl4 -} }
+VariableDeclarationNoIn : Identifier InitializerNoIn { AST.JSVarDecl $1 $2 {- JSVarDecl3 -} }
+                        | Identifier                 { AST.JSVarDecl $1 [] {- JSVarDecl4 -} }
 
 -- Initialiser :                                                                            See 12.2
 --         = AssignmentExpression

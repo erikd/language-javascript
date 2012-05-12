@@ -138,6 +138,7 @@ data JSNode
     | JSCallExpressionSquare JSLSquare [JSNode] JSRSquare  -- ^type : ., (), []; opening [ or ., contents, closing
     | JSCase JSAnnot JSNode JSNode [JSNode]    -- ^expr,colon,stmtlist
     | JSCatch JSAnnot JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
+    | JSConstant JSAnnot [JSNode] JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot [JSNode] JSSemi     -- ^optional identifier,autosemi
     | JSDefault JSAnnot JSNode [JSNode] -- ^colon,stmtlist
     | JSDoWhile JSAnnot JSNode JSAnnot JSLParen JSNode JSRParen JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
@@ -168,8 +169,8 @@ data JSNode
     | JSThrow JSAnnot JSNode -- ^throw val
     | JSTry JSAnnot JSNode [JSNode] -- ^try,block,rest
     | JSUnaryExpression JSUnaryOp JSNode
-    | JSVarDecl JSAnnot JSNode [JSNode] -- ^identifier, optional initializer
-    | JSVariables JSAnnot JSNode [JSNode] JSSemi -- ^var|const, decl, autosemi
+    | JSVarDecl JSNode [JSNode] -- ^identifier, optional initializer
+    | JSVariable JSAnnot [JSNode] JSSemi -- ^var, decl, autosemi
     | JSWhile JSAnnot JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSLParen JSNode JSRParen JSNode JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Show, Eq)
@@ -189,6 +190,7 @@ ss (JSCallExpressionDot _os xs) = "JSCallExpression \".\" " ++ sss xs
 ss (JSCallExpressionSquare _os xs _cs) = "JSCallExpression \"[]\" " ++ sss xs
 ss (JSCase _ x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ sss x2s ++ ")"
 ss (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+ss (JSConstant _ xs _as) = "JSConstant const " ++ sss xs
 ss (JSContinue _ xs s) = "JSContinue " ++ sss xs ++ " " ++ showsemi s
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
 ss (JSDefault _ _c xs) = "JSDefault (" ++ sss xs ++ ")"
@@ -226,8 +228,8 @@ ss (JSSwitch _ _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
 ss (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
 ss (JSTry _ x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
-ss (JSVarDecl _ x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
-ss (JSVariables _ n xs _as) = "JSVariables " ++ ss n ++ " " ++ sss xs
+ss (JSVarDecl x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
+ss (JSVariable _ xs _as) = "JSVariable var " ++ sss xs
 ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 ss (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ ssss [x] s
 
