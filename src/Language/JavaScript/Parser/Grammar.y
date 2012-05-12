@@ -443,8 +443,8 @@ AssignmentExpression : ConditionalExpression { $1 {- AssignmentExpression -}}
 
 -- <Assignment Operator> ::= '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator :: { AST.JSNode }
-AssignmentOperator : 'assign' { AST.JSOperator (token_literal $1) }
-                   | '='      { AST.JSOperator "=" }
+AssignmentOperator : 'assign' { AST.JSOpAssign (token_literal $1) }
+                   | '='      { AST.JSOpAssign "=" }
 
 -- <Expression> ::= <Assignment Expression>
 --                | <Expression> ',' <Assignment Expression>

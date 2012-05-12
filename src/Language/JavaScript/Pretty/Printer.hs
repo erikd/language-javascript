@@ -1,160 +1,233 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Language.JavaScript.Pretty.Printer (
   -- * Printing
   renderJS
   , renderToString
   ) where
 
+import Blaze.ByteString.Builder (Builder, toLazyByteString)
 import Data.List
 import Data.Monoid (Monoid, mappend, mempty)
 import Language.JavaScript.Parser.AST
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
-import qualified Blaze.ByteString.Builder as BB
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
 import qualified Data.ByteString.Lazy as LB
 import qualified Codec.Binary.UTF8.String as US
 
 -- ---------------------------------------------------------------------
 
-data Foo = Foo (Int,Int) BB.Builder
+data PosAccum = PA (Int, Int) Builder
 
 -- ---------------------------------------------------------------------
 -- Pretty printer stuff via blaze-builder
 
-(<>) :: BB.Builder -> BB.Builder -> BB.Builder
-(<>) a b = mappend a b
+(<>) :: Builder -> Builder -> Builder
+(<>) = mappend
 
-empty :: BB.Builder
+empty :: Builder
 empty = mempty
 
-text :: String -> BB.Builder
-text s = BS.fromString s
+str :: String -> Builder
+str = BS.fromString
 
 -- ---------------------------------------------------------------------
 
-renderJS :: JSNode -> BB.Builder
+renderJS :: JSNode -> Builder
 renderJS node = bb
   where
-    Foo _ bb = rn node (Foo (1,1) empty)
+    PA _ bb = PA (1,1) empty |> node
 
--- Take in the current
--- rn :: (Int, Int) -> JSNode -> ((Int, Int), BB.Builder)
-rn :: JSNode -> Foo -> Foo
-
--- Terminals
-rn (JSIdentifier    (JSAnnot p cs) s  ) foo = rcs cs p s foo
-rn (JSDecimal       (JSAnnot p cs) i  ) foo = rcs cs p i foo
-rn (JSLiteral       (JSAnnot p cs) l  ) foo = rcs cs p l foo
-rn (JSHexInteger    (JSAnnot p cs) i  ) foo = rcs cs p i foo
-rn (JSOctal         (JSAnnot p cs) i  ) foo = rcs cs p i foo
-rn (JSStringLiteral (JSAnnot p cs) s l) foo = rcs cs p ((s:l)++[s]) foo
-rn (JSRegEx         (JSAnnot p cs) s  ) foo = rcs cs p s foo
-
--- Non-Terminals
-rn (JSArguments            JSNoAnnot lb xs rb)                        foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (JSArrayLiteral         JSNoAnnot lb xs rb)                        foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (JSBlock                JSNoAnnot lb x rb)                         foo = rJS (lb ++ x ++ rb) foo
-rn (JSBreak                JSNoAnnot b x1s as)                        foo = rJS ([b]++x1s++[as]) foo
-rn (JSCallExpression       JSNoAnnot _s os xs cs)                     foo = rJS (os ++ xs ++ cs) foo
-rn (JSCase                 JSNoAnnot ca x1 c x2s)                     foo = rJS ([ca,x1,c]++x2s) foo
-rn (JSCatch                JSNoAnnot c lb x1 x2s rb x3)               foo = rJS ([c,lb,x1]++x2s++[rb,x3]) foo
-rn (JSContinue             JSNoAnnot c xs as)                         foo = rJS ([c]++xs++[as]) foo
-rn (JSDefault              JSNoAnnot d c xs)                          foo = rJS ([d,c]++xs) foo
-rn (JSDoWhile              JSNoAnnot d x1 w lb x2 rb x3)              foo = rJS ([d,x1,w,lb,x2,rb,x3]) foo
-rn (JSElision              JSNoAnnot c)                               foo = rJS [c] foo
-rn (JSExpression           JSNoAnnot xs)                              foo = rJS xs foo
-rn (JSExpressionBinary     JSNoAnnot _s lhs op rhs)                   foo = rJS (lhs ++ [op] ++ rhs) foo
-rn (JSExpressionParen      JSNoAnnot lb e rb)                         foo = rJS ([lb,e,rb]) foo
-rn (JSExpressionPostfix    JSNoAnnot _s xs op)                        foo = rJS (xs ++ [op]) foo
-rn (JSExpressionTernary    JSNoAnnot cond h v1 c v2)                  foo = rJS (cond ++[h] ++ v1 ++ [c] ++ v2) foo
-rn (JSFinally              JSNoAnnot f x)                             foo = rJS [f,x] foo
-rn (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    foo = rJS ([f,lb]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
-rn (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             foo = rJS ([f,lb]++x1s++[i,x2,rb,x3]) foo
-rn (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  foo = rJS ([f,lb,v]++x1s++[s1]++x2s++[s2]++x3s++[rb,x4]) foo
-rn (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            foo = rJS [f,lb,v,x1,i,x2,rb,x3] foo
-rn (JSFunction             JSNoAnnot f x1 lb x2s rb x3)               foo = rJS ([f,x1,lb]++x2s++[rb,x3]) foo
-rn (JSFunctionExpression   JSNoAnnot f x1s lb x2s rb x3)              foo = rJS ([f] ++ x1s ++ [lb] ++ x2s ++ [rb,x3]) foo
-rn (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              foo = rJS ([i,lb,x1,rb]++x2s++x3s) foo
-rn (JSLabelled             JSNoAnnot l c v)                           foo = rJS [l,c,v] foo
-
-
-rn (JSLiteral              JSNoAnnot [])                               foo = rJS [] foo
-
-
-rn (JSMemberDot            JSNoAnnot xs dot n)                        foo = rJS (xs ++ [dot,n]) foo
-rn (JSMemberSquare         JSNoAnnot xs lb e rb)                      foo = rJS (xs ++ [lb,e,rb]) foo
-rn (JSObjectLiteral        JSNoAnnot lb xs rb)                        foo = rJS ([lb] ++ xs ++ [rb]) foo
-rn (JSOperator             JSNoAnnot n)                               foo = rJS [n] foo
-rn (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                foo = rJS ([s,n,lb1] ++ ps ++ [rb1,b]) foo
-rn (JSPropertyNameandValue JSNoAnnot n colon vs)                      foo = rJS ([n,colon] ++ vs) foo
-rn (JSReturn               JSNoAnnot r xs as)                         foo = rJS ([r] ++ xs ++ [as]) foo
-rn (JSSourceElementsTop    JSNoAnnot xs)                              foo = rJS xs foo
-rn (JSSwitch               JSNoAnnot s lb x rb x2)                    foo = rJS ([s,lb,x,rb,x2]) foo
-rn (JSThrow                JSNoAnnot t x)                             foo = rJS [t,x] foo
-rn (JSTry                  JSNoAnnot t x1 x2s)                        foo = rJS ([t,x1]++x2s) foo
-rn (JSUnary                JSNoAnnot _l n)                            foo = rJS [n] foo
-rn (JSVarDecl              JSNoAnnot x1 x2s)                          foo = rJS ([x1]++x2s) foo
-rn (JSVariables            JSNoAnnot n xs as)                         foo = rJS ([n]++xs++[as]) foo
-rn (JSWhile                JSNoAnnot w lb x1 rb x2)                   foo = rJS [w,lb,x1,rb,x2] foo
-rn (JSWith                 JSNoAnnot w lb x1 rb x2s)                  foo = rJS ([w,lb,x1,rb]++x2s) foo
-
--- Debug helper
-rn what foo = rs ("X " ++ show what ++ " X") foo
-
--- ---------------------------------------------------------------------
--- Helper functions
-
--- ---------------------------------------------------------------------
--- Need a function that
--- a) renders all comments, according to their positions
--- b) advances to the position of the required string
--- c) renders the string, advancing the position
-rcs :: [CommentAnnotation] -> TokenPosn -> String -> Foo -> Foo
-rcs cs p s foo = rps p s (rc cs foo)
-
-rc :: [CommentAnnotation] -> Foo -> Foo
-rc cs foo = foldl' go foo cs
-  where
-    go :: Foo -> CommentAnnotation -> Foo
-    go foo' NoComment = foo'
-    go foo' (CommentA   p s) = rps p s foo'
-    go foo' (WhiteSpace p s) = rps p s foo'
-
--- Render a string at the given position
-rps :: TokenPosn -> String -> Foo -> Foo
-rps p s foo = (rs s foo')
-  where
-    foo' = (goto p foo)
-
--- Render a string
-rs :: String -> Foo -> Foo
-rs s (Foo (r,c) bb) = (Foo (r',c') (bb <> (text s)))
-  where
-    (r',c') = foldl' (\(row,col) ch -> go (row,col) ch) (r,c) s
-
-    go (rx,_)  '\n' = (rx+1,1)
-    go (rx,cx) '\t' = (rx,cx+8)
-    go (rx,cx) _    = (rx,cx+1)
-
-
-goto :: TokenPosn -> Foo -> Foo
-goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = (Foo (lnew,cnew) (bb <> bb'))
--- goto (TokenPn _ ltgt ctgt) (Foo (lcur,ccur) bb) = trace ("goto " ++ (show $ (ltgt,ctgt)) ++ "," ++ (show $ (lcur,ccur)) ++ "," ++ (show $ (lnew,cnew)) ) $  (Foo (lnew,cnew) (bb <> bb'))
-  where
-    (bbline,ccur') = if (lcur < ltgt) then (text $ (take (ltgt - lcur) $ repeat '\n'),1) else (mempty,ccur)
-    bbcol  = if (ccur' < ctgt) then (text $ take (ctgt - ccur') $ repeat ' ' ) else mempty
-    bb' = bbline <> bbcol
-    lnew = if (lcur < ltgt) then ltgt else lcur
-    cnew = if (ccur' < ctgt) then ctgt else ccur'
-
-
-rJS :: [JSNode] -> Foo -> Foo
-rJS xs foo = foldl' (flip rn) foo xs
 
 renderToString :: JSNode -> String
 -- need to be careful to not lose the unicode encoding on output
-renderToString js = US.decode $ LB.unpack $ BB.toLazyByteString $ renderJS js
+renderToString js = US.decode $ LB.unpack $ toLazyByteString $ renderJS js
 
+
+class RenderJS a where
+    -- Render node.
+    (|>) :: PosAccum -> a -> PosAccum
+
+
+instance RenderJS JSNode where
+    -- Terminals
+    (|>) pacc (JSIdentifier    annot s  ) = pacc |> annot |> s
+    (|>) pacc (JSDecimal       annot i  ) = pacc |> annot |> i
+    (|>) pacc (JSLiteral       annot l  ) = pacc |> annot |> l
+    (|>) pacc (JSHexInteger    annot i  ) = pacc |> annot |> i
+    (|>) pacc (JSOctal         annot i  ) = pacc |> annot |> i
+    (|>) pacc (JSStringLiteral annot s l) = pacc |> annot |> ((s:l)++[s])
+    (|>) pacc (JSRegEx         annot s  ) = pacc |> annot |> s
+
+    -- Non-Terminals
+    (|>) pacc (JSArguments            lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSArrayLiteral         lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSAssignExpression     lhs op rhs)                                = pacc |> lhs |> op |> rhs
+    (|>) pacc (JSBlock                lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSBreak                annot x1s s)                               = pacc |> annot |> "break" |> x1s |> s
+    (|>) pacc (JSCallExpression       os xs cs)                                  = pacc |> os |> xs |> cs
+    (|>) pacc (JSCallExpressionDot    os xs)                                     = pacc |> os |> xs
+    (|>) pacc (JSCallExpressionSquare os xs cs)                                  = pacc |> os |> xs |> cs
+    (|>) pacc (JSCase                 annot x1 c x2s)                            = pacc |> annot |> "case" |> x1 |> c |> x2s
+    (|>) pacc (JSCatch                annot lb x1 x2s rb x3)                     = pacc |> annot |> "catch" |> lb |> x1 |> x2s |> rb |> x3
+    (|>) pacc (JSContinue             annot xs s)                                = pacc |> annot |> "continue" |> xs |> s
+    (|>) pacc (JSDefault              annot c xs)                                = pacc |> annot |> "default" |> c |> xs
+    (|>) pacc (JSDoWhile              annot x1 annotw lb x2 rb x3)               = pacc |> annot |> "do" |> x1 |> annotw |> "while" |> lb |> x2 |> rb |> x3
+    (|>) pacc (JSElision              JSNoAnnot c)                               = pacc |> c
+    (|>) pacc (JSExpression           xs)                                        = pacc |> xs
+    (|>) pacc (JSExpressionBinary     lhs op rhs)                                = pacc |> lhs |> op |> rhs
+    (|>) pacc (JSExpressionParen      lb e rb)                                   = pacc |> lb |> e |> rb
+    (|>) pacc (JSExpressionPostfix    xs op)                                     = pacc |> xs |> op
+    (|>) pacc (JSExpressionTernary    cond h v1 c v2)                            = pacc |> cond |> h |> v1 |> c |> v2
+    (|>) pacc (JSFinally              annot x)                                   = pacc |> annot |> "finally" |> x
+    (|>) pacc (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    = pacc |> f |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
+    (|>) pacc (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
+    (|>) pacc (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  = pacc |> f |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
+    (|>) pacc (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            = pacc |> f |> lb |> v |> x1 |> i |> x2 |> rb |> x3
+    (|>) pacc (JSFunction             f x1 lb x2s rb x3)               = pacc |> f |> x1 |> lb |> x2s |> rb |> x3
+    (|>) pacc (JSFunctionExpression   f x1s lb x2s rb x3)                        = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
+    (|>) pacc (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
+    (|>) pacc (JSLabelled             JSNoAnnot l c v)                           = pacc |> l |> c |> v
+    (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
+    (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
+    (|>) pacc (JSObjectLiteral        lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSOpAssign              n)                                        = pacc |> n
+    (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
+    (|>) pacc (JSPropertyNameandValue JSNoAnnot n colon vs)                      = pacc |> n |> colon |> vs
+    (|>) pacc (JSReturn               annot xs s)                                = pacc |> annot |> "return" |> xs |> s
+    (|>) pacc (JSSourceElementsTop    JSNoAnnot xs)                              = pacc |> xs
+    (|>) pacc (JSSwitch               annot lb x rb x2)                          = pacc |> annot |> "switch" |> lb |> x |> rb |> x2
+    (|>) pacc (JSThrow                annot x)                                   = pacc |> annot |> "throw" |> x
+    (|>) pacc (JSTry                  annot x1 x2s)                              = pacc |> annot |> "try" |> x1 |> x2s
+    (|>) pacc (JSUnaryExpression      op x)                                      = pacc |> op |> x
+    (|>) pacc (JSVarDecl              JSNoAnnot x1 x2s)                          = pacc |> x1 |> x2s
+    (|>) pacc (JSVariables            JSNoAnnot n xs as)                         = pacc |> n |> xs |> as
+    (|>) pacc (JSWhile                annot lb x1 rb x2)                         = pacc |> annot |> "while" |> lb |> x1 |> rb |> x2
+    (|>) pacc (JSWith                 annot lb x1 rb x s)                        = pacc |> annot |> "with" |> lb |> x1 |> rb |> x |> s
+
+    -- Debug helper
+    (|>) pacc what = pacc |> ("X " ++ show what ++ " X")
+
+-- -----------------------------------------------------------------------------
+-- Need an instance of RenderJS for every component of every JSNode or JSAnnot
+-- constuctor.
+-- -----------------------------------------------------------------------------
+
+instance RenderJS JSAnnot where
+    (|>) pacc (JSAnnot p cs) = pacc |> cs |> p
+    (|>) pacc JSNoAnnot = pacc
+
+
+instance RenderJS String where
+    (|>) (PA (r,c) bb) s = PA (r',c') (bb <> str s)
+      where
+        (r',c') = foldl' (\(row,col) ch -> go (row,col) ch) (r,c) s
+
+        go (rx,_)  '\n' = (rx+1,1)
+        go (rx,cx) '\t' = (rx,cx+8)
+        go (rx,cx) _    = (rx,cx+1)
+
+
+instance RenderJS TokenPosn where
+    (|>)  (PA (lcur,ccur) bb) (TokenPn _ ltgt ctgt) = PA (lnew,cnew) (bb <> bb')
+      where
+        (bbline,ccur') = if lcur < ltgt then (str (replicate (ltgt - lcur) '\n'),1) else (mempty,ccur)
+        bbcol  = if ccur' < ctgt then str (replicate (ctgt - ccur') ' ') else mempty
+        bb' = bbline <> bbcol
+        lnew = if lcur < ltgt then ltgt else lcur
+        cnew = if ccur' < ctgt then ctgt else ccur'
+
+
+instance RenderJS [CommentAnnotation] where
+    (|>) = foldl' (|>)
+
+
+instance RenderJS CommentAnnotation where
+    (|>) pacc NoComment = pacc
+    (|>) pacc (CommentA   p s) = pacc |> p |> s
+    (|>) pacc (WhiteSpace p s) = pacc |> p |> s
+
+
+instance RenderJS [JSNode] where
+    (|>) = foldl' (|>)
+
+
+instance RenderJS JSBinOp where
+    (|>) pacc (JSBinOpAnd        annot)  = pacc |> annot |> "&&"
+    (|>) pacc (JSBinOpBitAnd     annot)  = pacc |> annot |> "&"
+    (|>) pacc (JSBinOpBitOr      annot)  = pacc |> annot |> "|"
+    (|>) pacc (JSBinOpBitXor     annot)  = pacc |> annot |> "^"
+    (|>) pacc (JSBinOpDivide     annot)  = pacc |> annot |> "/"
+    (|>) pacc (JSBinOpEq         annot)  = pacc |> annot |> "=="
+    (|>) pacc (JSBinOpGe         annot)  = pacc |> annot |> ">="
+    (|>) pacc (JSBinOpGt         annot)  = pacc |> annot |> ">"
+    (|>) pacc (JSBinOpIn         annot)  = pacc |> annot |> "in"
+    (|>) pacc (JSBinOpInstanceOf annot)  = pacc |> annot |> "instanceof"
+    (|>) pacc (JSBinOpLe         annot)  = pacc |> annot |> "<="
+    (|>) pacc (JSBinOpLsh        annot)  = pacc |> annot |> "<<"
+    (|>) pacc (JSBinOpLt         annot)  = pacc |> annot |> "<"
+    (|>) pacc (JSBinOpMinus      annot)  = pacc |> annot |> "-"
+    (|>) pacc (JSBinOpMod        annot)  = pacc |> annot |> "%"
+    (|>) pacc (JSBinOpNeq        annot)  = pacc |> annot |> "!="
+    (|>) pacc (JSBinOpOr         annot)  = pacc |> annot |> "||"
+    (|>) pacc (JSBinOpPlus       annot)  = pacc |> annot |> "+"
+    (|>) pacc (JSBinOpRsh        annot)  = pacc |> annot |> ">>"
+    (|>) pacc (JSBinOpStrictEq   annot)  = pacc |> annot |> "==="
+    (|>) pacc (JSBinOpStrictNeq  annot)  = pacc |> annot |> "!=="
+    (|>) pacc (JSBinOpTimes      annot)  = pacc |> annot |> "*"
+    (|>) pacc (JSBinOpUrsh       annot)  = pacc |> annot |> ">>>"
+
+
+instance RenderJS JSUnaryOp where
+    (|>) pacc (JSUnaryOpDecr   annot) = pacc |> annot |> "--"
+    (|>) pacc (JSUnaryOpDelete annot) = pacc |> annot |> "delete"
+    (|>) pacc (JSUnaryOpIncr   annot) = pacc |> annot |> "++"
+    (|>) pacc (JSUnaryOpMinus  annot) = pacc |> annot |> "-"
+    (|>) pacc (JSUnaryOpNot    annot) = pacc |> annot |> "!"
+    (|>) pacc (JSUnaryOpPlus   annot) = pacc |> annot |> "+"
+    (|>) pacc (JSUnaryOpTilde  annot) = pacc |> annot |> "~"
+    (|>) pacc (JSUnaryOpTypeof annot) = pacc |> annot |> "typeof"
+    (|>) pacc (JSUnaryOpVoid   annot) = pacc |> annot |> "void"
+
+
+instance RenderJS JSAssignOp where
+    (|>) pacc (JSAssign       annot) = pacc |> annot |> "="
+    (|>) pacc (JSTimesAssign  annot) = pacc |> annot |> "*="
+    (|>) pacc (JSDivideAssign annot) = pacc |> annot |> "/="
+    (|>) pacc (JSModAssign    annot) = pacc |> annot |> "%="
+    (|>) pacc (JSPlusAssign   annot) = pacc |> annot |> "+="
+    (|>) pacc (JSMinusAssign  annot) = pacc |> annot |> "-="
+    (|>) pacc (JSLshAssign    annot) = pacc |> annot |> "<<="
+    (|>) pacc (JSRshAssign    annot) = pacc |> annot |> ">>="
+    (|>) pacc (JSUrshAssign   annot) = pacc |> annot |> ">>>="
+    (|>) pacc (JSBwAndAssign  annot) = pacc |> annot |> "&="
+    (|>) pacc (JSBwXorAssign  annot) = pacc |> annot |> "^="
+    (|>) pacc (JSBwOrAssign   annot) = pacc |> annot |> "|="
+
+
+instance RenderJS JSLParen where
+    (|>) pacc (JSLParen annot) = pacc |> annot |> "("
+
+instance RenderJS JSRParen where
+    (|>) pacc (JSRParen annot) = pacc |> annot |> ")"
+
+instance RenderJS JSLBrace where
+    (|>) pacc (JSLBrace annot) = pacc |> annot |> "{"
+
+instance RenderJS JSRBrace where
+    (|>) pacc (JSRBrace annot) = pacc |> annot |> "}"
+
+instance RenderJS JSLSquare where
+    (|>) pacc (JSLSquare annot) = pacc |> annot |> "["
+
+instance RenderJS JSRSquare where
+    (|>) pacc (JSRSquare annot) = pacc |> annot |> "]"
+
+instance RenderJS JSSemi where
+    (|>) pacc (JSSemi annot) = pacc |> annot |> ";"
+    (|>) pacc JSSemiAuto     = pacc
 
 -- EOF
 

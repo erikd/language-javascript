@@ -262,7 +262,7 @@ tokens :-
 
 -- / or /= only allowed in state 1
 <divide> {
-     "/="       { adapt (mkString assignToken)}
+     "/="	{ adapt (symbolToken DivideAssignToken)}
      "/"	{ adapt (symbolToken DivToken)}
     }
 
@@ -279,9 +279,17 @@ tokens :-
      "&"	{ adapt (symbolToken  BitwiseAndToken)}
      "==="	{ adapt (symbolToken  StrictEqToken)}
      "=="	{ adapt (symbolToken  EqToken)}
-     "*=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
-      	        { adapt (mkString assignToken)}
-     "="        { adapt (symbolToken  SimpleAssignToken)}
+     "*="	{ adapt (symbolToken  TimesAssignToken)}
+     "%="	{ adapt (symbolToken  ModAssignToken)}
+     "+="	{ adapt (symbolToken  PlusAssignToken)}
+     "-="	{ adapt (symbolToken  MinusAssignToken)}
+     "<<="	{ adapt (symbolToken  LshAssignToken)}
+     ">>="	{ adapt (symbolToken  RshAssignToken)}
+     ">>>="	{ adapt (symbolToken  UrshAssignToken)}
+     "&="	{ adapt (symbolToken  AndAssignToken)}
+     "^="	{ adapt (symbolToken  XorAssignToken)}
+     "|="	{ adapt (symbolToken  OrAssignToken)}
+     "="	{ adapt (symbolToken  SimpleAssignToken)}
      "!=="	{ adapt (symbolToken  StrictNeToken)}
      "!="	{ adapt (symbolToken  NeToken)}
      "<<"	{ adapt (symbolToken  LshToken)}
