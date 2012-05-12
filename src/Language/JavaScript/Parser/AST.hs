@@ -143,10 +143,10 @@ data JSNode
     | JSDoWhile JSAnnot JSNode JSAnnot JSLParen JSNode JSRParen JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
     | JSElision JSAnnot JSNode               -- ^comma
     | JSExpression [JSNode]          -- ^expression components
-    | JSExpressionBinary [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
+    | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
     | JSExpressionParen JSLParen JSNode JSRParen -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
-    | JSExpressionTernary [JSNode] JSNode [JSNode] JSNode [JSNode] -- ^cond, ?, trueval, :, falseval
+    | JSExpressionTernary JSNode JSNode JSNode JSNode JSNode -- ^cond, ?, trueval, :, falseval
     | JSFinally JSAnnot JSNode -- ^block
     | JSFor JSAnnot JSNode JSLParen [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSNode JSLParen JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
@@ -195,10 +195,10 @@ ss (JSDefault _ _c xs) = "JSDefault (" ++ sss xs ++ ")"
 ss (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression xs) = "JSExpression " ++ sss xs
-ss (JSExpressionBinary x2s op x3s) = "JSExpressionBinary " ++ sbop op ++ " " ++ sss x2s ++ " " ++ sss x3s
+ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss x2 ++ " " ++ ss x3
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
-ss (JSExpressionTernary x1s _q x2s _c x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
+ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
 ss (JSFinally _ x) = "JSFinally (" ++ ss x ++ ")"
 ss (JSFor _ _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
 ss (JSForIn _ _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
