@@ -945,7 +945,7 @@ ExpressionStatement : Expression { $1 {- ExpressionStatement -} }
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSNode } -- +++XXXX++
 IfStatement : If LParen Expression RParen StatementSemi IfElseRest
-                  { (AST.JSIf AST.JSNoAnnot $1 $2 $3 $4 $5 $6)  }
+                  { (AST.JSIf $1 $2 $3 $4 $5 $6)  }
 
 IfElseRest :: { [AST.JSNode] }
 IfElseRest : Else Statement     { [$1,$2] }

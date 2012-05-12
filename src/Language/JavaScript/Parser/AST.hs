@@ -154,7 +154,7 @@ data JSNode
     | JSForVarIn JSAnnot JSNode JSLParen JSNode JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
     | JSFunctionExpression JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
-    | JSIf JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
+    | JSIf JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
     | JSLabelled JSAnnot JSNode JSNode JSNode -- ^identifier,colon,stmt
     | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
@@ -209,7 +209,7 @@ ss (JSFunctionExpression _f x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
-ss (JSIf _ _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
+ss (JSIf _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
 ss (JSLabelled _ x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 ss (JSLiteral _ s) = "JSLiteral " ++ show s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"

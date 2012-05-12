@@ -86,9 +86,9 @@ instance RenderJS JSNode where
     (|>) pacc (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
     (|>) pacc (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  = pacc |> f |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
     (|>) pacc (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            = pacc |> f |> lb |> v |> x1 |> i |> x2 |> rb |> x3
-    (|>) pacc (JSFunction             f x1 lb x2s rb x3)               = pacc |> f |> x1 |> lb |> x2s |> rb |> x3
+    (|>) pacc (JSFunction             f x1 lb x2s rb x3)                         = pacc |> f |> x1 |> lb |> x2s |> rb |> x3
     (|>) pacc (JSFunctionExpression   f x1s lb x2s rb x3)                        = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
-    (|>) pacc (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
+    (|>) pacc (JSIf                   i lb x1 rb x2s x3s)                        = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
     (|>) pacc (JSLabelled             JSNoAnnot l c v)                           = pacc |> l |> c |> v
     (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
     (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
