@@ -89,7 +89,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSFunction             f x1 lb x2s rb x3)                         = pacc |> f |> x1 |> lb |> x2s |> rb |> x3
     (|>) pacc (JSFunctionExpression   f x1s lb x2s rb x3)                        = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
     (|>) pacc (JSIf                   i lb x1 rb x2s x3s)                        = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
-    (|>) pacc (JSLabelled             JSNoAnnot l c v)                           = pacc |> l |> c |> v
+    (|>) pacc (JSLabelled             l c v)                                     = pacc |> l |> c |> v
     (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
     (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
     (|>) pacc (JSObjectLiteral        lb xs rb)                                  = pacc |> lb |> xs |> rb

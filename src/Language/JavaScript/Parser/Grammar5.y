@@ -1039,7 +1039,7 @@ DefaultClause : Default Colon                { $1 $2 [] }
 -- LabelledStatement :                                                        See 12.12
 --        Identifier : Statement
 LabelledStatement :: { AST.JSNode }
-LabelledStatement : Identifier Colon Statement { AST.JSLabelled AST.JSNoAnnot $1 $2 $3 }
+LabelledStatement : Identifier Colon Statement { AST.JSLabelled $1 $2 $3 }
 
 -- ThrowStatement :                                                           See 12.13
 --        throw [no LineTerminator here] Expression ;

@@ -155,7 +155,7 @@ data JSNode
     | JSFunction JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
     | JSFunctionExpression JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
     | JSIf JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
-    | JSLabelled JSAnnot JSNode JSNode JSNode -- ^identifier,colon,stmt
+    | JSLabelled JSNode JSNode JSNode -- ^identifier,colon,stmt
     | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSLBrace [JSNode] JSRBrace -- ^lbrace contents rbrace
@@ -210,7 +210,7 @@ ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
 ss (JSIf _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
-ss (JSLabelled _ x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+ss (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 ss (JSLiteral _ s) = "JSLiteral " ++ show s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
