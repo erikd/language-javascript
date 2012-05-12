@@ -5,8 +5,21 @@ module Language.JavaScript.Parser
        , PA.parseFile
        , PA.showStripped
        , PA.showStrippedMaybe
-       , JSAnnot(..)
-       , JSNode(..)
+       -- * AST elements
+       , JSNode (..)
+       , JSAnnot (..)
+       , JSBinOp (..)
+       , JSUnaryOp (..)
+       , JSLParen (..)
+       , JSRParen (..)
+       , JSLBrace (..)
+       , JSRBrace (..)
+       , JSLSquare (..)
+       , JSRSquare (..)
+       , JSSemi (..)
+       , JSAssignOp (..)
+
+
        , CommentAnnotation(..)
        -- , ParseError(..)
        -- Source locations
