@@ -131,6 +131,7 @@ data JSNode
     -- | Non Terminals
     | JSArguments JSLParen [JSNode] JSRParen    -- ^lb, args, rb
     | JSArrayLiteral JSLSquare [JSNode] JSRSquare -- ^lb, contents, rb
+    | JSAssignExpression JSNode JSAssignOp JSNode -- ^lhs, assignop, rhs
     | JSBlock JSLBrace [JSNode] JSRBrace      -- ^lb,optional block statements,rb
     | JSBreak JSAnnot [JSNode] JSSemi        -- ^optional identifier, autosemi
     | JSCallExpression [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
@@ -145,19 +146,19 @@ data JSNode
     | JSExpression [JSNode]          -- ^expression components
     | JSExpressionBinary [JSNode] JSBinOp [JSNode] -- ^lhs, op, rhs
     | JSExpressionParen JSLParen JSNode JSRParen -- ^lb,expression,rb
-    | JSExpressionPostfix [JSNode] JSUnaryOp -- ^expression, operator
+    | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary [JSNode] JSNode [JSNode] JSNode [JSNode] -- ^cond, ?, trueval, :, falseval
     | JSFinally JSAnnot JSNode -- ^block
     | JSFor JSAnnot JSNode JSLParen [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
-    | JSForIn JSAnnot JSNode JSLParen [JSNode] JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
+    | JSForIn JSAnnot JSNode JSLParen JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSNode JSLParen JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSNode JSLParen JSNode JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode  -- ^fn,name, lb,parameter list,rb,block
     | JSFunctionExpression JSAnnot JSNode [JSNode] JSLParen [JSNode] JSRParen JSNode  -- ^fn,[name],lb, parameter list,rb,block`
     | JSIf JSAnnot JSNode JSLParen JSNode JSRParen [JSNode] [JSNode] -- ^if,(,expr,),stmt,optional rest
     | JSLabelled JSAnnot JSNode JSNode JSNode -- ^identifier,colon,stmt
-    | JSMemberDot [JSNode] JSNode JSNode -- ^firstpart, dot, name
-    | JSMemberSquare [JSNode] JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
+    | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
+    | JSMemberSquare JSNode JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSLBrace [JSNode] JSRBrace -- ^lbrace contents rbrace
     | JSOpAssign JSAssignOp -- ^opnode
     | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSNode -- ^(get|set), name, lb, params, rb, block
@@ -167,7 +168,7 @@ data JSNode
     | JSSwitch JSAnnot JSLParen JSNode JSRParen JSNode -- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
     | JSTry JSAnnot JSNode [JSNode] -- ^try,block,rest
-    | JSUnary JSUnaryOp
+    | JSUnaryExpression JSUnaryOp JSNode
     | JSVarDecl JSAnnot JSNode [JSNode] -- ^identifier, optional initializer
     | JSVariables JSAnnot JSNode [JSNode] JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSNode JSLParen JSNode JSRParen JSNode -- ^while,lb,expr,rb,stmt
@@ -181,6 +182,7 @@ showStripped = ss
 ss :: JSNode -> String
 ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
 ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
+ss (JSAssignExpression lhs op rhs) = "JSExpression " ++ ss lhs ++ " " ++ sopa op ++ " " ++ ss rhs
 ss (JSBlock _lb xs _rb) = "JSBlock (" ++ sss xs ++ ")"
 ss (JSBreak _ x1s s) = "JSBreak " ++ sss x1s ++ " " ++ showsemi s
 ss (JSCallExpression _os xs _cs) = "JSCallExpression \"()\" " ++ sss xs
@@ -196,11 +198,11 @@ ss (JSElision _ c) = "JSElision " ++ ss c
 ss (JSExpression xs) = "JSExpression " ++ sss xs
 ss (JSExpressionBinary x2s op x3s) = "JSExpressionBinary " ++ sbop op ++ " " ++ sss x2s ++ " " ++ sss x3s
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
-ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ sss xs
+ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1s _q x2s _c x3s) = "JSExpressionTernary " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s
 ss (JSFinally _ x) = "JSFinally (" ++ ss x ++ ")"
 ss (JSFor _ _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
-ss (JSForIn _ _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ sss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+ss (JSForIn _ _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSForVar _ _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
 ss (JSForVarIn _ _f _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSFunction _ _f x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
@@ -211,8 +213,8 @@ ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
 ss (JSIf _ _i _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ sss x2s ++ ") (" ++ sss x3s ++ ")"
 ss (JSLabelled _ x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
 ss (JSLiteral _ s) = "JSLiteral " ++ show s
-ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
-ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ sss x1s ++ " (" ++ ss x2 ++ ")"
+ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
+ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 ss (JSOpAssign n) = "JSOpAssign JSLiteral " ++ show (sopa n)
 ss (JSPropertyNameandValue _ x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
@@ -224,7 +226,7 @@ ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSSwitch _ _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
 ss (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
 ss (JSTry _ x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
-ss (JSUnary op) = "JSUnary " ++ suop op
+ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
 ss (JSVarDecl _ x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSVariables _ n xs _as) = "JSVariables " ++ ss n ++ " " ++ sss xs
 ss (JSWhile _ _w _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"

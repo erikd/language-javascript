@@ -63,6 +63,7 @@ instance RenderJS JSNode where
     -- Non-Terminals
     (|>) pacc (JSArguments            lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSArrayLiteral         lb xs rb)                                  = pacc |> lb |> xs |> rb
+    (|>) pacc (JSAssignExpression     lhs op rhs)                                = pacc |> lhs |> op |> rhs
     (|>) pacc (JSBlock                lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSBreak                annot x1s s)                               = pacc |> annot |> "break" |> x1s |> s
     (|>) pacc (JSCallExpression       os xs cs)                                  = pacc |> os |> xs |> cs
@@ -99,7 +100,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSSwitch               annot lb x rb x2)                          = pacc |> annot |> "switch" |> lb |> x |> rb |> x2
     (|>) pacc (JSThrow                annot x)                                   = pacc |> annot |> "throw" |> x
     (|>) pacc (JSTry                  annot x1 x2s)                              = pacc |> annot |> "try" |> x1 |> x2s
-    (|>) pacc (JSUnary                uop)                                       = pacc |> uop
+    (|>) pacc (JSUnaryExpression      op x)                                      = pacc |> op |> x
     (|>) pacc (JSVarDecl              JSNoAnnot x1 x2s)                          = pacc |> x1 |> x2s
     (|>) pacc (JSVariables            JSNoAnnot n xs as)                         = pacc |> n |> xs |> as
     (|>) pacc (JSWhile                JSNoAnnot w lb x1 rb x2)                   = pacc |> w |> lb |> x1 |> rb |> x2
