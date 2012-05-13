@@ -11,7 +11,7 @@ module Language.JavaScript.Parser.Parser (
    , showStrippedMaybe
    ) where
 
-import Language.JavaScript.Parser.ParseError
+import Language.JavaScript.Parser.ParseError ()
 import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import qualified Language.JavaScript.Parser.AST as AST
@@ -22,13 +22,13 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- Return comments in addition to the parsed statements.
 parse :: String -- ^ The input stream (Javascript source code).
       -> String -- ^ The name of the Javascript source (filename or input device).
-      -> Either String  AST.JSNode
+      -> Either String  AST.JSAST
          -- ^ An error or maybe the abstract syntax tree (AST) of zero
          -- or more Javascript statements, plus comments.
 parse input _srcName = runAlex input parseProgram
 
 
-readJs :: String -> AST.JSNode
+readJs :: String -> AST.JSAST
 readJs input = do
   case (parse input "src") of
     Left msg -> error (show msg)
@@ -37,16 +37,16 @@ readJs input = do
 -- | Parse the given file.
 -- For UTF-8 support, make sure your locale is set such that
 -- "System.IO.localeEncoding" returns "utf8"
-parseFile :: FilePath -> IO AST.JSNode
+parseFile :: FilePath -> IO AST.JSAST
 parseFile filename =
   do
      x <- readFile (filename)
      return $ readJs x
 
-showStripped :: AST.JSNode -> String
+showStripped :: AST.JSAST -> String
 showStripped ast = AST.showStripped ast
 
-showStrippedMaybe :: Show a => Either a AST.JSNode -> String
+showStrippedMaybe :: Show a => Either a AST.JSAST -> String
 showStrippedMaybe maybeAst = do
   case maybeAst of
     Left msg -> "Left (" ++ show msg ++ ")"
@@ -56,10 +56,10 @@ showStrippedMaybe maybeAst = do
 -- Generally used for interactive input, such as from the command line of an interpreter.
 -- Return comments in addition to the parsed statements.
 parseUsing ::
-      Alex AST.JSNode -- ^ The parser to be used
+      Alex AST.JSAST -- ^ The parser to be used
       -> String -- ^ The input stream (Javascript source code).
       -> String -- ^ The name of the Javascript source (filename or input device).
-      -> Either String AST.JSNode
+      -> Either String AST.JSAST
          -- ^ An error or maybe the abstract syntax tree (AST) of zero
          -- or more Javascript statements, plus comments.
 

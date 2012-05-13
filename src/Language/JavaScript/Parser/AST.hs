@@ -17,6 +17,7 @@ module Language.JavaScript.Parser.AST
     , JSStatement (..)
     , JSFunctionBody (..)
     , JSSwitchParts (..)
+    , JSAST (..)
     , showStripped
     ) where
 
@@ -158,6 +159,9 @@ data JSStatement
     | JSWith JSAnnot JSLParen JSNode JSRParen JSStatement JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Show, Eq)
 
+data JSAST
+    = JSSourceElementsTop [JSStatement] -- ^source elements
+    deriving (Show, Eq)
 
 -- | The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
@@ -195,13 +199,12 @@ data JSNode
     | JSOpAssign JSAssignOp -- ^opnode
     | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSFunctionBody -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSAnnot JSNode JSNode [JSNode] -- ^name, colon, value
-    | JSSourceElementsTop [JSStatement] -- ^source elements
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
 
 -- Strip out the location info, leaving the original JSNode text representation
-showStripped :: JSNode -> String
-showStripped = ss
+showStripped :: JSAST -> String
+showStripped = showtop
 
 ss :: JSNode -> String
 ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
@@ -230,16 +233,11 @@ ss (JSOpAssign n) = "JSOpAssign JSLiteral " ++ show (sopa n)
 ss (JSPropertyNameandValue _ x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSPropertyAccessor _ s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssf x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
-ss (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
 ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
 
 sss :: [JSNode] -> String
 sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
-
-ssss :: [JSNode] -> JSSemi -> String
-ssss xs s@JSSemi{} = "[" ++ (concat (intersperse "," (map ss xs ++ [showsemi s]))) ++ "]"
-ssss xs JSSemiAuto = sss xs
 
 -- The test suite expects operators to be double quoted.
 sbop :: JSBinOp -> String
@@ -347,5 +345,9 @@ ssw (JSDefault _ _c xs) = "JSDefault (" ++ ssts xs ++ ")"
 
 ssws :: [JSSwitchParts] -> String
 ssws xs = "[" ++ (concat (intersperse "," $ map ssw xs)) ++ "]"
+
+showtop :: JSAST -> String
+showtop (JSSourceElementsTop [x]) = sst x
+showtop (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
 
 -- EOF

@@ -6,7 +6,7 @@ module Language.JavaScript.Parser
        , PA.showStripped
        , PA.showStrippedMaybe
        , JSAnnot(..)
-       , JSNode(..)
+       , JSAST(..)
        , CommentAnnotation(..)
        -- , ParseError(..)
        -- Source locations

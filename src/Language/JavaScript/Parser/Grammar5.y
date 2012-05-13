@@ -1118,19 +1118,19 @@ FunctionBody : LBrace SourceElements RBrace { AST.JSFunctionBody $1 $2 $3 {- 'Fu
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
 
-Program :: { AST.JSNode }
-Program : SourceElementsTop Eof { (combineTop $1 $2)           {- 'Program1' -} }
+Program :: { AST.JSAST }
+Program : SourceElementsTop Eof { combineTop $1 $2             {- 'Program1' -} }
         | Eof                   { AST.JSSourceElementsTop [$1] {- 'Program2' -} }
 
 -- For debugging/other entry points
-LiteralMain :: { AST.JSNode }
-LiteralMain : Literal Eof { $1 {- 'LiteralMain' -} }
+LiteralMain :: { AST.JSAST }
+LiteralMain : Literal Eof { AST.JSSourceElementsTop [AST.JSNodeStmt $1] {- 'LiteralMain' -} }
 
-PrimaryExpressionMain :: { AST.JSNode }
-PrimaryExpressionMain : PrimaryExpression Eof { $1 {- 'PrimaryExpression' -} }
+PrimaryExpressionMain :: { AST.JSAST }
+PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSNodeStmt $1] {- 'PrimaryExpression' -} }
 
-StatementMain :: { AST.JSStatement }
-StatementMain : Statement Eof { $1 {- 'StatementMain' -} }
+StatementMain :: { AST.JSAST }
+StatementMain : Statement Eof { AST.JSSourceElementsTop [$1] {- 'StatementMain' -} }
 
 
 -- SourceElements :                                                           See clause 14
@@ -1140,7 +1140,7 @@ SourceElements :: { [AST.JSStatement] }
 SourceElements : SourceElement                { [$1]     {- 'SourceElements1' -} }
                | SourceElements SourceElement { $1++[$2] {- 'SourceElements2' -} }
 
-SourceElementsTop :: { AST.JSNode }
+SourceElementsTop :: { AST.JSAST }
 SourceElementsTop : SourceElement                   { AST.JSSourceElementsTop [$1]     {- 'SourceElementsTop1' -} }
                   | SourceElementsTop SourceElement { (combineSourceElementsTop $1 $2) {- 'SourceElementsTop2' -} }
 
@@ -1152,10 +1152,10 @@ SourceElement : Statement            { $1 {- 'SourceElement1' -} }
               | FunctionDeclaration  { $1 {- 'SourceElement2' -} }
 
 {
-combineSourceElementsTop :: AST.JSNode -> AST.JSStatement -> AST.JSNode
+combineSourceElementsTop :: AST.JSAST -> AST.JSStatement -> AST.JSAST
 combineSourceElementsTop (AST.JSSourceElementsTop xs) x1 = AST.JSSourceElementsTop (xs++[x1])
 
-combineTop :: AST.JSNode -> AST.JSStatement -> AST.JSNode
+combineTop :: AST.JSAST -> AST.JSStatement -> AST.JSAST
 combineTop (AST.JSSourceElementsTop xs) x1 = AST.JSSourceElementsTop (xs++[x1])
 
 

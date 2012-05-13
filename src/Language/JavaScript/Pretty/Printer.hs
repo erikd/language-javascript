@@ -34,13 +34,13 @@ str = BS.fromString
 
 -- ---------------------------------------------------------------------
 
-renderJS :: JSNode -> Builder
+renderJS :: JSAST -> Builder
 renderJS node = bb
   where
     PA _ bb = PA (1,1) empty |> node
 
 
-renderToString :: JSNode -> String
+renderToString :: JSAST -> String
 -- need to be careful to not lose the unicode encoding on output
 renderToString js = US.decode $ LB.unpack $ toLazyByteString $ renderJS js
 
@@ -48,6 +48,10 @@ renderToString js = US.decode $ LB.unpack $ toLazyByteString $ renderJS js
 class RenderJS a where
     -- Render node.
     (|>) :: PosAccum -> a -> PosAccum
+
+
+instance RenderJS JSAST where
+    (|>) pacc (JSSourceElementsTop xs) = pacc |> xs
 
 
 instance RenderJS JSNode where
@@ -80,7 +84,6 @@ instance RenderJS JSNode where
     (|>) pacc (JSOpAssign              n)                                        = pacc |> n
     (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
     (|>) pacc (JSPropertyNameandValue JSNoAnnot n colon vs)                      = pacc |> n |> colon |> vs
-    (|>) pacc (JSSourceElementsTop    xs)                                        = pacc |> xs
     (|>) pacc (JSUnaryExpression      op x)                                      = pacc |> op |> x
 
     -- Debug helper
