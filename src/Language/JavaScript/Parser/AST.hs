@@ -12,6 +12,8 @@ module Language.JavaScript.Parser.AST
     , JSRSquare (..)
     , JSSemi (..)
     , JSAssignOp (..)
+    , JSTryCatch (..)
+    , JSTryFinally (..)
     , showStripped
     ) where
 
@@ -111,6 +113,15 @@ data JSAssignOp
     | JSBwOrAssign JSAnnot
     deriving (Show, Eq)
 
+data JSTryCatch
+    = JSCatch JSAnnot JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
+    deriving (Show, Eq)
+
+data JSTryFinally
+    = JSFinally JSAnnot JSNode -- ^block
+    | JSNoFinally
+    deriving (Show, Eq)
+
 
 -- | The JSNode is the building block of the AST.
 -- Each has a syntactic part 'Node'. In addition, the leaf elements
@@ -137,7 +148,6 @@ data JSNode
     | JSCallExpressionDot JSNode [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
     | JSCallExpressionSquare JSLSquare [JSNode] JSRSquare  -- ^type : ., (), []; opening [ or ., contents, closing
     | JSCase JSAnnot JSNode JSNode [JSNode]    -- ^expr,colon,stmtlist
-    | JSCatch JSAnnot JSLParen JSNode [JSNode] JSRParen JSNode -- ^ catch,lb,ident,[if,expr],rb,block
     | JSConstant JSAnnot [JSNode] JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot [JSNode] JSSemi     -- ^optional identifier,autosemi
     | JSDefault JSAnnot JSNode [JSNode] -- ^colon,stmtlist
@@ -148,7 +158,6 @@ data JSNode
     | JSExpressionParen JSLParen JSNode JSRParen -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSNode JSNode JSNode JSNode -- ^cond, ?, trueval, :, falseval
-    | JSFinally JSAnnot JSNode -- ^block
     | JSFor JSAnnot JSNode JSLParen [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSNode JSLParen JSNode JSBinOp JSNode JSRParen JSNode -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSNode JSLParen JSNode [JSNode] JSNode [JSNode] JSNode [JSNode] JSRParen JSNode -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
@@ -167,7 +176,7 @@ data JSNode
     | JSSourceElementsTop JSAnnot [JSNode] -- ^source elements
     | JSSwitch JSAnnot JSLParen JSNode JSRParen JSNode -- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
-    | JSTry JSAnnot JSNode [JSNode] -- ^try,block,rest
+    | JSTry JSAnnot JSNode [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
     | JSUnaryExpression JSUnaryOp JSNode
     | JSVarDecl JSNode [JSNode] -- ^identifier, optional initializer
     | JSVariable JSAnnot [JSNode] JSSemi -- ^var, decl, autosemi
@@ -189,7 +198,6 @@ ss (JSCallExpression _os xs _cs) = "JSCallExpression \"()\" " ++ sss xs
 ss (JSCallExpressionDot _os xs) = "JSCallExpression \".\" " ++ sss xs
 ss (JSCallExpressionSquare _os xs _cs) = "JSCallExpression \"[]\" " ++ sss xs
 ss (JSCase _ x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ sss x2s ++ ")"
-ss (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
 ss (JSConstant _ xs _as) = "JSConstant const " ++ sss xs
 ss (JSContinue _ xs s) = "JSContinue " ++ sss xs ++ " " ++ showsemi s
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
@@ -201,7 +209,6 @@ ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
-ss (JSFinally _ x) = "JSFinally (" ++ ss x ++ ")"
 ss (JSFor _ _f _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
 ss (JSForIn _ _f _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
 ss (JSForVar _ _f _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ ss x4 ++ ")"
@@ -226,7 +233,7 @@ ss (JSSourceElementsTop _ xs) = "JSSourceElementsTop " ++ sss xs
 ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSSwitch _ _lb x _rb x2) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
 ss (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
-ss (JSTry _ x1 x2s) = "JSTry (" ++ ss x1 ++ ") " ++ sss x2s
+ss (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ss xt1 ++ ") " ++ stcs xtc ++ stf xtf
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
 ss (JSVarDecl x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSVariable _ xs _as) = "JSVariable var " ++ sss xs
@@ -300,6 +307,16 @@ sopa (JSUrshAssign _) = ">>>="
 sopa (JSBwAndAssign _) = "&="
 sopa (JSBwXorAssign _) = "^="
 sopa (JSBwOrAssign _) = "|="
+
+stcs :: [JSTryCatch] -> String
+stcs xs = "[" ++ (concat (intersperse "," $ map stc xs)) ++ "]"
+
+stc :: JSTryCatch -> String
+stc (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ss x3 ++ ")"
+
+stf :: JSTryFinally -> String
+stf (JSFinally _ x) = "JSFinally (" ++ ss x ++ ")"
+stf JSNoFinally = ""
 
 
 -- EOF

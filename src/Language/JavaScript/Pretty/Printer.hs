@@ -70,7 +70,6 @@ instance RenderJS JSNode where
     (|>) pacc (JSCallExpressionDot    os xs)                                     = pacc |> os |> xs
     (|>) pacc (JSCallExpressionSquare os xs cs)                                  = pacc |> os |> xs |> cs
     (|>) pacc (JSCase                 annot x1 c x2s)                            = pacc |> annot |> "case" |> x1 |> c |> x2s
-    (|>) pacc (JSCatch                annot lb x1 x2s rb x3)                     = pacc |> annot |> "catch" |> lb |> x1 |> x2s |> rb |> x3
     (|>) pacc (JSConstant             annot xs s)                                = pacc |> annot |> "const" |> xs |> s
     (|>) pacc (JSContinue             annot xs s)                                = pacc |> annot |> "continue" |> xs |> s
     (|>) pacc (JSDefault              annot c xs)                                = pacc |> annot |> "default" |> c |> xs
@@ -81,7 +80,6 @@ instance RenderJS JSNode where
     (|>) pacc (JSExpressionParen      lb e rb)                                   = pacc |> lb |> e |> rb
     (|>) pacc (JSExpressionPostfix    xs op)                                     = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)                            = pacc |> cond |> h |> v1 |> c |> v2
-    (|>) pacc (JSFinally              annot x)                                   = pacc |> annot |> "finally" |> x
     (|>) pacc (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    = pacc |> f |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
     (|>) pacc (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
     (|>) pacc (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  = pacc |> f |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
@@ -100,7 +98,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSSourceElementsTop    JSNoAnnot xs)                              = pacc |> xs
     (|>) pacc (JSSwitch               annot lb x rb x2)                          = pacc |> annot |> "switch" |> lb |> x |> rb |> x2
     (|>) pacc (JSThrow                annot x)                                   = pacc |> annot |> "throw" |> x
-    (|>) pacc (JSTry                  annot x1 x2s)                              = pacc |> annot |> "try" |> x1 |> x2s
+    (|>) pacc (JSTry                  annot tb tcs tf)                           = pacc |> annot |> "try" |> tb |> tcs |> tf
     (|>) pacc (JSUnaryExpression      op x)                                      = pacc |> op |> x
     (|>) pacc (JSVarDecl              x1 x2s)                                    = pacc |> x1 |> x2s
     (|>) pacc (JSVariable             annot xs a)                                = pacc |> annot |> "var" |> xs |> a
@@ -205,6 +203,17 @@ instance RenderJS JSAssignOp where
     (|>) pacc (JSBwAndAssign  annot) = pacc |> annot |> "&="
     (|>) pacc (JSBwXorAssign  annot) = pacc |> annot |> "^="
     (|>) pacc (JSBwOrAssign   annot) = pacc |> annot |> "|="
+
+
+instance RenderJS JSTryCatch where
+    (|>) pacc (JSCatch        annot lb x1 x2s rb x3) = pacc |> annot |> "catch" |> lb |> x1 |> x2s |> rb |> x3
+
+instance RenderJS [JSTryCatch] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSTryFinally where
+    (|>) pacc (JSFinally      annot x) = pacc |> annot |> "finally" |> x
+    (|>) pacc JSNoFinally              = pacc
 
 
 instance RenderJS JSLParen where
