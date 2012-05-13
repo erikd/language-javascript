@@ -503,8 +503,8 @@ StatementList : Statement               { (AST.JSStatementList [$1]) }
               | StatementList Statement { (combineStatements $1 $2) }
 
 -- <Variable Statement> ::= var <Variable Declaration List> ';'
-VariableStatement : 'var'   VariableDeclarationList AutoSemi { AST.JSVariables "var" $2 }
-                  | 'const' VariableDeclarationList AutoSemi { AST.JSVariables "const" $2 }
+VariableStatement : 'var'   VariableDeclarationList AutoSemi { AST.JSVariable "var" $2 }
+                  | 'const' VariableDeclarationList AutoSemi { AST.JSVariable "const" $2 }
 
 -- <Variable Declaration List> ::= <Variable Declaration>
 --                               | <Variable Declaration List> ',' <Variable Declaration>

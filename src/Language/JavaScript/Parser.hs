@@ -18,6 +18,7 @@ module Language.JavaScript.Parser
        , JSRSquare (..)
        , JSSemi (..)
        , JSAssignOp (..)
+       , JSAST(..)
 
 
        , CommentAnnotation(..)
