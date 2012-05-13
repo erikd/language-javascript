@@ -64,46 +64,24 @@ instance RenderJS JSNode where
     (|>) pacc (JSArguments            lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSArrayLiteral         lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSAssignExpression     lhs op rhs)                                = pacc |> lhs |> op |> rhs
-    (|>) pacc (JSBlock                lb xs rb)                                  = pacc |> lb |> xs |> rb
-    (|>) pacc (JSBreak                annot x1s s)                               = pacc |> annot |> "break" |> x1s |> s
     (|>) pacc (JSCallExpression       os xs cs)                                  = pacc |> os |> xs |> cs
     (|>) pacc (JSCallExpressionDot    os xs)                                     = pacc |> os |> xs
     (|>) pacc (JSCallExpressionSquare os xs cs)                                  = pacc |> os |> xs |> cs
-    (|>) pacc (JSCase                 annot x1 c x2s)                            = pacc |> annot |> "case" |> x1 |> c |> x2s
-    (|>) pacc (JSConstant             annot xs s)                                = pacc |> annot |> "const" |> xs |> s
-    (|>) pacc (JSContinue             annot xs s)                                = pacc |> annot |> "continue" |> xs |> s
-    (|>) pacc (JSDefault              annot c xs)                                = pacc |> annot |> "default" |> c |> xs
-    (|>) pacc (JSDoWhile              annot x1 annotw lb x2 rb x3)               = pacc |> annot |> "do" |> x1 |> annotw |> "while" |> lb |> x2 |> rb |> x3
     (|>) pacc (JSElision              JSNoAnnot c)                               = pacc |> c
     (|>) pacc (JSExpression           xs)                                        = pacc |> xs
     (|>) pacc (JSExpressionBinary     lhs op rhs)                                = pacc |> lhs |> op |> rhs
     (|>) pacc (JSExpressionParen      lb e rb)                                   = pacc |> lb |> e |> rb
     (|>) pacc (JSExpressionPostfix    xs op)                                     = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)                            = pacc |> cond |> h |> v1 |> c |> v2
-    (|>) pacc (JSFor                  JSNoAnnot f lb x1s s1 x2s s2 x3s rb x4)    = pacc |> f |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
-    (|>) pacc (JSForIn                JSNoAnnot f lb x1s i x2 rb x3)             = pacc |> f |> lb |> x1s |> i |> x2 |> rb |> x3
-    (|>) pacc (JSForVar               JSNoAnnot f lb v x1s s1 x2s s2 x3s rb x4)  = pacc |> f |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
-    (|>) pacc (JSForVarIn             JSNoAnnot f lb v x1 i x2 rb x3)            = pacc |> f |> lb |> v |> x1 |> i |> x2 |> rb |> x3
-    (|>) pacc (JSFunction             f x1 lb x2s rb x3)                         = pacc |> f |> x1 |> lb |> x2s |> rb |> x3
-    (|>) pacc (JSFunctionExpression   f x1s lb x2s rb x3)                        = pacc |> f |> x1s |> lb |> x2s |> rb |> x3
-    (|>) pacc (JSIf                   JSNoAnnot i lb x1 rb x2s x3s)              = pacc |> i |> lb |> x1 |> rb |> x2s |> x3s
-    (|>) pacc (JSLabelled             JSNoAnnot l c v)                           = pacc |> l |> c |> v
+    (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3)                    = pacc |> annot |> "function" |> x1s |> lb |> x2s |> rb |> x3
     (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
     (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
     (|>) pacc (JSObjectLiteral        lb xs rb)                                  = pacc |> lb |> xs |> rb
     (|>) pacc (JSOpAssign              n)                                        = pacc |> n
     (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
     (|>) pacc (JSPropertyNameandValue JSNoAnnot n colon vs)                      = pacc |> n |> colon |> vs
-    (|>) pacc (JSReturn               annot xs s)                                = pacc |> annot |> "return" |> xs |> s
-    (|>) pacc (JSSourceElementsTop    JSNoAnnot xs)                              = pacc |> xs
-    (|>) pacc (JSSwitch               annot lb x rb x2)                          = pacc |> annot |> "switch" |> lb |> x |> rb |> x2
-    (|>) pacc (JSThrow                annot x)                                   = pacc |> annot |> "throw" |> x
-    (|>) pacc (JSTry                  annot tb tcs tf)                           = pacc |> annot |> "try" |> tb |> tcs |> tf
+    (|>) pacc (JSSourceElementsTop    xs)                                        = pacc |> xs
     (|>) pacc (JSUnaryExpression      op x)                                      = pacc |> op |> x
-    (|>) pacc (JSVarDecl              x1 x2s)                                    = pacc |> x1 |> x2s
-    (|>) pacc (JSVariable             annot xs a)                                = pacc |> annot |> "var" |> xs |> a
-    (|>) pacc (JSWhile                annot lb x1 rb x2)                         = pacc |> annot |> "while" |> lb |> x1 |> rb |> x2
-    (|>) pacc (JSWith                 annot lb x1 rb x s)                        = pacc |> annot |> "with" |> lb |> x1 |> rb |> x |> s
 
     -- Debug helper
     (|>) pacc what = pacc |> ("X " ++ show what ++ " X")
@@ -205,17 +183,6 @@ instance RenderJS JSAssignOp where
     (|>) pacc (JSBwOrAssign   annot) = pacc |> annot |> "|="
 
 
-instance RenderJS JSTryCatch where
-    (|>) pacc (JSCatch        annot lb x1 x2s rb x3) = pacc |> annot |> "catch" |> lb |> x1 |> x2s |> rb |> x3
-
-instance RenderJS [JSTryCatch] where
-    (|>) = foldl' (|>)
-
-instance RenderJS JSTryFinally where
-    (|>) pacc (JSFinally      annot x) = pacc |> annot |> "finally" |> x
-    (|>) pacc JSNoFinally              = pacc
-
-
 instance RenderJS JSLParen where
     (|>) pacc (JSLParen annot) = pacc |> annot |> "("
 
@@ -237,6 +204,54 @@ instance RenderJS JSRSquare where
 instance RenderJS JSSemi where
     (|>) pacc (JSSemi annot) = pacc |> annot |> ";"
     (|>) pacc JSSemiAuto     = pacc
+
+
+instance RenderJS JSTryCatch where
+    (|>) pacc (JSCatch        annot lb x1 x2s rb x3) = pacc |> annot |> "catch" |> lb |> x1 |> x2s |> rb |> x3
+
+instance RenderJS [JSTryCatch] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSTryFinally where
+    (|>) pacc (JSFinally      annot x) = pacc |> annot |> "finally" |> x
+    (|>) pacc JSNoFinally              = pacc
+
+instance RenderJS JSSwitchParts where
+    (|>) pacc (JSCase    annot x1 c x2s) = pacc |> annot |> "case" |> x1 |> c |> x2s
+    (|>) pacc (JSDefault annot c xs)     = pacc |> annot |> "default" |> c |> xs
+
+instance RenderJS [JSSwitchParts] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSStatement where
+    (|>) pacc (JSBlock lb xs rb)                         = pacc |> lb |> xs |> rb
+    (|>) pacc (JSBreak annot x1s s)                      = pacc |> annot |> "break" |> x1s |> s
+    (|>) pacc (JSContinue annot xs s)                    = pacc |> annot |> "continue" |> xs |> s
+    (|>) pacc (JSConstant annot xs s)                    = pacc |> annot |> "const" |> xs |> s
+    (|>) pacc (JSDoWhile ad x1 aw lb x2 rb x3)           = pacc |> ad |> "do" |> x1 |> aw |> "while" |> lb |> x2 |> rb |> x3
+    (|>) pacc (JSFor af lb x1s s1 x2s s2 x3s rb x4)      = pacc |> af |> "for" |> lb |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
+    (|>) pacc (JSForIn af lb x1s i x2 rb x3)             = pacc |> af |> "for" |> lb |> x1s |> i |> x2 |> rb |> x3
+    (|>) pacc (JSForVar af lb v x1s s1 x2s s2 x3s rb x4) = pacc |> af |> "for" |> lb |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> rb |> x4
+    (|>) pacc (JSForVarIn af lb v x1 i x2 rb x3)         = pacc |> af |> "for" |> lb |> v |> x1 |> i |> x2 |> rb |> x3
+    (|>) pacc (JSFunction af n lb x2s rb x3)             = pacc |> af |> "function" |> n |> lb |> x2s |> rb |> x3
+    (|>) pacc (JSIf annot lb x1 rb x2s x3s)              = pacc |> annot |> "if" |> lb |> x1 |> rb |> x2s |> x3s
+    (|>) pacc (JSLabelled l c v)                         = pacc |> l |> c |> v
+    (|>) pacc (JSNodeStmt l)                             = pacc |> l
+    (|>) pacc (JSReturn annot xs s)                      = pacc |> annot |> "return" |> xs |> s
+    (|>) pacc (JSSwitch annot lp x rp lb x2 rb)          = pacc |> annot |> "switch" |> lp |> x |> rp |> lb |> x2 |> rb
+    (|>) pacc (JSThrow annot x)                          = pacc |> annot |> "throw" |> x
+    (|>) pacc (JSTry annot tb tcs tf)                    = pacc |> annot |> "try" |> tb |> tcs |> tf
+    (|>) pacc (JSVarDecl x1 x2s)                         = pacc |> x1 |> x2s
+    (|>) pacc (JSVariable annot xs s)                    = pacc |> annot |> "var" |> xs |> s
+    (|>) pacc (JSWhile annot lb x1 rb x2)                = pacc |> annot |> "while" |> lb |> x1 |> rb |> x2
+    (|>) pacc (JSWith annot lb x1 rb x s)                = pacc |> annot |> "with" |> lb |> x1 |> rb |> x |> s
+
+
+instance RenderJS [JSStatement] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSFunctionBody where
+    (|>) pacc (JSFunctionBody lb ss rb) = pacc |> lb |> ss |> rb
 
 -- EOF
 
