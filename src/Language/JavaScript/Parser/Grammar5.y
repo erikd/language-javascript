@@ -464,16 +464,16 @@ ArrayLiteral : LSquare RSquare                           { AST.JSArrayLiteral $1
 ElementList :: { [AST.JSNode] }
 ElementList : Elision AssignmentExpression                 { ($1 ++ [$2])   {- 'ElementList1' -} }
             | AssignmentExpression                         { [$1]           {- 'ElementList2' -} }
-            | ElementList Comma Elision AssignmentExpression { (($1)++((AST.JSElision AST.JSNoAnnot $2):$3)++[$4]) {- 'ElementList3' -} }
-            | ElementList Comma AssignmentExpression         { (($1)++((AST.JSElision AST.JSNoAnnot $2):[$3])) {- 'ElementList4' -} }
+            | ElementList Comma Elision AssignmentExpression { (($1)++((AST.JSElision $2):$3)++[$4]) {- 'ElementList3' -} }
+            | ElementList Comma AssignmentExpression         { (($1)++((AST.JSElision $2):[$3])) {- 'ElementList4' -} }
 
 
 -- Elision :                                                             See 11.1.4
 --        ,
 --        Elision ,
 Elision :: { [AST.JSNode] }
-Elision : Comma         { [      AST.JSElision AST.JSNoAnnot $1] }
-        | Elision Comma { $1 ++ [AST.JSElision AST.JSNoAnnot $2] }
+Elision : Comma         { [      AST.JSElision $1] }
+        | Elision Comma { $1 ++ [AST.JSElision $2] }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
@@ -501,13 +501,13 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 --        set PropertyName( PropertySetParameterList ) { FunctionBody }
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSNode }
-PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue AST.JSNoAnnot $1 $2 [$3] }
+PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
-                       { AST.JSPropertyAccessor AST.JSNoAnnot (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "get") $2 $3 [] $4 $5 }
+                       { AST.JSPropertyAccessor (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "get") $2 $3 [] $4 $5 }
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
-                       { AST.JSPropertyAccessor AST.JSNoAnnot (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "set") $2 $3 [$4] $5 $6 }
+                       { AST.JSPropertyAccessor (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "set") $2 $3 [$4] $5 $6 }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName

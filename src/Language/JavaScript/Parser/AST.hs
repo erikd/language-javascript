@@ -185,7 +185,7 @@ data JSNode
     | JSCallExpression [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
     | JSCallExpressionDot JSNode [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
     | JSCallExpressionSquare JSLSquare [JSNode] JSRSquare  -- ^type : ., (), []; opening [ or ., contents, closing
-    | JSElision JSAnnot JSNode               -- ^comma
+    | JSElision JSNode               -- ^comma
     | JSExpression [JSNode]          -- ^expression components
     | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
     | JSExpressionParen JSLParen JSNode JSRParen -- ^lb,expression,rb
@@ -196,8 +196,8 @@ data JSNode
     | JSMemberSquare JSNode JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSLBrace [JSNode] JSRBrace -- ^lbrace contents rbrace
     | JSOpAssign JSAssignOp -- ^opnode
-    | JSPropertyAccessor JSAnnot JSNode JSNode JSLParen [JSNode] JSRParen JSFunctionBody -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue JSAnnot JSNode JSNode [JSNode] -- ^name, colon, value
+    | JSPropertyAccessor JSNode JSNode JSLParen [JSNode] JSRParen JSFunctionBody -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameandValue JSNode JSNode [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
 
@@ -213,7 +213,7 @@ ss (JSCallExpression _os xs _cs) = "JSCallExpression \"()\" " ++ sss xs
 ss (JSCallExpressionDot _os xs) = "JSCallExpression \".\" " ++ sss xs
 ss (JSCallExpressionSquare _os xs _cs) = "JSCallExpression \"[]\" " ++ sss xs
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
-ss (JSElision _ c) = "JSElision " ++ ss c
+ss (JSElision c) = "JSElision " ++ ss c
 ss (JSExpression xs) = "JSExpression " ++ sss xs
 ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss x2 ++ " " ++ ss x3
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
@@ -228,8 +228,8 @@ ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 ss (JSOpAssign n) = "JSOpAssign JSLiteral " ++ show (sopa n)
-ss (JSPropertyNameandValue _ x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
-ss (JSPropertyAccessor _ s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssf x3 ++ ")"
+ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
+ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssf x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
 ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x

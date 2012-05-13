@@ -65,29 +65,26 @@ instance RenderJS JSNode where
     (|>) pacc (JSRegEx         annot s  ) = pacc |> annot |> s
 
     -- Non-Terminals
-    (|>) pacc (JSArguments            lb xs rb)                                  = pacc |> lb |> xs |> rb
-    (|>) pacc (JSArrayLiteral         lb xs rb)                                  = pacc |> lb |> xs |> rb
-    (|>) pacc (JSAssignExpression     lhs op rhs)                                = pacc |> lhs |> op |> rhs
-    (|>) pacc (JSCallExpression       os xs cs)                                  = pacc |> os |> xs |> cs
-    (|>) pacc (JSCallExpressionDot    os xs)                                     = pacc |> os |> xs
-    (|>) pacc (JSCallExpressionSquare os xs cs)                                  = pacc |> os |> xs |> cs
-    (|>) pacc (JSElision              JSNoAnnot c)                               = pacc |> c
-    (|>) pacc (JSExpression           xs)                                        = pacc |> xs
-    (|>) pacc (JSExpressionBinary     lhs op rhs)                                = pacc |> lhs |> op |> rhs
-    (|>) pacc (JSExpressionParen      lb e rb)                                   = pacc |> lb |> e |> rb
-    (|>) pacc (JSExpressionPostfix    xs op)                                     = pacc |> xs |> op
-    (|>) pacc (JSExpressionTernary    cond h v1 c v2)                            = pacc |> cond |> h |> v1 |> c |> v2
-    (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3)                    = pacc |> annot |> "function" |> x1s |> lb |> x2s |> rb |> x3
-    (|>) pacc (JSMemberDot            xs dot n)                                  = pacc |> xs |> dot |> n
-    (|>) pacc (JSMemberSquare         xs lb e rb)                                = pacc |> xs |> lb |> e |> rb
-    (|>) pacc (JSObjectLiteral        lb xs rb)                                  = pacc |> lb |> xs |> rb
-    (|>) pacc (JSOpAssign              n)                                        = pacc |> n
-    (|>) pacc (JSPropertyAccessor     JSNoAnnot s n lb1 ps rb1 b)                = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
-    (|>) pacc (JSPropertyNameandValue JSNoAnnot n colon vs)                      = pacc |> n |> colon |> vs
-    (|>) pacc (JSUnaryExpression      op x)                                      = pacc |> op |> x
-
-    -- Debug helper
-    (|>) pacc what = pacc |> ("X " ++ show what ++ " X")
+    (|>) pacc (JSArguments            lb xs rb)               = pacc |> lb |> xs |> rb
+    (|>) pacc (JSArrayLiteral         lb xs rb)               = pacc |> lb |> xs |> rb
+    (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
+    (|>) pacc (JSCallExpression       os xs cs)               = pacc |> os |> xs |> cs
+    (|>) pacc (JSCallExpressionDot    os xs)                  = pacc |> os |> xs
+    (|>) pacc (JSCallExpressionSquare os xs cs)               = pacc |> os |> xs |> cs
+    (|>) pacc (JSElision              c)                      = pacc |> c
+    (|>) pacc (JSExpression           xs)                     = pacc |> xs
+    (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
+    (|>) pacc (JSExpressionParen      lb e rb)                = pacc |> lb |> e |> rb
+    (|>) pacc (JSExpressionPostfix    xs op)                  = pacc |> xs |> op
+    (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> v1 |> c |> v2
+    (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3) = pacc |> annot |> "function" |> x1s |> lb |> x2s |> rb |> x3
+    (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> dot |> n
+    (|>) pacc (JSMemberSquare         xs lb e rb)             = pacc |> xs |> lb |> e |> rb
+    (|>) pacc (JSObjectLiteral        lb xs rb)               = pacc |> lb |> xs |> rb
+    (|>) pacc (JSOpAssign              n)                     = pacc |> n
+    (|>) pacc (JSPropertyAccessor     s n lb1 ps rb1 b)       = pacc |> s |> n |> lb1 |> ps |> rb1 |> b
+    (|>) pacc (JSPropertyNameandValue n colon vs)             = pacc |> n |> colon |> vs
+    (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
 
 -- -----------------------------------------------------------------------------
 -- Need an instance of RenderJS for every component of every JSNode or JSAnnot
