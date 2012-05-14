@@ -15,7 +15,7 @@ module Language.JavaScript.Parser.AST
     , JSTryCatch (..)
     , JSTryFinally (..)
     , JSStatement (..)
-    , JSFunctionBody (..)
+    , JSBlock (..)
     , JSSwitchParts (..)
     , JSAST (..)
     , showStripped
@@ -118,16 +118,16 @@ data JSAssignOp
     deriving (Show, Eq)
 
 data JSTryCatch
-    = JSCatch JSAnnot JSLParen JSNode [JSNode] JSRParen JSStatement -- ^ catch,lb,ident,[if,expr],rb,block
+    = JSCatch JSAnnot JSLParen JSNode [JSNode] JSRParen JSBlock -- ^ catch,lb,ident,[if,expr],rb,block
     deriving (Show, Eq)
 
 data JSTryFinally
-    = JSFinally JSAnnot JSStatement -- ^block
+    = JSFinally JSAnnot JSBlock -- ^block
     | JSNoFinally
     deriving (Show, Eq)
 
-data JSFunctionBody
-    = JSFunctionBody JSLBrace [JSStatement] JSRBrace
+data JSBlock
+    = JSBlock JSLBrace [JSStatement] JSRBrace
     deriving (Show, Eq)
 
 data JSSwitchParts
@@ -136,7 +136,7 @@ data JSSwitchParts
     deriving (Show, Eq)
 
 data JSStatement
-    = JSBlock JSLBrace [JSStatement] JSRBrace      -- ^lb,optional block statements,rb
+    = JSStatementBlock JSBlock      -- ^statement block
     | JSBreak JSAnnot [JSNode] JSSemi        -- ^optional identifier, autosemi
     | JSConstant JSAnnot [JSStatement] JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot [JSNode] JSSemi     -- ^optional identifier,autosemi
@@ -145,14 +145,14 @@ data JSStatement
     | JSForIn JSAnnot JSLParen JSNode JSBinOp JSNode JSRParen JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSLParen JSNode [JSStatement] JSNode [JSNode] JSNode [JSNode] JSRParen JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSLParen JSNode JSStatement JSBinOp JSNode JSRParen JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSNode JSLParen [JSNode] JSRParen JSFunctionBody  -- ^fn,name, lb,parameter list,rb,block
+    | JSFunction JSAnnot JSNode JSLParen [JSNode] JSRParen JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSLParen JSNode JSRParen [JSStatement] [JSStatement] -- ^if,(,expr,),stmt,optional rest
     | JSLabelled JSNode JSNode JSStatement -- ^identifier,colon,stmt
     | JSNodeStmt JSNode
     | JSReturn JSAnnot [JSNode] JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSLParen JSNode JSRParen JSLBrace [JSSwitchParts] JSRBrace-- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
-    | JSTry JSAnnot JSStatement [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
+    | JSTry JSAnnot JSBlock [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
     | JSVarDecl JSNode [JSNode] -- ^identifier, optional initializer
     | JSVariable JSAnnot [JSStatement] JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSLParen JSNode JSRParen JSStatement -- ^while,lb,expr,rb,stmt
@@ -191,12 +191,12 @@ data JSNode
     | JSExpressionParen JSLParen JSNode JSRParen -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSNode JSNode JSNode JSNode -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot [JSNode] JSLParen [JSNode] JSRParen JSFunctionBody -- ^fn,[name],lb, parameter list,rb,block`
+    | JSFunctionExpression JSAnnot [JSNode] JSLParen [JSNode] JSRParen JSBlock -- ^fn,[name],lb, parameter list,rb,block`
     | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSLSquare JSNode JSRSquare -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSLBrace [JSNode] JSRBrace -- ^lbrace contents rbrace
     | JSOpAssign JSAssignOp -- ^opnode
-    | JSPropertyAccessor JSNode JSNode JSLParen [JSNode] JSRParen JSFunctionBody -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyAccessor JSNode JSNode JSLParen [JSNode] JSRParen JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSNode JSNode [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
@@ -219,7 +219,7 @@ ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
-ss (JSFunctionExpression _ x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ssf x3 ++ ")"
+ss (JSFunctionExpression _ x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
@@ -229,7 +229,7 @@ ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 ss (JSOpAssign n) = "JSOpAssign JSLiteral " ++ show (sopa n)
 ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
-ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssf x3 ++ ")"
+ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
 ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
@@ -302,14 +302,14 @@ stcs :: [JSTryCatch] -> String
 stcs xs = "[" ++ (concat (intersperse "," $ map stc xs)) ++ "]"
 
 stc :: JSTryCatch -> String
-stc (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ sst x3 ++ ")"
+stc (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 
 stf :: JSTryFinally -> String
-stf (JSFinally _ x) = "JSFinally (" ++ sst x ++ ")"
+stf (JSFinally _ x) = "JSFinally (" ++ ssb x ++ ")"
 stf JSNoFinally = ""
 
 sst :: JSStatement -> String
-sst (JSBlock _lb xs _rb) = "JSBlock (" ++ ssts xs ++ ")"
+sst (JSStatementBlock blk) = "JSStatementBlock (" ++ ssb blk ++ ")"
 sst (JSBreak _ x1s s) = "JSBreak " ++ sss x1s ++ " " ++ showsemi s
 sst (JSContinue _ xs s) = "JSContinue " ++ sss xs ++ " " ++ showsemi s
 sst (JSConstant _ xs _as) = "JSConstant const " ++ ssts xs
@@ -318,14 +318,14 @@ sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss
 sst (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ssts x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
 sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
-sst (JSFunction _ x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssf x3 ++ ")"
+sst (JSFunction _ x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 sst (JSIf _ _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ") (" ++ ssts x3s ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSNodeStmt l) = ss l
 sst (JSReturn _ xs s) = "JSReturn " ++ sss xs ++ " " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
 sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
-sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ sst xt1 ++ ") " ++ stcs xtc ++ stf xtf
+sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ssb xt1 ++ ") " ++ stcs xtc ++ stf xtf
 sst (JSVarDecl x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
 sst (JSVariable _ xs _as) = "JSVariable var " ++ ssts xs
 sst (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
@@ -334,8 +334,8 @@ sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ sst x ++ showsemi
 ssts :: [JSStatement] -> String
 ssts xs = "[" ++ (concat (intersperse "," $ map sst xs)) ++ "]"
 
-ssf :: JSFunctionBody -> String
-ssf (JSFunctionBody _ xs _) = "JSBlock (" ++ ssts xs ++ ")"
+ssb :: JSBlock -> String
+ssb (JSBlock _ xs _) = "JSStatementBlock (" ++ ssts xs ++ ")"
 
 ssw :: JSSwitchParts -> String
 ssw (JSCase _ x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ")"

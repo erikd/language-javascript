@@ -224,7 +224,7 @@ instance RenderJS [JSSwitchParts] where
     (|>) = foldl' (|>)
 
 instance RenderJS JSStatement where
-    (|>) pacc (JSBlock lb xs rb)                         = pacc |> lb |> xs |> rb
+    (|>) pacc (JSStatementBlock blk)                     = pacc |> blk
     (|>) pacc (JSBreak annot x1s s)                      = pacc |> annot |> "break" |> x1s |> s
     (|>) pacc (JSContinue annot xs s)                    = pacc |> annot |> "continue" |> xs |> s
     (|>) pacc (JSConstant annot xs s)                    = pacc |> annot |> "const" |> xs |> s
@@ -250,8 +250,8 @@ instance RenderJS JSStatement where
 instance RenderJS [JSStatement] where
     (|>) = foldl' (|>)
 
-instance RenderJS JSFunctionBody where
-    (|>) pacc (JSFunctionBody lb ss rb) = pacc |> lb |> ss |> rb
+instance RenderJS JSBlock where
+    (|>) pacc (JSBlock lb ss rb) = pacc |> lb |> ss |> rb
 
 -- EOF
 

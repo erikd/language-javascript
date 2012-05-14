@@ -868,12 +868,12 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
 
 
 StatementBlock :: { AST.JSStatement }
-StatementBlock : LBrace RBrace               { AST.JSBlock $1 [] $2 {- 'StatementBlock1' -} }
-               | LBrace StatementList RBrace { AST.JSBlock $1 $2 $3 {- 'StatementBlock2' -} }
+StatementBlock : LBrace RBrace               { AST.JSStatementBlock (AST.JSBlock $1 [] $2) {- 'StatementBlock1' -} }
+               | LBrace StatementList RBrace { AST.JSStatementBlock (AST.JSBlock $1 $2 $3) {- 'StatementBlock2' -} }
 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
-Block :: { AST.JSStatement }
+Block :: { AST.JSBlock }
 Block : LBrace RBrace               { AST.JSBlock $1 [] $2 {- 'Block1' -} }
       | LBrace StatementList RBrace { AST.JSBlock $1 $2 $3 {- 'Block2' -} }
 
@@ -1111,9 +1111,9 @@ FormalParameterList : Identifier                            { [$1] {- 'FormalPar
 
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
-FunctionBody :: { AST.JSFunctionBody }
-FunctionBody : LBrace SourceElements RBrace { AST.JSFunctionBody $1 $2 $3 {- 'FunctionBody1' -} }
-             | LBrace                RBrace { AST.JSFunctionBody $1 [] $2 {- 'FunctionBody2' -} }
+FunctionBody :: { AST.JSBlock }
+FunctionBody : LBrace SourceElements RBrace { AST.JSBlock $1 $2 $3 {- 'FunctionBody1' -} }
+             | LBrace                RBrace { AST.JSBlock $1 [] $2 {- 'FunctionBody2' -} }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
