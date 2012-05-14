@@ -142,25 +142,23 @@ AutoSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
 
 -- Helpers
 
-LParen :: { AST.JSLParen }
-LParen : '(' { AST.JSLParen (AST.JSAnnot (ss $1) (gc $1)) }
+LParen :: { AST.JSAnnot }
+LParen : '(' { AST.JSAnnot (ss $1) (gc $1) }
 
-RParen :: { AST.JSRParen }
-RParen : ')' { AST.JSRParen (AST.JSAnnot (ss $1) (gc $1)) }
+RParen :: { AST.JSAnnot }
+RParen : ')' { AST.JSAnnot (ss $1) (gc $1) }
 
+LBrace :: { AST.JSAnnot }
+LBrace : '{' { AST.JSAnnot (ss $1) (gc $1) }
 
-LBrace :: { AST.JSLBrace }
-LBrace : '{' { AST.JSLBrace (AST.JSAnnot (ss $1) (gc $1)) }
+RBrace :: { AST.JSAnnot }
+RBrace : '}' { AST.JSAnnot (ss $1) (gc $1) }
 
-RBrace :: { AST.JSRBrace }
-RBrace : '}' { AST.JSRBrace (AST.JSAnnot (ss $1) (gc $1)) }
+LSquare :: { AST.JSAnnot }
+LSquare : '[' { AST.JSAnnot (ss $1) (gc $1) }
 
-
-LSquare :: { AST.JSLSquare }
-LSquare : '[' { AST.JSLSquare (AST.JSAnnot (ss $1) (gc $1)) }
-
-RSquare :: { AST.JSRSquare }
-RSquare : ']' { AST.JSRSquare (AST.JSAnnot (ss $1) (gc $1)) }
+RSquare :: { AST.JSAnnot }
+RSquare : ']' { AST.JSAnnot (ss $1) (gc $1) }
 
 Comma :: { AST.JSNode }
 Comma : ',' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "," }
@@ -868,12 +866,12 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
 
 
 StatementBlock :: { AST.JSStatement }
-StatementBlock : LBrace RBrace               { AST.JSBlock $1 [] $2 {- 'StatementBlock1' -} }
-               | LBrace StatementList RBrace { AST.JSBlock $1 $2 $3 {- 'StatementBlock2' -} }
+StatementBlock : LBrace RBrace               { AST.JSStatementBlock (AST.JSBlock $1 [] $2) {- 'StatementBlock1' -} }
+               | LBrace StatementList RBrace { AST.JSStatementBlock (AST.JSBlock $1 $2 $3) {- 'StatementBlock2' -} }
 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
-Block :: { AST.JSStatement }
+Block :: { AST.JSBlock }
 Block : LBrace RBrace               { AST.JSBlock $1 [] $2 {- 'Block1' -} }
       | LBrace StatementList RBrace { AST.JSBlock $1 $2 $3 {- 'Block2' -} }
 
@@ -1111,9 +1109,9 @@ FormalParameterList : Identifier                            { [$1] {- 'FormalPar
 
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
-FunctionBody :: { AST.JSFunctionBody }
-FunctionBody : LBrace SourceElements RBrace { AST.JSFunctionBody $1 $2 $3 {- 'FunctionBody1' -} }
-             | LBrace                RBrace { AST.JSFunctionBody $1 [] $2 {- 'FunctionBody2' -} }
+FunctionBody :: { AST.JSBlock }
+FunctionBody : LBrace SourceElements RBrace { AST.JSBlock $1 $2 $3 {- 'FunctionBody1' -} }
+             | LBrace                RBrace { AST.JSBlock $1 [] $2 {- 'FunctionBody2' -} }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt

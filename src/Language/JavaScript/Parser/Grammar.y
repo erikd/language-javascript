@@ -493,10 +493,10 @@ StatementNoEmpty : StatementBlock     { $1 {- StatementNoEmpty1 -}}
                  | Expression         { $1 {- StatementNoEmpty15 -}}
 
 StatementBlock : '{' '}'               { (AST.JSLiteral ";") }
-               | '{' StatementList '}' { (if ($2 == AST.JSStatementList [AST.JSLiteral ";"]) then (AST.JSLiteral ";") else (AST.JSBlock $2)) }
+               | '{' StatementList '}' { (if ($2 == AST.JSStatementList [AST.JSLiteral ";"]) then (AST.JSLiteral ";") else (AST.JSStatementBlock $2)) }
 
-Block : '{' '}'               { (AST.JSBlock (AST.JSStatementList [])) }
-      | '{' StatementList '}' { (AST.JSBlock $2) }
+Block : '{' '}'               { (AST.JSStatementBlock (AST.JSStatementList [])) }
+      | '{' StatementList '}' { (AST.JSStatementBlock $2) }
 
 StatementList :: { AST.JSNode }
 StatementList : Statement               { (AST.JSStatementList [$1]) }
@@ -532,7 +532,7 @@ IfElseStatement : 'if' '(' Expression ')' StatementSemi 'else' Statement { (AST.
 
 {-
 IfElseStatement : 'if' '(' Expression ')' Statement  ';' 'else' Statement
-                  { (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) $8) }
+                  { (AST.JSIfElse $3 (AST.JSStatementBlock (AST.JSStatementList [$5])) $8) }
                 | 'if' '(' Expression ')' Statement  'else' Statement
                    { (AST.JSIfElse $3 $5 $7) }
                 | 'if' '(' Expression ')' Statement { (AST.JSIf $3 $5) }
@@ -543,7 +543,7 @@ IfElseStatement :: { AST.JSNode }
 IfElseStatement : 'if' '(' Expression ')' StatementSemi  IfElseRest
                   { (if ($6 /= []) then
                        (if (length $6 == 1) then (AST.JSIfElse $3 $5 (head $6))
-                                            else (AST.JSIfElse $3 (AST.JSBlock (AST.JSStatementList [$5])) (last $6)))
+                                            else (AST.JSIfElse $3 (AST.JSStatementBlock (AST.JSStatementList [$5])) (last $6)))
                      else (AST.JSIf $3 $5)) }
 
 
@@ -556,7 +556,7 @@ IfElseRest : -- ';' 'else' Statement { [$3,$3] } -- Horrible, but a type-complia
 ElsePart : 'else'      { 1 }
          | ';' 'else'  { 2 }
 -}
-StatementSemi : StatementNoEmpty ';' { (AST.JSBlock (AST.JSStatementList [$1])) }
+StatementSemi : StatementNoEmpty ';' { (AST.JSStatementBlock (AST.JSStatementList [$1])) }
               | StatementNoEmpty     { $1 {- StatementSemi -}}
               | ';'                  { AST.JSLiteral ";" }
 
@@ -688,8 +688,8 @@ FormalParameterList : Identifier                          { [$1] {- FormalParame
 -- <Function Body> ::= <Source Elements>
 --                   |
 FunctionBody :: { AST.JSNode }
-FunctionBody : SourceElements { (AST.JSFunctionBody [$1]) }
-             |                { (AST.JSFunctionBody []) }
+FunctionBody : SourceElements { (AST.JSBlock [$1]) }
+             |                { (AST.JSBlock []) }
 
 -- <Program> ::= <Source Elements>
 Program : SourceElementsTop { $1 {- Program -}}
