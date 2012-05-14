@@ -142,25 +142,23 @@ AutoSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
 
 -- Helpers
 
-LParen :: { AST.JSLParen }
-LParen : '(' { AST.JSLParen (AST.JSAnnot (ss $1) (gc $1)) }
+LParen :: { AST.JSAnnot }
+LParen : '(' { AST.JSAnnot (ss $1) (gc $1) }
 
-RParen :: { AST.JSRParen }
-RParen : ')' { AST.JSRParen (AST.JSAnnot (ss $1) (gc $1)) }
+RParen :: { AST.JSAnnot }
+RParen : ')' { AST.JSAnnot (ss $1) (gc $1) }
 
+LBrace :: { AST.JSAnnot }
+LBrace : '{' { AST.JSAnnot (ss $1) (gc $1) }
 
-LBrace :: { AST.JSLBrace }
-LBrace : '{' { AST.JSLBrace (AST.JSAnnot (ss $1) (gc $1)) }
+RBrace :: { AST.JSAnnot }
+RBrace : '}' { AST.JSAnnot (ss $1) (gc $1) }
 
-RBrace :: { AST.JSRBrace }
-RBrace : '}' { AST.JSRBrace (AST.JSAnnot (ss $1) (gc $1)) }
+LSquare :: { AST.JSAnnot }
+LSquare : '[' { AST.JSAnnot (ss $1) (gc $1) }
 
-
-LSquare :: { AST.JSLSquare }
-LSquare : '[' { AST.JSLSquare (AST.JSAnnot (ss $1) (gc $1)) }
-
-RSquare :: { AST.JSRSquare }
-RSquare : ']' { AST.JSRSquare (AST.JSAnnot (ss $1) (gc $1)) }
+RSquare :: { AST.JSAnnot }
+RSquare : ']' { AST.JSAnnot (ss $1) (gc $1) }
 
 Comma :: { AST.JSNode }
 Comma : ',' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "," }
