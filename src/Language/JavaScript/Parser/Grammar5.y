@@ -399,9 +399,9 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (AST.JSAnnot (ss $1
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSNode }
-Identifier : 'ident' {  (AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1))}
-           | 'get'   {  (AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "get")}
-           | 'set'   {  (AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "set")}
+Identifier : 'ident' { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
+           | 'get'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "get" }
+           | 'set'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "set" }
 
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSNode }
@@ -943,7 +943,7 @@ ExpressionStatement : Expression { AST.JSNodeStmt $1 {- 'ExpressionStatement' -}
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSStatement } -- +++XXXX++
 IfStatement : If LParen Expression RParen StatementSemi IfElseRest
-                  { (AST.JSIf (nodePos $1) $2 $3 $4 $5 $6) {- 'IfStatement' -} }
+                  { AST.JSIf (nodePos $1) $2 $3 $4 $5 $6 {- 'IfStatement' -} }
 
 IfElseRest :: { [AST.JSStatement] }
 IfElseRest : Else Statement     { [AST.JSNodeStmt $1,$2] {- 'IfElseRest1' -} }
