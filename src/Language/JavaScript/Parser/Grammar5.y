@@ -342,7 +342,7 @@ Function :: { AST.JSAnnot }
 Function : 'function' { AST.JSAnnot (ss $1) (gc $1) {- 'Function' -} }
 
 Eof :: { AST.JSStatement }
-Eof : 'tail' { AST.JSNodeStmt (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "") {- 'Eof' -} }
+Eof : 'tail' { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "") {- 'Eof' -} }
 
 -- Literal ::                                                                See 7.8
 --         NullLiteral
@@ -893,14 +893,14 @@ VariableStatement : Var   VariableDeclarationList AutoSemi { AST.JSVariable (nod
 --         VariableDeclarationList , VariableDeclaration
 VariableDeclarationList :: { [AST.JSStatement] }
 VariableDeclarationList : VariableDeclaration { [$1] {- 'VariableDeclarationList1' -} }
-                        | VariableDeclarationList Comma VariableDeclaration { ($1++[AST.JSNodeStmt $2]++[$3]) {- 'VariableDeclarationList2' -} }
+                        | VariableDeclarationList Comma VariableDeclaration { ($1++[AST.JSExpressionStatement $2]++[$3]) {- 'VariableDeclarationList2' -} }
 
 -- VariableDeclarationListNoIn :                                  See 12.2
 --         VariableDeclarationNoIn
 --         VariableDeclarationListNoIn , VariableDeclarationNoIn
 VariableDeclarationListNoIn :: { [AST.JSStatement] }
 VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- 'VariableDeclarationList3' -} }
-                            | VariableDeclarationListNoIn Comma VariableDeclarationNoIn { ($1++[AST.JSNodeStmt $2]++[$3]) {- 'VariableDeclarationListNoIn' -} }
+                            | VariableDeclarationListNoIn Comma VariableDeclarationNoIn { ($1++[AST.JSExpressionStatement $2]++[$3]) {- 'VariableDeclarationListNoIn' -} }
 
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
@@ -927,7 +927,7 @@ InitializerNoIn : SimpleAssign AssignmentExpressionNoIn { [$1,$2] {- 'Initialize
 -- EmptyStatement :                                                                         See 12.3
 --         ;
 EmptyStatement :: { AST.JSStatement }
-EmptyStatement : Semi { AST.JSNodeStmt $1 {- 'EmptyStatement' -} }
+EmptyStatement : Semi { AST.JSExpressionStatement $1 {- 'EmptyStatement' -} }
 
 -- ExpressionStatement :                                                                    See 12.4
 --         [lookahead not in {{, function}] Expression  ;
@@ -935,7 +935,7 @@ EmptyStatement : Semi { AST.JSNodeStmt $1 {- 'EmptyStatement' -} }
 --       According to http://sideshowbarker.github.com/es5-spec/#x12.4, the ambiguity is with
 --       Block or FunctionDeclaration
 ExpressionStatement :: { AST.JSStatement }
-ExpressionStatement : Expression { AST.JSNodeStmt $1 {- 'ExpressionStatement' -} }
+ExpressionStatement : Expression { AST.JSExpressionStatement $1 {- 'ExpressionStatement' -} }
 
 
 -- IfStatement :                                                                            See 12.5
@@ -946,13 +946,13 @@ IfStatement : If LParen Expression RParen StatementSemi IfElseRest
                   { AST.JSIf (nodePos $1) $2 $3 $4 $5 $6 {- 'IfStatement' -} }
 
 IfElseRest :: { [AST.JSStatement] }
-IfElseRest : Else Statement     { [AST.JSNodeStmt $1,$2] {- 'IfElseRest1' -} }
+IfElseRest : Else Statement     { [AST.JSExpressionStatement $1,$2] {- 'IfElseRest1' -} }
            |                    { []                     {- 'IfElseRest2' -} }
 
 StatementSemi :: { [AST.JSStatement] }
-StatementSemi : StatementNoEmpty Semi { [$1, AST.JSNodeStmt $2] {- 'StatementSemi1' -} }
+StatementSemi : StatementNoEmpty Semi { [$1, AST.JSExpressionStatement $2] {- 'StatementSemi1' -} }
               | StatementNoEmpty      { [$1]                    {- 'StatementSemi2' -} }
-              | Semi                  { [ AST.JSNodeStmt $1 ]   {- 'StatementSemi3' -} }
+              | Semi                  { [ AST.JSExpressionStatement $1 ]   {- 'StatementSemi3' -} }
 
 
 -- IterationStatement :                                                                     See 12.6
@@ -1078,7 +1078,7 @@ Finally : FinallyL Block { AST.JSFinally $1 $2 {- 'Finally' -} }
 -- DebuggerStatement :                                                        See 12.15
 --        debugger ;
 DebuggerStatement :: { AST.JSStatement }
-DebuggerStatement : 'debugger' AutoSemi { AST.JSNodeStmt (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "debugger") {- 'DebuggerStatement' -} }
+DebuggerStatement : 'debugger' AutoSemi { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "debugger") {- 'DebuggerStatement' -} }
 
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
@@ -1122,10 +1122,10 @@ Program : SourceElementsTop Eof { combineTop $1 $2             {- 'Program1' -} 
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
-LiteralMain : Literal Eof { AST.JSSourceElementsTop [AST.JSNodeStmt $1] {- 'LiteralMain' -} }
+LiteralMain : Literal Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1] {- 'LiteralMain' -} }
 
 PrimaryExpressionMain :: { AST.JSAST }
-PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSNodeStmt $1] {- 'PrimaryExpression' -} }
+PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1] {- 'PrimaryExpression' -} }
 
 StatementMain :: { AST.JSAST }
 StatementMain : Statement Eof { AST.JSSourceElementsTop [$1] {- 'StatementMain' -} }

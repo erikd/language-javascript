@@ -189,7 +189,7 @@ instance RenderJS JSSemi where
 
 
 instance RenderJS JSTryCatch where
-    (|>) pacc (JSCatch        anc alb x1 x2s arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> x2s |> arb |> ")" |> x3
+    (|>) pacc (JSCatch anc alb x1 x2s arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> x2s |> arb |> ")" |> x3
 
 instance RenderJS [JSTryCatch] where
     (|>) = foldl' (|>)
@@ -218,7 +218,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSFunction af n alb x2s arb x3)             = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3
     (|>) pacc (JSIf annot alb x1 arb x2s x3s)              = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> v
-    (|>) pacc (JSNodeStmt l)                               = pacc |> l
+    (|>) pacc (JSExpressionStatement l)                    = pacc |> l
     (|>) pacc (JSReturn annot xs s)                        = pacc |> annot |> "return" |> xs |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb)        = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}"
     (|>) pacc (JSThrow annot x)                            = pacc |> annot |> "throw" |> x
