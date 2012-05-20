@@ -118,7 +118,7 @@ data JSStatement
     | JSFunction JSAnnot JSNode JSAnnot [JSNode] JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSAnnot JSNode JSAnnot [JSStatement] [JSStatement] -- ^if,(,expr,),stmt,optional rest
     | JSLabelled JSNode JSNode JSStatement -- ^identifier,colon,stmt
-    | JSNodeStmt JSNode
+    | JSExpressionStatement JSNode
     | JSReturn JSAnnot [JSNode] JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSAnnot JSNode JSAnnot JSAnnot [JSSwitchParts] JSAnnot-- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
@@ -291,7 +291,7 @@ sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++
 sst (JSFunction _ x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 sst (JSIf _ _lb x1 _rb x2s x3s) = "JSIf (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ") (" ++ ssts x3s ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
-sst (JSNodeStmt l) = ss l
+sst (JSExpressionStatement l) = ss l
 sst (JSReturn _ xs s) = "JSReturn " ++ sss xs ++ " " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
 sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
