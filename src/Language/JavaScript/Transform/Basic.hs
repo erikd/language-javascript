@@ -34,7 +34,7 @@ instance TransformJS JSStatement where
     tf (JSFunction af n alb x2s arb x3)             = (JSFunction (tf af) (tf n) (tf alb) (tf x2s) (tf arb) (tf x3))
     tf (JSIf annot alb x1 arb x2s x3s)              = (JSIf (tf annot) (tf alb) (tf x1) (tf arb) (tf x2s) (tf x3s))
     tf (JSLabelled l c v)                           = (JSLabelled (tf l) (tf c) (tf v))
-    tf (JSNodeStmt l)                               = (JSNodeStmt (tf l))
+    tf (JSExpressionStatement l)                    = (JSExpressionStatement (tf l))
     tf (JSReturn annot xs s)                        = (JSReturn (tf annot) (tf xs) (tf s))
     tf (JSSwitch annot alp x arp alb x2 arb)        = (JSSwitch (tf annot) (tf alp) (tf x) (tf arp) (tf alb) (tf x2) (tf arb))
     tf (JSThrow annot x)                            = (JSThrow (tf annot) (tf x))
