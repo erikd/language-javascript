@@ -23,7 +23,7 @@ To debug the grammar
 
 happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y
 
-This generates src/Language/JavaScript/Parser/Grammar.hs, delete this
+This generates src/Language/JavaScript/Parser/Grammar5.hs, delete this
 when done with the debug version
 
 
