@@ -82,7 +82,6 @@ instance RenderJS JSNode where
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> dot |> n
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
-    (|>) pacc (JSOpAssign             n)                      = pacc |> n
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
     (|>) pacc (JSPropertyNameandValue n colon vs)             = pacc |> n |> colon |> vs
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x

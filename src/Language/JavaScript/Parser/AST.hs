@@ -165,7 +165,6 @@ data JSNode
     | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
-    | JSOpAssign JSAssignOp -- ^opnode
     | JSPropertyAccessor JSNode JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSNode JSNode [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
@@ -197,7 +196,6 @@ ss (JSLiteral _ s) = "JSLiteral " ++ show s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
-ss (JSOpAssign n) = "JSOpAssign JSLiteral " ++ show (sopa n)
 ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
