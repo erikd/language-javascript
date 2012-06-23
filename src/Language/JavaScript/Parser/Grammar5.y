@@ -905,8 +905,8 @@ VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- 'VariableDeclara
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
 VariableDeclaration :: { AST.JSStatement }
-VariableDeclaration : Identifier              { AST.JSVarDecl $1 []   {- 'JSVarDecl1' -} }
-                    | Identifier Initializer  { AST.JSVarDecl $1 $2 {- 'JSVarDecl2' -} }
+VariableDeclaration : Identifier Initializer { AST.JSVarDecl $1 $2   {- 'JSVarDecl1' -} }
+                    | Identifier             { AST.JSVarDecl $1 []   {- 'JSVarDecl2' -} }
 
 -- VariableDeclarationNoIn :                                      See 12.2
 --         Identifier InitialiserNoInopt
