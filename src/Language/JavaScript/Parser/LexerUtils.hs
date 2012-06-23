@@ -78,25 +78,6 @@ commentToken loc str = CommentToken loc str []
 wsToken :: TokenPosn -> String -> Token
 wsToken loc str = WsToken loc str []
 
--- ---------------------------------------------------------------------
--- Strip out any embedded line continuations
--- Recognise by \ followed by $lf | $cr | $ls | $ps | $cr $lf
--- $ls = \x2028, $ps = \x2029
-stripLineContinuations :: String -> String
-stripLineContinuations xs = doStripLineContinuations [] [] xs
-
-doStripLineContinuations :: String -> String -> String -> String
-doStripLineContinuations acc matched xs
-  | xs == []      = acc -- Assume we are passed well-formed strings, should not be a dangling match
-  | matched == [] = if (head xs == '\\')
-                        then doStripLineContinuations acc ['\\'] (tail xs)
-                        else doStripLineContinuations (acc ++ [head xs]) [] (tail xs)
-  | otherwise = if ((head xs == '\n') || (head xs == '\r') || (head xs == '\x2028') || (head xs == '\x2029'))
-                        then doStripLineContinuations acc (matched++[head xs]) (tail xs)
-                        else (if (matched == ['\\'])
-                                 then doStripLineContinuations (acc++matched ++ [head xs]) [] (tail xs)
-                                 else doStripLineContinuations (acc++[head xs]) [] (tail xs))
-
 -- -----------------------------------------------------------------------------
 -- Functionality required by Alex
 {-
