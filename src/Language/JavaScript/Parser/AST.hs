@@ -123,7 +123,8 @@ data JSStatement
     | JSSwitch JSAnnot JSAnnot JSNode JSAnnot JSAnnot [JSSwitchParts] JSAnnot-- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
     | JSTry JSAnnot JSBlock [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
-    | JSVarDecl JSNode [JSNode] -- ^identifier, optional initializer
+    | JSVarDecl JSNode -- ^identifier
+    | JSVarDeclInit JSNode JSNode JSNode -- ^identifier, assignop, initializer
     | JSVariable JSAnnot [JSStatement] JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSAnnot JSNode JSAnnot JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSAnnot JSNode JSAnnot JSStatement JSSemi -- ^with,lb,expr,rb,stmt list
@@ -294,7 +295,8 @@ sst (JSReturn _ xs s) = "JSReturn " ++ sss xs ++ " " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
 sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
 sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ssb xt1 ++ ") " ++ stcs xtc ++ stf xtf
-sst (JSVarDecl x1 x2s) = "JSVarDecl (" ++ ss x1 ++ ") " ++ sss x2s
+sst (JSVarDecl x1) = "JSVarDecl (" ++ ss x1 ++ ") "
+sst (JSVarDeclInit x1 x2 x3) = "JSVarDecl (" ++ ss x1 ++ ") " ++ ss x2 ++ " " ++ ss x3
 sst (JSVariable _ xs _as) = "JSVariable var " ++ ssts xs
 sst (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ sst x ++ showsemi s

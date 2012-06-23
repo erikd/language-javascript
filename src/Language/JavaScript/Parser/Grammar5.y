@@ -905,24 +905,14 @@ VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- 'VariableDeclara
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
 VariableDeclaration :: { AST.JSStatement }
-VariableDeclaration : Identifier Initializer { AST.JSVarDecl $1 $2   {- 'JSVarDecl1' -} }
-                    | Identifier             { AST.JSVarDecl $1 []   {- 'JSVarDecl2' -} }
+VariableDeclaration : Identifier SimpleAssign AssignmentExpression { AST.JSVarDeclInit $1 $2 $3 {- 'JSVarDeclInit1' -} }
+                    | Identifier                                   { AST.JSVarDecl $1           {- 'JSVarDecl1' -} }
 
 -- VariableDeclarationNoIn :                                      See 12.2
 --         Identifier InitialiserNoInopt
 VariableDeclarationNoIn :: { AST.JSStatement }
-VariableDeclarationNoIn : Identifier InitializerNoIn { AST.JSVarDecl $1 $2 {- 'JSVarDecl3' -} }
-                        | Identifier                 { AST.JSVarDecl $1 [] {- 'JSVarDecl4' -} }
-
--- Initialiser :                                                                            See 12.2
---         = AssignmentExpression
-Initializer :: { [AST.JSNode] }
-Initializer : SimpleAssign AssignmentExpression { [$1,$2] {- 'Initializer' -} }
-
--- InitialiserNoIn :                                                                        See 12.2
---         = AssignmentExpressionNoIn
-InitializerNoIn :: { [AST.JSNode] }
-InitializerNoIn : SimpleAssign AssignmentExpressionNoIn { [$1,$2] {- 'InitializerNoIn' -} }
+VariableDeclarationNoIn : Identifier SimpleAssign AssignmentExpression { AST.JSVarDeclInit $1 $2 $3 {- 'JSVarDeclInit2' -} }
+                        | Identifier                                   { AST.JSVarDecl $1           {- 'JSVarDecl2' -} }
 
 -- EmptyStatement :                                                                         See 12.3
 --         ;
