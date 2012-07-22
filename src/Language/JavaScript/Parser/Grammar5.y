@@ -531,7 +531,7 @@ MemberExpression :: { AST.JSNode }
 MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression' -} }
                  | FunctionExpression  { $1 {- 'MemberExpression' -} }
                  | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 }
-                 | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3 }
+                 | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 (nodePos $2) $3 }
                  | 'new' MemberExpression Arguments            { AST.JSExpression [(AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "new"), $2, $3] }
 
 -- NewExpression :                                              See 11.2

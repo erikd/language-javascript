@@ -79,7 +79,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSExpressionPostfix    xs op)                  = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> v1 |> c |> v2
     (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3) = pacc |> annot |> "function" |> x1s |> lb |> "(" |> x2s |> rb |> ")" |> x3
-    (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> dot |> n
+    (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b

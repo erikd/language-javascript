@@ -163,7 +163,7 @@ data JSNode
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSNode JSNode JSNode JSNode -- ^cond, ?, trueval, :, falseval
     | JSFunctionExpression JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
-    | JSMemberDot JSNode JSNode JSNode -- ^firstpart, dot, name
+    | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
     | JSPropertyAccessor JSNode JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
