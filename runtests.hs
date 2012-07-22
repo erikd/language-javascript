@@ -329,7 +329,7 @@ srcHelloWorld = "Hello"
 
 caseHelloWorld :: Assertion
 caseHelloWorld =
-  "JSSourceElementsTop [JSIdentifier \"Hello\",JSLiteral \"\"]"
+  "JSSourceElementsTop [JSIdentifier \"Hello\"]"
   -- @=? (show $ parse srcHelloWorld "src")
   @=? (showStripped $ readJs srcHelloWorld)
 

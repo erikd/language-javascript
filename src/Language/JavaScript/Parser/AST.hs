@@ -173,7 +173,9 @@ data JSNode
 
 -- Strip out the location info, leaving the original JSNode text representation
 showStripped :: JSAST -> String
-showStripped = showtop
+showStripped (JSSourceElementsTop [x]) = sst x
+showStripped (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
+
 
 ss :: JSNode -> String
 ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
@@ -193,6 +195,7 @@ ss (JSFunctionExpression _ x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss 
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
+ss (JSLiteral _ []) = ""
 ss (JSLiteral _ s) = "JSLiteral " ++ show s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
@@ -204,7 +207,7 @@ ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
 
 sss :: [JSNode] -> String
-sss xs = "[" ++ (concat (intersperse "," $ map ss xs)) ++ "]"
+sss xs = "[" ++ commaJoin (map ss xs) ++ "]"
 
 -- The test suite expects operators to be double quoted.
 sbop :: JSBinOp -> String
@@ -268,7 +271,7 @@ sopa (JSBwXorAssign _) = "^="
 sopa (JSBwOrAssign _) = "|="
 
 stcs :: [JSTryCatch] -> String
-stcs xs = "[" ++ (concat (intersperse "," $ map stc xs)) ++ "]"
+stcs xs = "[" ++ commaJoin (map stc xs) ++ "]"
 
 stc :: JSTryCatch -> String
 stc (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
@@ -302,7 +305,7 @@ sst (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ sst x ++ showsemi s
 
 ssts :: [JSStatement] -> String
-ssts xs = "[" ++ (concat (intersperse "," $ map sst xs)) ++ "]"
+ssts xs = "[" ++ commaJoin (map sst xs) ++ "]"
 
 ssb :: JSBlock -> String
 ssb (JSBlock _ xs _) = "JSStatementBlock (" ++ ssts xs ++ ")"
@@ -312,10 +315,10 @@ ssw (JSCase _ x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ")"
 ssw (JSDefault _ _c xs) = "JSDefault (" ++ ssts xs ++ ")"
 
 ssws :: [JSSwitchParts] -> String
-ssws xs = "[" ++ (concat (intersperse "," $ map ssw xs)) ++ "]"
+ssws xs = "[" ++ commaJoin (map ssw xs) ++ "]"
 
-showtop :: JSAST -> String
-showtop (JSSourceElementsTop [x]) = sst x
-showtop (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
+
+commaJoin :: [String] -> String
+commaJoin s = concat $ intersperse "," $ filter (not . null) s
 
 -- EOF
