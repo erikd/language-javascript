@@ -1,4 +1,5 @@
 *~
+*.exe
 /dist/*
 /parse.txt
 /src/Language/JavaScript/Parser/Lexer.info
