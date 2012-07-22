@@ -173,7 +173,6 @@ data JSNode
 
 -- Strip out the location info, leaving the original JSNode text representation
 showStripped :: JSAST -> String
-showStripped (JSSourceElementsTop [x]) = sst x
 showStripped (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
 
 
