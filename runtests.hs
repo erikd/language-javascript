@@ -77,7 +77,7 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}" "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]]])")
 
     , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}"
-                                    "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression [JSIdentifier \"load\"] [JSIdentifier \"s\"] (JSStatementBlock ([JSIf (JSIdentifier \"x\") ([JSReturn [JSIdentifier \"s\"] JSLiteral \";\"]),JSDecimal \"1\"]))]]])")
+                                    "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression [JSIdentifier \"load\"] [JSIdentifier \"s\"] (JSStatementBlock ([JSIf (JSIdentifier \"x\") (JSReturn [JSIdentifier \"s\"] JSLiteral \";\"),JSDecimal \"1\"]))]]])")
 
     , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSLiteral \",\"]])")
 

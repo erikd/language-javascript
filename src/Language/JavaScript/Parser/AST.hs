@@ -113,16 +113,16 @@ data JSStatement
     | JSConstant JSAnnot [JSStatement] JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot [JSNode] JSSemi     -- ^optional identifier,autosemi
     | JSDoWhile JSAnnot JSStatement JSAnnot JSAnnot JSNode JSAnnot JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
-    | JSFor JSAnnot JSAnnot [JSNode] JSNode [JSNode] JSNode [JSNode] JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
+    | JSFor JSAnnot JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSAnnot JSNode JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
-    | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSNode [JSNode] JSNode [JSNode] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+    | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSAnnot JSNode JSAnnot [JSNode] JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
-    | JSIf JSAnnot JSAnnot JSNode JSAnnot [JSStatement] -- ^if,(,expr,),stmt
-    | JSIfElse JSAnnot JSAnnot JSNode JSAnnot [JSStatement] JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
+    | JSIf JSAnnot JSAnnot JSNode JSAnnot JSStatement -- ^if,(,expr,),stmt
+    | JSIfElse JSAnnot JSAnnot JSNode JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled JSNode JSAnnot JSStatement -- ^identifier,colon,stmt
     | JSEmptyStatement JSAnnot
-    | JSExpressionStatement JSNode
+    | JSExpressionStatement JSNode JSSemi
     | JSReturn JSAnnot [JSNode] JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSAnnot JSNode JSAnnot JSAnnot [JSSwitchParts] JSAnnot-- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
@@ -300,11 +300,11 @@ sst (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ 
 sst (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ssts x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
 sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSFunction _ x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
-sst (JSIf _ _lb x1 _rb x2s) = "JSIf (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ")"
-sst (JSIfElse _ _lb x1 _rb x2s _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ") (" ++ sst x3 ++ ")"
+sst (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
+sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSEmptyStatement _) = ""
-sst (JSExpressionStatement l) = ss l
+sst (JSExpressionStatement l s) = ss l ++ showsemi s
 sst (JSReturn _ xs s) = "JSReturn " ++ sss xs ++ " " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
 sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
