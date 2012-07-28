@@ -932,8 +932,10 @@ ExpressionStatement : Expression { AST.JSExpressionStatement $1 {- 'ExpressionSt
 --         if ( Expression ) Statement else Statement
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSStatement } -- +++XXXX++
-IfStatement : If LParen Expression RParen StatementSemi IfElseRest
-                  { AST.JSIf $1 $2 $3 $4 $5 $6 {- 'IfStatement' -} }
+IfStatement : If LParen Expression RParen Semi
+                  { AST.JSIf $1 $2 $3 $4 [AST.JSExpressionStatement $5] [] {- 'IfStatement1' -} }
+            | If LParen Expression RParen StatementSemi IfElseRest
+                  { AST.JSIf $1 $2 $3 $4 $5 $6 {- 'IfStatement2' -} }
 
 IfElseRest :: { [AST.JSStatement] }
 IfElseRest : Else Statement     { [AST.JSExpressionStatement $1,$2] {- 'IfElseRest1' -} }
@@ -942,7 +944,6 @@ IfElseRest : Else Statement     { [AST.JSExpressionStatement $1,$2] {- 'IfElseRe
 StatementSemi :: { [AST.JSStatement] }
 StatementSemi : StatementNoEmpty Semi { [$1, AST.JSExpressionStatement $2] {- 'StatementSemi1' -} }
               | StatementNoEmpty      { [$1]                    {- 'StatementSemi2' -} }
-              | Semi                  { [ AST.JSExpressionStatement $1 ]   {- 'StatementSemi3' -} }
 
 
 -- IterationStatement :                                                                     See 12.6
