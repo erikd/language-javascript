@@ -179,6 +179,8 @@ testSuite = testGroup "Parser"
 
     , testCase "IfElse1" (testStmt "if (1) {} else {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSStatementBlock ([])]) ([JSLiteral \"else\",JSStatementBlock ([])]))")
     , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"]) ([JSLiteral \"else\",JSStatementBlock ([])]))")
+    , testCase "IfElseBadSemi" (testPE "if (1) {} ' else {}"  "Left (\"IfToken {token_span = TokenPn 0 1 1, token_literal = \\\"if\\\", token_comment = [NoComment]}\")")
+
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSDoWhile (JSStatementBlock ([JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
