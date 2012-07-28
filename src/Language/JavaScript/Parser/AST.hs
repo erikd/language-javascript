@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, FlexibleInstances #-}
 module Language.JavaScript.Parser.AST
     ( JSNode (..)
     , JSAnnot (..)
@@ -13,6 +13,11 @@ module Language.JavaScript.Parser.AST
     , JSSwitchParts (..)
     , JSAST (..)
     , JSAccessor (..)
+    , JSIdentName (..)
+
+    , JSList (..)
+    , JSNonEmptyList (..)
+
     , showStripped
     ) where
 
@@ -89,12 +94,12 @@ data JSAssignOp
     deriving (Show, Eq)
 
 data JSTryCatch
-    = JSCatch   JSAnnot JSAnnot JSNode                JSAnnot JSBlock -- ^ catch,lb,ident,[if,expr],rb,block
-    | JSCatchIf JSAnnot JSAnnot JSNode JSAnnot JSNode JSAnnot JSBlock -- ^ catch,lb,ident,if,expr,rb,block
+    = JSCatch JSAnnot JSAnnot JSNode JSAnnot JSBlock -- ^catch,lb,ident,rb,block
+    | JSCatchIf JSAnnot JSAnnot JSNode JSAnnot JSNode JSAnnot JSBlock -- ^catch,lb,ident,if,expr,rb,block
     deriving (Show, Eq)
 
 data JSTryFinally
-    = JSFinally JSAnnot JSBlock -- ^block
+    = JSFinally JSAnnot JSBlock -- ^finally,block
     | JSNoFinally
     deriving (Show, Eq)
 
@@ -117,7 +122,7 @@ data JSStatement
     | JSForIn JSAnnot JSAnnot JSNode JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSNode JSAnnot [JSNode] JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
+    | JSFunction JSAnnot JSNode JSAnnot (JSList JSIdentName) JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSAnnot JSNode JSAnnot JSStatement -- ^if,(,expr,),stmt
     | JSIfElse JSAnnot JSAnnot JSNode JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled JSNode JSAnnot JSStatement -- ^identifier,colon,stmt
@@ -166,7 +171,7 @@ data JSNode
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSAnnot JSNode JSAnnot JSNode -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
+    | JSFunctionExpression JSAnnot [JSNode] JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
@@ -175,10 +180,25 @@ data JSNode
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
 
+-- | Accessors for JSPropertyAccessor is either 'get' or 'set'.
 data JSAccessor
     = JSAccessorGet JSAnnot
     | JSAccessorSet JSAnnot
     deriving (Show, Eq)
+
+data JSIdentName
+    = JSIdentName JSAnnot String
+    deriving Eq
+
+data JSList a
+    = JSParams (JSNonEmptyList a) -- ^tail, comma, ident
+    | JSNoParams
+    deriving (Show, Eq)
+
+data JSNonEmptyList a
+    = JSLCons (JSNonEmptyList a) JSAnnot a
+    | JSLOne a
+    deriving Eq
 
 -- Strip out the location info, leaving the original JSNode text representation
 showStripped :: JSAST -> String
@@ -199,7 +219,7 @@ ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
-ss (JSFunctionExpression _ x1s _lb x2s _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
+ss (JSFunctionExpression _ x1s _lb pl _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
@@ -299,7 +319,7 @@ sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss
 sst (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ssts x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
 sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
-sst (JSFunction _ x1 _lb x2s _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
+sst (JSFunction _ x1 _lb pl _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 sst (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
@@ -327,6 +347,18 @@ ssw (JSDefault _ _c xs) = "JSDefault (" ++ ssts xs ++ ")"
 
 ssws :: [JSSwitchParts] -> String
 ssws xs = "[" ++ commaJoin (map ssw xs) ++ "]"
+
+ssjl :: Show a => (JSList a) -> String
+ssjl (JSParams nel) = "[" ++ show nel ++ "]"
+ssjl JSNoParams = "[]"
+
+
+instance Show a => Show (JSNonEmptyList a) where
+    show (JSLCons l _ i) = show l ++ "," ++ show i
+    show (JSLOne i)      = show i
+
+instance Show JSIdentName where
+    show (JSIdentName _ s) = "JSIdentifier " ++ show s
 
 
 commaJoin :: [String] -> String

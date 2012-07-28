@@ -563,7 +563,7 @@ Arguments : LParen RParen               { AST.JSArguments $1 [] $2 }
 --        AssignmentExpression
 --        ArgumentList , AssignmentExpression
 ArgumentList :: { [AST.JSNode] }
-ArgumentList : AssignmentExpression { [$1] {- 'ArgumentList' -} }
+ArgumentList : AssignmentExpression                    { [$1] {- 'ArgumentList' -} }
              | ArgumentList Comma AssignmentExpression { ($1)++[$2,$3] {- 'ArgumentList2' -} }
 
 -- LeftHandSideExpression :                                     See 11.2
@@ -1068,17 +1068,17 @@ DebuggerStatement : 'debugger' AutoSemi { AST.JSExpressionStatement (AST.JSLiter
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSStatement }
 FunctionDeclaration : Function Identifier LParen FormalParameterList RParen FunctionBody
-                      { AST.JSFunction $1 $2 $3 $4 $5 $6 {- 'FunctionDeclaration1' -} }
+                      { AST.JSFunction $1 $2 $3 (AST.JSParams $4) $5 $6 {- 'FunctionDeclaration1' -} }
                     | Function Identifier LParen RParen FunctionBody
-                      { AST.JSFunction $1 $2 $3 [] $4 $5 {- 'FunctionDeclaration2' -} }
+                      { AST.JSFunction $1 $2 $3 AST.JSNoParams $4 $5 {- 'FunctionDeclaration2' -} }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
 FunctionExpression :: { AST.JSNode }
 FunctionExpression : Function IdentifierOpt LParen RParen FunctionBody
-                     { AST.JSFunctionExpression $1 $2 $3 [] $4 $5 {- 'FunctionExpression1' -} }
+                     { AST.JSFunctionExpression $1 $2 $3 AST.JSNoParams $4 $5 {- 'FunctionExpression1' -} }
                    | Function IdentifierOpt LParen FormalParameterList RParen FunctionBody
-                     { AST.JSFunctionExpression $1 $2 $3 $4 $5 $6 {- 'FunctionExpression2' -} }
+                     { AST.JSFunctionExpression $1 $2 $3 (AST.JSParams $4) $5 $6 {- 'FunctionExpression2' -} }
 
 IdentifierOpt :: { [AST.JSNode] }
 IdentifierOpt : Identifier { [$1] {- 'IdentifierOpt' -} }
@@ -1087,9 +1087,9 @@ IdentifierOpt : Identifier { [$1] {- 'IdentifierOpt' -} }
 -- FormalParameterList :                                                      See clause 13
 --        Identifier
 --        FormalParameterList , Identifier
-FormalParameterList :: { [AST.JSNode] }
-FormalParameterList : Identifier                            { [$1] {- 'FormalParameterList' -} }
-                    | FormalParameterList Comma Identifier  { ($1++[$2,$3]) }
+FormalParameterList :: { AST.JSNonEmptyList AST.JSIdentName }
+FormalParameterList : Identifier                            { AST.JSLOne (identName $1) {- 'FormalParameterList' -} }
+                    | FormalParameterList Comma Identifier  { AST.JSLCons $1 (nodePos $2) (identName $3) }
 
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
@@ -1168,6 +1168,10 @@ mkUnary x = error $ "Invalid unary op : " ++ show x
 
 nodePos :: AST.JSNode -> AST.JSAnnot
 nodePos (AST.JSLiteral p _) = p
+
+identName :: AST.JSNode -> AST.JSIdentName
+identName (AST.JSIdentifier a s) = AST.JSIdentName a s
+identName x = error $ "Cannot convert '" ++ show x ++ "' to s JSIdentName."
 
 }
 
