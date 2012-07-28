@@ -169,8 +169,8 @@ Colon : ':' { AST.JSAnnot (ss $1) (gc $1) }
 Semi :: { AST.JSNode }
 Semi : ';' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ";" }
 
-Dot :: { AST.JSNode }
-Dot : '.' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "." }
+Dot :: { AST.JSAnnot }
+Dot : '.' { AST.JSAnnot (ss $1) (gc $1) }
 
 Increment :: { AST.JSUnaryOp }
 Increment : '++' { AST.JSUnaryOpIncr (AST.JSAnnot (ss $1) (gc $1)) }
@@ -265,8 +265,8 @@ BitXor : '^' { AST.JSBinOpBitXor (AST.JSAnnot (ss $1) (gc $1))}
 Hook :: { AST.JSAnnot }
 Hook : '?' { AST.JSAnnot (ss $1) (gc $1) }
 
-SimpleAssign :: { AST.JSNode }
-SimpleAssign : '=' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "=" }
+SimpleAssign :: { AST.JSAnnot }
+SimpleAssign : '=' { AST.JSAnnot (ss $1) (gc $1) }
 
 OpAssign :: { AST.JSAssignOp }
 OpAssign : '*='	  { AST.JSTimesAssign  (AST.JSAnnot (ss $1) (gc $1)) }
@@ -531,7 +531,7 @@ MemberExpression :: { AST.JSNode }
 MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression' -} }
                  | FunctionExpression  { $1 {- 'MemberExpression' -} }
                  | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 }
-                 | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 (nodePos $2) $3 }
+                 | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3 }
                  | 'new' MemberExpression Arguments            { AST.JSExpression [(AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "new"), $2, $3] }
 
 -- NewExpression :                                              See 11.2
@@ -802,7 +802,7 @@ AssignmentExpressionNoIn : ConditionalExpressionNoIn { $1 {- 'AssignmentExpressi
 --     '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
 AssignmentOperator :: { AST.JSAssignOp }
 AssignmentOperator : OpAssign     { $1 }
-                   | SimpleAssign { AST.JSAssign (nodePos $1) {- 'SimpleAssign' -} }
+                   | SimpleAssign { AST.JSAssign $1 {- 'SimpleAssign' -} }
 
 -- Expression :                                                   See 11.14
 --         AssignmentExpression

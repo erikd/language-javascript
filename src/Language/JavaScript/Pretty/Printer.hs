@@ -70,7 +70,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSCallExpression       os xs cs)               = pacc |> os |> xs |> cs
-    (|>) pacc (JSCallExpressionDot    os xs)                  = pacc |> os |> xs
+    (|>) pacc (JSCallExpressionDot    os xs)                  = pacc |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSElision              c)                      = pacc |> c
     (|>) pacc (JSExpression           xs)                     = pacc |> xs
@@ -224,7 +224,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSThrow annot x)                            = pacc |> annot |> "throw" |> x
     (|>) pacc (JSTry annot tb tcs tf)                      = pacc |> annot |> "try" |> tb |> tcs |> tf
     (|>) pacc (JSVarDecl x1)                               = pacc |> x1
-    (|>) pacc (JSVarDeclInit x1 x2 x3)                     = pacc |> x1 |> x2 |> x3
+    (|>) pacc (JSVarDeclInit x1 x2 x3)                     = pacc |> x1 |> x2 |> "=" |> x3
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
