@@ -101,8 +101,8 @@ data JSBlock
     deriving (Show, Eq)
 
 data JSSwitchParts
-    = JSCase JSAnnot JSNode JSNode [JSStatement]    -- ^expr,colon,stmtlist
-    | JSDefault JSAnnot JSNode [JSStatement] -- ^colon,stmtlist
+    = JSCase JSAnnot JSNode JSAnnot [JSStatement]    -- ^expr,colon,stmtlist
+    | JSDefault JSAnnot JSAnnot [JSStatement] -- ^colon,stmtlist
     deriving (Show, Eq)
 
 data JSStatement
@@ -117,7 +117,7 @@ data JSStatement
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSAnnot JSNode JSAnnot [JSNode] JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSAnnot JSNode JSAnnot [JSStatement] [JSStatement] -- ^if,(,expr,),stmt,optional rest
-    | JSLabelled JSNode JSNode JSStatement -- ^identifier,colon,stmt
+    | JSLabelled JSNode JSAnnot JSStatement -- ^identifier,colon,stmt
     | JSExpressionStatement JSNode
     | JSReturn JSAnnot [JSNode] JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSAnnot JSNode JSAnnot JSAnnot [JSSwitchParts] JSAnnot-- ^switch,lb,expr,rb,caseblock
@@ -161,13 +161,13 @@ data JSNode
     | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
-    | JSExpressionTernary JSNode JSNode JSNode JSNode JSNode -- ^cond, ?, trueval, :, falseval
+    | JSExpressionTernary JSNode JSAnnot JSNode JSAnnot JSNode -- ^cond, ?, trueval, :, falseval
     | JSFunctionExpression JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
     | JSPropertyAccessor JSNode JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue JSNode JSNode [JSNode] -- ^name, colon, value
+    | JSPropertyNameandValue JSNode JSAnnot [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
 

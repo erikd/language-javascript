@@ -77,13 +77,13 @@ instance RenderJS JSNode where
     (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"
     (|>) pacc (JSExpressionPostfix    xs op)                  = pacc |> xs |> op
-    (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> v1 |> c |> v2
+    (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> "?" |> v1 |> c |> ":" |> v2
     (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3) = pacc |> annot |> "function" |> x1s |> lb |> "(" |> x2s |> rb |> ")" |> x3
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
-    (|>) pacc (JSPropertyNameandValue n colon vs)             = pacc |> n |> colon |> vs
+    (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
 
 -- -----------------------------------------------------------------------------
@@ -199,8 +199,8 @@ instance RenderJS JSTryFinally where
     (|>) pacc JSNoFinally              = pacc
 
 instance RenderJS JSSwitchParts where
-    (|>) pacc (JSCase    annot x1 c x2s) = pacc |> annot |> "case" |> x1 |> c |> x2s
-    (|>) pacc (JSDefault annot c xs)     = pacc |> annot |> "default" |> c |> xs
+    (|>) pacc (JSCase    annot x1 c x2s) = pacc |> annot |> "case" |> x1 |> c |> ":" |> x2s
+    (|>) pacc (JSDefault annot c xs)     = pacc |> annot |> "default" |> c |> ":" |> xs
 
 instance RenderJS [JSSwitchParts] where
     (|>) = foldl' (|>)
@@ -217,7 +217,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForVarIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFunction af n alb x2s arb x3)             = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3
     (|>) pacc (JSIf annot alb x1 arb x2s x3s)              = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> x3s
-    (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> v
+    (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
     (|>) pacc (JSExpressionStatement l)                    = pacc |> l
     (|>) pacc (JSReturn annot xs s)                        = pacc |> annot |> "return" |> xs |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb)        = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}"

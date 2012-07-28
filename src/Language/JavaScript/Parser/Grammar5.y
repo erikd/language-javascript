@@ -163,8 +163,8 @@ RSquare : ']' { AST.JSAnnot (ss $1) (gc $1) }
 Comma :: { AST.JSNode }
 Comma : ',' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "," }
 
-Colon :: { AST.JSNode }
-Colon : ':' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ":" }
+Colon :: { AST.JSAnnot }
+Colon : ':' { AST.JSAnnot (ss $1) (gc $1) }
 
 Semi :: { AST.JSNode }
 Semi : ';' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) ";" }
@@ -262,8 +262,8 @@ BitAnd : '&' { AST.JSBinOpBitAnd (AST.JSAnnot (ss $1) (gc $1)) }
 BitXor :: { AST.JSBinOp }
 BitXor : '^' { AST.JSBinOpBitXor (AST.JSAnnot (ss $1) (gc $1))}
 
-Hook :: { AST.JSNode }
-Hook : '?' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "?" }
+Hook :: { AST.JSAnnot }
+Hook : '?' { AST.JSAnnot (ss $1) (gc $1) }
 
 SimpleAssign :: { AST.JSNode }
 SimpleAssign : '=' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "=" }
