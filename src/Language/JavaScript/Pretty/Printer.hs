@@ -236,5 +236,9 @@ instance RenderJS [JSStatement] where
 instance RenderJS JSBlock where
     (|>) pacc (JSBlock alb ss arb) = pacc |> alb |> "{" |> ss |> arb |> "}"
 
+instance RenderJS JSAccessor where
+    (|>) pacc (JSAccessorGet annot) = pacc |> annot |> "get"
+    (|>) pacc (JSAccessorSet annot) = pacc |> annot |> "set"
+
 -- EOF
 

@@ -296,11 +296,11 @@ If : 'if' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "if" }
 Else :: { AST.JSNode }
 Else : 'else' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "else" }
 
-Do :: { AST.JSNode }
-Do : 'do' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "do" }
+Do :: { AST.JSAnnot }
+Do : 'do' { AST.JSAnnot (ss $1) (gc $1) }
 
-While :: { AST.JSNode }
-While : 'while' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "while" }
+While :: { AST.JSAnnot }
+While : 'while' { AST.JSAnnot (ss $1) (gc $1) }
 
 For :: { AST.JSAnnot }
 For : 'for' { AST.JSAnnot (ss $1) (gc $1) }
@@ -502,10 +502,10 @@ PropertyAssignment :: { AST.JSNode }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "get") $2 $3 [] $4 $5 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ss $1) (gc $1))) $2 $3 [] $4 $5 }
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "set") $2 $3 [$4] $5 $6 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ss $1) (gc $1))) $2 $3 [$4] $5 $6 }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName
@@ -954,9 +954,9 @@ StatementSemi : StatementNoEmpty Semi { [$1, AST.JSExpressionStatement $2] {- 'S
 --         for ( var VariableDeclarationNoIn in Expression ) Statement
 IterationStatement :: { AST.JSStatement }
 IterationStatement : Do Statement While LParen Expression RParen AutoSemi
-                     { AST.JSDoWhile (nodePos $1) $2 (nodePos $3) $4 $5 $6 $7 {- 'IterationStatement1' -} }
+                     { AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement1' -} }
                    | While LParen Expression RParen Statement
-                     { AST.JSWhile (nodePos $1) $2 $3 $4 $5 {- 'IterationStatement2' -} }
+                     { AST.JSWhile $1 $2 $3 $4 $5 {- 'IterationStatement2' -} }
                    | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement
                      { AST.JSFor $1 $2 $3 $4 $5 $6 $7 $8 $9 {- 'IterationStatement3' -} }
                    | For LParen Var VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement

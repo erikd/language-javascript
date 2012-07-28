@@ -12,6 +12,7 @@ module Language.JavaScript.Parser.AST
     , JSBlock (..)
     , JSSwitchParts (..)
     , JSAST (..)
+    , JSAccessor (..)
     , showStripped
     ) where
 
@@ -166,9 +167,14 @@ data JSNode
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
-    | JSPropertyAccessor JSNode JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyAccessor JSAccessor JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSNode JSAnnot [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
+    deriving (Show, Eq)
+
+data JSAccessor
+    = JSAccessorGet JSAnnot
+    | JSAccessorSet JSAnnot
     deriving (Show, Eq)
 
 -- Strip out the location info, leaving the original JSNode text representation
