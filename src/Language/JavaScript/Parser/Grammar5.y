@@ -917,7 +917,7 @@ VariableDeclarationNoIn : Identifier SimpleAssign AssignmentExpression { AST.JSV
 -- EmptyStatement :                                                                         See 12.3
 --         ;
 EmptyStatement :: { AST.JSStatement }
-EmptyStatement : Semi { AST.JSExpressionStatement $1 {- 'EmptyStatement' -} }
+EmptyStatement : Semi { AST.JSEmptyStatement (nodePos $1) {- 'EmptyStatement' -} }
 
 -- ExpressionStatement :                                                                    See 12.4
 --         [lookahead not in {{, function}] Expression  ;
@@ -933,13 +933,16 @@ ExpressionStatement : Expression { AST.JSExpressionStatement $1 {- 'ExpressionSt
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSStatement } -- +++XXXX++
 IfStatement : If LParen Expression RParen Semi
-                  { AST.JSIf $1 $2 $3 $4 [AST.JSExpressionStatement $5] [] {- 'IfStatement1' -} }
+                  { AST.JSIf $1 $2 $3 $4 [AST.JSEmptyStatement (nodePos $5)] {- 'IfStatement1' -} }
             | If LParen Expression RParen StatementSemi IfElseRest
-                  { AST.JSIf $1 $2 $3 $4 $5 $6 {- 'IfStatement2' -} }
+                  { case $6 of
+                    Nothing -> AST.JSIf $1 $2 $3 $4 $5             {- 'IfStatement2' -}
+                    Just (e, s) -> AST.JSIfElse $1 $2 $3 $4 $5 e s {- 'IfStatement3' -}
+                    }
 
-IfElseRest :: { [AST.JSStatement] }
-IfElseRest : Else Statement     { [AST.JSExpressionStatement $1,$2] {- 'IfElseRest1' -} }
-           |                    { []                     {- 'IfElseRest2' -} }
+IfElseRest :: { Maybe (AST.JSAnnot, AST.JSStatement) }
+IfElseRest : Else Statement     { Just (nodePos $1,$2) {- 'IfElseRest1' -} }
+           |                    { Nothing              {- 'IfElseRest2' -} }
 
 StatementSemi :: { [AST.JSStatement] }
 StatementSemi : StatementNoEmpty Semi { [$1, AST.JSExpressionStatement $2] {- 'StatementSemi1' -} }

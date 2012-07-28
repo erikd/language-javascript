@@ -190,7 +190,7 @@ instance RenderJS JSSemi where
 
 instance RenderJS JSTryCatch where
     (|>) pacc (JSCatch anc alb x1 arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> arb |> ")" |> x3
-    (|>) pacc (JSCatchIf anc alb x1 aif exp arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> aif |> "if" |> exp |> arb |> ")" |> x3
+    (|>) pacc (JSCatchIf anc alb x1 aif ex arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> aif |> "if" |> ex |> arb |> ")" |> x3
 
 instance RenderJS [JSTryCatch] where
     (|>) = foldl' (|>)
@@ -217,8 +217,10 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForVar af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> arb |> ")" |> x4
     (|>) pacc (JSForVarIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFunction af n alb x2s arb x3)             = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3
-    (|>) pacc (JSIf annot alb x1 arb x2s x3s)              = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> x3s
+    (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s
+    (|>) pacc (JSIfElse annot alb x1 arb x2s ea x3s)       = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> ea |> "else" |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
+    (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
     (|>) pacc (JSExpressionStatement l)                    = pacc |> l
     (|>) pacc (JSReturn annot xs s)                        = pacc |> annot |> "return" |> xs |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb)        = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}"
