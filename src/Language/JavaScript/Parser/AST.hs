@@ -89,7 +89,8 @@ data JSAssignOp
     deriving (Show, Eq)
 
 data JSTryCatch
-    = JSCatch JSAnnot JSAnnot JSNode [JSNode] JSAnnot JSBlock -- ^ catch,lb,ident,[if,expr],rb,block
+    = JSCatch   JSAnnot JSAnnot JSNode                JSAnnot JSBlock -- ^ catch,lb,ident,[if,expr],rb,block
+    | JSCatchIf JSAnnot JSAnnot JSNode JSAnnot JSNode JSAnnot JSBlock -- ^ catch,lb,ident,if,expr,rb,block
     deriving (Show, Eq)
 
 data JSTryFinally
@@ -279,7 +280,8 @@ stcs :: [JSTryCatch] -> String
 stcs xs = "[" ++ commaJoin (map stc xs) ++ "]"
 
 stc :: JSTryCatch -> String
-stc (JSCatch _ _lb x1 x2s _rb x3) = "JSCatch (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
+stc (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ ") (" ++ ssb x3 ++ ")"
+stc (JSCatchIf _ _lb x1 _ ex _rb x3) = "JSCatch (" ++ ss x1 ++ ") if " ++ ss ex ++ " (" ++ ssb x3 ++ ")"
 
 stf :: JSTryFinally -> String
 stf (JSFinally _ x) = "JSFinally (" ++ ssb x ++ ")"

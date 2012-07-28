@@ -189,7 +189,8 @@ instance RenderJS JSSemi where
 
 
 instance RenderJS JSTryCatch where
-    (|>) pacc (JSCatch anc alb x1 x2s arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> x2s |> arb |> ")" |> x3
+    (|>) pacc (JSCatch anc alb x1 arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> arb |> ")" |> x3
+    (|>) pacc (JSCatchIf anc alb x1 aif exp arb x3) = pacc |> anc |> "catch" |> alb |> "(" |> x1 |> aif |> "if" |> exp |> arb |> ")" |> x3
 
 instance RenderJS [JSTryCatch] where
     (|>) = foldl' (|>)

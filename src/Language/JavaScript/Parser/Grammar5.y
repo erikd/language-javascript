@@ -290,8 +290,8 @@ Var : 'var' { AST.JSAnnot (ss $1) (gc $1) }
 Const :: { AST.JSAnnot }
 Const : 'const' { AST.JSAnnot (ss $1) (gc $1) }
 
-If :: { AST.JSNode }
-If : 'if' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "if" }
+If :: { AST.JSAnnot }
+If : 'if' { AST.JSAnnot (ss $1) (gc $1) }
 
 Else :: { AST.JSNode }
 Else : 'else' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "else" }
@@ -933,7 +933,7 @@ ExpressionStatement : Expression { AST.JSExpressionStatement $1 {- 'ExpressionSt
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSStatement } -- +++XXXX++
 IfStatement : If LParen Expression RParen StatementSemi IfElseRest
-                  { AST.JSIf (nodePos $1) $2 $3 $4 $5 $6 {- 'IfStatement' -} }
+                  { AST.JSIf $1 $2 $3 $4 $5 $6 {- 'IfStatement' -} }
 
 IfElseRest :: { [AST.JSStatement] }
 IfElseRest : Else Statement     { [AST.JSExpressionStatement $1,$2] {- 'IfElseRest1' -} }
@@ -1057,8 +1057,8 @@ Catches : Catch         { [$1]       {- 'Catches1' -} }
 -- <Catch> ::= 'catch' '(' Identifier ')' <Block>
 --           | 'catch' '(' Identifier 'if' ConditionalExpression ')' <Block>
 Catch :: { AST.JSTryCatch }
-Catch : CatchL LParen Identifier                          RParen Block { AST.JSCatch $1 $2 $3 [     ] $4 $5 {- 'Catch1' -} }
-      | CatchL LParen Identifier If ConditionalExpression RParen Block { AST.JSCatch $1 $2 $3 [$4,$5] $6 $7 {- 'Catch2' -} }
+Catch : CatchL LParen Identifier                          RParen Block { AST.JSCatch $1 $2 $3 $4 $5 {- 'Catch1' -} }
+      | CatchL LParen Identifier If ConditionalExpression RParen Block { AST.JSCatchIf $1 $2 $3 $4 $5 $6 $7 {- 'Catch2' -} }
 
 -- Finally :                                                                  See 12.14
 --        finally Block
