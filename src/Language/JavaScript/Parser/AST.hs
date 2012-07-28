@@ -113,8 +113,8 @@ data JSStatement
     | JSDoWhile JSAnnot JSStatement JSAnnot JSAnnot JSNode JSAnnot JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
     | JSFor JSAnnot JSAnnot [JSNode] JSNode [JSNode] JSNode [JSNode] JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSAnnot JSNode JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
-    | JSForVar JSAnnot JSAnnot JSNode [JSStatement] JSNode [JSNode] JSNode [JSNode] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
-    | JSForVarIn JSAnnot JSAnnot JSNode JSStatement JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSNode [JSNode] JSNode [JSNode] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+    | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSAnnot JSNode JSAnnot [JSNode] JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSAnnot JSNode JSAnnot [JSStatement] [JSStatement] -- ^if,(,expr,),stmt,optional rest
     | JSLabelled JSNode JSNode JSStatement -- ^identifier,colon,stmt

@@ -284,11 +284,11 @@ OpAssign : '*='	  { AST.JSTimesAssign  (AST.JSAnnot (ss $1) (gc $1)) }
 Assign :: { AST.JSNode }
 Assign : 'assign' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
 
-Var :: { AST.JSNode }
-Var : 'var' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "var" }
+Var :: { AST.JSAnnot }
+Var : 'var' { AST.JSAnnot (ss $1) (gc $1) }
 
-Const :: { AST.JSNode }
-Const : 'const' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "const" }
+Const :: { AST.JSAnnot }
+Const : 'const' { AST.JSAnnot (ss $1) (gc $1) }
 
 If :: { AST.JSNode }
 If : 'if' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "if" }
@@ -885,8 +885,8 @@ StatementList : Statement               { [$1]       {- 'StatementList1' -} }
 -- VariableStatement :                                            See 12.2
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSStatement }
-VariableStatement : Var   VariableDeclarationList AutoSemi { AST.JSVariable (nodePos $1) $2 $3 {- 'VariableStatement1' -} }
-                  | Const VariableDeclarationList AutoSemi { AST.JSConstant (nodePos $1) $2 $3 {- 'VariableStatement2' -} }
+VariableStatement : Var   VariableDeclarationList AutoSemi { AST.JSVariable $1 $2 $3 {- 'VariableStatement1' -} }
+                  | Const VariableDeclarationList AutoSemi { AST.JSConstant $1 $2 $3 {- 'VariableStatement2' -} }
 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration

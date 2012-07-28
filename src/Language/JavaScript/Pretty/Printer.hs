@@ -213,8 +213,8 @@ instance RenderJS JSStatement where
     (|>) pacc (JSDoWhile ad x1 aw alb x2 arb x3)           = pacc |> ad |> "do" |> x1 |> aw |> "while" |> alb |> "(" |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFor af alb x1s s1 x2s s2 x3s arb x4)      = pacc |> af |> "for" |> alb |> "(" |> x1s |> s1 |> x2s |> s2 |> x3s |> arb |> ")" |> x4
     (|>) pacc (JSForIn af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
-    (|>) pacc (JSForVar af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> arb |> ")" |> x4
-    (|>) pacc (JSForVarIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForVar af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1s |> s1 |> x2s |> s2 |> x3s |> arb |> ")" |> x4
+    (|>) pacc (JSForVarIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFunction af n alb x2s arb x3)             = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3
     (|>) pacc (JSIf annot alb x1 arb x2s x3s)              = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> v
