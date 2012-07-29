@@ -817,14 +817,14 @@ AssignmentOperator : OpAssign     { $1 }
 --         Expression , AssignmentExpression
 Expression :: { AST.JSNode }
 Expression : AssignmentExpression { $1 {- 'Expression' -} }
-           | Expression Comma AssignmentExpression  { AST.JSExpression [$1,$2,$3] {- 'Expression2' -} }
+           | Expression Comma AssignmentExpression  { AST.JSCommaExpression $1 (nodePos $2) $3 {- 'Expression2' -} }
 
 -- ExpressionNoIn :                                               See 11.14
 --         AssignmentExpressionNoIn
 --         ExpressionNoIn , AssignmentExpressionNoIn
 ExpressionNoIn :: { AST.JSNode }
 ExpressionNoIn : AssignmentExpressionNoIn { $1 {- 'ExpressionNoIn' -} }
-               | ExpressionNoIn Comma AssignmentExpressionNoIn  { AST.JSExpression [$1,$2,$3] {- 'ExpressionNoIn2' -} }
+               | ExpressionNoIn Comma AssignmentExpressionNoIn  { AST.JSCommaExpression $1 (nodePos $2) $3 {- 'ExpressionNoIn2' -} }
 
 -- TODO: still required?
 ExpressionOpt :: { [AST.JSNode] }

@@ -165,7 +165,7 @@ data JSNode
     | JSCallExpressionDot JSNode JSAnnot JSNode  -- ^expr, dot, expr
     | JSCallExpressionSquare JSNode JSAnnot [JSNode] JSAnnot  -- ^expr, [, expr, ]
     | JSElision JSNode               -- ^comma
-    | JSExpression [JSNode]          -- ^expression components
+    | JSCommaExpression JSNode JSAnnot JSNode          -- ^expression components
     | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
@@ -219,7 +219,7 @@ ss (JSCallExpressionDot ex _os xs) = "JSExpression " ++ ss ex ++ "JSCallExpressi
 ss (JSCallExpressionSquare ex _os xs _cs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"[]\" " ++ sss xs
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
 ss (JSElision c) = "JSElision " ++ ss c
-ss (JSExpression xs) = "JSExpression " ++ sss xs
+ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
 ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss x2 ++ " " ++ ss x3
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
