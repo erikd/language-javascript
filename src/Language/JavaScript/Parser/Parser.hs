@@ -29,8 +29,8 @@ parse input _srcName = runAlex input parseProgram
 
 
 readJs :: String -> AST.JSAST
-readJs input = do
-  case (parse input "src") of
+readJs input =
+  case parse input "src" of
     Left msg -> error (show msg)
     Right p -> p
 
@@ -40,14 +40,14 @@ readJs input = do
 parseFile :: FilePath -> IO AST.JSAST
 parseFile filename =
   do
-     x <- readFile (filename)
+     x <- readFile filename
      return $ readJs x
 
 showStripped :: AST.JSAST -> String
-showStripped ast = AST.showStripped ast
+showStripped = AST.showStripped
 
 showStrippedMaybe :: Show a => Either a AST.JSAST -> String
-showStrippedMaybe maybeAst = do
+showStrippedMaybe maybeAst =
   case maybeAst of
     Left msg -> "Left (" ++ show msg ++ ")"
     Right p -> "Right (" ++ AST.showStripped p ++ ")"

@@ -48,7 +48,7 @@ endOfFileToken = EOFToken tokenPosnEmpty []
 
 mkString
   :: (Monad m) => (TokenPosn -> String -> Token) -> TokenPosn -> Int -> String -> m Token
-mkString toToken loc len str = do return (toToken loc (take len str))
+mkString toToken loc len str = return (toToken loc (take len str))
 
 decimalToken :: TokenPosn -> String -> Token
 decimalToken loc str = DecimalToken loc str []

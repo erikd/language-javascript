@@ -29,7 +29,7 @@ import Language.JavaScript.Parser.Token
 
 data JSAnnot = JSAnnot TokenPosn [CommentAnnotation]-- ^Annotation: position and comment/whitespace information
              | JSNoAnnot -- ^No annotation
-    deriving (Eq)
+    deriving Eq
 
 instance Show JSAnnot where
     show JSNoAnnot = "NoAnnot"
@@ -356,7 +356,7 @@ ssw (JSDefault _ _c xs) = "JSDefault (" ++ ssts xs ++ ")"
 ssws :: [JSSwitchParts] -> String
 ssws xs = "[" ++ commaJoin (map ssw xs) ++ "]"
 
-ssjl :: Show a => (JSList a) -> String
+ssjl :: Show a => JSList a -> String
 ssjl (JSParams nel) = "[" ++ show nel ++ "]"
 ssjl JSNoParams = "[]"
 
@@ -381,6 +381,6 @@ ssme Nothing = ""
 ssme (Just e) = ss e
 
 commaJoin :: [String] -> String
-commaJoin s = concat $ intersperse "," $ filter (not . null) s
+commaJoin s = intercalate "," $ filter (not . null) s
 
 -- EOF

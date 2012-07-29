@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      : Language.Python.Common.StringEscape
--- Copyright   : (c) 2009 Bernie Pope 
+-- Copyright   : (c) 2009 Bernie Pope
 -- License     : BSD-style
 -- Maintainer  : bjpop@csse.unimelb.edu.au
 -- Stability   : experimental
@@ -10,17 +10,17 @@
 --
 -- Conversion to/from escaped characters in strings. Note: currently does not
 -- support escaped Unicode character names.
--- 
+--
 -- See:
--- 
+--
 --    * Version 2.6 <http://www.python.org/doc/2.6/reference/lexical_analysis.html#string-literals>
---  
---    * Version 3.1 <http://www.python.org/doc/3.1/reference/lexical_analysis.html#string-and-bytes-literals> 
+--
+--    * Version 3.1 <http://www.python.org/doc/3.1/reference/lexical_analysis.html#string-and-bytes-literals>
 -----------------------------------------------------------------------------
 
-module Language.JavaScript.Parser.StringEscape ( 
-   -- * String conversion. 
-   unescapeString, 
+module Language.JavaScript.Parser.StringEscape (
+   -- * String conversion.
+   unescapeString,
    unescapeRawString,
    -- * Digits allowed in octal and hex representation.
    octalDigits,
@@ -42,10 +42,10 @@ unescapeString ('\\':'t':cs) = '\t' : unescapeString cs  -- ASCII Horizontal Tab
 unescapeString ('\\':'v':cs) = '\v' : unescapeString cs  -- ASCII Vertical Tab (VT)
 unescapeString ('\\':'\n':cs) = unescapeString cs        -- line continuation
 unescapeString ('\\':rest@(o:_))
-   | o `elem` octalDigits = unescapeNumeric 3 octalDigits (fst . head . readOct) rest 
+   | o `elem` octalDigits = unescapeNumeric 3 octalDigits (fst . head . readOct) rest
 unescapeString ('\\':'x':rest@(h:_))
-   | h `elem` hexDigits = unescapeNumeric 2 hexDigits (fst . head . readHex) rest 
-unescapeString (c:cs) = c : unescapeString cs 
+   | h `elem` hexDigits = unescapeNumeric 2 hexDigits (fst . head . readHex) rest
+unescapeString (c:cs) = c : unescapeString cs
 unescapeString [] = []
 
 -- | Convert escaped sequences of characters into /real/ characters in a raw Python string.
@@ -58,13 +58,13 @@ unescapeRawString ('\\':'\n':cs) = unescapeRawString cs -- line continuation
 unescapeRawString (c:cs) = c : unescapeRawString cs
 unescapeRawString [] = []
 
-{- 
+{-
    This is a bit complicated because Python allows between 1 and 3 octal
    characters after the \, and 1 and 2 hex characters after a \x.
 -}
 unescapeNumeric :: Int -> String -> (String -> Int) -> String -> String
-unescapeNumeric n numericDigits readNumeric str
-   = loop n [] str 
+unescapeNumeric n numericDigits readNumeric
+   = loop n []
    where
    loop _ acc [] = [numericToChar acc]
    loop 0 acc rest
