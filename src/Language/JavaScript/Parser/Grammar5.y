@@ -972,15 +972,15 @@ IterationStatement : Do Statement While LParen Expression RParen AutoSemi
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSStatement }
-ContinueStatement : Continue AutoSemi             { AST.JSContinue $1 []   $2 {- 'ContinueStatement' -} }
-                  | Continue Identifier AutoSemi  { AST.JSContinue $1 [$2] $3 {- 'ContinueStatement' -} }
+ContinueStatement : Continue AutoSemi             { AST.JSContinue $1 Nothing $2               {- 'ContinueStatement' -} }
+                  | Continue Identifier AutoSemi  { AST.JSContinue $1 (Just (identName $2)) $3 {- 'ContinueStatement' -} }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSStatement }
-BreakStatement : Break AutoSemi             { AST.JSBreak $1 []   $2 }
-               | Break Identifier AutoSemi  { AST.JSBreak $1 [$2] $3 }
+BreakStatement : Break AutoSemi             { AST.JSBreak $1 Nothing $2 }
+               | Break Identifier AutoSemi  { AST.JSBreak $1 (Just (identName $2)) $3 }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
@@ -1088,9 +1088,9 @@ FunctionExpression : Function IdentifierOpt LParen RParen FunctionBody
                    | Function IdentifierOpt LParen FormalParameterList RParen FunctionBody
                      { AST.JSFunctionExpression $1 $2 $3 (AST.JSParams $4) $5 $6 {- 'FunctionExpression2' -} }
 
-IdentifierOpt :: { [AST.JSNode] }
-IdentifierOpt : Identifier { [$1] {- 'IdentifierOpt' -} }
-              |            { []   {- 'IdentifierOpt' -} }
+IdentifierOpt :: { Maybe AST.JSIdentName }
+IdentifierOpt : Identifier { Just (identName $1) {- 'IdentifierOpt1' -} }
+              |            { Nothing             {- 'IdentifierOpt2' -} }
 
 -- FormalParameterList :                                                      See clause 13
 --        Identifier

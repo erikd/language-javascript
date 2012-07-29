@@ -77,7 +77,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"
     (|>) pacc (JSExpressionPostfix    xs op)                  = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> "?" |> v1 |> c |> ":" |> v2
-    (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3) = pacc |> annot |> "function" |> x1s |> lb |> "(" |> x2s |> rb |> ")" |> x3
+    (|>) pacc (JSFunctionExpression   annot n lb x2s rb x3)   = pacc |> annot |> "function" |> n |> lb |> "(" |> x2s |> rb |> ")" |> x3
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
     (|>) pacc (JSMemberExpression     e a)                    = pacc |> e |> a
     (|>) pacc (JSMemberNew            a n s)                  = pacc |> a |> "new" |> n |> s
@@ -210,8 +210,8 @@ instance RenderJS [JSSwitchParts] where
 
 instance RenderJS JSStatement where
     (|>) pacc (JSStatementBlock blk)                       = pacc |> blk
-    (|>) pacc (JSBreak annot x1s s)                        = pacc |> annot |> "break" |> x1s |> s
-    (|>) pacc (JSContinue annot xs s)                      = pacc |> annot |> "continue" |> xs |> s
+    (|>) pacc (JSBreak annot mi s)                         = pacc |> annot |> "break" |> mi |> s
+    (|>) pacc (JSContinue annot mi s)                      = pacc |> annot |> "continue" |> mi |> s
     (|>) pacc (JSConstant annot xs s)                      = pacc |> annot |> "const" |> xs |> s
     (|>) pacc (JSDoWhile ad x1 aw alb x2 arb x3)           = pacc |> ad |> "do" |> x1 |> aw |> "while" |> alb |> "(" |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFor af alb x1s s1 x2s s2 x3s arb x4)      = pacc |> af |> "for" |> alb |> "(" |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
@@ -255,6 +255,10 @@ instance RenderJS a => RenderJS (JSNonEmptyList a) where
 
 instance RenderJS JSIdentName where
     (|>) pacc (JSIdentName a s) = pacc |> a |> s
+
+instance RenderJS (Maybe JSIdentName) where
+    (|>) pacc (Just n) = pacc |> n
+    (|>) pacc Nothing  = pacc
 
 instance RenderJS JSArguments where
     (|>) pacc (JSArguments lp xs rp) = pacc |> lp |> "(" |> xs |> rp |> ")"

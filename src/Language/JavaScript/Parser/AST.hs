@@ -114,9 +114,9 @@ data JSSwitchParts
 
 data JSStatement
     = JSStatementBlock JSBlock      -- ^statement block
-    | JSBreak JSAnnot [JSNode] JSSemi        -- ^optional identifier, autosemi
+    | JSBreak JSAnnot (Maybe JSIdentName) JSSemi        -- ^break,optional identifier, autosemi
     | JSConstant JSAnnot [JSStatement] JSSemi -- ^const, decl, autosemi
-    | JSContinue JSAnnot [JSNode] JSSemi     -- ^optional identifier,autosemi
+    | JSContinue JSAnnot (Maybe JSIdentName) JSSemi     -- ^continue, optional identifier,autosemi
     | JSDoWhile JSAnnot JSStatement JSAnnot JSAnnot JSNode JSAnnot JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
     | JSFor JSAnnot JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSAnnot JSNode JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
@@ -170,7 +170,7 @@ data JSNode
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSAnnot JSNode JSAnnot JSNode -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot [JSNode] JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
+    | JSFunctionExpression JSAnnot (Maybe JSIdentName) JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberExpression JSNode JSArguments -- expr, args
     | JSMemberNew JSAnnot JSNode JSArguments -- ^new, name, args
@@ -224,7 +224,7 @@ ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
-ss (JSFunctionExpression _ x1s _lb pl _rb x3) = "JSFunctionExpression " ++ sss x1s ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
+ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssmi n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
@@ -319,8 +319,8 @@ stf JSNoFinally = ""
 
 sst :: JSStatement -> String
 sst (JSStatementBlock blk) = "JSStatementBlock (" ++ ssb blk ++ ")"
-sst (JSBreak _ x1s s) = "JSBreak " ++ sss x1s ++ " " ++ showsemi s
-sst (JSContinue _ xs s) = "JSContinue " ++ sss xs ++ " " ++ showsemi s
+sst (JSBreak _ n s) = "JSBreak " ++ ssmi n ++ " " ++ showsemi s
+sst (JSContinue _ mi s) = "JSContinue " ++ ssmi mi ++ " " ++ showsemi s
 sst (JSConstant _ xs _as) = "JSConstant const " ++ ssts xs
 sst (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
@@ -372,6 +372,9 @@ instance Show a => Show (JSNonEmptyList a) where
 instance Show JSIdentName where
     show (JSIdentName _ s) = "JSIdentifier " ++ show s
 
+ssmi :: Maybe JSIdentName -> String
+ssmi Nothing = ""
+ssmi (Just n) = show n
 
 commaJoin :: [String] -> String
 commaJoin s = concat $ intersperse "," $ filter (not . null) s
