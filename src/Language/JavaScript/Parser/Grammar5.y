@@ -556,7 +556,7 @@ CallExpression : MemberExpression Arguments
                | CallExpression Arguments
                     { AST.JSCallExpression $1 $2 {- 'CallExpression2' -} }
                | CallExpression LSquare Expression RSquare
-                    { AST.JSCallExpressionSquare $1 $2 [$3] $4 {- 'CallExpression3' -} }
+                    { AST.JSCallExpressionSquare $1 $2 $3 $4 {- 'CallExpression3' -} }
                | CallExpression Dot IdentifierName
                     { AST.JSCallExpressionDot $1 $2 $3 {- 'CallExpression4' -} }
 
@@ -986,8 +986,8 @@ BreakStatement : Break AutoSemi             { AST.JSBreak $1 Nothing $2 }
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSStatement }
-ReturnStatement : Return AutoSemi             { AST.JSReturn $1 []   $2 }
-                | Return Expression AutoSemi  { AST.JSReturn $1 [$2] $3 }
+ReturnStatement : Return AutoSemi             { AST.JSReturn $1 Nothing $2 }
+                | Return Expression AutoSemi  { AST.JSReturn $1 (Just $2) $3 }
 
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement

@@ -224,7 +224,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
     (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
     (|>) pacc (JSExpressionStatement l s)                  = pacc |> l |> s
-    (|>) pacc (JSReturn annot xs s)                        = pacc |> annot |> "return" |> xs |> s
+    (|>) pacc (JSReturn annot me s)                        = pacc |> annot |> "return" |> me |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb)        = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}"
     (|>) pacc (JSThrow annot x)                            = pacc |> annot |> "throw" |> x
     (|>) pacc (JSTry annot tb tcs tf)                      = pacc |> annot |> "try" |> tb |> tcs |> tf
@@ -258,6 +258,10 @@ instance RenderJS JSIdentName where
 
 instance RenderJS (Maybe JSIdentName) where
     (|>) pacc (Just n) = pacc |> n
+    (|>) pacc Nothing  = pacc
+
+instance RenderJS (Maybe JSNode) where
+    (|>) pacc (Just e) = pacc |> e
     (|>) pacc Nothing  = pacc
 
 instance RenderJS JSArguments where

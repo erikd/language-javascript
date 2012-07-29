@@ -128,7 +128,7 @@ data JSStatement
     | JSLabelled JSNode JSAnnot JSStatement -- ^identifier,colon,stmt
     | JSEmptyStatement JSAnnot
     | JSExpressionStatement JSNode JSSemi
-    | JSReturn JSAnnot [JSNode] JSSemi -- ^optional expression,autosemi
+    | JSReturn JSAnnot (Maybe JSNode) JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSAnnot JSNode JSAnnot JSAnnot [JSSwitchParts] JSAnnot-- ^switch,lb,expr,rb,caseblock
     | JSThrow JSAnnot JSNode -- ^throw val
     | JSTry JSAnnot JSBlock [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
@@ -163,7 +163,7 @@ data JSNode
     | JSAssignExpression JSNode JSAssignOp JSNode -- ^lhs, assignop, rhs
     | JSCallExpression JSNode JSArguments  -- ^expr, args
     | JSCallExpressionDot JSNode JSAnnot JSNode  -- ^expr, dot, expr
-    | JSCallExpressionSquare JSNode JSAnnot [JSNode] JSAnnot  -- ^expr, [, expr, ]
+    | JSCallExpressionSquare JSNode JSAnnot JSNode JSAnnot  -- ^expr, [, expr, ]
     | JSElision JSNode               -- ^comma
     | JSCommaExpression JSNode JSAnnot JSNode          -- ^expression components
     | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
@@ -216,7 +216,7 @@ ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
 ss (JSAssignExpression lhs op rhs) = "JSExpression " ++ ss lhs ++ " " ++ sopa op ++ " " ++ ss rhs
 ss (JSCallExpression ex xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"()\" " ++ ssa xs
 ss (JSCallExpressionDot ex _os xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \".\" " ++ ss xs
-ss (JSCallExpressionSquare ex _os xs _cs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"[]\" " ++ sss xs
+ss (JSCallExpressionSquare ex _os xs _cs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"[]\" " ++ ss xs
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
 ss (JSElision c) = "JSElision " ++ ss c
 ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
@@ -333,7 +333,7 @@ sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ "
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSEmptyStatement _) = ""
 sst (JSExpressionStatement l s) = ss l ++ showsemi s
-sst (JSReturn _ xs s) = "JSReturn " ++ sss xs ++ " " ++ showsemi s
+sst (JSReturn _ me s) = "JSReturn " ++ ssme me ++ " " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
 sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
 sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ssb xt1 ++ ") " ++ stcs xtc ++ stf xtf
@@ -375,6 +375,10 @@ instance Show JSIdentName where
 ssmi :: Maybe JSIdentName -> String
 ssmi Nothing = ""
 ssmi (Just n) = show n
+
+ssme :: Maybe JSNode -> String
+ssme Nothing = ""
+ssme (Just e) = ss e
 
 commaJoin :: [String] -> String
 commaJoin s = concat $ intersperse "," $ filter (not . null) s
