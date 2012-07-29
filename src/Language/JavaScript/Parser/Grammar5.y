@@ -341,6 +341,10 @@ FinallyL : 'finally' { AST.JSAnnot (ss $1) (gc $1) }
 Function :: { AST.JSAnnot }
 Function : 'function' { AST.JSAnnot (ss $1) (gc $1) {- 'Function' -} }
 
+New :: { AST.JSAnnot }
+New : 'new' { AST.JSAnnot (ss $1) (gc $1) }
+
+
 Eof :: { AST.JSStatement }
 Eof : 'tail' { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "") AST.JSSemiAuto {- 'Eof' -} }
 
@@ -528,18 +532,18 @@ PropertySetParameterList : Identifier { $1 {- 'PropertySetParameterList' -} }
 --        MemberExpression . IdentifierName
 --        new MemberExpression Arguments
 MemberExpression :: { AST.JSNode }
-MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression' -} }
-                 | FunctionExpression  { $1 {- 'MemberExpression' -} }
-                 | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 }
-                 | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3 }
-                 | 'new' MemberExpression Arguments            { AST.JSExpression [(AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "new"), $2, $3] }
+MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression1' -} }
+                 | FunctionExpression  { $1 {- 'MemberExpression2' -} }
+                 | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 {- 'MemberExpression3' -} }
+                 | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3       {- 'MemberExpression4' -} }
+                 | New MemberExpression Arguments              { AST.JSMemberNew $1 $2 $3       {- 'MemberExpression5' -} }
 
 -- NewExpression :                                              See 11.2
 --        MemberExpression
 --        new NewExpression
 NewExpression :: { AST.JSNode }
-NewExpression : MemberExpression    { $1 {- 'NewExpression' -} }
-              | 'new' NewExpression { AST.JSExpression [(AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "new"), $2] }
+NewExpression : MemberExpression    { $1                        {- 'NewExpression1' -} }
+              | New NewExpression   { AST.JSNewExpression $1 $2 {- 'NewExpression2' -} }
 
 -- CallExpression :                                             See 11.2
 --        MemberExpression Arguments
@@ -547,24 +551,28 @@ NewExpression : MemberExpression    { $1 {- 'NewExpression' -} }
 --        CallExpression [ Expression ]
 --        CallExpression . IdentifierName
 CallExpression :: { AST.JSNode }
-CallExpression : MemberExpression Arguments        { AST.JSExpression [$1, $2] {- 'CallExpression' -} }
-               | CallExpression Arguments          { AST.JSExpression [$1, AST.JSCallExpression [] [$2] []] }
-               | CallExpression LSquare Expression RSquare { AST.JSExpression [$1, AST.JSCallExpressionSquare $2 [$3] $4] }
-               | CallExpression Dot IdentifierName { AST.JSExpression [$1, AST.JSCallExpressionDot $2 [$3]] }
+CallExpression : MemberExpression Arguments
+                    { AST.JSMemberExpression $1 $2 {- 'CallExpression1' -} }
+               | CallExpression Arguments
+                    { AST.JSCallExpression $1 $2 {- 'CallExpression2' -} }
+               | CallExpression LSquare Expression RSquare
+                    { AST.JSCallExpressionSquare $1 $2 [$3] $4 {- 'CallExpression3' -} }
+               | CallExpression Dot IdentifierName
+                    { AST.JSCallExpressionDot $1 $2 $3 {- 'CallExpression4' -} }
 
 -- Arguments :                                                  See 11.2
 --        ()
 --        ( ArgumentList )
-Arguments :: { AST.JSNode }
-Arguments : LParen RParen               { AST.JSArguments $1 [] $2 }
-          | LParen ArgumentList RParen  { AST.JSArguments $1 $2 $3 }
+Arguments :: { AST.JSArguments }
+Arguments : LParen RParen               { AST.JSArguments $1 AST.JSNoParams $2    {- 'Arguments1' -} }
+          | LParen ArgumentList RParen  { AST.JSArguments $1 (AST.JSParams $2) $3 {- 'Arguments2' -} }
 
 -- ArgumentList :                                               See 11.2
 --        AssignmentExpression
 --        ArgumentList , AssignmentExpression
-ArgumentList :: { [AST.JSNode] }
-ArgumentList : AssignmentExpression                    { [$1] {- 'ArgumentList' -} }
-             | ArgumentList Comma AssignmentExpression { ($1)++[$2,$3] {- 'ArgumentList2' -} }
+ArgumentList :: { AST.JSNonEmptyList AST.JSNode }
+ArgumentList : AssignmentExpression                    { AST.JSLOne $1                  {- 'ArgumentList1' -} }
+             | ArgumentList Comma AssignmentExpression { AST.JSLCons $1 (nodePos $2) $3 {- 'ArgumentList2' -} }
 
 -- LeftHandSideExpression :                                     See 11.2
 --        NewExpression

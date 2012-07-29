@@ -14,6 +14,7 @@ module Language.JavaScript.Parser.AST
     , JSAST (..)
     , JSAccessor (..)
     , JSIdentName (..)
+    , JSArguments (..)
 
     , JSList (..)
     , JSNonEmptyList (..)
@@ -159,12 +160,11 @@ data JSNode
     | JSRegEx JSAnnot String
 
     -- | Non Terminals
-    | JSArguments JSAnnot [JSNode] JSAnnot    -- ^lb, args, rb
     | JSArrayLiteral JSAnnot [JSNode] JSAnnot -- ^lb, contents, rb
     | JSAssignExpression JSNode JSAssignOp JSNode -- ^lhs, assignop, rhs
-    | JSCallExpression [JSNode] [JSNode] [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
-    | JSCallExpressionDot JSAnnot [JSNode]  -- ^type : ., (), []; opening [ or ., contents, closing
-    | JSCallExpressionSquare JSAnnot [JSNode] JSAnnot  -- ^type : ., (), []; opening [ or ., contents, closing
+    | JSCallExpression JSNode JSArguments  -- ^expr, args
+    | JSCallExpressionDot JSNode JSAnnot JSNode  -- ^expr, dot, expr
+    | JSCallExpressionSquare JSNode JSAnnot [JSNode] JSAnnot  -- ^expr, [, expr, ]
     | JSElision JSNode               -- ^comma
     | JSExpression [JSNode]          -- ^expression components
     | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
@@ -173,7 +173,10 @@ data JSNode
     | JSExpressionTernary JSNode JSAnnot JSNode JSAnnot JSNode -- ^cond, ?, trueval, :, falseval
     | JSFunctionExpression JSAnnot [JSNode] JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
+    | JSMemberExpression JSNode JSArguments -- expr, args
+    | JSMemberNew JSAnnot JSNode JSArguments -- ^new, name, args
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
+    | JSNewExpression JSAnnot JSNode -- ^new, expr
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
     | JSPropertyAccessor JSAccessor JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSNode JSAnnot [JSNode] -- ^name, colon, value
@@ -200,18 +203,21 @@ data JSNonEmptyList a
     | JSLOne a
     deriving Eq
 
+data JSArguments
+    = JSArguments JSAnnot (JSList JSNode) JSAnnot    -- ^lb, args, rb
+    deriving (Show, Eq)
+
 -- Strip out the location info, leaving the original JSNode text representation
 showStripped :: JSAST -> String
 showStripped (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
 
 
 ss :: JSNode -> String
-ss (JSArguments _lb xs _rb) = "JSArguments " ++ sss xs
 ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
 ss (JSAssignExpression lhs op rhs) = "JSExpression " ++ ss lhs ++ " " ++ sopa op ++ " " ++ ss rhs
-ss (JSCallExpression _os xs _cs) = "JSCallExpression \"()\" " ++ sss xs
-ss (JSCallExpressionDot _os xs) = "JSCallExpression \".\" " ++ sss xs
-ss (JSCallExpressionSquare _os xs _cs) = "JSCallExpression \"[]\" " ++ sss xs
+ss (JSCallExpression ex xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"()\" " ++ ssa xs
+ss (JSCallExpressionDot ex _os xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \".\" " ++ ss xs
+ss (JSCallExpressionSquare ex _os xs _cs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"[]\" " ++ sss xs
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
 ss (JSElision c) = "JSElision " ++ ss c
 ss (JSExpression xs) = "JSExpression " ++ sss xs
@@ -226,7 +232,10 @@ ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
 ss (JSLiteral _ []) = ""
 ss (JSLiteral _ s) = "JSLiteral " ++ show s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
+ss (JSMemberExpression e a) = "JSMemberExpression (" ++ ss e ++ ssa a ++ ")"
+ss (JSMemberNew _a n s) = "JSMemberNew \"" ++ ss n ++ "\"" ++ ssa s
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
+ss (JSNewExpression _n e) = "JSNewExpression " ++ ss e
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
 ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
@@ -351,6 +360,10 @@ ssws xs = "[" ++ commaJoin (map ssw xs) ++ "]"
 ssjl :: Show a => (JSList a) -> String
 ssjl (JSParams nel) = "[" ++ show nel ++ "]"
 ssjl JSNoParams = "[]"
+
+
+ssa :: JSArguments -> String
+ssa (JSArguments _lb xs _rb) = "JSArguments (" ++ show xs ++ ")"
 
 
 instance Show a => Show (JSNonEmptyList a) where

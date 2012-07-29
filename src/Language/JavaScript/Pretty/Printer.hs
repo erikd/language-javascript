@@ -66,12 +66,11 @@ instance RenderJS JSNode where
     (|>) pacc (JSRegEx         annot s  ) = pacc |> annot |> s
 
     -- Non-Terminals
-    (|>) pacc (JSArguments            alp xs arp)             = pacc |> alp |> "(" |> xs |> arp |> ")"
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
-    (|>) pacc (JSCallExpression       os xs cs)               = pacc |> os |> xs |> cs
-    (|>) pacc (JSCallExpressionDot    os xs)                  = pacc |> os |> "." |> xs
-    (|>) pacc (JSCallExpressionSquare als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
+    (|>) pacc (JSCallExpression       ex xs)                  = pacc |> ex |> xs
+    (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
+    (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSElision              c)                      = pacc |> c
     (|>) pacc (JSExpression           xs)                     = pacc |> xs
     (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
@@ -80,7 +79,10 @@ instance RenderJS JSNode where
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> "?" |> v1 |> c |> ":" |> v2
     (|>) pacc (JSFunctionExpression   annot x1s lb x2s rb x3) = pacc |> annot |> "function" |> x1s |> lb |> "(" |> x2s |> rb |> ")" |> x3
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
+    (|>) pacc (JSMemberExpression     e a)                    = pacc |> e |> a
+    (|>) pacc (JSMemberNew            a n s)                  = pacc |> a |> "new" |> n |> s
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
+    (|>) pacc (JSNewExpression        n e)                    = pacc |> n |> "new" |> e
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
     (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
@@ -254,6 +256,8 @@ instance RenderJS a => RenderJS (JSNonEmptyList a) where
 instance RenderJS JSIdentName where
     (|>) pacc (JSIdentName a s) = pacc |> a |> s
 
+instance RenderJS JSArguments where
+    (|>) pacc (JSArguments lp xs rp) = pacc |> lp |> "(" |> xs |> rp |> ")"
 
 -- EOF
 
