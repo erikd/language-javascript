@@ -79,12 +79,12 @@ instance Arbitrary JSStatement where
 jsStatement :: Int -> Gen JSStatement
 jsStatement 0 =
     oneof
-        [ JSExpressionStatement <$> arbitrary
+        [ JSExpressionStatement <$> arbitrary <*> arbitrary
         , JSThrow <$> arbitrary <*> arbitrary
         ]
 jsStatement _ =
         oneof
-            [ JSExpressionStatement <$> arbitrary
+            [ JSExpressionStatement <$> arbitrary <*> arbitrary
             , JSThrow <$> arbitrary <*> arbitrary
             ]
 
