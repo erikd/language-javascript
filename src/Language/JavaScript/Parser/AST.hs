@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveDataTypeable, FlexibleInstances #-}
 module Language.JavaScript.Parser.AST
     ( JSNode (..)
     , JSAnnot (..)
