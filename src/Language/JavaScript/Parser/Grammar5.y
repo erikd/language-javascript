@@ -500,13 +500,13 @@ PropertyNameandValueList : PropertyAssignment                              { [$1
 --        set PropertyName( PropertySetParameterList ) { FunctionBody }
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSNode }
-PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
+PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue (identName $1) $2 [$3] }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ss $1) (gc $1))) $2 $3 [] $4 $5 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ss $1) (gc $1))) (identName $2) $3 [] $4 $5 }
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ss $1) (gc $1))) $2 $3 [$4] $5 $6 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ss $1) (gc $1))) (identName $2) $3 [$4] $5 $6 }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName

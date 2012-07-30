@@ -170,15 +170,15 @@ data JSNode
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSAnnot JSNode JSAnnot JSNode -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot (Maybe JSIdentName) JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,[name],lb, parameter list,rb,block`
+    | JSFunctionExpression JSAnnot (Maybe JSIdentName) JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberExpression JSNode JSArguments -- expr, args
     | JSMemberNew JSAnnot JSNode JSArguments -- ^new, name, args
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSNewExpression JSAnnot JSNode -- ^new, expr
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
-    | JSPropertyAccessor JSAccessor JSNode JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue JSNode JSAnnot [JSNode] -- ^name, colon, value
+    | JSPropertyAccessor JSAccessor JSIdentName JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameandValue JSIdentName JSAnnot [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
 
@@ -236,8 +236,8 @@ ss (JSMemberNew _a n s) = "JSMemberNew \"" ++ ss n ++ "\"" ++ ssa s
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare " ++ ss x1s ++ " (" ++ ss x2 ++ ")"
 ss (JSNewExpression _n e) = "JSNewExpression " ++ ss e
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
-ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ sss x2s
-ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ ss x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
+ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ show x1 ++ ") " ++ sss x2s
+ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ show s ++ " (" ++ show x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
 ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
 ss (JSUnaryExpression op x) = "JSUnaryExpression " ++ suop op ++ ss x
@@ -371,6 +371,7 @@ instance Show a => Show (JSNonEmptyList a) where
 
 instance Show JSIdentName where
     show (JSIdentName _ s) = "JSIdentifier " ++ show s
+
 
 ssmi :: Maybe JSIdentName -> String
 ssmi Nothing = ""
