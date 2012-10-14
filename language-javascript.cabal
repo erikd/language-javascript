@@ -32,7 +32,7 @@ Library
   Build-depends:     base             >= 4       && < 5
                    , array            >= 0.3     && < 0.5
                    , mtl              >= 1.1     && < 2.9
-                   , containers       >= 0.2     && < 0.5
+                   , containers       >= 0.2     && < 0.6
                    , utf8-light       >= 0.4     && < 1.0
                    -- For the round trip output
                    , blaze-builder    >= 0.2     && < 1
@@ -65,7 +65,7 @@ Test-Suite test-language-javascript
                  , test-framework
                  , array            >= 0.3     && < 0.5
                  , utf8-light       >= 0.4     && < 1.0
-                 , containers       >= 0.2     && < 0.5
+                 , containers       >= 0.2     && < 0.6
                  , mtl              >= 1.1     && < 2.9
                  , utf8-string      >= 0.3.7   && < 1
                  , bytestring       >= 0.9.1   && < 1
