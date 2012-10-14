@@ -35,6 +35,9 @@ dependency in the cabal file.
 
 Changes
 
+0.5.5 Updated version ranges for GHC 7.6.1, courtesy of @mietek 
+      Note: requires alex 3.0.1 for development (not install)
+
 0.5.4 Fixed bug where lexer switches to regexp mode after a ']'
       char, reported by @aszlig
 
