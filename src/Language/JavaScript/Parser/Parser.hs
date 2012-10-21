@@ -4,6 +4,7 @@ module Language.JavaScript.Parser.Parser (
    , readJs
    -- , readJsKeepComments
    , parseFile
+   , parseFileUtf8
    -- * Parsing expressions
    -- parseExpr
    , parseUsing
@@ -15,7 +16,7 @@ import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import qualified Language.JavaScript.Parser.AST as AST
-
+import System.IO
 
 -- | Parse one compound statement, or a sequence of simple statements.
 -- Generally used for interactive input, such as from the command line of an interpreter.
@@ -41,6 +42,16 @@ parseFile :: FilePath -> IO AST.JSNode
 parseFile filename =
   do
      x <- readFile (filename)
+     return $ readJs x
+
+-- | Parse the given file, explicitly setting the encoding to UTF8
+-- when reading it
+parseFileUtf8 :: FilePath -> IO AST.JSNode
+parseFileUtf8 filename =
+  do
+     h <- openFile filename ReadMode
+     hSetEncoding h utf8
+     x <- hGetContents h
      return $ readJs x
 
 showStripped :: AST.JSNode -> String

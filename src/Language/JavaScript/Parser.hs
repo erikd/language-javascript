@@ -3,6 +3,7 @@ module Language.JavaScript.Parser
          PA.parse
        , PA.readJs
        , PA.parseFile
+       , PA.parseFileUtf8
        , PA.showStripped
        , PA.showStrippedMaybe
        , JSNode(..)
