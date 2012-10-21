@@ -279,7 +279,7 @@ testSuite = testGroup "Parser"
 
    , testCase "unicode4" (testProg "x=\"àáâãäå\";y='\3012a\0068'" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSStringLiteral '\"' \"\\224\\225\\226\\227\\228\\229\"],JSLiteral \";\",JSExpression [JSIdentifier \"y\",JSOpAssign JSLiteral \"=\",JSStringLiteral '\\'' \"\\3012aD\"],JSLiteral \"\"])")
 
-   , testCase "unicode5f" (testFile "./test/Unicode.js" "JSSourceElementsTop [JSExpression JSIdentifier \"\\224\\225\\226\\227\\228\\229\" = JSDecimal \"1\",JSLiteral \";\",JSLiteral \"\"]")
+   , testCase "unicode5f" (testFileUtf8 "./test/Unicode.js" "JSSourceElementsTop [JSExpression [JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\",JSLiteral \"\"]")
 
    , testCase "bug2.a" (testProg "function() {\nz = function /*z*/(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSExpression [JSFunctionExpression [] [] (JSStatementBlock ([JSExpression [JSIdentifier \"z\",JSOpAssign JSLiteral \"=\",JSFunctionExpression [] [JSIdentifier \"o\"] (JSStatementBlock ([JSReturn [JSExpression [JSIdentifier \"r\"]] JSLiteral \";\"]))],JSLiteral \";\"]))],JSLiteral \"\"])")
 
@@ -764,6 +764,12 @@ testProgUn str _expected = testRoundTrip str -- expected @=? (show $ parseUsing 
 testFile :: FilePath -> String -> IO ()
 testFile fileName expected = do
   res <- parseFile fileName
+  -- expected @=? (liftM show $ parseFile fileName)
+  (expected @=? (showStripped res))
+
+testFileUtf8 :: FilePath -> String -> IO ()
+testFileUtf8 fileName expected = do
+  res <- parseFileUtf8 fileName
   -- expected @=? (liftM show $ parseFile fileName)
   (expected @=? (showStripped res))
 

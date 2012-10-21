@@ -43,6 +43,12 @@ Note: The generation of the lexical analyser has been separated out,
 
 Changes
 
+0.5.7 Remove the hs-source-dirs from test suite to prevent compilation
+      issues (@nomeata) 
+
+      Introduce parseFileUtf8 to explicitly use utf8 for parsing a
+      file, and update tests to use it where needed. Closes #21
+
 0.5.6 Remove constraint on Alex 3.0.1, it is only required to make
       changes to the lexer. Closes #19
 
