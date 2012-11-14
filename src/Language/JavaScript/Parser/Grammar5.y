@@ -910,14 +910,14 @@ VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- 'VariableDeclara
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
 VariableDeclaration :: { AST.JSStatement }
-VariableDeclaration : Identifier SimpleAssign AssignmentExpression { AST.JSVarDeclInit $1 $2 $3 {- 'JSVarDeclInit1' -} }
-                    | Identifier                                   { AST.JSVarDecl $1           {- 'JSVarDecl1' -} }
+VariableDeclaration : Identifier SimpleAssign AssignmentExpression { AST.JSVarDecl $1 (AST.JSVarInit $2 $3) {- 'JSVarDeclInit1' -} }
+                    | Identifier                                   { AST.JSVarDecl $1 AST.JSVarInitNone     {- 'JSVarDecl1' -} }
 
 -- VariableDeclarationNoIn :                                      See 12.2
 --         Identifier InitialiserNoInopt
 VariableDeclarationNoIn :: { AST.JSStatement }
-VariableDeclarationNoIn : Identifier SimpleAssign AssignmentExpression { AST.JSVarDeclInit $1 $2 $3 {- 'JSVarDeclInit2' -} }
-                        | Identifier                                   { AST.JSVarDecl $1           {- 'JSVarDecl2' -} }
+VariableDeclarationNoIn : Identifier SimpleAssign AssignmentExpression { AST.JSVarDecl $1 (AST.JSVarInit $2 $3) {- 'JSVarDeclInit2' -} }
+                        | Identifier                                   { AST.JSVarDecl $1 AST.JSVarInitNone     {- 'JSVarDecl2' -} }
 
 -- EmptyStatement :                                                                         See 12.3
 --         ;

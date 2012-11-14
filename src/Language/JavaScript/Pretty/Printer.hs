@@ -228,8 +228,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb)        = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}"
     (|>) pacc (JSThrow annot x)                            = pacc |> annot |> "throw" |> x
     (|>) pacc (JSTry annot tb tcs tf)                      = pacc |> annot |> "try" |> tb |> tcs |> tf
-    (|>) pacc (JSVarDecl x1)                               = pacc |> x1
-    (|>) pacc (JSVarDeclInit x1 x2 x3)                     = pacc |> x1 |> x2 |> "=" |> x3
+    (|>) pacc (JSVarDecl x1 x2)                            = pacc |> x1 |> x2
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
@@ -266,6 +265,10 @@ instance RenderJS (Maybe JSNode) where
 
 instance RenderJS JSArguments where
     (|>) pacc (JSArguments lp xs rp) = pacc |> lp |> "(" |> xs |> rp |> ")"
+
+instance RenderJS JSVarInit where
+    (|>) pacc (JSVarInit a x) = pacc |> a |> "=" |> x
+    (|>) pacc JSVarInitNone   = pacc
 
 -- EOF
 
