@@ -252,12 +252,9 @@ instance RenderJS a => RenderJS (JSNonEmptyList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i
     (|>) pacc (JSLOne i)       = pacc |> i
 
-instance RenderJS JSIdentName where
+instance RenderJS JSIdent where
     (|>) pacc (JSIdentName a s) = pacc |> a |> s
-
-instance RenderJS (Maybe JSIdentName) where
-    (|>) pacc (Just n) = pacc |> n
-    (|>) pacc Nothing  = pacc
+    (|>) pacc JSIdentNone       = pacc
 
 instance RenderJS (Maybe JSNode) where
     (|>) pacc (Just e) = pacc |> e

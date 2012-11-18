@@ -12,7 +12,7 @@ module Language.JavaScript.Parser.AST
     , JSSwitchParts (..)
     , JSAST (..)
     , JSAccessor (..)
-    , JSIdentName (..)
+    , JSIdent (..)
     , JSArguments (..)
     , JSVarInit (..)
 
@@ -115,15 +115,15 @@ data JSSwitchParts
 
 data JSStatement
     = JSStatementBlock JSBlock      -- ^statement block
-    | JSBreak JSAnnot (Maybe JSIdentName) JSSemi        -- ^break,optional identifier, autosemi
+    | JSBreak JSAnnot JSIdent JSSemi        -- ^break,optional identifier, autosemi
     | JSConstant JSAnnot [JSStatement] JSSemi -- ^const, decl, autosemi
-    | JSContinue JSAnnot (Maybe JSIdentName) JSSemi     -- ^continue, optional identifier,autosemi
+    | JSContinue JSAnnot JSIdent JSSemi     -- ^continue, optional identifier,autosemi
     | JSDoWhile JSAnnot JSStatement JSAnnot JSAnnot JSNode JSAnnot JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
     | JSFor JSAnnot JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSAnnot JSNode JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSAnnot [JSNode] JSAnnot [JSNode] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSNode JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSNode JSAnnot (JSList JSIdentName) JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
+    | JSFunction JSAnnot JSNode JSAnnot (JSList JSIdent) JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSAnnot JSNode JSAnnot JSStatement -- ^if,(,expr,),stmt
     | JSIfElse JSAnnot JSAnnot JSNode JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled JSNode JSAnnot JSStatement -- ^identifier,colon,stmt
@@ -175,15 +175,15 @@ data JSNode
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSNode JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSNode JSAnnot JSNode JSAnnot JSNode -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot (Maybe JSIdentName) JSAnnot (JSList JSIdentName) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
+    | JSFunctionExpression JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot JSNode JSAnnot JSNode -- ^firstpart, dot, name
     | JSMemberExpression JSNode JSArguments -- expr, args
     | JSMemberNew JSAnnot JSNode JSArguments -- ^new, name, args
     | JSMemberSquare JSNode JSAnnot JSNode JSAnnot -- ^firstpart, lb, expr, rb
     | JSNewExpression JSAnnot JSNode -- ^new, expr
     | JSObjectLiteral JSAnnot [JSNode] JSAnnot -- ^lbrace contents rbrace
-    | JSPropertyAccessor JSAccessor JSIdentName JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue JSIdentName JSAnnot [JSNode] -- ^name, colon, value
+    | JSPropertyAccessor JSAccessor JSIdent JSAnnot [JSNode] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameandValue JSIdent JSAnnot [JSNode] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSNode
     deriving (Show, Eq)
 
@@ -193,8 +193,9 @@ data JSAccessor
     | JSAccessorSet JSAnnot
     deriving (Show, Eq)
 
-data JSIdentName
+data JSIdent
     = JSIdentName JSAnnot String
+    | JSIdentNone
     deriving Eq
 
 data JSList a
@@ -229,7 +230,7 @@ ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix " ++ suop op ++ " " ++ ss xs
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary " ++ ss x1 ++ " " ++ ss x2 ++ " " ++ ss x3
-ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssmi n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
+ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ show n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
 ss (JSOctal _ s) = "JSOctal " ++ show s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
@@ -324,8 +325,8 @@ stf JSNoFinally = ""
 
 sst :: JSStatement -> String
 sst (JSStatementBlock blk) = "JSStatementBlock (" ++ ssb blk ++ ")"
-sst (JSBreak _ n s) = "JSBreak " ++ ssmi n ++ " " ++ showsemi s
-sst (JSContinue _ mi s) = "JSContinue " ++ ssmi mi ++ " " ++ showsemi s
+sst (JSBreak _ n s) = "JSBreak " ++ show n ++ " " ++ showsemi s
+sst (JSContinue _ mi s) = "JSContinue " ++ show mi ++ " " ++ showsemi s
 sst (JSConstant _ xs _as) = "JSConstant const " ++ ssts xs
 sst (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
@@ -377,13 +378,9 @@ instance Show a => Show (JSNonEmptyList a) where
     show (JSLCons l _ i) = show l ++ "," ++ show i
     show (JSLOne i)      = show i
 
-instance Show JSIdentName where
+instance Show JSIdent where
     show (JSIdentName _ s) = "JSIdentifier " ++ show s
-
-
-ssmi :: Maybe JSIdentName -> String
-ssmi Nothing = ""
-ssmi (Just n) = show n
+    show JSIdentNone = ""
 
 ssme :: Maybe JSNode -> String
 ssme Nothing = ""
