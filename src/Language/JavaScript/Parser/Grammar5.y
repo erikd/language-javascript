@@ -161,7 +161,7 @@ RSquare :: { AST.JSAnnot }
 RSquare : ']' { AST.JSAnnot (ss $1) (gc $1) }
 
 Comma :: { AST.JSNode }
-Comma : ',' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "," }
+Comma : ',' { AST.JSComma (AST.JSAnnot (ss $1) (gc $1)) }
 
 Colon :: { AST.JSAnnot }
 Colon : ':' { AST.JSAnnot (ss $1) (gc $1) }
@@ -453,18 +453,18 @@ IdentifierName : Identifier {$1}
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSNode }
 ArrayLiteral : LSquare RSquare                           { AST.JSArrayLiteral $1 [] $2 }
-             | LSquare Elision RSquare                   { AST.JSArrayLiteral $1 [AST.JSElision $2] $3 }
+             | LSquare Elision RSquare                   { AST.JSArrayLiteral $1 $2 $3 }
              | LSquare ElementList RSquare               { AST.JSArrayLiteral $1 $2 $3 }
-             | LSquare ElementList Elision RSquare       { AST.JSArrayLiteral $1 ($2++[AST.JSElision $3]) $4 }
+             | LSquare ElementList Elision RSquare       { AST.JSArrayLiteral $1 ($2 ++ $3) $4 }
 
 
 -- ElementList :                                                         See 11.1.4
 --        Elisionopt AssignmentExpression
 --        ElementList , Elisionopt AssignmentExpression
 ElementList :: { [AST.JSNode] }
-ElementList : Elision AssignmentExpression                   { [AST.JSElision $1, $2]   {- 'ElementList1' -} }
-            | AssignmentExpression                           { [$1]       {- 'ElementList2' -} }
-            | ElementList Elision AssignmentExpression       { (($1)++((AST.JSElision $2):[$3])) {- 'ElementList3' -} }
+ElementList : Elision AssignmentExpression                   { $1 ++ [$2]   {- 'ElementList1' -} }
+            | AssignmentExpression                           { [$1]         {- 'ElementList2' -} }
+            | ElementList Elision AssignmentExpression       { (($1)++($2 ++ [$3])) {- 'ElementList3' -} }
 
 
 -- Elision :                                                             See 11.1.4
@@ -1172,7 +1172,7 @@ mkUnary (AST.JSBinOpPlus  annot) = AST.JSUnaryOpPlus  annot
 mkUnary x = error $ "Invalid unary op : " ++ show x
 
 nodePos :: AST.JSNode -> AST.JSAnnot
-nodePos (AST.JSLiteral p _) = p
+nodePos (AST.JSComma p) = p
 
 identName :: AST.JSNode -> AST.JSIdent
 identName (AST.JSIdentifier a s) = AST.JSIdentName a s

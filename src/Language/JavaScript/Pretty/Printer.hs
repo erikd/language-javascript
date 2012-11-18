@@ -71,7 +71,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSCallExpression       ex xs)                  = pacc |> ex |> xs
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
-    (|>) pacc (JSElision              c)                      = pacc |> c
+    (|>) pacc (JSComma                annot)                  = pacc |> annot |> ","
     (|>) pacc (JSCommaExpression      le c re)                = pacc |> le |> c |> "," |> re
     (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"

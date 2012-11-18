@@ -169,7 +169,7 @@ data JSNode
     | JSCallExpression JSNode JSArguments  -- ^expr, args
     | JSCallExpressionDot JSNode JSAnnot JSNode  -- ^expr, dot, expr
     | JSCallExpressionSquare JSNode JSAnnot JSNode JSAnnot  -- ^expr, [, expr, ]
-    | JSElision [JSNode]               -- ^comma
+    | JSComma JSAnnot-- ^comma
     | JSCommaExpression JSNode JSAnnot JSNode          -- ^expression components
     | JSExpressionBinary JSNode JSBinOp JSNode -- ^lhs, op, rhs
     | JSExpressionParen JSAnnot JSNode JSAnnot -- ^lb,expression,rb
@@ -223,8 +223,8 @@ ss (JSAssignExpression lhs op rhs) = "JSExpression " ++ ss lhs ++ " " ++ sopa op
 ss (JSCallExpression ex xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"()\" " ++ ssa xs
 ss (JSCallExpressionDot ex _os xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \".\" " ++ ss xs
 ss (JSCallExpressionSquare ex _os xs _cs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"[]\" " ++ ss xs
+ss (JSComma _) = "JSLiteral \",\""
 ss (JSDecimal _ s) = "JSDecimal " ++ show s
-ss (JSElision c) = "JSElision " ++ sss c
 ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
 ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary " ++ sbop op ++ " " ++ ss x2 ++ " " ++ ss x3
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
