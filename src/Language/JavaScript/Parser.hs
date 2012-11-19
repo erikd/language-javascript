@@ -6,7 +6,7 @@ module Language.JavaScript.Parser
        , PA.showStripped
        , PA.showStrippedMaybe
        -- * AST elements
-       , JSNode (..)
+       , JSExpression (..)
        , JSAnnot (..)
        , JSBinOp (..)
        , JSBlock (..)

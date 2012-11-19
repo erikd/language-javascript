@@ -55,7 +55,7 @@ instance RenderJS JSAST where
     (|>) pacc (JSSourceElementsTop xs) = pacc |> xs
 
 
-instance RenderJS JSNode where
+instance RenderJS JSExpression where
     -- Terminals
     (|>) pacc (JSIdentifier    annot s  ) = pacc |> annot |> s
     (|>) pacc (JSDecimal       annot i  ) = pacc |> annot |> i
@@ -89,7 +89,7 @@ instance RenderJS JSNode where
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
 
 -- -----------------------------------------------------------------------------
--- Need an instance of RenderJS for every component of every JSNode or JSAnnot
+-- Need an instance of RenderJS for every component of every JSExpression or JSAnnot
 -- constuctor.
 -- -----------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ instance RenderJS CommentAnnotation where
     (|>) pacc (WhiteSpace p s) = pacc |> p |> s
 
 
-instance RenderJS [JSNode] where
+instance RenderJS [JSExpression] where
     (|>) = foldl' (|>)
 
 
@@ -256,7 +256,7 @@ instance RenderJS JSIdent where
     (|>) pacc (JSIdentName a s) = pacc |> a |> s
     (|>) pacc JSIdentNone       = pacc
 
-instance RenderJS (Maybe JSNode) where
+instance RenderJS (Maybe JSExpression) where
     (|>) pacc (Just e) = pacc |> e
     (|>) pacc Nothing  = pacc
 
