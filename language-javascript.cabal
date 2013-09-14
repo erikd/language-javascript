@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.5.7
+Version:             0.5.8
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -72,7 +72,7 @@ Test-Suite test-language-javascript
                  , blaze-builder    >= 0.2     && < 1
                  -- need our own library for tests
                  , language-javascript >= 0.5.5
-  
+
 
 source-repository head
   type:     git
