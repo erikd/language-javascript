@@ -1,4 +1,5 @@
 {
+{-# LANGUAGE BangPatterns #-}
 module Language.JavaScript.Parser.Grammar5 (
     parseProgram
   , parseLiteral
