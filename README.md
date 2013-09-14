@@ -1,6 +1,8 @@
 Parser for JavaScript
 ---------------------
 
+[![Build Status](https://secure.travis-ci.org/alanz/language-javascript.png?branch=master)](http://travis-ci.org/alanz/language-javascript)
+
 Based (loosely) on language-python
 
 How to build
@@ -8,26 +10,27 @@ How to build
 
 Library:
 
-cabal clean && cabal configure && cabal build
+    cabal clean && cabal configure && cabal build
 
 Tests:
 
-cabal clean && cabal configure -fbuildtests && cabal build
+    cabal clean && cabal configure -fbuildtests && cabal build
 
 Running the tests
 
-./dist/build/runtests/runtests
+    ./dist/build/runtests/runtests
 
 
 To debug the grammar
 
-happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y
+    happy -iparse.txt -g -a  -d src/Language/JavaScript/Parser/Grammar5.y
 
 This generates src/Language/JavaScript/Parser/Grammar5.hs, delete this
 when done with the debug version
 
 
 UTF8/Unicode version
+--------------------
 
 Alex 3.0 now supports unicode natively, and has been included as a
 dependency in the cabal file.
@@ -42,7 +45,9 @@ Note: The generation of the lexical analyser has been separated out,
       3.0.1
 
 Changes
+-------
 
+```
 0.5.8 Fixed compilation issue using GHC 7.6.3 on Mac OSX, thanks @albertov
 
 0.5.7 Remove the hs-source-dirs from test suite to prevent compilation
@@ -121,6 +126,7 @@ UTF8 encoding, does not recognise byte order marks or UTF-16/UTF-32
 comment recognised properly. Thanks to Tony Morris for reporting this.
 
 0.0.1 Initial release
+```
 
 EOF
 
