@@ -43,6 +43,55 @@ import GlaExts
 {-# LINE 1 "templates/wrappers.hs" #-}
 {-# LINE 1 "templates/wrappers.hs" #-}
 {-# LINE 1 "<command-line>" #-}
+
+
+
+
+
+
+
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+
+# 17 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/predefs.h" 1 3 4
+
+# 18 "/usr/include/x86_64-linux-gnu/bits/predefs.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+# 31 "/usr/include/stdc-predef.h" 2 3 4
+
+
+
+
+
+
+
+
+# 7 "<command-line>" 2
 {-# LINE 1 "templates/wrappers.hs" #-}
 -- -----------------------------------------------------------------------------
 -- Alex wrapper code.
@@ -89,7 +138,8 @@ type AlexInput = (AlexPosn,     -- current position,
                   [Byte],       -- pending bytes on current char
                   String)       -- current input string
 
-ignorePendingBytes (p,c,ps,s) = (p,c,s)
+ignorePendingBytes :: AlexInput -> AlexInput
+ignorePendingBytes (p,c,ps,s) = (p,c,[],s)
 
 alexInputPrevChar :: AlexInput -> Char
 alexInputPrevChar (p,c,bs,s) = c
@@ -97,16 +147,16 @@ alexInputPrevChar (p,c,bs,s) = c
 alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
 alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
 alexGetByte (p,c,[],[]) = Nothing
-alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
                                   (b:bs) = utf8Encode c
                               in p' `seq`  Just (b, (p', c, bs, s))
 
 
-{-# LINE 88 "templates/wrappers.hs" #-}
+{-# LINE 89 "templates/wrappers.hs" #-}
 
-{-# LINE 102 "templates/wrappers.hs" #-}
+{-# LINE 103 "templates/wrappers.hs" #-}
 
-{-# LINE 117 "templates/wrappers.hs" #-}
+{-# LINE 118 "templates/wrappers.hs" #-}
 
 -- -----------------------------------------------------------------------------
 -- Token positions
@@ -149,9 +199,9 @@ data AlexState = AlexState {
 -- Compile with -funbox-strict-fields for best results!
 
 runAlex :: String -> Alex a -> Either String a
-runAlex input (Alex f) 
+runAlex input (Alex f)
    = case f (AlexState {alex_pos = alexStartPos,
-                        alex_inp = input,       
+                        alex_inp = input,
                         alex_chr = '\n',
                         alex_bytes = [],
 
@@ -163,14 +213,14 @@ runAlex input (Alex f)
 newtype Alex a = Alex { unAlex :: AlexState -> Either String (AlexState, a) }
 
 instance Monad Alex where
-  m >>= k  = Alex $ \s -> case unAlex m s of 
+  m >>= k  = Alex $ \s -> case unAlex m s of
                                 Left msg -> Left msg
                                 Right (s',a) -> unAlex (k a) s'
   return a = Alex $ \s -> Right (s,a)
 
 alexGetInput :: Alex AlexInput
 alexGetInput
- = Alex $ \s@AlexState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} -> 
+ = Alex $ \s@AlexState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} ->
         Right (s, (pos,c,bs,inp))
 
 alexSetInput :: AlexInput -> Alex ()
@@ -225,21 +275,21 @@ token t input len = return (t input len)
 -- -----------------------------------------------------------------------------
 -- Monad (with ByteString input)
 
-{-# LINE 319 "templates/wrappers.hs" #-}
+{-# LINE 320 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
 -- Basic wrapper
 
-{-# LINE 345 "templates/wrappers.hs" #-}
+{-# LINE 347 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
 -- Basic wrapper, ByteString version
 
-{-# LINE 363 "templates/wrappers.hs" #-}
+{-# LINE 365 "templates/wrappers.hs" #-}
 
-{-# LINE 376 "templates/wrappers.hs" #-}
+{-# LINE 378 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -247,13 +297,13 @@ token t input len = return (t input len)
 
 -- Adds text positions to the basic model.
 
-{-# LINE 393 "templates/wrappers.hs" #-}
+{-# LINE 395 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
 -- Posn wrapper, ByteString version
 
-{-# LINE 408 "templates/wrappers.hs" #-}
+{-# LINE 410 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -273,8 +323,8 @@ alex_check = AlexA# "\xff\xff\x0a\x00\x9f\x00\xbf\x00\x0d\x00\x09\x00\x0a\x00\x0
 alex_deflt :: AlexAddr
 alex_deflt = AlexA# "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x01\xff\xff\x8c\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x69\x00\x69\x00\x6b\x00\x6b\x00\x6d\x00\x6d\x00\xff\xff\x73\x00\x73\x00\x7a\x00\x7a\x00\x7e\x00\x7e\x00\x82\x00\x82\x00\xff\xff\xff\xff\x8c\x00\x8c\x00\x8c\x00\x8e\x00\x8e\x00\xff\xff\x3e\x00\xff\xff\x3e\x00\x3e\x00\x3c\x00\xff\xff\x3c\x00\x3c\x00\x9a\x00\xff\xff\x9a\x00\x9a\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8c\x00\x82\x01\x82\x01\x82\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8e\x01\x8c\x01\x8c\x01\x8c\x01\x8c\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x8c\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
-alex_accept = listArray (0::Int,456) [[(AlexAccSkip)],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[(AlexAcc (alex_action_1))],[(AlexAcc (alex_action_2))],[(AlexAcc (alex_action_3))],[(AlexAcc (alex_action_4))],[(AlexAcc (alex_action_5))],[(AlexAcc (alex_action_6))],[(AlexAcc (alex_action_7))],[(AlexAcc (alex_action_8))],[(AlexAcc (alex_action_9))],[(AlexAcc (alex_action_9))],[(AlexAcc (alex_action_9))],[(AlexAcc (alex_action_9))],[(AlexAccSkip)],[(AlexAcc (alex_action_11))],[(AlexAcc (alex_action_12))],[(AlexAcc (alex_action_13))],[(AlexAcc (alex_action_14))],[(AlexAcc (alex_action_15))],[(AlexAcc (alex_action_16))],[(AlexAcc (alex_action_17))],[(AlexAcc (alex_action_18))],[(AlexAcc (alex_action_19))],[(AlexAcc (alex_action_20))],[(AlexAcc (alex_action_21))],[(AlexAcc (alex_action_22))],[(AlexAcc (alex_action_23))],[(AlexAcc (alex_action_24))],[(AlexAcc (alex_action_25))],[(AlexAcc (alex_action_26))],[(AlexAcc (alex_action_27))],[(AlexAcc (alex_action_28))],[(AlexAcc (alex_action_29))],[(AlexAcc (alex_action_30))],[(AlexAcc (alex_action_31))],[(AlexAcc (alex_action_32))],[(AlexAcc (alex_action_33))],[(AlexAcc (alex_action_34))],[(AlexAcc (alex_action_35))],[(AlexAcc (alex_action_36))],[(AlexAcc (alex_action_37))],[(AlexAcc (alex_action_38))],[(AlexAcc (alex_action_39))],[(AlexAcc (alex_action_40))],[(AlexAcc (alex_action_41))],[(AlexAcc (alex_action_42))],[(AlexAcc (alex_action_43))],[(AlexAcc (alex_action_44))],[(AlexAcc (alex_action_45))],[(AlexAcc (alex_action_46))],[(AlexAcc (alex_action_47))],[(AlexAcc (alex_action_48))],[(AlexAcc (alex_action_49))],[(AlexAcc (alex_action_50))],[(AlexAcc (alex_action_51))],[(AlexAcc (alex_action_52))],[(AlexAcc (alex_action_53))],[(AlexAcc (alex_action_54))],[(AlexAcc (alex_action_55))],[(AlexAcc (alex_action_56))],[(AlexAcc (alex_action_57))],[(AlexAcc (alex_action_58))],[(AlexAcc (alex_action_59))]]
-{-# LINE 324 "src-dev/Language/JavaScript/Parser/Lexer.x" #-}
+alex_accept = listArray (0::Int,447) [AlexAccSkip,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAcc (alex_action_1),AlexAcc (alex_action_2),AlexAcc (alex_action_3),AlexAcc (alex_action_4),AlexAcc (alex_action_5),AlexAcc (alex_action_6),AlexAcc (alex_action_7),AlexAcc (alex_action_8),AlexAcc (alex_action_9),AlexAcc (alex_action_9),AlexAcc (alex_action_9),AlexAcc (alex_action_9),AlexAccSkip,AlexAcc (alex_action_11),AlexAcc (alex_action_12),AlexAcc (alex_action_13),AlexAcc (alex_action_14),AlexAcc (alex_action_15),AlexAcc (alex_action_16),AlexAcc (alex_action_17),AlexAcc (alex_action_18),AlexAcc (alex_action_19),AlexAcc (alex_action_20),AlexAcc (alex_action_21),AlexAcc (alex_action_22),AlexAcc (alex_action_23),AlexAcc (alex_action_24),AlexAcc (alex_action_25),AlexAcc (alex_action_26),AlexAcc (alex_action_27),AlexAcc (alex_action_28),AlexAcc (alex_action_29),AlexAcc (alex_action_30),AlexAcc (alex_action_31),AlexAcc (alex_action_32),AlexAcc (alex_action_33),AlexAcc (alex_action_34),AlexAcc (alex_action_35),AlexAcc (alex_action_36),AlexAcc (alex_action_37),AlexAcc (alex_action_38),AlexAcc (alex_action_39),AlexAcc (alex_action_40),AlexAcc (alex_action_41),AlexAcc (alex_action_42),AlexAcc (alex_action_43),AlexAcc (alex_action_44),AlexAcc (alex_action_45),AlexAcc (alex_action_46),AlexAcc (alex_action_47),AlexAcc (alex_action_48),AlexAcc (alex_action_49),AlexAcc (alex_action_50)]
+{-# LINE 316 "src-dev/Language/JavaScript/Parser/Lexer.x" #-}
 
 
 {-
@@ -340,7 +390,8 @@ lexToken = do
           lexToken
         AlexToken inp' len action -> do
           alexSetInput inp'
-          token <- action (ignorePendingBytes inp) len
+          -- token <- action (ignorePendingBytes inp) len
+          token <- action inp len
           setLastToken token
           return token
 
@@ -410,8 +461,9 @@ alexEOF = do return (EOFToken tokenPosnEmpty [])
 tailToken :: Alex Token
 tailToken = do return (TailToken tokenPosnEmpty [])
 
-adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
-adapt f loc@(p@(AlexPn offset line col),_,inp) len =
+-- adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
+adapt :: (TokenPosn -> Int -> String -> Alex Token) -> AlexInput -> Int -> Alex Token
+adapt f loc@(p@(AlexPn offset line col),_,_,inp) len =
   (f (TokenPn offset line col) len inp)
 
 {-
@@ -529,15 +581,15 @@ bof,divide,reg :: Int
 bof = 1
 divide = 2
 reg = 3
-alex_action_1 =  adapt (mkString wsToken) 
-alex_action_2 =  adapt (mkString commentToken) 
-alex_action_3 =  adapt (mkString commentToken) 
-alex_action_4 =  \ap@(loc,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc) 
-alex_action_5 =  adapt (mkString stringToken) 
-alex_action_6 =  adapt (mkString hexIntegerToken) 
-alex_action_7 =  adapt (mkString octalToken) 
-alex_action_8 =  adapt (mkString regExToken) 
-alex_action_9 =  adapt (mkString decimalToken) 
+alex_action_1 =  adapt (mkString wsToken)
+alex_action_2 =  adapt (mkString commentToken)
+alex_action_3 =  adapt (mkString commentToken)
+alex_action_4 =  \ap@(loc,_,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc)
+alex_action_5 =  adapt (mkString stringToken)
+alex_action_6 =  adapt (mkString hexIntegerToken)
+alex_action_7 =  adapt (mkString octalToken)
+alex_action_8 =  adapt (mkString regExToken)
+alex_action_9 =  adapt (mkString decimalToken)
 alex_action_11 =  adapt (symbolToken DivideAssignToken)
 alex_action_12 =  adapt (symbolToken DivToken)
 alex_action_13 =  adapt (symbolToken  SemiColonToken)
@@ -590,6 +642,55 @@ alex_action_59 =  adapt (symbolToken  CondcommentEndToken)
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<command-line>" #-}
+
+
+
+
+
+
+
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+
+# 17 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/predefs.h" 1 3 4
+
+# 18 "/usr/include/x86_64-linux-gnu/bits/predefs.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+# 31 "/usr/include/stdc-predef.h" 2 3 4
+
+
+
+
+
+
+
+
+# 7 "<command-line>" 2
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 -- -----------------------------------------------------------------------------
 -- ALEX TEMPLATE
@@ -600,9 +701,9 @@ alex_action_59 =  adapt (symbolToken  CondcommentEndToken)
 -- -----------------------------------------------------------------------------
 -- INTERNALS and main scanner engine
 
-{-# LINE 37 "templates/GenericTemplate.hs" #-}
+{-# LINE 35 "templates/GenericTemplate.hs" #-}
 
-{-# LINE 47 "templates/GenericTemplate.hs" #-}
+{-# LINE 45 "templates/GenericTemplate.hs" #-}
 
 
 data AlexAddr = AlexA# Addr#
@@ -629,18 +730,18 @@ alexIndexInt16OffAddr (AlexA# arr) off =
 
 
 {-# INLINE alexIndexInt32OffAddr #-}
-alexIndexInt32OffAddr (AlexA# arr) off = 
+alexIndexInt32OffAddr (AlexA# arr) off =
 #ifdef WORDS_BIGENDIAN
   narrow32Int# i
   where
-   !i    = word2Int# ((b3 `uncheckedShiftL#` 24#) `or#`
+   i    = word2Int# ((b3 `uncheckedShiftL#` 24#) `or#`
 		     (b2 `uncheckedShiftL#` 16#) `or#`
 		     (b1 `uncheckedShiftL#` 8#) `or#` b0)
-   !b3   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 3#)))
-   !b2   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 2#)))
-   !b1   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 1#)))
-   !b0   = int2Word# (ord# (indexCharOffAddr# arr off'))
-   !off' = off *# 4#
+   b3   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 3#)))
+   b2   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 2#)))
+   b1   = int2Word# (ord# (indexCharOffAddr# arr (off' +# 1#)))
+   b0   = int2Word# (ord# (indexCharOffAddr# arr off'))
+   off' = off *# 4#
 #else
   indexInt32OffAddr# arr off
 #endif
@@ -676,7 +777,7 @@ alexScanUser user input (I# (sc))
   = case alex_scan_tkn user input 0# input sc AlexNone of
 	(AlexNone, input') ->
 		case alexGetByte input of
-			Nothing -> 
+			Nothing ->
 
 
 
@@ -705,45 +806,39 @@ alexScanUser user input (I# (sc))
 
 alex_scan_tkn user orig_input len input s last_acc =
   input `seq` -- strict in the input
-  let 
+  let
 	new_acc = (check_accs (alex_accept `quickIndex` (I# (s))))
   in
   new_acc `seq`
   case alexGetByte input of
      Nothing -> (new_acc, input)
-     Just (c, new_input) -> 
+     Just (c, new_input) ->
 
 
 
-	let
-		(base) = alexIndexInt32OffAddr alex_base s
-		((I# (ord_c))) = fromIntegral c
-		(offset) = (base +# ord_c)
-		(check)  = alexIndexInt16OffAddr alex_check offset
-		
-		(new_s) = if (offset >=# 0#) && (check ==# ord_c)
+      case fromIntegral c of { (I# (ord_c)) ->
+        let
+                base   = alexIndexInt32OffAddr alex_base s
+                offset = (base +# ord_c)
+                check  = alexIndexInt16OffAddr alex_check offset
+
+                new_s = if (offset >=# 0#) && (check ==# ord_c)
 			  then alexIndexInt16OffAddr alex_table offset
 			  else alexIndexInt16OffAddr alex_deflt s
 	in
-	case new_s of 
+        case new_s of
 	    -1# -> (new_acc, input)
 		-- on an error, we want to keep the input *before* the
 		-- character that failed, not after.
     	    _ -> alex_scan_tkn user orig_input (if c < 0x80 || c >= 0xC0 then (len +# 1#) else len)
                                                 -- note that the length is increased ONLY if this is the 1st byte in a char encoding)
 			new_input new_s new_acc
-
+      }
   where
-	check_accs [] = last_acc
-	check_accs (AlexAcc a : _) = AlexLastAcc a input (I# (len))
-	check_accs (AlexAccSkip : _)  = AlexLastSkip  input (I# (len))
-	check_accs (AlexAccPred a predx : rest)
-	   | predx user orig_input (I# (len)) input
-	   = AlexLastAcc a input (I# (len))
-	check_accs (AlexAccSkipPred predx : rest)
-	   | predx user orig_input (I# (len)) input
-	   = AlexLastSkip input (I# (len))
-	check_accs (_ : rest) = check_accs rest
+	check_accs (AlexAccNone) = last_acc
+	check_accs (AlexAcc a  ) = AlexLastAcc a input (I# (len))
+	check_accs (AlexAccSkip) = AlexLastSkip  input (I# (len))
+{-# LINE 191 "templates/GenericTemplate.hs" #-}
 
 data AlexLastAcc a
   = AlexNone
@@ -756,35 +851,10 @@ instance Functor AlexLastAcc where
     fmap f (AlexLastSkip x y) = AlexLastSkip x y
 
 data AlexAcc a user
-  = AlexAcc a
+  = AlexAccNone
+  | AlexAcc a
   | AlexAccSkip
-  | AlexAccPred a (AlexAccPred user)
-  | AlexAccSkipPred (AlexAccPred user)
-
-type AlexAccPred user = user -> AlexInput -> Int -> AlexInput -> Bool
-
--- -----------------------------------------------------------------------------
--- Predicates on a rule
-
-alexAndPred p1 p2 user in1 len in2
-  = p1 user in1 len in2 && p2 user in1 len in2
-
---alexPrevCharIsPred :: Char -> AlexAccPred _ 
-alexPrevCharIs c _ input _ _ = c == alexInputPrevChar input
-
-alexPrevCharMatches f _ input _ _ = f (alexInputPrevChar input)
-
---alexPrevCharIsOneOfPred :: Array Char Bool -> AlexAccPred _ 
-alexPrevCharIsOneOf arr _ input _ _ = arr ! alexInputPrevChar input
-
---alexRightContext :: Int -> AlexAccPred _
-alexRightContext (I# (sc)) user _ _ input = 
-     case alex_scan_tkn user input 0# input sc AlexNone of
-	  (AlexNone, _) -> False
-	  _ -> True
-	-- TODO: there's no need to find the longest
-	-- match when checking the right context, just
-	-- the first match will do.
+{-# LINE 235 "templates/GenericTemplate.hs" #-}
 
 -- used by wrappers
 iUnbox (I# (i)) = i

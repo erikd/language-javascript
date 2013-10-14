@@ -203,7 +203,7 @@ tokens :-
 
 -- Identifier    = {ID Head}{ID Tail}*
 -- <reg,divide> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
-<reg,divide> @IdentifierStart(@IdentifierPart)*  { \ap@(loc,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc) }
+<reg,divide> @IdentifierStart(@IdentifierPart)*  { \ap@(loc,_,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc) }
 
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"'
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
@@ -386,7 +386,8 @@ lexToken = do
           lexToken
         AlexToken inp' len action -> do
           alexSetInput inp'
-          token <- action (ignorePendingBytes inp) len
+          -- token <- action (ignorePendingBytes inp) len
+          token <- action inp len
           setLastToken token
           return token
 
@@ -456,8 +457,9 @@ alexEOF = do return (EOFToken tokenPosnEmpty [])
 tailToken :: Alex Token
 tailToken = do return (TailToken tokenPosnEmpty [])
 
-adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
-adapt f loc@(p@(AlexPn offset line col),_,inp) len =
+-- adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
+adapt :: (TokenPosn -> Int -> String -> Alex Token) -> AlexInput -> Int -> Alex Token
+adapt f loc@(p@(AlexPn offset line col),_,_,inp) len =
   (f (TokenPn offset line col) len inp)
 
 {-
