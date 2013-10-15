@@ -822,7 +822,11 @@ alex_scan_tkn user orig_input len input s last_acc =
                 offset = (base +# ord_c)
                 check  = alexIndexInt16OffAddr alex_check offset
 
+#if MIN_VERSION_base(4,7,0)
+                new_s = if (I# (offset >=# 0#) /= 0) && (I# (check ==# ord_c) /= 0)
+#else
                 new_s = if (offset >=# 0#) && (check ==# ord_c)
+#endif
 			  then alexIndexInt16OffAddr alex_table offset
 			  else alexIndexInt16OffAddr alex_deflt s
 	in
