@@ -48,6 +48,8 @@ Changes
 -------
 
 ```
+0.5.9 Relax array dependency for GHC 7.8.1, thanks @maoe
+
 0.5.8 Fixed compilation issue using GHC 7.6.3 on Mac OSX, thanks @albertov
 
 0.5.7 Remove the hs-source-dirs from test suite to prevent compilation
