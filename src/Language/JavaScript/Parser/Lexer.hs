@@ -91,7 +91,7 @@ import GlaExts
 
 
 
-# 7 "<command-line>" 2
+{-# LINE 7 "<command-line>" #-}
 {-# LINE 1 "templates/wrappers.hs" #-}
 -- -----------------------------------------------------------------------------
 -- Alex wrapper code.
@@ -152,11 +152,11 @@ alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
                               in p' `seq`  Just (b, (p', c, bs, s))
 
 
-{-# LINE 89 "templates/wrappers.hs" #-}
+{-# LINE 92 "templates/wrappers.hs" #-}
 
-{-# LINE 103 "templates/wrappers.hs" #-}
+{-# LINE 106 "templates/wrappers.hs" #-}
 
-{-# LINE 118 "templates/wrappers.hs" #-}
+{-# LINE 121 "templates/wrappers.hs" #-}
 
 -- -----------------------------------------------------------------------------
 -- Token positions
@@ -237,12 +237,20 @@ alexGetStartCode = Alex $ \s@AlexState{alex_scd=sc} -> Right (s, sc)
 alexSetStartCode :: Int -> Alex ()
 alexSetStartCode sc = Alex $ \s -> Right (s{alex_scd=sc}, ())
 
+
+alexGetUserState :: Alex AlexUserState
+alexGetUserState = Alex $ \s@AlexState{alex_ust=ust} -> Right (s,ust)
+
+alexSetUserState :: AlexUserState -> Alex ()
+alexSetUserState ss = Alex $ \s -> Right (s{alex_ust=ss}, ())
+
+
 alexMonadScan = do
   inp <- alexGetInput
   sc <- alexGetStartCode
   case alexScan inp sc of
     AlexEOF -> alexEOF
-    AlexError inp' -> alexError "lexical error"
+    AlexError ((AlexPn _ line column),_,_,_) -> alexError $ "lexical error at line " ++ (show line) ++ ", column " ++ (show column)
     AlexSkip  inp' len -> do
         alexSetInput inp'
         alexMonadScan
@@ -275,21 +283,21 @@ token t input len = return (t input len)
 -- -----------------------------------------------------------------------------
 -- Monad (with ByteString input)
 
-{-# LINE 320 "templates/wrappers.hs" #-}
+{-# LINE 333 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
 -- Basic wrapper
 
-{-# LINE 347 "templates/wrappers.hs" #-}
+{-# LINE 360 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
 -- Basic wrapper, ByteString version
 
-{-# LINE 365 "templates/wrappers.hs" #-}
-
 {-# LINE 378 "templates/wrappers.hs" #-}
+
+{-# LINE 392 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -297,13 +305,13 @@ token t input len = return (t input len)
 
 -- Adds text positions to the basic model.
 
-{-# LINE 395 "templates/wrappers.hs" #-}
+{-# LINE 409 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
 -- Posn wrapper, ByteString version
 
-{-# LINE 410 "templates/wrappers.hs" #-}
+{-# LINE 424 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -681,7 +689,7 @@ alex_action_50 =  adapt (symbolToken  CondcommentEndToken)
 
 
 
-# 7 "<command-line>" 2
+{-# LINE 7 "<command-line>" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 -- -----------------------------------------------------------------------------
 -- ALEX TEMPLATE
@@ -692,13 +700,25 @@ alex_action_50 =  adapt (symbolToken  CondcommentEndToken)
 -- -----------------------------------------------------------------------------
 -- INTERNALS and main scanner engine
 
-{-# LINE 35 "templates/GenericTemplate.hs" #-}
+{-# LINE 21 "templates/GenericTemplate.hs" #-}
 
-{-# LINE 45 "templates/GenericTemplate.hs" #-}
+
+
+
+
+-- Do not remove this comment. Required to fix CPP parsing when using GCC and a clang-compiled alex.
+#if __GLASGOW_HASKELL__ > 706
+#define GTE(n,m) (tagToEnum# (n >=# m))
+#define EQ(n,m) (tagToEnum# (n ==# m))
+#else
+#define GTE(n,m) (n >=# m)
+#define EQ(n,m) (n ==# m)
+#endif
+{-# LINE 51 "templates/GenericTemplate.hs" #-}
 
 
 data AlexAddr = AlexA# Addr#
-
+-- Do not remove this comment. Required to fix CPP parsing when using GCC and a clang-compiled alex.
 #if __GLASGOW_HASKELL__ < 503
 uncheckedShiftL# = shiftL#
 #endif
@@ -736,6 +756,7 @@ alexIndexInt32OffAddr (AlexA# arr) off =
 #else
   indexInt32OffAddr# arr off
 #endif
+
 
 
 
@@ -813,11 +834,7 @@ alex_scan_tkn user orig_input len input s last_acc =
                 offset = (base +# ord_c)
                 check  = alexIndexInt16OffAddr alex_check offset
 		
-#if MIN_VERSION_base(4,7,0)
-                new_s = if (I# (offset >=# 0#) /= 0) && (I# (check ==# ord_c) /= 0)
-#else
-                new_s = if (offset >=# 0#) && (check ==# ord_c)
-#endif
+                new_s = if GTE(offset,0#) && EQ(check,ord_c)
 			  then alexIndexInt16OffAddr alex_table offset
 			  else alexIndexInt16OffAddr alex_deflt s
 	in
@@ -833,7 +850,7 @@ alex_scan_tkn user orig_input len input s last_acc =
 	check_accs (AlexAccNone) = last_acc
 	check_accs (AlexAcc a  ) = AlexLastAcc a input (I# (len))
 	check_accs (AlexAccSkip) = AlexLastSkip  input (I# (len))
-{-# LINE 191 "templates/GenericTemplate.hs" #-}
+{-# LINE 198 "templates/GenericTemplate.hs" #-}
 
 data AlexLastAcc a
   = AlexNone
@@ -849,7 +866,7 @@ data AlexAcc a user
   = AlexAccNone
   | AlexAcc a
   | AlexAccSkip
-{-# LINE 235 "templates/GenericTemplate.hs" #-}
+{-# LINE 242 "templates/GenericTemplate.hs" #-}
 
 -- used by wrappers
 iUnbox (I# (i)) = i
