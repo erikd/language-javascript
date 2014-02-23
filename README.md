@@ -41,13 +41,12 @@ Note: The generation of the lexical analyser has been separated out,
       src-dev, and the runalex.sh script will invoke Alex with the
       appropriate directories.
 
-      At the moment (0.5.6), the lexer can only be generated with Alex
-      3.0.1
-
 Changes
 -------
 
 ```
+0.5.10 Bring in alex 3.1.3, allowing compatibility with GHC 7.8
+
 0.5.9 Relax array dependency for GHC 7.8.1, thanks @maoe
 
 0.5.8 Fixed compilation issue using GHC 7.6.3 on Mac OSX, thanks @albertov
