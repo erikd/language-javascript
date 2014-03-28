@@ -19,8 +19,6 @@ import Language.JavaScript.Parser.Token
 import qualified Data.Map as Map
 --import Data.Word (Word8)
 
-import Codec.Binary.UTF8.Light as UTF8
-
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
