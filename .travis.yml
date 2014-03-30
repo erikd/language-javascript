@@ -35,7 +35,7 @@ install:
  # - cabal-1.18 install QuickCheck-2.6 # hspec is broken against 2.7
  - cabal-1.18 install happy
  - cabal-1.18 install alex
- - cabal-1.18 install haddock
+ # - cabal-1.18 install haddock
  - cabal-1.18 install test-framework
  - cabal-1.18 install test-framework-hunit
  - cabal-1.18 install hspec-discover # For one of the tests
