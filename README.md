@@ -45,6 +45,10 @@ Changes
 -------
 
 ```
+0.5.11 Remove pre-generated Lexer.hs as it does not work will all
+       versions of GHC. This means a current alex will have to be
+       installed before this package can be installed.
+
 0.5.10 Bring in alex 3.1.3, allowing compatibility with GHC 7.8
 
 0.5.9 Relax array dependency for GHC 7.8.1, thanks @maoe
