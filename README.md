@@ -45,6 +45,8 @@ Changes
 -------
 
 ```
+0.5.12 Put dependency on alex >= 3.0.5 in the cabal file, thanks @peti
+
 0.5.11 Remove pre-generated Lexer.hs as it does not work will all
        versions of GHC. This means a current alex will have to be
        installed before this package can be installed.
