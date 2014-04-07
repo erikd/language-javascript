@@ -14,7 +14,7 @@ Copyright:           (c) 2010,2011,2012 Alan Zimmerman
 Category:            Language
 Build-type:          Simple
 homepage:            http://github.com/alanz/language-javascript
-bug-reports:         http://github.com/alanz//language-javascript/issues
+bug-reports:         http://github.com/alanz/language-javascript/issues
 Extra-source-files:  README.md
                      .ghci
                      buildall.sh
