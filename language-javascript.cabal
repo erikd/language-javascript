@@ -37,7 +37,7 @@ Library
                    , blaze-builder    >= 0.2     && < 1
                    , bytestring       >= 0.9.1   && < 1
                    , utf8-string      >= 0.3.7   && < 1
-  build-tools:       happy >= 1.18.5
+  build-tools:       happy >= 1.18.5, alex >= 3.0.5
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.Parser
@@ -76,4 +76,3 @@ Test-Suite test-language-javascript
 source-repository head
   type:     git
   location: git://github.com/alanz/language-javascript.git
-
