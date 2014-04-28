@@ -45,6 +45,9 @@ Changes
 -------
 
 ```
+0.5.13 Put GHC 7.8.x -specific alex and happy versions, thanks
+       @simonmichael
+
 0.5.12 Put dependency on alex >= 3.0.5 in the cabal file, thanks @peti
 
 0.5.11 Remove pre-generated Lexer.hs as it does not work will all
