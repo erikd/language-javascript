@@ -45,6 +45,8 @@ Changes
 -------
 
 ```
+0.5.13.2 Fix utf8-string lower bound typo
+
 0.5.13.1 Bump utf8-string dependency upper bound, and loosen others
 
 0.5.13 Put GHC 7.8.x -specific alex and happy versions, thanks
