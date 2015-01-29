@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.5.13
+Version:             0.5.13.1
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -30,13 +30,13 @@ Cabal-version:   >= 1.9.2
 
 Library
   Build-depends:     base             >= 4       && < 5
-                   , array            >= 0.3     && < 0.6
-                   , mtl              >= 1.1     && < 2.9
-                   , containers       >= 0.2     && < 0.6
+                   , array            >= 0.3
+                   , mtl              >= 1.1
+                   , containers       >= 0.2
                    -- For the round trip output
-                   , blaze-builder    >= 0.2     && < 1
-                   , bytestring       >= 0.9.1   && < 1
-                   , utf8-string      >= 0.3.7   && < 1
+                   , blaze-builder    >= 0.2
+                   , bytestring       >= 0.9.1
+                   , utf8-string      >= 0.37 && < 2
   if impl(ghc >= 7.8)
     build-tools:       happy >= 1.19, alex >= 3.1
   else
@@ -60,17 +60,17 @@ Test-Suite test-language-javascript
   Type: exitcode-stdio-1.0
   Main-is: runtests.hs
   build-depends: base, Cabal >= 1.9.2
-                 , QuickCheck >= 2 && < 3
+                 , QuickCheck >= 2
                  , HUnit
                  , test-framework-hunit
                  , test-framework
-                 , array            >= 0.3     && < 0.6
-                 , utf8-light       >= 0.4     && < 1.0
-                 , containers       >= 0.2     && < 0.6
-                 , mtl              >= 1.1     && < 2.9
-                 , utf8-string      >= 0.3.7   && < 1
-                 , bytestring       >= 0.9.1   && < 1
-                 , blaze-builder    >= 0.2     && < 1
+                 , array            >= 0.3
+                 , utf8-light       >= 0.4
+                 , containers       >= 0.2
+                 , mtl              >= 1.1
+                 , utf8-string      >= 0.37 && < 2
+                 , bytestring       >= 0.9.1
+                 , blaze-builder    >= 0.2
                  -- need our own library for tests
                  , language-javascript >= 0.5.5
 
