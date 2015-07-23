@@ -5,16 +5,16 @@ Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Init
                      .
                      Note: Version 0.5.0 breaks compatibility with prior versions, the AST has been reworked to allow
                      round trip processing of JavaScript.
-Homepage:            https://github.com/alanz/language-javascript
+Homepage:            https://github.com/erikd/language-javascript
 License:             BSD3
 License-file:        LICENSE
 Author:              Alan Zimmerman
-Maintainer:          alan.zimm@gmail.com
-Copyright:           (c) 2010,2011,2012 Alan Zimmerman
+Maintainer:          Erik de Castro Lopo <erikd@mega-nerd.com>
+Copyright:           (c) 2010-2015 Alan Zimmerman, 2015 Erik de Castro Lopp
 Category:            Language
 Build-type:          Simple
-homepage:            http://github.com/alanz/language-javascript
-bug-reports:         http://github.com/alanz/language-javascript/issues
+homepage:            http://github.com/erikd/language-javascript
+bug-reports:         http://github.com/erikd/language-javascript/issues
 Extra-source-files:  README.md
                      .ghci
                      buildall.sh
@@ -77,4 +77,4 @@ Test-Suite test-language-javascript
 
 source-repository head
   type:     git
-  location: git://github.com/alanz/language-javascript.git
+  location: https://github.com/erikd/language-javascript.git
