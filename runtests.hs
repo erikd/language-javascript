@@ -155,36 +155,36 @@ testSuite = testGroup "Parser"
     , testCase "CallExpression2" (testStmt "x()()"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"()\" [JSArguments []]])")
     , testCase "CallExpression3" (testStmt "x()[4]"  "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \"[]\" [JSExpression [JSDecimal \"4\"]]])")
     , testCase "CallExpression4" (testStmt "x().x"   "Right (JSExpression [JSIdentifier \"x\",JSArguments [],JSCallExpression \".\" [JSIdentifier \"x\"]])")
-    , testCase "CallExpression5" (testStmt "x(a,b=2).x"  "Right (JSExpression [JSIdentifier \"x\",JSArguments [JSIdentifier \"a\",[JSLiteral \",\"],JSIdentifier \"b\",JSOpAssign JSLiteral \"=\",JSDecimal \"2\"],JSCallExpression \".\" [JSIdentifier \"x\"]])")
+    , testCase "CallExpression5" (testStmt "x(a,b=2).x"  "Right (JSExpression [JSIdentifier \"x\",JSArguments [JSIdentifier \"a\",JSLiteral \",\",JSIdentifier \"b\",JSOperator JSLiteral \"=\",JSDecimal \"2\"],JSCallExpression \".\" [JSIdentifier \"x\"]])")
 
-    , testCase "AssignExpression1"  (testStmt "x=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression2"  (testStmt "x*=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"*=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression3"  (testStmt "x/=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"/=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression4"  (testStmt "x%=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"%=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression5"  (testStmt "x+=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"+=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression6"  (testStmt "x-=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"-=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression7"  (testStmt "x<<=1"  "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"<<=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression8"  (testStmt "x>>=1"  "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \">>=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression9"  (testStmt "x>>>=1" "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \">>>=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression10" (testStmt "x&=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"&=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression11" (testStmt "x^=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"^=\",JSDecimal \"1\"])")
-    , testCase "AssignExpression12" (testStmt "x|=1"   "Right (JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"|=\",JSDecimal \"1\"])")
-
-
-    , testCase "Block1" (testStmt "{}"     "Right (JSStatementBlock ([]))")
-    , testCase "Block2" (testStmt "{x=1}"  "Right (JSStatementBlock ([JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"]]))")
-    , testCase "Block3" (testStmt "{x=1;y=2}" "Right (JSStatementBlock ([JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\",JSExpression [JSIdentifier \"y\",JSOpAssign JSLiteral \"=\",JSDecimal \"2\"]]))")
-    , testCase "Block4" (testStmt "{{}}"     "Right (JSStatementBlock ([JSStatementBlock ([])]))")
-    , testCase "Block5" (testStmt "{{{}}}"   "Right (JSStatementBlock ([JSStatementBlock ([JSStatementBlock ([])])]))")
-
-    , testCase "If1" (testStmt "if (1) {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSStatementBlock ([])]) ([]))")
-
-    , testCase "IfElse1" (testStmt "if (1) {} else {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSStatementBlock ([])]) ([JSLiteral \"else\",JSStatementBlock ([])]))")
-    , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"]) ([JSLiteral \"else\",JSStatementBlock ([])]))")
-    , testCase "IfElseBadSemi" (testPE "if (1) {} ' else {}"  "Left (\"IfToken {token_span = TokenPn 0 1 1, token_literal = \\\"if\\\", token_comment = [NoComment]}\")")
+    , testCase "AssignExpression1"  (testStmt "x=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression2"  (testStmt "x*=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"*=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression3"  (testStmt "x/=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"/=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression4"  (testStmt "x%=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"%=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression5"  (testStmt "x+=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"+=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression6"  (testStmt "x-=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"-=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression7"  (testStmt "x<<=1"  "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"<<=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression8"  (testStmt "x>>=1"  "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \">>=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression9"  (testStmt "x>>>=1" "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \">>>=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression10" (testStmt "x&=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"&=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression11" (testStmt "x^=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"^=\",JSDecimal \"1\"])")
+    , testCase "AssignExpression12" (testStmt "x|=1"   "Right (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"|=\",JSDecimal \"1\"])")
 
 
-    , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSDoWhile (JSStatementBlock ([JSExpression [JSIdentifier \"x\",JSOpAssign JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
+    , testCase "Block1" (testStmt "{}"     "Right (JSBlock ([]))")
+    , testCase "Block2" (testStmt "{x=1}"  "Right (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]]))")
+    , testCase "Block3" (testStmt "{x=1;y=2}" "Right (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\",JSExpression [JSIdentifier \"y\",JSOperator JSLiteral \"=\",JSDecimal \"2\"]]))")
+    , testCase "Block4" (testStmt "{{}}"     "Right (JSBlock ([JSBlock ([])]))")
+    , testCase "Block5" (testStmt "{{{}}}"   "Right (JSBlock ([JSBlock ([JSBlock ([])])]))")
+
+    , testCase "If1" (testStmt "if (1) {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSBlock ([])]) ([]))")
+
+    , testCase "IfElse1" (testStmt "if (1) {} else {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSBlock ([])]) ([JSLiteral \"else\",JSBlock ([])]))")
+    , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"]) ([JSLiteral \"else\",JSBlock ([])]))")
+
+    , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSDoWhile (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
+    , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);" "Right (JSDoWhile (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSExpressionBinary \"+\" [JSIdentifier \"x\"] [JSDecimal \"1\"]]) (JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"4\"]]) (JSLiteral \";\"))")
+
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
 
     , testCase "For1"   (testStmt "for(;;);"             "Right (JSFor [] [] [] (JSLiteral \";\"))")

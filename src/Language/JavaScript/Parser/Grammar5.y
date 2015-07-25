@@ -955,6 +955,8 @@ IfStatement : If LParen Expression RParen Semi
 IterationStatement :: { AST.JSStatement }
 IterationStatement : Do Statement While LParen Expression RParen AutoSemi
                      { AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement1' -} }
+                   | Do Expression AutoSemi While LParen Expression RParen AutoSemi
+                     { AST.JSDoWhile $1 $2 $4 $5 $6 $7 $8 }
                    | While LParen Expression RParen Statement
                      { AST.JSWhile $1 $2 $3 $4 $5 {- 'IterationStatement2' -} }
                    | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement
