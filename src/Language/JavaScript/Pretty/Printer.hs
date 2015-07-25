@@ -1,11 +1,12 @@
+
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
-module Language.JavaScript.Pretty.Printer (
-  -- * Printing
-  renderJS
-  , renderToString
-  ) where
+module Language.JavaScript.Pretty.Printer
+    ( -- * Printing
+      renderJS
+    , renderToString
+    ) where
 
 import Blaze.ByteString.Builder (Builder, toLazyByteString)
 import Data.List

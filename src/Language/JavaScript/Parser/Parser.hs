@@ -12,7 +12,6 @@ module Language.JavaScript.Parser.Parser (
    , showStrippedMaybe
    ) where
 
-import Language.JavaScript.Parser.ParseError ()
 import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import qualified Language.JavaScript.Parser.AST as AST
@@ -46,7 +45,7 @@ parseFile filename =
 
 -- | Parse the given file, explicitly setting the encoding to UTF8
 -- when reading it
-parseFileUtf8 :: FilePath -> IO AST.JSNode
+parseFileUtf8 :: FilePath -> IO AST.JSAST
 parseFileUtf8 filename =
   do
      h <- openFile filename ReadMode

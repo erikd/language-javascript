@@ -13,7 +13,7 @@
 module Language.JavaScript.Parser.ParseError ( ParseError (..) ) where
 
 --import Language.JavaScript.Parser.Pretty
-import Control.Monad.Error.Class
+-- import Control.Monad.Error.Class -- Control.Monad.Trans.Except
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.SrcLocation (TokenPosn)
 -- import Language.JavaScript.Parser.Token (Token)
@@ -27,6 +27,14 @@ data ParseError
    | StrError String
      -- ^ A generic error containing a string message. No source location.
    deriving (Eq, {- Ord,-} Show)
+
+class Error a where
+    -- | Creates an exception without a message.
+    -- The default implementation is @'strMsg' \"\"@.
+    noMsg  :: a
+    -- | Creates an exception with a message.
+    -- The default implementation of @'strMsg' s@ is 'noMsg'.
+    strMsg :: String -> a
 
 instance Error ParseError where
    noMsg = StrError ""

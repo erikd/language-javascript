@@ -9,7 +9,6 @@ module Language.JavaScript.Parser.Grammar5 (
 
 import Data.Char
 import Language.JavaScript.Parser.Lexer
-import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
@@ -955,7 +954,7 @@ IfStatement : If LParen Expression RParen Semi
 IterationStatement :: { AST.JSStatement }
 IterationStatement : Do Statement While LParen Expression RParen AutoSemi
                      { AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement1' -} }
-                   | Do Expression AutoSemi While LParen Expression RParen AutoSemi
+                   | Do Statement AutoSemi While LParen Expression RParen AutoSemi
                      { AST.JSDoWhile $1 $2 $4 $5 $6 $7 $8 }
                    | While LParen Expression RParen Statement
                      { AST.JSWhile $1 $2 $3 $4 $5 {- 'IterationStatement2' -} }
