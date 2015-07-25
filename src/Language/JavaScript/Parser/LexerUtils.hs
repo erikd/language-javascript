@@ -82,6 +82,7 @@ wsToken loc str = WsToken loc str []
 -- Strip out any embedded line continuations
 -- Recognise by \ followed by $lf | $cr | $ls | $ps | $cr $lf
 -- $ls = \x2028, $ps = \x2029
+{-
 stripLineContinuations :: String -> String
 stripLineContinuations xs = doStripLineContinuations [] [] xs
 
@@ -96,7 +97,7 @@ doStripLineContinuations acc matched xs
                         else (if (matched == ['\\'])
                                  then doStripLineContinuations (acc++matched ++ [head xs]) [] (tail xs)
                                  else doStripLineContinuations (acc++[head xs]) [] (tail xs))
-
+-}
 -- -----------------------------------------------------------------------------
 -- Functionality required by Alex
 {-

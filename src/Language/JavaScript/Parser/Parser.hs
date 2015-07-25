@@ -12,7 +12,6 @@ module Language.JavaScript.Parser.Parser (
    , showStrippedMaybe
    ) where
 
-import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import qualified Language.JavaScript.Parser.AST as AST

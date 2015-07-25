@@ -9,10 +9,8 @@ module Language.JavaScript.Parser.Grammar5 (
   , fp
   ) where
 
--- import Control.Monad.Error.Class (throwError)
 import Data.Char
 import Language.JavaScript.Parser.Lexer
-import Language.JavaScript.Parser.ParseError
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token

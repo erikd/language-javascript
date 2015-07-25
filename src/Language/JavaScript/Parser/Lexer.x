@@ -357,7 +357,7 @@ lexToken = do
        return token
 -}
 
---lexToken :: Alex Token
+lexToken :: Alex Token
 lexToken = do
   inp <- alexGetInput
   lt  <- getLastToken
@@ -366,10 +366,10 @@ lexToken = do
     _other ->
       case alexScan inp (classifyToken lt) of
         AlexEOF        -> do
-          token <- tailToken
-          setLastToken token
-          return token
-        AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+          tok <- tailToken
+          setLastToken tok
+          return tok
+        AlexError (pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
                                                  " and column " ++ show (getColumnNum(pos)))
         AlexSkip inp' _len -> do
           alexSetInput inp'
@@ -377,14 +377,14 @@ lexToken = do
         AlexToken inp' len action -> do
           alexSetInput inp'
           -- token <- action (ignorePendingBytes inp) len
-          token <- action inp len
-          setLastToken token
-          return token
+          tok <- action inp len
+          setLastToken tok
+          return tok
 
 
 -- This is called by the Happy parser.
 --lexCont :: (Token -> P a) -> P a
---lexCont :: (Token -> Alex Token) -> Alex Token
+lexCont :: (Token -> Alex a) -> Alex a
 lexCont cont = do
    lexLoop
    where
@@ -404,6 +404,7 @@ lexCont cont = do
             setComment []
             cont tok'
 
+toCommentAnnotation :: [Token] -> [CommentAnnotation]
 toCommentAnnotation []    = [NoComment]
 --toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
 
@@ -411,6 +412,7 @@ toCommentAnnotation xs =  reverse $ map go xs
   where
     go tok@(CommentToken {}) = (CommentA (token_span tok) (token_literal tok))
     go tok@(WsToken      {}) = (WhiteSpace (token_span tok) (token_literal tok))
+    go _                     = error "toCommentAnnotation"
 
 -- ---------------------------------------------------------------------
 
@@ -449,7 +451,7 @@ tailToken = do return (TailToken tokenPosnEmpty [])
 
 -- adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
 adapt :: (TokenPosn -> Int -> String -> Alex Token) -> AlexInput -> Int -> Alex Token
-adapt f loc@(p@(AlexPn offset line col),_,_,inp) len =
+adapt f ((AlexPn offset line col),_,_,inp) len =
   (f (TokenPn offset line col) len inp)
 
 {-
