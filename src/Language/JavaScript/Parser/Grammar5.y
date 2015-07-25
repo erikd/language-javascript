@@ -947,6 +947,8 @@ StatementSemi : StatementNoEmpty Semi { [$1,$2] {- StatementSemi1 -}}
 IterationStatement :: { AST.JSNode }
 IterationStatement : Do Statement While LParen Expression RParen AutoSemi
                      { fp (AST.NN (AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7)) }
+                   | Do Expression AutoSemi While LParen Expression RParen AutoSemi
+                     { fp (AST.NN (AST.JSDoWhile $1 $2 $4 $5 $6 $7 $8)) }
                    | While LParen Expression RParen Statement
                      { fp (AST.NN (AST.JSWhile $1 $2 $3 $4 $5)) }
                    | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement

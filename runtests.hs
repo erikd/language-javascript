@@ -200,6 +200,8 @@ testSuite = testGroup "Parser"
     , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"]) ([JSLiteral \"else\",JSBlock ([])]))")
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSDoWhile (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
+    , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);" "Right (JSDoWhile (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSExpressionBinary \"+\" [JSIdentifier \"x\"] [JSDecimal \"1\"]]) (JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"4\"]]) (JSLiteral \";\"))")
+
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
 
     , testCase "For1"   (testStmt "for(;;);"             "Right (JSFor [] [] [] (JSLiteral \";\"))")
