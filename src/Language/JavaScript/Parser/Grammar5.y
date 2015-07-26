@@ -1073,9 +1073,9 @@ DebuggerStatement : 'debugger' AutoSemi { AST.JSExpressionStatement (AST.JSLiter
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSStatement }
 FunctionDeclaration : Function Identifier LParen FormalParameterList RParen FunctionBody
-                      { AST.JSFunction $1 $2 $3 (AST.JSParams $4) $5 $6 {- 'FunctionDeclaration1' -} }
+                      { AST.JSFunction $1 (identName $2) $3 (AST.JSParams $4) $5 $6 {- 'FunctionDeclaration1' -} }
                     | Function Identifier LParen RParen FunctionBody
-                      { AST.JSFunction $1 $2 $3 AST.JSNoParams $4 $5 {- 'FunctionDeclaration2' -} }
+                      { AST.JSFunction $1 (identName $2) $3 AST.JSNoParams $4 $5 {- 'FunctionDeclaration2' -} }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }

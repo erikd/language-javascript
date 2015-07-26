@@ -123,7 +123,7 @@ data JSStatement
     | JSForIn JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSExpression JSAnnot (JSList JSIdent) JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
+    | JSFunction JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
     | JSIf JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^if,(,expr,),stmt
     | JSIfElse JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled JSExpression JSAnnot JSStatement -- ^identifier,colon,stmt
@@ -336,7 +336,7 @@ sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss
 sst (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ssts x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
 sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
-sst (JSFunction _ x1 _lb pl _rb x3) = "JSFunction (" ++ ss x1 ++ ") " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
+sst (JSFunction _ n _lb pl _rb x3) = "JSFunction " ++ identName n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 sst (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
@@ -380,6 +380,10 @@ ssa (JSArguments _lb xs _rb) = "JSArguments (" ++ show xs ++ ")"
 instance Show a => Show (JSNonEmptyList a) where
     show (JSLCons l _ i) = show l ++ "," ++ show i
     show (JSLOne i)      = show i
+
+identName :: JSIdent -> String
+identName (JSIdentName _ s) = show s
+identName JSIdentNone = "\"\""
 
 instance Show JSIdent where
     show (JSIdentName _ s) = "JSIdentifier " ++ show s
