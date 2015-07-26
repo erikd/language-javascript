@@ -90,6 +90,8 @@ testSuite = testGroup "Parser"
 
     , testCase "ObjectLiteral8"    (testProg "a={if:1,interface:2}" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"a\",JSOpAssign JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"if\") [JSDecimal \"1\"],JSLiteral \",\",JSPropertyNameandValue (JSIdentifier \"interface\") [JSDecimal \"2\"]]],JSLiteral \"\"])")
 
+    , testCase "OpPrecedence"      (testProg "2+3*4+5"  "Right (JSSourceElementsTop [JSExpressionBinary \"+\" (JSExpressionBinary \"+\" (JSDecimal \"2\",JSExpressionBinary \"*\" (JSDecimal \"3\",JSDecimal \"4\")),JSDecimal \"5\")])")
+
     , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSSourceElementsTop [JSExpressionParen (JSDecimal \"56\")])")
 
     , testCase "Statement1"        (testStmt "x"        "Right (JSExpression [JSIdentifier \"x\"])")
@@ -755,7 +757,9 @@ testStmtC str _expected = testRoundTrip str -- expected @=? (show              $
 testProg :: String -> String -> Assertion
 testProg  str _expected = testRoundTrip str -- expected @=? (showStrippedMaybe $ parseUsing parseProgram str "src")
 testProgC :: String -> String -> Assertion
-testProgC str expected = expected @=? (show              $ parseUsing parseProgram str "src")
+testProgC str expected = expected @=? (show               $ parseUsing parseProgram str "src")
+testProgEC :: String -> String -> Assertion
+testProgEC str expected = expected @=? (showStrippedMaybe $ parseUsing parseProgram str "src")
 
 testProgUn :: String -> String -> Assertion
 testProgUn str _expected = testRoundTrip str -- expected @=? (show $ parseUsing parseProgram str "src")
