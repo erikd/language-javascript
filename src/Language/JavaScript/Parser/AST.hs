@@ -219,7 +219,7 @@ showStripped (JSSourceElementsTop xs) = "JSSourceElementsTop " ++ ssts xs
 
 ss :: JSExpression -> String
 ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ sss xs
-ss (JSAssignExpression lhs op rhs) = "JSExpression " ++ ss lhs ++ " " ++ sopa op ++ " " ++ ss rhs
+ss (JSAssignExpression lhs op rhs) = "JSExpression [" ++ ss lhs ++ "," ++ sopa op ++ "," ++ ss rhs ++ "],"
 ss (JSCallExpression ex xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"()\" " ++ ssa xs
 ss (JSCallExpressionDot ex _os xs) = "JSExpression " ++ ss ex ++ "JSCallExpression \".\" " ++ ss xs
 ss (JSCallExpressionSquare ex _os xs _cs) = "JSExpression " ++ ss ex ++ "JSCallExpression \"[]\" " ++ ss xs
@@ -299,18 +299,21 @@ showsemi (JSSemi _) = "JSLiteral \";\""
 showsemi JSSemiAuto = ""
 
 sopa :: JSAssignOp -> String
-sopa (JSAssign _) = "="
-sopa (JSTimesAssign _) = "*="
-sopa (JSDivideAssign _) = "/="
-sopa (JSModAssign _) = "%="
-sopa (JSPlusAssign _) = "+="
-sopa (JSMinusAssign _) = "-="
-sopa (JSLshAssign _) = "<<="
-sopa (JSRshAssign _) = ">>="
-sopa (JSUrshAssign _) = ">>>="
-sopa (JSBwAndAssign _) = "&="
-sopa (JSBwXorAssign _) = "^="
-sopa (JSBwOrAssign _) = "|="
+sopa op = "JSOperator JSLiteral " ++ show (showOp op)
+
+showOp :: JSAssignOp -> String
+showOp (JSAssign _) = "="
+showOp (JSTimesAssign _) = "*="
+showOp (JSDivideAssign _) = "/="
+showOp (JSModAssign _) = "%="
+showOp (JSPlusAssign _) = "+="
+showOp (JSMinusAssign _) = "-="
+showOp (JSLshAssign _) = "<<="
+showOp (JSRshAssign _) = ">>="
+showOp (JSUrshAssign _) = ">>>="
+showOp (JSBwAndAssign _) = "&="
+showOp (JSBwXorAssign _) = "^="
+showOp (JSBwOrAssign _) = "|="
 
 stcs :: [JSTryCatch] -> String
 stcs xs = "[" ++ commaJoin (map stc xs) ++ "]"
