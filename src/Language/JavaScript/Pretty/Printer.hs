@@ -1,6 +1,5 @@
 
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances, NoOverloadedStrings, TypeSynonymInstances #-}
 
 module Language.JavaScript.Pretty.Printer
     ( -- * Printing
@@ -10,7 +9,7 @@ module Language.JavaScript.Pretty.Printer
 
 import Blaze.ByteString.Builder (Builder, toLazyByteString)
 import Data.List
-import Data.Monoid (Monoid, mappend, mempty)
+import Data.Monoid (mappend, mempty)
 import Language.JavaScript.Parser.AST
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
@@ -20,16 +19,13 @@ import qualified Codec.Binary.UTF8.String as US
 
 -- ---------------------------------------------------------------------
 
-data PosAccum = PA (Int, Int) Builder
+data PosAccum = PosAccum (Int, Int) Builder
 
 -- ---------------------------------------------------------------------
 -- Pretty printer stuff via blaze-builder
 
 (<>) :: Builder -> Builder -> Builder
 (<>) = mappend
-
-empty :: Builder
-empty = mempty
 
 str :: String -> Builder
 str = BS.fromString
@@ -39,7 +35,7 @@ str = BS.fromString
 renderJS :: JSAST -> Builder
 renderJS node = bb
   where
-    PA _ bb = PA (1,1) empty |> node
+    PosAccum _ bb = PosAccum (1,1) mempty |> node
 
 
 renderToString :: JSAST -> String
@@ -100,7 +96,7 @@ instance RenderJS JSAnnot where
 
 
 instance RenderJS String where
-    (|>) (PA (r,c) bb) s = PA (r',c') (bb <> str s)
+    (|>) (PosAccum (r,c) bb) s = PosAccum (r',c') (bb <> str s)
       where
         (r',c') = foldl' (\(row,col) ch -> go (row,col) ch) (r,c) s
 
@@ -110,7 +106,7 @@ instance RenderJS String where
 
 
 instance RenderJS TokenPosn where
-    (|>)  (PA (lcur,ccur) bb) (TokenPn _ ltgt ctgt) = PA (lnew,cnew) (bb <> bb')
+    (|>)  (PosAccum (lcur,ccur) bb) (TokenPn _ ltgt ctgt) = PosAccum (lnew,cnew) (bb <> bb')
       where
         (bbline,ccur') = if lcur < ltgt then (str (replicate (ltgt - lcur) '\n'),1) else (mempty,ccur)
         bbcol  = if ccur' < ctgt then str (replicate (ctgt - ccur') ' ') else mempty
