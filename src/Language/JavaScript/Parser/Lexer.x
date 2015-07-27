@@ -1,7 +1,7 @@
 {
 
-module Language.JavaScript.Parser.Lexer (
-    Token(..)
+module Language.JavaScript.Parser.Lexer
+    ( Token(..)
     , AlexPosn(..)
     , Alex
     , lexCont
@@ -9,13 +9,11 @@ module Language.JavaScript.Parser.Lexer (
     , runAlex
     ) where
 
---import Control.Monad
 import Language.JavaScript.Parser.LexerUtils
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Data.Map as Map
---import Data.Word (Word8)
 
 }
 
@@ -30,8 +28,8 @@ $cr = \r  -- carriage return
 $ht = \t  -- horizontal tab
 $sq = '   -- single quote
 $dq = \"  -- double quote
-$digit = 0-9			-- digits
-$alpha = [a-zA-Z]		-- alphabetic characters
+$digit = 0-9            -- digits
+$alpha = [a-zA-Z]       -- alphabetic characters
 $digit    = 0-9
 $non_zero_digit = 1-9
 $ident_letter = [a-zA-Z_]
@@ -47,7 +45,7 @@ $any_unicode_char = [\x00-\xffff]
 
 
 $eol_char = [\x000A\x000D\x2028\x2029] -- any end of line character
---$eol_char = [$lf $cr] -- any end of line character
+-- $eol_char = [$lf $cr] -- any end of line character
 $not_eol_char = ~$eol_char -- anything but an end of line character
 
 
@@ -74,10 +72,10 @@ $short_str_char = [^ \n \r ' \" \\]
 -- {Oct Digit}    = {Digit} + [01234567]
 @OctDigit = $digit | [0-7]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
---$RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
---$RegExpChars = [$printable] # [\\]
+-- $RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
+-- $RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
---$NonTerminator = $StringChars1 # [$cr $lf]
+-- $NonTerminator = $StringChars1 # [$cr $lf]
 $NonTerminator = [$printable] # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
@@ -116,7 +114,7 @@ $MultiLineNotForwardSlashOrAsteriskChar = [$any_unicode_char] # [\* \/]
     -- * \u205f — Medium mathematical space
     -- * \u3000 — Ideographic space
 
---$white_char   = [\ \f\v\t\r\n]
+-- $white_char   = [\ \f\v\t\r\n]
 -- Note: from edition 5 the BOM (\xfeff) is also considered whitespace
 $white_char = [\x0009\x000a\x000b\x000c\x000d\x0020\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\xfeff]
 
@@ -260,55 +258,51 @@ tokens :-
 
 -- / or /= only allowed in state 1
 <divide> {
-     "/="       { adapt (mkString assignToken)}
-     "/"	{ adapt (symbolToken DivToken)}
+    "/="       { adapt (mkString assignToken)}
+    "/"        { adapt (symbolToken DivToken)}
     }
 
 <reg,divide> {
-   --   \;	{ adapt (symbolToken  SemiColonToken)}
-     ";"	{ adapt (symbolToken  SemiColonToken)}
-     ","	{ adapt (symbolToken  CommaToken)}
-     "?"	{ adapt (symbolToken  HookToken)}
-     ":"	{ adapt (symbolToken  ColonToken)}
-     "||"	{ adapt (symbolToken  OrToken)}
-     "&&"	{ adapt (symbolToken  AndToken)}
-     "|"	{ adapt (symbolToken  BitwiseOrToken)}
-     "^"	{ adapt (symbolToken  BitwiseXorToken)}
-     "&"	{ adapt (symbolToken  BitwiseAndToken)}
-     "==="	{ adapt (symbolToken  StrictEqToken)}
-     "=="	{ adapt (symbolToken  EqToken)}
+     ";"    { adapt (symbolToken  SemiColonToken)}
+     ","    { adapt (symbolToken  CommaToken)}
+     "?"    { adapt (symbolToken  HookToken)}
+     ":"    { adapt (symbolToken  ColonToken)}
+     "||"   { adapt (symbolToken  OrToken)}
+     "&&"   { adapt (symbolToken  AndToken)}
+     "|"    { adapt (symbolToken  BitwiseOrToken)}
+     "^"    { adapt (symbolToken  BitwiseXorToken)}
+     "&"    { adapt (symbolToken  BitwiseAndToken)}
+     "==="  { adapt (symbolToken  StrictEqToken)}
+     "=="   { adapt (symbolToken  EqToken)}
      "*=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
-      	        { adapt (mkString assignToken)}
-     "="        { adapt (symbolToken  SimpleAssignToken)}
-     "!=="	{ adapt (symbolToken  StrictNeToken)}
-     "!="	{ adapt (symbolToken  NeToken)}
-     "<<"	{ adapt (symbolToken  LshToken)}
-     "<="	{ adapt (symbolToken  LeToken)}
-     "<"	{ adapt (symbolToken  LtToken)}
-     ">>>"	{ adapt (symbolToken  UrshToken)}
-     ">>"	{ adapt (symbolToken  RshToken)}
-     ">="	{ adapt (symbolToken  GeToken)}
-     ">"	{ adapt (symbolToken  GtToken)}
-     "++"	{ adapt (symbolToken  IncrementToken)}
-     "--"	{ adapt (symbolToken  DecrementToken)}
-     "+"	{ adapt (symbolToken  PlusToken)}
-     "-"	{ adapt (symbolToken  MinusToken)}
-     "*"	{ adapt (symbolToken  MulToken)}
-     "%"	{ adapt (symbolToken  ModToken)}
-     "!"	{ adapt (symbolToken  NotToken)}
-     "~"	{ adapt (symbolToken  BitwiseNotToken)}
-     "."	{ adapt (symbolToken  DotToken)}
-     "["	{ adapt (symbolToken  LeftBracketToken)}
-     "]"	{ adapt (symbolToken  RightBracketToken)}
-     "{"	{ adapt (symbolToken  LeftCurlyToken)}
-     "}"	{ adapt (symbolToken  RightCurlyToken)}
-     "("	{ adapt (symbolToken  LeftParenToken)}
-     ")"	{ adapt (symbolToken  RightParenToken)}
-     "@*/"	{ adapt (symbolToken  CondcommentEndToken)}
+            { adapt (mkString assignToken)}
+     "="    { adapt (symbolToken  SimpleAssignToken)}
+     "!=="  { adapt (symbolToken  StrictNeToken)}
+     "!="   { adapt (symbolToken  NeToken)}
+     "<<"   { adapt (symbolToken  LshToken)}
+     "<="   { adapt (symbolToken  LeToken)}
+     "<"    { adapt (symbolToken  LtToken)}
+     ">>>"  { adapt (symbolToken  UrshToken)}
+     ">>"   { adapt (symbolToken  RshToken)}
+     ">="   { adapt (symbolToken  GeToken)}
+     ">"    { adapt (symbolToken  GtToken)}
+     "++"   { adapt (symbolToken  IncrementToken)}
+     "--"   { adapt (symbolToken  DecrementToken)}
+     "+"    { adapt (symbolToken  PlusToken)}
+     "-"    { adapt (symbolToken  MinusToken)}
+     "*"    { adapt (symbolToken  MulToken)}
+     "%"    { adapt (symbolToken  ModToken)}
+     "!"    { adapt (symbolToken  NotToken)}
+     "~"    { adapt (symbolToken  BitwiseNotToken)}
+     "."    { adapt (symbolToken  DotToken)}
+     "["    { adapt (symbolToken  LeftBracketToken)}
+     "]"    { adapt (symbolToken  RightBracketToken)}
+     "{"    { adapt (symbolToken  LeftCurlyToken)}
+     "}"    { adapt (symbolToken  RightCurlyToken)}
+     "("    { adapt (symbolToken  LeftParenToken)}
+     ")"    { adapt (symbolToken  RightParenToken)}
+     "@*/"  { adapt (symbolToken  CondcommentEndToken)}
 }
-
-
-
 
 
 {
@@ -322,93 +316,72 @@ The method is inspired by the lexer in http://jint.codeplex.com/
 -}
 classifyToken :: Token -> Int
 classifyToken aToken =
-   case aToken of
-      IdentifierToken {}   -> divide
-      NullToken {}         -> divide
-      TrueToken {}         -> divide
-      FalseToken {}        -> divide
-      ThisToken {}         -> divide
-      OctalToken {}        -> divide
-      DecimalToken {}      -> divide
-      HexIntegerToken {}   -> divide
-      StringToken {}       -> divide
-      RightCurlyToken {}   -> divide
-      RightParenToken {}   -> divide
-      RightBracketToken {} -> divide
-      _other               -> reg
+    case aToken of
+        IdentifierToken {}   -> divide
+        NullToken {}         -> divide
+        TrueToken {}         -> divide
+        FalseToken {}        -> divide
+        ThisToken {}         -> divide
+        OctalToken {}        -> divide
+        DecimalToken {}      -> divide
+        HexIntegerToken {}   -> divide
+        StringToken {}       -> divide
+        RightCurlyToken {}   -> divide
+        RightParenToken {}   -> divide
+        RightBracketToken {} -> divide
+        _other               -> reg
 
-
-{-
---lexToken :: Alex Token
-lexToken = do
-  inp <- alexGetInput
-  lt  <- getLastToken
-  case alexScan inp (classifyToken lt) of
-    AlexEOF        -> alexEOF
-    AlexError inp'@(pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
-                                             " and column " ++ show (getColumnNum(pos)))
-    AlexSkip inp' _len -> do
-       alexSetInput inp'
-       lexToken
-    AlexToken inp' len action -> do
-       alexSetInput inp'
-       token <- action (ignorePendingBytes inp) len
-       setLastToken token
-       return token
--}
 
 lexToken :: Alex Token
 lexToken = do
-  inp <- alexGetInput
-  lt  <- getLastToken
-  case lt of
-    TailToken {} -> alexEOF
-    _other ->
-      case alexScan inp (classifyToken lt) of
-        AlexEOF        -> do
-          tok <- tailToken
-          setLastToken tok
-          return tok
-        AlexError (pos,_,_,_) -> alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
+    inp <- alexGetInput
+    lt  <- getLastToken
+    case lt of
+        TailToken {} -> alexEOF
+        _other ->
+            case alexScan inp (classifyToken lt) of
+                AlexEOF        -> do
+                    tok <- tailToken
+                    setLastToken tok
+                    return tok
+                AlexError (pos,_,_,_) ->
+                    alexError ("lexical error @ line " ++ show (getLineNum(pos)) ++
                                                  " and column " ++ show (getColumnNum(pos)))
-        AlexSkip inp' _len -> do
-          alexSetInput inp'
-          lexToken
-        AlexToken inp' len action -> do
-          alexSetInput inp'
-          -- token <- action (ignorePendingBytes inp) len
-          tok <- action inp len
-          setLastToken tok
-          return tok
+                AlexSkip inp' _len -> do
+                    alexSetInput inp'
+                    lexToken
+                AlexToken inp' len action -> do
+                    alexSetInput inp'
+                    tok <- action inp len
+                    setLastToken tok
+                    return tok
 
 
 -- This is called by the Happy parser.
---lexCont :: (Token -> P a) -> P a
 lexCont :: (Token -> Alex a) -> Alex a
 lexCont cont = do
-   lexLoop
-   where
-   -- lexLoop :: P a
-   lexLoop = do
-      tok <- lexToken
-      case tok of
-         CommentToken {} -> do
-            addComment tok
-            lexLoop
-         WsToken {} -> do
-            addComment tok
-            lexLoop
-         _other -> do
-            cs <- getComment
-            let tok' = tok{ token_comment=(toCommentAnnotation cs) }
-            setComment []
-            cont tok'
+    lexLoop
+  where
+    lexLoop = do
+        tok <- lexToken
+        case tok of
+            CommentToken {} -> do
+                addComment tok
+                lexLoop
+            WsToken {} -> do
+                addComment tok
+                lexLoop
+            _other -> do
+                cs <- getComment
+                let tok' = tok{ token_comment=(toCommentAnnotation cs) }
+                setComment []
+                cont tok'
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
-toCommentAnnotation []    = [NoComment]
---toCommentAnnotation xs =  reverse $ map (\tok -> (CommentA (token_span tok) (token_literal tok))) xs
+toCommentAnnotation [] = [NoComment]
 
-toCommentAnnotation xs =  reverse $ map go xs
+toCommentAnnotation xs =
+    reverse $ map go xs
   where
     go tok@(CommentToken {}) = (CommentA (token_span tok) (token_literal tok))
     go tok@(WsToken      {}) = (WhiteSpace (token_span tok) (token_literal tok))
@@ -432,7 +405,6 @@ setLastToken (WsToken {}) = Alex $ \s -> Right (s, ())
 setLastToken tok          = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
 
 getComment :: Alex [Token]
---getComments = reverse <$> Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comments ust)
 getComment = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, comment ust)
 
 
@@ -449,16 +421,9 @@ alexEOF = do return (EOFToken tokenPosnEmpty [])
 tailToken :: Alex Token
 tailToken = do return (TailToken tokenPosnEmpty [])
 
--- adapt :: (TokenPosn -> Int -> String -> Alex Token) -> (AlexPosn,Char,String) -> Int -> Alex Token
 adapt :: (TokenPosn -> Int -> String -> Alex Token) -> AlexInput -> Int -> Alex Token
-adapt f ((AlexPn offset line col),_,_,inp) len =
-  (f (TokenPn offset line col) len inp)
+adapt f ((AlexPn offset line col),_,_,inp) len = f (TokenPn offset line col) len inp
 
-{-
-mkComment :: (AlexPosn,Char,String) -> Int -> Alex Token
-mkComment loc@(p@(AlexPn offset line col),_,inp) len = do
-  return (CommentToken (TokenPn offset line col) (take len inp))
--}
 
 toTokenPosn :: AlexPosn -> TokenPosn
 toTokenPosn (AlexPn offset line col) = (TokenPn offset line col)
@@ -473,55 +438,55 @@ keywordOrIdent str location
          Nothing -> IdentifierToken location str []
 
 -- mapping from strings to keywords
---keywords :: Map.Map String (TokenPosn -> String -> Token)
+-- keywords :: Map.Map String (TokenPosn -> String -> Token)
 keywords :: Map.Map String (TokenPosn -> String -> [CommentAnnotation] -> Token)
 keywords = Map.fromList keywordNames
 
---keywordNames :: [(String, TokenPosn -> String -> Token)]
+-- keywordNames :: [(String, TokenPosn -> String -> Token)]
 keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
-   [
-    ("break",BreakToken),
-    ("case",CaseToken),
-    ("catch",CatchToken),
+    [ ( "break", BreakToken )
+    , ( "case", CaseToken )
+    , ( "catch", CatchToken )
 
-    ("const",ConstToken), -- not a keyword, nominally a future reserved word, but actually in use
+    , ( "const", ConstToken ) -- not a keyword, nominally a future reserved word, but actually in use
 
-    ("continue",ContinueToken),
-    ("debugger",DebuggerToken),
-    ("default",DefaultToken),
-    ("delete",DeleteToken),
-    ("do",DoToken),
-    ("else",ElseToken),
+    , ( "continue", ContinueToken )
+    , ( "debugger", DebuggerToken )
+    , ( "default", DefaultToken )
+    , ( "delete", DeleteToken )
+    , ( "do", DoToken )
+    , ( "else", ElseToken )
 
-    ("enum",EnumToken),  -- not a keyword,  nominally a future reserved word, but actually in use
+    , ( "enum", EnumToken )  -- not a keyword,  nominally a future reserved word, but actually in use
 
-    ("false",FalseToken), -- boolean literal
+    , ( "false", FalseToken ) -- boolean literal
 
-    ("finally",FinallyToken),
-    ("for",ForToken),
-    ("function",FunctionToken),
-    ("if",IfToken),
-    ("in",InToken),
-    ("instanceof",InstanceofToken),
-    ("new",NewToken),
+    , ( "finally", FinallyToken )
+    , ( "for", ForToken )
+    , ( "function", FunctionToken )
+    , ( "if", IfToken )
+    , ( "in", InToken )
+    , ( "instanceof", InstanceofToken )
+    , ( "new", NewToken )
 
-    ("null",NullToken), -- null literal
+    , ( "null", NullToken ) -- null literal
 
-    ("return",ReturnToken),
-    ("switch",SwitchToken),
-    ("this",ThisToken),
-    ("throw",ThrowToken),
-    ("true",TrueToken),
-    ("try",TryToken),
-    ("typeof",TypeofToken),
-    ("var",VarToken),
-    ("void",VoidToken),
-    ("while",WhileToken),
-    ("with",WithToken),
+    , ( "return", ReturnToken )
+    , ( "switch", SwitchToken )
+    , ( "this", ThisToken )
+    , ( "throw", ThrowToken )
+    , ( "true", TrueToken )
+    , ( "try", TryToken )
+    , ( "typeof", TypeofToken )
+    , ( "var", VarToken )
+    , ( "void", VoidToken )
+    , ( "while", WhileToken )
+    , ( "with", WithToken )
     -- TODO: no idea if these are reserved or not, but they are needed
     --       handled in parser, in the Identifier rule
-    ("get",GetToken),("set",SetToken),
+    , ( "get", GetToken )
+    , ("set", SetToken )
     {- Come from Table 6 of ECMASCRIPT 5.1, Attributes of a Named Accessor Property
        Also include
 
@@ -533,35 +498,34 @@ keywordNames =
          Value
      -}
 
-
     -- Future Reserved Words
-    ("class", FutureToken),
-    -- ("code",  FutureToken), **** not any more
-    -- ("const", FutureToken), **** an actual token, used in productions
+    , ( "class",  FutureToken )
+    -- ("code",   FutureToken ) **** not any more
+    -- ("const",  FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
-    ("export",     FutureToken),
-    ("extends",    FutureToken),
+    , ( "export",      FutureToken )
+    , ( "extends",     FutureToken )
 
-    ("import",     FutureToken),
-    ("super",      FutureToken),
+    , ( "import",      FutureToken )
+    , ( "super",       FutureToken )
 
 
     -- Strict mode FutureReservedWords
-    ("implements", FutureToken),
-    ("interface",  FutureToken),
-    ("let",        FutureToken),
-    -- ("mode",       FutureToken),  **** not any more
-    -- ("of",         FutureToken),  **** not any more
-    -- ("one",        FutureToken),  **** not any more
-    -- ("or",         FutureToken),  **** not any more
+    , ( "implements",  FutureToken )
+    , ( "interface",   FutureToken )
+    , ( "let",         FutureToken )
+    -- ("mode",        FutureToken )  **** not any more
+    -- ("of",          FutureToken )  **** not any more
+    -- ("one",         FutureToken )  **** not any more
+    -- ("or",          FutureToken )  **** not any more
 
-    ("package",    FutureToken),
-    ("private",    FutureToken),
-    ("protected",  FutureToken),
-    ("public",     FutureToken),
-    ("static",     FutureToken),
-    -- ("strict",     FutureToken),  *** not any more
-    ("yield",      FutureToken)
+    , ( "package",     FutureToken )
+    , ( "private",     FutureToken )
+    , ( "protected",   FutureToken )
+    , ( "public",      FutureToken )
+    , ( "static",      FutureToken )
+    -- ("strict",      FutureToken )  *** not any more
+    , ( "yield",       FutureToken)
    ]
 }
 
