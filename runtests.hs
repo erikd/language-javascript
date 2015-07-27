@@ -9,16 +9,18 @@ import Test.HUnit hiding (Test)
 
 
 main :: IO ()
-main = defaultMain [testSuite,{- ++AZ++temporary++ commentSuite ,-}commentPrintSuite]
+main = defaultMain
+    [ testSuite
+    -- ++AZ++temporary++ , commentSuite
+    , commentPrintSuite
+    -- , pendingSuite
+    ]
 
-one :: IO ()
-one = defaultMain [oneSuite]
-
-oneSuite :: Test
-oneSuite = testGroup "One"
- [
-   testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}"  "")
- ]
+pendingSuite :: Test
+pendingSuite = testGroup "Pending"
+    [ testCase "AutoSemi1"  (testProg "if (true) return\nfoo();"  "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSReturn [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\"])")
+    , testCase "AutoSemi2"  (testProg "if (true) break\nfoo();"   "Right")
+    ]
 
 testSuite :: Test
 testSuite = testGroup "Parser"
