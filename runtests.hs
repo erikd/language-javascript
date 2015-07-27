@@ -16,186 +16,185 @@ main = defaultMain
     ]
 
 tempSuite :: Test
-tempSuite = testGroup "Temp"
+tempSuite = testGroup "Temporary tests"
     [ -- For temporary tests.
     ]
 
 testSuite :: Test
 testSuite = testGroup "Parser"
-    [ testCase "helloWorld"        caseHelloWorld
-    , testCase "LiteralNull"       (testLiteral "null"     "Right (JSSourceElementsTop [JSLiteral \"null\"])")
-    , testCase "LiteralFalse"      (testLiteral "false"    "Right (JSSourceElementsTop [JSLiteral \"false\"])")
-    , testCase "LiteralTrue"       (testLiteral "true"     "Right (JSSourceElementsTop [JSLiteral \"true\"])")
-    , testCase "LiteralHexInteger1" (testLiteral "0x1234fF" "Right (JSSourceElementsTop [JSHexInteger \"0x1234fF\"])")
-    , testCase "LiteralHexInteger2" (testLiteral "0X1234fF" "Right (JSSourceElementsTop [JSHexInteger \"0X1234fF\"])")
-    , testCase "LiteralDecimal1"   (testLiteral "1.0e4"    "Right (JSSourceElementsTop [JSDecimal \"1.0e4\"])")
-    , testCase "LiteralDecimal2"   (testLiteral "2.3E6"    "Right (JSSourceElementsTop [JSDecimal \"2.3E6\"])")
-    , testCase "LiteralDecimal3"   (testLiteral "4.5"      "Right (JSSourceElementsTop [JSDecimal \"4.5\"])")
-    , testCase "LiteralDecimal3"   (testLiteral "0.7e8"    "Right (JSSourceElementsTop [JSDecimal \"0.7e8\"])")
-    , testCase "LiteralDecimal4"   (testLiteral "0.7E8"    "Right (JSSourceElementsTop [JSDecimal \"0.7E8\"])")
-    , testCase "LiteralDecimal5"   (testLiteral "10"       "Right (JSSourceElementsTop [JSDecimal \"10\"])")
-    , testCase "LiteralDecimal6"   (testLiteral "0"        "Right (JSSourceElementsTop [JSDecimal \"0\"])")
-    , testCase "LiteralDecimal7"   (testLiteral "0.03"     "Right (JSSourceElementsTop [JSDecimal \"0.03\"])")
-    , testCase "LiteralDecimal9"   (testLiteral "0.7e+8"   "Right (JSSourceElementsTop [JSDecimal \"0.7e+8\"])")
-    , testCase "LiteralDecimal10"  (testLiteral "0.7e-18"  "Right (JSSourceElementsTop [JSDecimal \"0.7e-18\"])")
-    , testCase "LiteralDecimal11"  (testLiteral "1.0e+4"   "Right (JSSourceElementsTop [JSDecimal \"1.0e+4\"])")
-    , testCase "LiteralDecimal12"  (testLiteral "1.0e-4"   "Right (JSSourceElementsTop [JSDecimal \"1.0e-4\"])")
-    , testCase "LiteralDecimal13"  (testLiteral "1e18"     "Right (JSSourceElementsTop [JSDecimal \"1e18\"])")
-    , testCase "LiteralDecimal14"  (testLiteral "1e+18"    "Right (JSSourceElementsTop [JSDecimal \"1e+18\"])")
-    , testCase "LiteralDecimal15"  (testLiteral "1e-18"    "Right (JSSourceElementsTop [JSDecimal \"1e-18\"])")
-    , testCase "LiteralDecimal16"  (testLiteral "1E-01"    "Right (JSSourceElementsTop [JSDecimal \"1E-01\"])")
+    [ testCase "helloWorld"         caseHelloWorld
+    , testCase "LiteralNull"        (testLiteral "null"     "Right (JSSourceElementsTop [JSLiteral 'null'])")
+    , testCase "LiteralFalse"       (testLiteral "false"    "Right (JSSourceElementsTop [JSLiteral 'false'])")
+    , testCase "LiteralTrue"        (testLiteral "true"     "Right (JSSourceElementsTop [JSLiteral 'true'])")
+    , testCase "LiteralHexInteger1" (testLiteral "0x1234fF" "Right (JSSourceElementsTop [JSHexInteger '0x1234fF'])")
+    , testCase "LiteralHexInteger2" (testLiteral "0X1234fF" "Right (JSSourceElementsTop [JSHexInteger '0X1234fF'])")
+    , testCase "LiteralDecimal1"    (testLiteral "1.0e4"    "Right (JSSourceElementsTop [JSDecimal '1.0e4'])")
+    , testCase "LiteralDecimal2"    (testLiteral "2.3E6"    "Right (JSSourceElementsTop [JSDecimal '2.3E6'])")
+    , testCase "LiteralDecimal3"    (testLiteral "4.5"      "Right (JSSourceElementsTop [JSDecimal '4.5'])")
+    , testCase "LiteralDecimal3"    (testLiteral "0.7e8"    "Right (JSSourceElementsTop [JSDecimal '0.7e8'])")
+    , testCase "LiteralDecimal4"    (testLiteral "0.7E8"    "Right (JSSourceElementsTop [JSDecimal '0.7E8'])")
+    , testCase "LiteralDecimal5"    (testLiteral "10"       "Right (JSSourceElementsTop [JSDecimal '10'])")
+    , testCase "LiteralDecimal6"    (testLiteral "0"        "Right (JSSourceElementsTop [JSDecimal '0'])")
+    , testCase "LiteralDecimal7"    (testLiteral "0.03"     "Right (JSSourceElementsTop [JSDecimal '0.03'])")
+    , testCase "LiteralDecimal9"    (testLiteral "0.7e+8"   "Right (JSSourceElementsTop [JSDecimal '0.7e+8'])")
+    , testCase "LiteralDecimal10"   (testLiteral "0.7e-18"  "Right (JSSourceElementsTop [JSDecimal '0.7e-18'])")
+    , testCase "LiteralDecimal11"   (testLiteral "1.0e+4"   "Right (JSSourceElementsTop [JSDecimal '1.0e+4'])")
+    , testCase "LiteralDecimal12"   (testLiteral "1.0e-4"   "Right (JSSourceElementsTop [JSDecimal '1.0e-4'])")
+    , testCase "LiteralDecimal13"   (testLiteral "1e18"     "Right (JSSourceElementsTop [JSDecimal '1e18'])")
+    , testCase "LiteralDecimal14"   (testLiteral "1e+18"    "Right (JSSourceElementsTop [JSDecimal '1e+18'])")
+    , testCase "LiteralDecimal15"   (testLiteral "1e-18"    "Right (JSSourceElementsTop [JSDecimal '1e-18'])")
+    , testCase "LiteralDecimal16"   (testLiteral "1E-01"    "Right (JSSourceElementsTop [JSDecimal '1E-01'])")
 
-    , testCase "LiteralOctal"      (testLiteral "010"      "Right (JSSourceElementsTop [JSOctal \"010\"])")
+    , testCase "LiteralOctal"       (testLiteral "010"      "Right (JSSourceElementsTop [JSOctal \"010\"])")
 
-    , testCase "LiteralString1"    (testLiteral "\"hello\\nworld\"" "Right (JSSourceElementsTop [JSStringLiteral '\"' \"hello\\\\nworld\"])")
-    , testCase "LiteralString2"    (testLiteral "'hello\\nworld'"  "Right (JSSourceElementsTop [JSStringLiteral '\\'' \"hello\\\\nworld\"])")
+    , testCase "LiteralString1"     (testLiteral "\"hello\\nworld\"" "Right (JSSourceElementsTop [JSStringLiteralD 'hello\\nworld'])")
+    , testCase "LiteralString2"     (testLiteral "'hello\\nworld'"  "Right (JSSourceElementsTop [JSStringLiteralS 'hello\\nworld'])")
 
-    , testCase "LiteralThis"       (testPE "this"  "Right (JSSourceElementsTop [JSLiteral \"this\"])")
+    , testCase "LiteralThis"        (testPE "this"  "Right (JSSourceElementsTop [JSLiteral 'this'])")
 
-    , testCase "LiteralRegex1"     (testPE "/blah/"  "Right (JSSourceElementsTop [JSRegEx \"/blah/\"])")
-    , testCase "LiteralRegex2"     (testPE "/$/g"    "Right (JSSourceElementsTop [JSRegEx \"/$/g\"])")
-    , testCase "LiteralRegex3"     (testPE "/\\n/g"  "Right (JSSourceElementsTop [JSRegEx \"/\\\\n/g\"])")
-    , testCase "LiteralRegex4"     (testPE "/^\"(?:\\.|[^\"])*\"|^'(?:[^']|\\.)*'/" "Right (JSSourceElementsTop [JSRegEx \"/^\\\"(?:\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\.)*'/\"])")
+    , testCase "LiteralRegex1"      (testPE "/blah/"  "Right (JSSourceElementsTop [JSRegEx \"/blah/\"])")
+    , testCase "LiteralRegex2"      (testPE "/$/g"    "Right (JSSourceElementsTop [JSRegEx \"/$/g\"])")
+    , testCase "LiteralRegex3"      (testPE "/\\n/g"  "Right (JSSourceElementsTop [JSRegEx \"/\\\\n/g\"])")
+    , testCase "LiteralRegex4"      (testPE "/^\"(?:\\.|[^\"])*\"|^'(?:[^']|\\.)*'/" "Right (JSSourceElementsTop [JSRegEx \"/^\\\"(?:\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\.)*'/\"])")
 
-    , testCase "Identifier1"       (testPE "_$"      "Right (JSSourceElementsTop [JSIdentifier \"_$\"])")
-    , testCase "Identifier2"       (testPE "this_"   "Right (JSSourceElementsTop [JSIdentifier \"this_\"])")
+    , testCase "Identifier1"        (testPE "_$"      "Right (JSSourceElementsTop [JSIdentifier '_$'])")
+    , testCase "Identifier2"        (testPE "this_"   "Right (JSSourceElementsTop [JSIdentifier 'this_'])")
 
-    , testCase "ArrayLiteral1"     (testPE "[]"      "Right (JSSourceElementsTop [JSArrayLiteral []])")
-    , testCase "ArrayLiteral2"     (testPE "[,]"     "Right (JSSourceElementsTop [JSArrayLiteral [JSComma]])")
-    , testCase "ArrayLiteral3"     (testPE "[,,]"    "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma]])")
-    , testCase "ArrayLiteral4"     (testPE "[,,x]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma,JSIdentifier \"x\"]])")
-    , testCase "ArrayLiteral5"     (testPE "[,,x]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma,JSIdentifier \"x\"]])")
-    , testCase "ArrayLiteral6"     (testPE "[,x,,x]" "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSIdentifier \"x\",JSComma,JSComma,JSIdentifier \"x\"]])")
-    , testCase "ArrayLiteral7"     (testPE "[x]"     "Right (JSSourceElementsTop [JSArrayLiteral [JSIdentifier \"x\"]])")
-    , testCase "ArrayLiteral8"     (testPE "[x,]"    "Right (JSSourceElementsTop [JSArrayLiteral [JSIdentifier \"x\",JSComma]])")
-    , testCase "ArrayLiteral9"     (testPE "[,,,]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma,JSComma]])")
-    , testCase "ArrayLiteral10"    (testPE "[a,,]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSIdentifier \"a\",JSComma,JSComma]])")
+    , testCase "ArrayLiteral1"      (testPE "[]"      "Right (JSSourceElementsTop [JSArrayLiteral []])")
+    , testCase "ArrayLiteral2"      (testPE "[,]"     "Right (JSSourceElementsTop [JSArrayLiteral [JSComma]])")
+    , testCase "ArrayLiteral3"      (testPE "[,,]"    "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma]])")
+    , testCase "ArrayLiteral4"      (testPE "[,,x]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma,JSIdentifier 'x']])")
+    , testCase "ArrayLiteral5"      (testPE "[,,x]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma,JSIdentifier 'x']])")
+    , testCase "ArrayLiteral6"      (testPE "[,x,,x]" "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSIdentifier 'x',JSComma,JSComma,JSIdentifier 'x']])")
+    , testCase "ArrayLiteral7"      (testPE "[x]"     "Right (JSSourceElementsTop [JSArrayLiteral [JSIdentifier 'x']])")
+    , testCase "ArrayLiteral8"      (testPE "[x,]"    "Right (JSSourceElementsTop [JSArrayLiteral [JSIdentifier 'x',JSComma]])")
+    , testCase "ArrayLiteral9"      (testPE "[,,,]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSComma,JSComma,JSComma]])")
+    , testCase "ArrayLiteral10"     (testPE "[a,,]"   "Right (JSSourceElementsTop [JSArrayLiteral [JSIdentifier 'a',JSComma,JSComma]])")
 
-    , testCase "ObjectLiteral1"    (testPE "{}"        "Right (JSSourceElementsTop [JSObjectLiteral []])")
-    , testCase "ObjectLiteral2"    (testPE "{x:1}"     "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"]]])")
-    , testCase "ObjectLiteral3"    (testPE "{x:1,y:2}" "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSComma,JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"2\"]]])")
+    , testCase "ObjectLiteral1"     (testPE "{}"        "Right (JSSourceElementsTop [JSObjectLiteral []])")
+    , testCase "ObjectLiteral2"     (testPE "{x:1}"     "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1']]])")
+    , testCase "ObjectLiteral3"     (testPE "{x:1,y:2}" "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSComma,JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '2']]])")
 
-    , testCase "ObjectLiteral4"    (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"evaluate\") [JSIdentifier \"evaluate\"],JSComma,JSPropertyNameandValue (JSIdentifier \"load\") [JSFunctionExpression \"load\" (JSIdentifier \"s\") (JSStatementBlock [JSIf (JSIdentifier \"x\") (JSReturn JSIdentifier \"s\" JSSemicolon),JSDecimal \"1\"]))]]])")
+    , testCase "ObjectLiteral4"     (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'evaluate') [JSIdentifier 'evaluate'],JSComma,JSPropertyNameandValue (JSIdentifier 'load') [JSFunctionExpression \"load\" (JSIdentifier 's') (JSStatementBlock [JSIf (JSIdentifier 'x') (JSReturn JSIdentifier 's' JSSemicolon),JSDecimal '1']))]]])")
 
-    , testCase "ObjectLiteral5"    (testPE "{x:1,}"    "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"x\") [JSDecimal \"1\"],JSComma]])")
+    , testCase "ObjectLiteral5"     (testPE "{x:1,}"    "Right (JSSourceElementsTop [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSComma]])")
 
-    , testCase "ObjectLiteral6"    (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"a\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"values\") [JSDecimal \"7\"],JSComma])])")
+    , testCase "ObjectLiteral6"     (testProg "a={\n  values: 7,\n}\n" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'a',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'values') [JSDecimal '7'],JSComma])])")
 
     -- Edition 5 extensions
-    , testCase "ObjectLiteral7"    (testProg "x={get foo() {return 1},set foo(a) {x=a}}" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSObjectLiteral [JSPropertyAccessor JSAccessorGet (JSIdentifier \"foo\") [] (JSStatementBlock [JSReturn JSDecimal \"1\" ]),JSComma,JSPropertyAccessor JSAccessorSet (JSIdentifier \"foo\") [JSIdentifier \"a\"] (JSStatementBlock [JSOpAssign (\"=\",JSIdentifier \"x\",JSIdentifier \"a\")])])])")
+    , testCase "ObjectLiteral7"     (testProg "x={get foo() {return 1},set foo(a) {x=a}}" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyAccessor JSAccessorGet (JSIdentifier 'foo') [] (JSStatementBlock [JSReturn JSDecimal '1' ]),JSComma,JSPropertyAccessor JSAccessorSet (JSIdentifier 'foo') [JSIdentifier 'a'] (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSIdentifier 'a')])])])")
 
-    , testCase "ObjectLiteral8"    (testProg "a={if:1,interface:2}" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"a\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"if\") [JSDecimal \"1\"],JSComma,JSPropertyNameandValue (JSIdentifier \"interface\") [JSDecimal \"2\"]])])")
+    , testCase "ObjectLiteral8"     (testProg "a={if:1,interface:2}" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'a',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'if') [JSDecimal '1'],JSComma,JSPropertyNameandValue (JSIdentifier 'interface') [JSDecimal '2']])])")
 
-    , testCase "OpPrecedence"      (testProg "2+3*4+5"  "Right (JSSourceElementsTop [JSExpressionBinary (\"+\",JSExpressionBinary (\"+\",JSDecimal \"2\",JSExpressionBinary (\"*\",JSDecimal \"3\",JSDecimal \"4\")),JSDecimal \"5\")])")
+    , testCase "OpPrecedence"       (testProg "2+3*4+5"  "Right (JSSourceElementsTop [JSExpressionBinary (\"+\",JSExpressionBinary (\"+\",JSDecimal '2',JSExpressionBinary (\"*\",JSDecimal '3',JSDecimal '4')),JSDecimal '5')])")
 
-    , testCase "ExpressionParen"   (testPE "(56)"     "Right (JSSourceElementsTop [JSExpressionParen (JSDecimal \"56\")])")
+    , testCase "ExpressionParen"    (testPE "(56)"     "Right (JSSourceElementsTop [JSExpressionParen (JSDecimal '56')])")
 
-    , testCase "Statement1"        (testStmt "x"        "Right (JSSourceElementsTop [JSIdentifier \"x\"])")
-    , testCase "Statement2"        (testStmt "null"     "Right (JSSourceElementsTop [JSLiteral \"null\"])")
-    , testCase "Statement3"        (testStmt "true?1:2" "Right (JSSourceElementsTop [JSExpressionTernary (JSLiteral \"true\",JSDecimal \"1\",JSDecimal \"2\")])")
+    , testCase "Statement1"         (testStmt "x"        "Right (JSSourceElementsTop [JSIdentifier 'x'])")
+    , testCase "Statement2"         (testStmt "null"     "Right (JSSourceElementsTop [JSLiteral 'null'])")
+    , testCase "Statement3"         (testStmt "true?1:2" "Right (JSSourceElementsTop [JSExpressionTernary (JSLiteral 'true',JSDecimal '1',JSDecimal '2')])")
 
-    , testCase "Statement4"        (testStmt "x||y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"||\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement5"        (testStmt "x&&y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"&&\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement6"        (testStmt "x|y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"|\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement6"        (testStmt "x^y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"^\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement7"        (testStmt "x&y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"&\",JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "Statement4"         (testStmt "x||y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"||\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement5"         (testStmt "x&&y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"&&\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement6"         (testStmt "x|y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"|\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement6"         (testStmt "x^y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"^\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement7"         (testStmt "x&y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"&\",JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "Statement8"        (testStmt "x==y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"==\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement9"        (testStmt "x!=y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"!=\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement10"       (testStmt "x===y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"===\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement11"       (testStmt "x!==y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"!==\",JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "Statement8"         (testStmt "x==y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"==\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement9"         (testStmt "x!=y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"!=\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement10"        (testStmt "x===y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"===\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement11"        (testStmt "x!==y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"!==\",JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "Statement12"       (testStmt "x<y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"<\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement12"       (testStmt "x>y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement12"       (testStmt "x<=y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"<=\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement12"       (testStmt "x>=y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">=\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement12"       (testStmt "x instanceof y"  "Right (JSSourceElementsTop [JSExpressionBinary (\"instanceof\",JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "Statement12"        (testStmt "x<y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"<\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement12"        (testStmt "x>y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement12"        (testStmt "x<=y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"<=\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement12"        (testStmt "x>=y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">=\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement12"        (testStmt "x instanceof y"  "Right (JSSourceElementsTop [JSExpressionBinary (\"instanceof\",JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "Statement13"       (testStmt "x<<y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"<<\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement13"       (testStmt "x>>y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">>\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement13"       (testStmt "x>>>y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">>>\",JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "Statement13"        (testStmt "x<<y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"<<\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement13"        (testStmt "x>>y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">>\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement13"        (testStmt "x>>>y"     "Right (JSSourceElementsTop [JSExpressionBinary (\">>>\",JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "Statement14"       (testStmt "x+y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"+\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement14"       (testStmt "x-y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"-\",JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "Statement14"        (testStmt "x+y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"+\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement14"        (testStmt "x-y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"-\",JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "Statement15"       (testStmt "x*y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"*\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement16"       (testStmt "x/y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"/\",JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "Statement17"       (testStmt "x%y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"%\",JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "Statement15"        (testStmt "x*y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"*\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement16"        (testStmt "x/y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"/\",JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "Statement17"        (testStmt "x%y"     "Right (JSSourceElementsTop [JSExpressionBinary (\"%\",JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "Statement18"       (testStmt "delete y"  "Right (JSSourceElementsTop [JSUnaryExpression (\"delete \",JSIdentifier \"y\")])")
-    , testCase "Statement19"       (testStmt "void y"    "Right (JSSourceElementsTop [JSUnaryExpression (\"void \",JSIdentifier \"y\")])")
-    , testCase "Statement20"       (testStmt "typeof y"  "Right (JSSourceElementsTop [JSUnaryExpression (\"typeof \",JSIdentifier \"y\")])")
-    , testCase "Statement21"       (testStmt "++y"    "Right (JSSourceElementsTop [JSUnaryExpression (\"++\",JSIdentifier \"y\")])")
-    , testCase "Statement22"       (testStmt "--y"    "Right (JSSourceElementsTop [JSUnaryExpression (\"--\",JSIdentifier \"y\")])")
-    , testCase "Statement23"       (testStmt "+y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"+\",JSIdentifier \"y\")])")
-    , testCase "Statement24"       (testStmt "-y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"-\",JSIdentifier \"y\")])")
-    , testCase "Statement25"       (testStmt "~y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"~\",JSIdentifier \"y\")])")
-    , testCase "Statement26"       (testStmt "!y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"!\",JSIdentifier \"y\")])")
+    , testCase "Statement18"        (testStmt "delete y"  "Right (JSSourceElementsTop [JSUnaryExpression (\"delete \",JSIdentifier 'y')])")
+    , testCase "Statement19"        (testStmt "void y"    "Right (JSSourceElementsTop [JSUnaryExpression (\"void \",JSIdentifier 'y')])")
+    , testCase "Statement20"        (testStmt "typeof y"  "Right (JSSourceElementsTop [JSUnaryExpression (\"typeof \",JSIdentifier 'y')])")
+    , testCase "Statement21"        (testStmt "++y"    "Right (JSSourceElementsTop [JSUnaryExpression (\"++\",JSIdentifier 'y')])")
+    , testCase "Statement22"        (testStmt "--y"    "Right (JSSourceElementsTop [JSUnaryExpression (\"--\",JSIdentifier 'y')])")
+    , testCase "Statement23"        (testStmt "+y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"+\",JSIdentifier 'y')])")
+    , testCase "Statement24"        (testStmt "-y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"-\",JSIdentifier 'y')])")
+    , testCase "Statement25"        (testStmt "~y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"~\",JSIdentifier 'y')])")
+    , testCase "Statement26"        (testStmt "!y"     "Right (JSSourceElementsTop [JSUnaryExpression (\"!\",JSIdentifier 'y')])")
 
-    , testCase "Statement27"       (testStmt "y++"     "Right (JSSourceElementsTop [JSExpressionPostfix (\"++\",JSIdentifier \"y\")])")
-    , testCase "Statement28"       (testStmt "y--"     "Right (JSSourceElementsTop [JSExpressionPostfix (\"--\",JSIdentifier \"y\")])")
+    , testCase "Statement27"        (testStmt "y++"     "Right (JSSourceElementsTop [JSExpressionPostfix (\"++\",JSIdentifier 'y')])")
+    , testCase "Statement28"        (testStmt "y--"     "Right (JSSourceElementsTop [JSExpressionPostfix (\"--\",JSIdentifier 'y')])")
 
     -- Member Expressions
     , testCase "MemberExpression1a" (testStmt "function(){}"     "Right (JSSourceElementsTop [JSFunctionExpression \"\" () (JSStatementBlock []))])")
-    , testCase "MemberExpression1b" (testStmt "function(a){}"    "Right (JSSourceElementsTop [JSFunctionExpression \"\" (JSIdentifier \"a\") (JSStatementBlock []))])")
-    , testCase "MemberExpression1c" (testStmt "function(a,b){}"  "Right (JSSourceElementsTop [JSFunctionExpression \"\" (JSIdentifier \"a\",JSIdentifier \"b\") (JSStatementBlock []))])")
+    , testCase "MemberExpression1b" (testStmt "function(a){}"    "Right (JSSourceElementsTop [JSFunctionExpression \"\" (JSIdentifier 'a') (JSStatementBlock []))])")
+    , testCase "MemberExpression1c" (testStmt "function(a,b){}"  "Right (JSSourceElementsTop [JSFunctionExpression \"\" (JSIdentifier 'a',JSIdentifier 'b') (JSStatementBlock []))])")
+    , testCase "MemberExpression1d" (testStmt "x[y]"     "Right (JSSourceElementsTop [JSMemberSquare (JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "MemberExpression1e" (testStmt "x[y][z]"  "Right (JSSourceElementsTop [JSMemberSquare (JSMemberSquare (JSIdentifier 'x',JSIdentifier 'y'),JSIdentifier 'z')])")
+    , testCase "MemberExpression1f" (testStmt "x.y"      "Right (JSSourceElementsTop [JSMemberDot (JSIdentifier 'x',JSIdentifier 'y')])")
+    , testCase "MemberExpression1g" (testStmt "x.y.z"    "Right (JSSourceElementsTop [JSMemberDot (JSMemberDot (JSIdentifier 'x',JSIdentifier 'y'),JSIdentifier 'z')])")
+    , testCase "MemberExpression1h" (testStmt "new x()"  "Right (JSSourceElementsTop [JSMemberNew (JSIdentifier 'x',JSArguments ())])")
 
-    , testCase "MemberExpression1d" (testStmt "x[y]"     "Right (JSSourceElementsTop [JSMemberSquare (JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "MemberExpression1e" (testStmt "x[y][z]"  "Right (JSSourceElementsTop [JSMemberSquare (JSMemberSquare (JSIdentifier \"x\",JSIdentifier \"y\"),JSIdentifier \"z\")])")
-    , testCase "MemberExpression1f" (testStmt "x.y"      "Right (JSSourceElementsTop [JSMemberDot (JSIdentifier \"x\",JSIdentifier \"y\")])")
-    , testCase "MemberExpression1g" (testStmt "x.y.z"    "Right (JSSourceElementsTop [JSMemberDot (JSMemberDot (JSIdentifier \"x\",JSIdentifier \"y\"),JSIdentifier \"z\")])")
-    , testCase "MemberExpression1h" (testStmt "new x()"  "Right (JSSourceElementsTop [JSMemberNew (JSIdentifier \"x\",JSArguments ())])")
+    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSSourceElementsTop [JSNewExpression JSMemberDot (JSIdentifier 'x',JSIdentifier 'y')])")
 
-    , testCase "NewExpression1" (testStmt "new x.y"  "Right (JSSourceElementsTop [JSNewExpression JSMemberDot (JSIdentifier \"x\",JSIdentifier \"y\")])")
+    , testCase "CallExpression1" (testStmt "x()"         "Right (JSSourceElementsTop [JSMemberExpression (JSIdentifier 'x',JSArguments ())])")
+    , testCase "CallExpression2" (testStmt "x()()"       "Right (JSSourceElementsTop [JSCallExpression (JSMemberExpression (JSIdentifier 'x',JSArguments ()),JSArguments ())])")
+    , testCase "CallExpression3" (testStmt "x()[4]"      "Right (JSSourceElementsTop [JSCallExpressionSquare (JSMemberExpression (JSIdentifier 'x',JSArguments ()),JSDecimal '4')])")
+    , testCase "CallExpression4" (testStmt "x().x"       "Right (JSSourceElementsTop [JSCallExpressionDot (JSMemberExpression (JSIdentifier 'x',JSArguments ()),JSIdentifier 'x')])")
+    , testCase "CallExpression5" (testStmt "x(a,b=2).x"  "Right (JSSourceElementsTop [JSCallExpressionDot (JSMemberExpression (JSIdentifier 'x',JSArguments (JSIdentifier 'a',JSOpAssign ('=',JSIdentifier 'b',JSDecimal '2'))),JSIdentifier 'x')])")
 
-    , testCase "CallExpression1" (testStmt "x()"         "Right (JSSourceElementsTop [JSMemberExpression (JSIdentifier \"x\",JSArguments ())])")
-    , testCase "CallExpression2" (testStmt "x()()"       "Right (JSSourceElementsTop [JSCallExpression (JSMemberExpression (JSIdentifier \"x\",JSArguments ()),JSArguments ())])")
-    , testCase "CallExpression3" (testStmt "x()[4]"      "Right (JSSourceElementsTop [JSCallExpressionSquare (JSMemberExpression (JSIdentifier \"x\",JSArguments ()),JSDecimal \"4\")])")
-    , testCase "CallExpression4" (testStmt "x().x"       "Right (JSSourceElementsTop [JSCallExpressionDot (JSMemberExpression (JSIdentifier \"x\",JSArguments ()),JSIdentifier \"x\")])")
-    , testCase "CallExpression5" (testStmt "x(a,b=2).x"  "Right (JSSourceElementsTop [JSCallExpressionDot (JSMemberExpression (JSIdentifier \"x\",JSArguments (JSIdentifier \"a\",JSOpAssign (\"=\",JSIdentifier \"b\",JSDecimal \"2\"))),JSIdentifier \"x\")])")
-
-    , testCase "AssignExpression1"  (testStmt "x=1"    "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression2"  (testStmt "x*=1"   "Right (JSSourceElementsTop [JSOpAssign (\"*=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression3"  (testStmt "x/=1"   "Right (JSSourceElementsTop [JSOpAssign (\"/=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression4"  (testStmt "x%=1"   "Right (JSSourceElementsTop [JSOpAssign (\"%=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression5"  (testStmt "x+=1"   "Right (JSSourceElementsTop [JSOpAssign (\"+=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression6"  (testStmt "x-=1"   "Right (JSSourceElementsTop [JSOpAssign (\"-=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression7"  (testStmt "x<<=1"  "Right (JSSourceElementsTop [JSOpAssign (\"<<=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression8"  (testStmt "x>>=1"  "Right (JSSourceElementsTop [JSOpAssign (\">>=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression9"  (testStmt "x>>>=1" "Right (JSSourceElementsTop [JSOpAssign (\">>>=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression10" (testStmt "x&=1"   "Right (JSSourceElementsTop [JSOpAssign (\"&=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression11" (testStmt "x^=1"   "Right (JSSourceElementsTop [JSOpAssign (\"^=\",JSIdentifier \"x\",JSDecimal \"1\")])")
-    , testCase "AssignExpression12" (testStmt "x|=1"   "Right (JSSourceElementsTop [JSOpAssign (\"|=\",JSIdentifier \"x\",JSDecimal \"1\")])")
+    , testCase "AssignExpression1"  (testStmt "x=1"    "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression2"  (testStmt "x*=1"   "Right (JSSourceElementsTop [JSOpAssign ('*=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression3"  (testStmt "x/=1"   "Right (JSSourceElementsTop [JSOpAssign ('/=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression4"  (testStmt "x%=1"   "Right (JSSourceElementsTop [JSOpAssign ('%=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression5"  (testStmt "x+=1"   "Right (JSSourceElementsTop [JSOpAssign ('+=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression6"  (testStmt "x-=1"   "Right (JSSourceElementsTop [JSOpAssign ('-=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression7"  (testStmt "x<<=1"  "Right (JSSourceElementsTop [JSOpAssign ('<<=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression8"  (testStmt "x>>=1"  "Right (JSSourceElementsTop [JSOpAssign ('>>=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression9"  (testStmt "x>>>=1" "Right (JSSourceElementsTop [JSOpAssign ('>>>=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression10" (testStmt "x&=1"   "Right (JSSourceElementsTop [JSOpAssign ('&=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression11" (testStmt "x^=1"   "Right (JSSourceElementsTop [JSOpAssign ('^=',JSIdentifier 'x',JSDecimal '1')])")
+    , testCase "AssignExpression12" (testStmt "x|=1"   "Right (JSSourceElementsTop [JSOpAssign ('|=',JSIdentifier 'x',JSDecimal '1')])")
 
     , testCase "Block1" (testStmt "{}"        "Right (JSSourceElementsTop [JSStatementBlock []])")
-    , testCase "Block2" (testStmt "{x=1}"     "Right (JSSourceElementsTop [JSStatementBlock [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\")]])")
-    , testCase "Block3" (testStmt "{x=1;y=2}" "Right (JSSourceElementsTop [JSStatementBlock [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon,JSOpAssign (\"=\",JSIdentifier \"y\",JSDecimal \"2\")]])")
+    , testCase "Block2" (testStmt "{x=1}"     "Right (JSSourceElementsTop [JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')]])")
+    , testCase "Block3" (testStmt "{x=1;y=2}" "Right (JSSourceElementsTop [JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon,JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2')]])")
     , testCase "Block4" (testStmt "{{}}"      "Right (JSSourceElementsTop [JSStatementBlock [JSStatementBlock []]])")
     , testCase "Block5" (testStmt "{{{}}}"    "Right (JSSourceElementsTop [JSStatementBlock [JSStatementBlock [JSStatementBlock []]]])")
 
-    , testCase "If1" (testStmt "if (1) {}"  "Right (JSSourceElementsTop [JSIf (JSDecimal \"1\") (JSStatementBlock [])])")
+    , testCase "If1" (testStmt "if (1) {}"  "Right (JSSourceElementsTop [JSIf (JSDecimal '1') (JSStatementBlock [])])")
 
-    , testCase "IfElse1" (testStmt "if (1) {} else {}"     "Right (JSSourceElementsTop [JSIf (JSDecimal \"1\") (JSStatementBlock []) (JSStatementBlock [])])")
-    , testCase "IfElse2" (testStmt "if (1) x=1; else {}"   "Right (JSSourceElementsTop [JSIf (JSDecimal \"1\") (JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon) (JSStatementBlock [])])")
+    , testCase "IfElse1" (testStmt "if (1) {} else {}"     "Right (JSSourceElementsTop [JSIf (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])])")
+    , testCase "IfElse2" (testStmt "if (1) x=1; else {}"   "Right (JSSourceElementsTop [JSIf (JSDecimal '1') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon) (JSStatementBlock [])])")
 
-    , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSSourceElementsTop [JSDoWhile (JSStatementBlock [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\")]) (JSLiteral \"true\") (JSSemicolon)])")
-    , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);"    "Right (JSSourceElementsTop [JSDoWhile (JSOpAssign (\"=\",JSIdentifier \"x\",JSExpressionBinary (\"+\",JSIdentifier \"x\",JSDecimal \"1\")),JSSemicolon) (JSExpressionBinary (\"<\",JSIdentifier \"x\",JSDecimal \"4\")) (JSSemicolon)])")
+    , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSSourceElementsTop [JSDoWhile (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')]) (JSLiteral 'true') (JSSemicolon)])")
+    , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);"    "Right (JSSourceElementsTop [JSDoWhile (JSOpAssign ('=',JSIdentifier 'x',JSExpressionBinary (\"+\",JSIdentifier 'x',JSDecimal '1')),JSSemicolon) (JSExpressionBinary (\"<\",JSIdentifier 'x',JSDecimal '4')) (JSSemicolon)])")
 
-    , testCase "While1"   (testStmt "while(true);"            "Right (JSSourceElementsTop [JSWhile (JSLiteral \"true\") ()])")
+    , testCase "While1"     (testStmt "while(true);"            "Right (JSSourceElementsTop [JSWhile (JSLiteral 'true') ()])")
 
-    , testCase "For1"      (testStmt "for(;;);"             "Right (JSSourceElementsTop [JSFor [] [] [] ()])")
-    , testCase "For2"      (testStmt "for(x=1;x<10;x++);"   "Right (JSSourceElementsTop [JSFor [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\")] [JSExpressionBinary (\"<\",JSIdentifier \"x\",JSDecimal \"10\")] [JSExpressionPostfix (\"++\",JSIdentifier \"x\")] ()])")
+    , testCase "For1"       (testStmt "for(;;);"             "Right (JSSourceElementsTop [JSFor [] [] [] ()])")
+    , testCase "For2"       (testStmt "for(x=1;x<10;x++);"   "Right (JSSourceElementsTop [JSFor [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')] [JSExpressionBinary (\"<\",JSIdentifier 'x',JSDecimal '10')] [JSExpressionPostfix (\"++\",JSIdentifier 'x')] ()])")
 
-    , testCase "ForVar1"   (testStmt "for(var x;;);"        "Right (JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier \"x\") ] [] [] ()])")
-    , testCase "ForVar2a"  (testStmt "for(var x=1;;);"      "Right (JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier \"x\") [JSLiteral \"=\",JSDecimal \"1\"]] [] [] ()])")
-    , testCase "ForVar2b"  (testStmt "for(var x;y;z){}"     "Right (JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier \"x\") ] [JSIdentifier \"y\"] [JSIdentifier \"z\"] (JSStatementBlock [])])")
+    , testCase "ForVar1"    (testStmt "for(var x;;);"        "Right (JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier 'x') ] [] [] ()])")
+    , testCase "ForVar2a"   (testStmt "for(var x=1;;);"      "Right (JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier 'x') [JSDecimal '1']] [] [] ()])")
+    , testCase "ForVar2b"   (testStmt "for(var x;y;z){}"     "Right (JSSourceElementsTop [JSForVar [JSVarDecl (JSIdentifier 'x') ] [JSIdentifier 'y'] [JSIdentifier 'z'] (JSStatementBlock [])])")
 
-    , testCase "ForIn1"    (testStmt "for(x in 5){}"        "Right (JSSourceElementsTop [JSForIn JSIdentifier \"x\" (JSDecimal \"5\") (JSStatementBlock [])])")
+    , testCase "ForIn1"     (testStmt "for(x in 5){}"        "Right (JSSourceElementsTop [JSForIn JSIdentifier 'x' (JSDecimal '5') (JSStatementBlock [])])")
 
-    , testCase "ForVarIn1" (testStmt "for(var x in 5){}"    "Right (JSSourceElementsTop [JSForVarIn (JSVarDecl (JSIdentifier \"x\") ) (JSDecimal \"5\") (JSStatementBlock [])])")
+    , testCase "ForVarIn1"  (testStmt "for(var x in 5){}"    "Right (JSSourceElementsTop [JSForVarIn (JSVarDecl (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])])")
 
-    , testCase "Var1" (testStmt "var x=1;"          "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"x\") [JSLiteral \"=\",JSDecimal \"1\"]]])")
-    , testCase "Var2" (testStmt "const x=1,y=2;"    "Right (JSSourceElementsTop [JSConstant const [JSVarDecl (JSIdentifier \"x\") [JSLiteral \"=\",JSDecimal \"1\"],JSComma,JSVarDecl (JSIdentifier \"y\") [JSLiteral \"=\",JSDecimal \"2\"]]])")
+    , testCase "Var1" (testStmt "var x=1;"          "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'x') [JSDecimal '1']]])")
+    , testCase "Var2" (testStmt "const x=1,y=2;"    "Right (JSSourceElementsTop [JSConstant [JSVarDecl (JSIdentifier 'x') [JSDecimal '1'],JSComma,JSVarDecl (JSIdentifier 'y') [JSDecimal '2']]])")
 
     , testCase "Continue1" (testStmt "continue;"    "Right (JSSourceElementsTop [JSContinue,JSSemicolon])")
     , testCase "Continue2" (testStmt "continue x;"  "Right (JSSourceElementsTop [JSContinue \"x\",JSSemicolon])")
@@ -203,125 +202,126 @@ testSuite = testGroup "Parser"
     , testCase "Break1" (testStmt "break;"          "Right (JSSourceElementsTop [JSBreak,JSSemicolon])")
     , testCase "Break2" (testStmt "break x;"        "Right (JSSourceElementsTop [JSBreak \"x\",JSSemicolon])")
 
-    , testCase "Return1" (testStmt "return;"        "Right (JSSourceElementsTop [JSReturn JSExpressionEmpty JSSemicolon])")
-    , testCase "Return2" (testStmt "return x;"      "Right (JSSourceElementsTop [JSReturn JSIdentifier \"x\" JSSemicolon])")
+    , testCase "Return1" (testStmt "return;"        "Right (JSSourceElementsTop [JSReturn JSSemicolon])")
+    , testCase "Return2" (testStmt "return x;"      "Right (JSSourceElementsTop [JSReturn JSIdentifier 'x' JSSemicolon])")
+    , testCase "Return3" (testStmt "return 123;"    "Right (JSSourceElementsTop [JSReturn JSDecimal '123' JSSemicolon])")
 
-    , testCase "With1" (testStmt "with (x) {};"     "Right (JSSourceElementsTop [JSWith (JSIdentifier \"x\") JSStatementBlock []JSSemicolon])")
+    , testCase "With1" (testStmt "with (x) {};"     "Right (JSSourceElementsTop [JSWith (JSIdentifier 'x') JSStatementBlock []JSSemicolon])")
 
-    , testCase "Labelled1" (testStmt "abc:x=1"    "Right (JSSourceElementsTop [JSLabelled (JSIdentifier \"abc\") (JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"))])")
+    , testCase "Labelled1" (testStmt "abc:x=1"      "Right (JSSourceElementsTop [JSLabelled (JSIdentifier 'abc') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'))])")
 
-    , testCase "Switch1" (testStmt "switch (x) {}"                "Right (JSSourceElementsTop [JSSwitch (JSIdentifier \"x\") []])" )
-    , testCase "Switch2" (testStmt "switch (x) {case 1:break;}"   "Right (JSSourceElementsTop [JSSwitch (JSIdentifier \"x\") [JSCase (JSDecimal \"1\") ([JSBreak,JSSemicolon])]])")
-    , testCase "Switch3" (testStmt "switch (x) {case 0:\ncase 1:break;}"  "Right (JSSourceElementsTop [JSSwitch (JSIdentifier \"x\") [JSCase (JSDecimal \"0\") ([]),JSCase (JSDecimal \"1\") ([JSBreak,JSSemicolon])]])")
-    , testCase "Switch4" (testStmt "switch (x) {default:break;}"          "Right (JSSourceElementsTop [JSSwitch (JSIdentifier \"x\") [JSDefault ([JSBreak,JSSemicolon])]])")
-    , testCase "Switch5" (testStmt "switch (x) {default:\ncase 1:break;}" "Right (JSSourceElementsTop [JSSwitch (JSIdentifier \"x\") [JSDefault ([]),JSCase (JSDecimal \"1\") ([JSBreak,JSSemicolon])]])")
+    , testCase "Switch1" (testStmt "switch (x) {}"                "Right (JSSourceElementsTop [JSSwitch (JSIdentifier 'x') []])" )
+    , testCase "Switch2" (testStmt "switch (x) {case 1:break;}"   "Right (JSSourceElementsTop [JSSwitch (JSIdentifier 'x') [JSCase (JSDecimal '1') ([JSBreak,JSSemicolon])]])")
+    , testCase "Switch3" (testStmt "switch (x) {case 0:\ncase 1:break;}"  "Right (JSSourceElementsTop [JSSwitch (JSIdentifier 'x') [JSCase (JSDecimal '0') ([]),JSCase (JSDecimal '1') ([JSBreak,JSSemicolon])]])")
+    , testCase "Switch4" (testStmt "switch (x) {default:break;}"          "Right (JSSourceElementsTop [JSSwitch (JSIdentifier 'x') [JSDefault ([JSBreak,JSSemicolon])]])")
+    , testCase "Switch5" (testStmt "switch (x) {default:\ncase 1:break;}" "Right (JSSourceElementsTop [JSSwitch (JSIdentifier 'x') [JSDefault ([]),JSCase (JSDecimal '1') ([JSBreak,JSSemicolon])]])")
 
-    , testCase "Throw1" (testStmt "throw 1"   "Right (JSSourceElementsTop [JSThrow (JSDecimal \"1\")])")
+    , testCase "Throw1" (testStmt "throw 1"   "Right (JSSourceElementsTop [JSThrow (JSDecimal '1')])")
 
-    , testCase "Try1" (testStmt "try{}catch(a){}"             "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier \"a\",JSStatementBlock [])],JSFinally ())])")
+    , testCase "Try1" (testStmt "try{}catch(a){}"             "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier 'a',JSStatementBlock [])],JSFinally ())])")
     , testCase "Try2" (testStmt "try{}finally{}"              "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[],JSFinally (JSStatementBlock []))])")
-    , testCase "Try3" (testStmt "try{}catch(a){}finally{}"    "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier \"a\",JSStatementBlock [])],JSFinally (JSStatementBlock []))])")
+    , testCase "Try3" (testStmt "try{}catch(a){}finally{}"    "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier 'a',JSStatementBlock [])],JSFinally (JSStatementBlock []))])")
 
-    , testCase "Try4" (testStmt "try{}catch(a){}catch(b){}finally{}"   "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier \"a\",JSStatementBlock []),JSCatch (JSIdentifier \"b\",JSStatementBlock [])],JSFinally (JSStatementBlock []))])")
-    , testCase "Try5" (testStmt "try{}catch(a){}catch(b){}"            "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier \"a\",JSStatementBlock []),JSCatch (JSIdentifier \"b\",JSStatementBlock [])],JSFinally ())])")
-    , testCase "Try6" (testStmt "try{}catch(a if true){}catch(b){}"    "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier \"a\") if JSLiteral \"true\" (JSStatementBlock []),JSCatch (JSIdentifier \"b\",JSStatementBlock [])],JSFinally ())])")
+    , testCase "Try4" (testStmt "try{}catch(a){}catch(b){}finally{}"   "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier 'a',JSStatementBlock []),JSCatch (JSIdentifier 'b',JSStatementBlock [])],JSFinally (JSStatementBlock []))])")
+    , testCase "Try5" (testStmt "try{}catch(a){}catch(b){}"            "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier 'a',JSStatementBlock []),JSCatch (JSIdentifier 'b',JSStatementBlock [])],JSFinally ())])")
+    , testCase "Try6" (testStmt "try{}catch(a if true){}catch(b){}"    "Right (JSSourceElementsTop [JSTry (JSStatementBlock [],[JSCatch (JSIdentifier 'a') if JSLiteral 'true' (JSStatementBlock []),JSCatch (JSIdentifier 'b',JSStatementBlock [])],JSFinally ())])")
 
     , testCase "Function1" (testProg "function a(){}"     "Right (JSSourceElementsTop [JSFunction \"a\" () (JSStatementBlock [])])")
-    , testCase "Function2" (testProg "function a(b,c){}"  "Right (JSSourceElementsTop [JSFunction \"a\" (JSIdentifier \"b\",JSIdentifier \"c\") (JSStatementBlock [])])")
+    , testCase "Function2" (testProg "function a(b,c){}"  "Right (JSSourceElementsTop [JSFunction \"a\" (JSIdentifier 'b',JSIdentifier 'c') (JSStatementBlock [])])")
 
-    , testCase "Comment1" (testProg "//blah\nx=1;//foo\na"   "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon,JSIdentifier \"a\"])")
+    , testCase "Comment1" (testProg "//blah\nx=1;//foo\na"   "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon,JSIdentifier 'a'])")
 
-    , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"  "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"z\",JSDecimal \"2\"),JSSemicolon,JSIdentifier \"a\"])")
+    , testCase "Comment2" (testProg "/*x=1\ny=2\n*/z=2;//foo\na"  "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'z',JSDecimal '2'),JSSemicolon,JSIdentifier 'a'])")
 
     , testCase "min_100_animals1" (testProg "function Animal(name){if(!name)throw new Error('Must specify an animal name');this.name=name};Animal.prototype.toString=function(){return this.name};o=new Animal(\"bob\");o.toString()==\"bob\""
-                                    "Right (JSSourceElementsTop [JSFunction \"Animal\" (JSIdentifier \"name\") (JSStatementBlock [JSIf (JSUnaryExpression (\"!\",JSIdentifier \"name\")) (JSThrow (JSMemberNew (JSIdentifier \"Error\",JSArguments (JSStringLiteral '\\'' \"Must specify an animal name\")))),JSOpAssign (\"=\",JSMemberDot (JSLiteral \"this\",JSIdentifier \"name\"),JSIdentifier \"name\")]),JSOpAssign (\"=\",JSMemberDot (JSMemberDot (JSIdentifier \"Animal\",JSIdentifier \"prototype\"),JSIdentifier \"toString\"),JSFunctionExpression \"\" () (JSStatementBlock [JSReturn JSMemberDot (JSLiteral \"this\",JSIdentifier \"name\") ]))),JSSemicolon,JSOpAssign (\"=\",JSIdentifier \"o\",JSMemberNew (JSIdentifier \"Animal\",JSArguments (JSStringLiteral '\"' \"bob\"))),JSSemicolon,JSExpressionBinary (\"==\",JSMemberExpression (JSMemberDot (JSIdentifier \"o\",JSIdentifier \"toString\"),JSArguments ()),JSStringLiteral '\"' \"bob\")])")
+                                    "Right (JSSourceElementsTop [JSFunction \"Animal\" (JSIdentifier 'name') (JSStatementBlock [JSIf (JSUnaryExpression (\"!\",JSIdentifier 'name')) (JSThrow (JSMemberNew (JSIdentifier 'Error',JSArguments (JSStringLiteralS 'Must specify an animal name')))),JSOpAssign ('=',JSMemberDot (JSLiteral 'this',JSIdentifier 'name'),JSIdentifier 'name')]),JSOpAssign ('=',JSMemberDot (JSMemberDot (JSIdentifier 'Animal',JSIdentifier 'prototype'),JSIdentifier 'toString'),JSFunctionExpression \"\" () (JSStatementBlock [JSReturn JSMemberDot (JSLiteral 'this',JSIdentifier 'name') ]))),JSSemicolon,JSOpAssign ('=',JSIdentifier 'o',JSMemberNew (JSIdentifier 'Animal',JSArguments (JSStringLiteralD 'bob'))),JSSemicolon,JSExpressionBinary (\"==\",JSMemberExpression (JSMemberDot (JSIdentifier 'o',JSIdentifier 'toString'),JSArguments ()),JSStringLiteralD 'bob')])")
 
-    , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"Animal\",JSFunctionExpression \"\" () (JSStatementBlock [JSReturn JSMemberDot (JSLiteral \"this\",JSIdentifier \"name\") ]))),JSSemicolon])")
+    , testCase "min_100_animals2" (testProg "Animal=function(){return this.name};" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'Animal',JSFunctionExpression \"\" () (JSStatementBlock [JSReturn JSMemberDot (JSLiteral 'this',JSIdentifier 'name') ]))),JSSemicolon])")
 
-    , testCase "min_100_animals3" (testProg "if(a)x=1;y=2" "Right (JSSourceElementsTop [JSIf (JSIdentifier \"a\") (JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon),JSOpAssign (\"=\",JSIdentifier \"y\",JSDecimal \"2\")])")
+    , testCase "min_100_animals3" (testProg "if(a)x=1;y=2" "Right (JSSourceElementsTop [JSIf (JSIdentifier 'a') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2')])")
 
-    , testCase "min_100_animals4" (testProg "if(a)x=a()y=2" "Right (JSSourceElementsTop [JSIf (JSIdentifier \"a\") (JSOpAssign (\"=\",JSIdentifier \"x\",JSMemberExpression (JSIdentifier \"a\",JSArguments ()))),JSOpAssign (\"=\",JSIdentifier \"y\",JSDecimal \"2\")])")
+    , testCase "min_100_animals4" (testProg "if(a)x=a()y=2" "Right (JSSourceElementsTop [JSIf (JSIdentifier 'a') (JSOpAssign ('=',JSIdentifier 'x',JSMemberExpression (JSIdentifier 'a',JSArguments ()))),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2')])")
 
-    , testCase "05_regex"  (testProg "newlines=spaces.match(/\\n/g)" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"newlines\",JSMemberExpression (JSMemberDot (JSIdentifier \"spaces\",JSIdentifier \"match\"),JSArguments (JSRegEx \"/\\\\n/g\")))])")
+    , testCase "05_regex"  (testProg "newlines=spaces.match(/\\n/g)" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'newlines',JSMemberExpression (JSMemberDot (JSIdentifier 'spaces',JSIdentifier 'match'),JSArguments (JSRegEx \"/\\\\n/g\")))])")
 
-    , testCase "05_regex2" (testProg "x=/\\n/g" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSRegEx \"/\\\\n/g\")])")
+    , testCase "05_regex2" (testProg "x=/\\n/g" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSRegEx \"/\\\\n/g\")])")
 
-    , testCase "05_regex3" (testProg "x=i(/[?|^&(){}\\[\\]+\\-*\\/\\.]/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSMemberExpression (JSIdentifier \"i\",JSArguments (JSRegEx \"/[?|^&(){}\\\\[\\\\]+\\\\-*\\\\/\\\\.]/g\",JSStringLiteral '\"' \"\\\\\\\\$&\")))])")
+    , testCase "05_regex3" (testProg "x=i(/[?|^&(){}\\[\\]+\\-*\\/\\.]/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSMemberExpression (JSIdentifier 'i',JSArguments (JSRegEx \"/[?|^&(){}\\\\[\\\\]+\\\\-*\\\\/\\\\.]/g\",JSStringLiteralD '\\\\$&')))])")
 
-    , testCase "05_regex4" (testProg "x=i(/^$/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSMemberExpression (JSIdentifier \"i\",JSArguments (JSRegEx \"/^$/g\",JSStringLiteral '\"' \"\\\\\\\\$&\")))])")
+    , testCase "05_regex4" (testProg "x=i(/^$/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSMemberExpression (JSIdentifier 'i',JSArguments (JSRegEx \"/^$/g\",JSStringLiteralD '\\\\$&')))])")
 
     , testCase "05_regex5" (testProg "if(/^[a-z]/.test(t)){consts+=t.toUpperCase();keywords[t]=i}else consts+=(/^\\W/.test(t)?opTypeNames[t]:t);"
-                                "Right (JSSourceElementsTop [JSIf (JSMemberExpression (JSMemberDot (JSRegEx \"/^[a-z]/\",JSIdentifier \"test\"),JSArguments (JSIdentifier \"t\"))) (JSStatementBlock [JSOpAssign (\"+=\",JSIdentifier \"consts\",JSMemberExpression (JSMemberDot (JSIdentifier \"t\",JSIdentifier \"toUpperCase\"),JSArguments ())),JSSemicolon,JSOpAssign (\"=\",JSMemberSquare (JSIdentifier \"keywords\",JSIdentifier \"t\"),JSIdentifier \"i\")]) (JSOpAssign (\"+=\",JSIdentifier \"consts\",JSExpressionParen (JSExpressionTernary (JSMemberExpression (JSMemberDot (JSRegEx \"/^\\\\W/\",JSIdentifier \"test\"),JSArguments (JSIdentifier \"t\")),JSMemberSquare (JSIdentifier \"opTypeNames\",JSIdentifier \"t\"),JSIdentifier \"t\"))),JSSemicolon)])")
+                                "Right (JSSourceElementsTop [JSIf (JSMemberExpression (JSMemberDot (JSRegEx \"/^[a-z]/\",JSIdentifier 'test'),JSArguments (JSIdentifier 't'))) (JSStatementBlock [JSOpAssign ('+=',JSIdentifier 'consts',JSMemberExpression (JSMemberDot (JSIdentifier 't',JSIdentifier 'toUpperCase'),JSArguments ())),JSSemicolon,JSOpAssign ('=',JSMemberSquare (JSIdentifier 'keywords',JSIdentifier 't'),JSIdentifier 'i')]) (JSOpAssign ('+=',JSIdentifier 'consts',JSExpressionParen (JSExpressionTernary (JSMemberExpression (JSMemberDot (JSRegEx \"/^\\\\W/\",JSIdentifier 'test'),JSArguments (JSIdentifier 't')),JSMemberSquare (JSIdentifier 'opTypeNames',JSIdentifier 't'),JSIdentifier 't'))),JSSemicolon)])")
 
-    , testCase "if_semi" (testProg "if(x);x=1"     "Right (JSSourceElementsTop [JSIf (JSIdentifier \"x\") (),JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\")])")
+    , testCase "if_semi" (testProg "if(x);x=1"     "Right (JSSourceElementsTop [JSIf (JSIdentifier 'x') (),JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')])")
 
-    , testCase "67_bob" (testProg "(match = /^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/(input))" "Right (JSSourceElementsTop [JSExpressionParen (JSOpAssign (\"=\",JSIdentifier \"match\",JSMemberExpression (JSRegEx \"/^\\\"(?:\\\\\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\\\\\.)*'/\",JSArguments (JSIdentifier \"input\"))))])")
+    , testCase "67_bob" (testProg "(match = /^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/(input))" "Right (JSSourceElementsTop [JSExpressionParen (JSOpAssign ('=',JSIdentifier 'match',JSMemberExpression (JSRegEx \"/^\\\"(?:\\\\\\\\.|[^\\\"])*\\\"|^'(?:[^']|\\\\\\\\.)*'/\",JSArguments (JSIdentifier 'input'))))])")
 
-    , testCase "122_jsexec" (testProg "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));"   "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"v\",JSExpressionBinary (\" in \",JSMemberExpression (JSIdentifier \"getValue\",JSArguments (JSMemberExpression (JSIdentifier \"execute\",JSArguments (JSMemberSquare (JSIdentifier \"n\",JSDecimal \"0\"),JSIdentifier \"x\")))),JSMemberExpression (JSIdentifier \"getValue\",JSArguments (JSMemberExpression (JSIdentifier \"execute\",JSArguments (JSMemberSquare (JSIdentifier \"n\",JSDecimal \"1\"),JSIdentifier \"x\")))))),JSSemicolon])")
+    , testCase "122_jsexec" (testProg "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));"   "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'v',JSExpressionBinary (\" in \",JSMemberExpression (JSIdentifier 'getValue',JSArguments (JSMemberExpression (JSIdentifier 'execute',JSArguments (JSMemberSquare (JSIdentifier 'n',JSDecimal '0'),JSIdentifier 'x')))),JSMemberExpression (JSIdentifier 'getValue',JSArguments (JSMemberExpression (JSIdentifier 'execute',JSArguments (JSMemberSquare (JSIdentifier 'n',JSDecimal '1'),JSIdentifier 'x')))))),JSSemicolon])")
 
     , testCase "bug1a" (testProg "/* */\nfunction f() {\n/*  */\n}\n" "Right (JSSourceElementsTop [JSFunction \"f\" () (JSStatementBlock [])])")
     , testCase "bug1b" (testProg "/* **/\nfunction f() {\n/*  */\n}\n" "Right (JSSourceElementsTop [JSFunction \"f\" () (JSStatementBlock [])])")
 
-    , testCase "unicode1-ws" (testProg "a \f\v\t\r\n=\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\&1;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"a\",JSDecimal \"1\"),JSSemicolon])")
+    , testCase "unicode1-ws" (testProg "a \f\v\t\r\n=\x00a0\x1680\x180e\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200a\x2028\x2029\x202f\x205f\x3000\&1;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'a',JSDecimal '1'),JSSemicolon])")
 
-    , testCase "unicode2-lt" (testProg "//comment\x000Ax=1;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon])")
-    , testCase "unicode3-lt" (testProg "//comment\x000Dx=1;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon])")
-    , testCase "unicode4-lt" (testProg "//comment\x2028x=1;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon])")
-    , testCase "unicode5-lt" (testProg "//comment\x2029x=1;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSSemicolon])")
+    , testCase "unicode2-lt" (testProg "//comment\x000Ax=1;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon])")
+    , testCase "unicode3-lt" (testProg "//comment\x000Dx=1;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon])")
+    , testCase "unicode4-lt" (testProg "//comment\x2028x=1;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon])")
+    , testCase "unicode5-lt" (testProg "//comment\x2029x=1;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon])")
 
-    , testCase "unicode2" (testProg "àáâãäå = 1;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSDecimal \"1\"),JSSemicolon])")
+    , testCase "unicode2" (testProg "àáâãäå = 1;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier '\224\225\226\227\228\229',JSDecimal '1'),JSSemicolon])")
 
-    , testCase "unicode3" (testProg "$aà = 1;_b=2;\0065a=2"  "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"$a\\224\",JSDecimal \"1\"),JSSemicolon,JSOpAssign (\"=\",JSIdentifier \"_b\",JSDecimal \"2\"),JSSemicolon,JSOpAssign (\"=\",JSIdentifier \"Aa\",JSDecimal \"2\")])")
+    , testCase "unicode3" (testProg "$aà = 1;_b=2;\0065a=2"  "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier '$a\224',JSDecimal '1'),JSSemicolon,JSOpAssign ('=',JSIdentifier '_b',JSDecimal '2'),JSSemicolon,JSOpAssign ('=',JSIdentifier 'Aa',JSDecimal '2')])")
 
-    , testCase "unicode4" (testProg "x=\"àáâãäå\";y='\3012a\0068'" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\"' \"\\224\\225\\226\\227\\228\\229\"),JSSemicolon,JSOpAssign (\"=\",JSIdentifier \"y\",JSStringLiteral '\\'' \"\\3012aD\")])")
+    , testCase "unicode4" (testProg "x=\"àáâãäå\";y='\3012a\0068'" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD '\224\225\226\227\228\229'),JSSemicolon,JSOpAssign ('=',JSIdentifier 'y',JSStringLiteralS '\3012aD')])")
 
-    , testCase "unicode5f" (testFileUtf8 "./test/Unicode.js" "JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"\\224\\225\\226\\227\\228\\229\",JSDecimal \"1\"),JSSemicolon]")
+    , testCase "unicode5f" (testFileUtf8 "./test/Unicode.js" "JSSourceElementsTop [JSOpAssign ('=',JSIdentifier '\224\225\226\227\228\229',JSDecimal '1'),JSSemicolon]")
 
-    , testCase "bug2.a" (testProg "function() {\nz = function /*z*/(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSFunctionExpression \"\" () (JSStatementBlock [JSOpAssign (\"=\",JSIdentifier \"z\",JSFunctionExpression \"\" (JSIdentifier \"o\") (JSStatementBlock [JSReturn JSIdentifier \"r\" JSSemicolon]))),JSSemicolon]))])")
+    , testCase "bug2.a" (testProg "function() {\nz = function /*z*/(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSFunctionExpression \"\" () (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'z',JSFunctionExpression \"\" (JSIdentifier 'o') (JSStatementBlock [JSReturn JSIdentifier 'r' JSSemicolon]))),JSSemicolon]))])")
 
-    , testCase "bug2.b" (testProg "function() {\nz = function z(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSFunctionExpression \"\" () (JSStatementBlock [JSOpAssign (\"=\",JSIdentifier \"z\",JSFunctionExpression \"z\" (JSIdentifier \"o\") (JSStatementBlock [JSReturn JSIdentifier \"r\" JSSemicolon]))),JSSemicolon]))])")
+    , testCase "bug2.b" (testProg "function() {\nz = function z(o) {\nreturn r;\n};}" "Right (JSSourceElementsTop [JSFunctionExpression \"\" () (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'z',JSFunctionExpression \"z\" (JSIdentifier 'o') (JSStatementBlock [JSReturn JSIdentifier 'r' JSSemicolon]))),JSSemicolon]))])")
 
     -- https://github.com/alanz/hjsmin/issues/#issue/3
-    , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"myLatlng\") [JSLiteral \"=\",JSMemberNew (JSMemberDot (JSMemberDot (JSIdentifier \"google\",JSIdentifier \"maps\"),JSIdentifier \"LatLng\"),JSArguments (JSDecimal \"56.8379100\",JSDecimal \"60.5806664\"))]]])")
+    , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'myLatlng') [JSMemberNew (JSMemberDot (JSMemberDot (JSIdentifier 'google',JSIdentifier 'maps'),JSIdentifier 'LatLng'),JSArguments (JSDecimal '56.8379100',JSDecimal '60.5806664'))]]])")
 
     -- https://github.com/alanz/hjsmin/issues/#issue/4
-    , testCase "bug4" (testProg "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x" "Right (JSSourceElementsTop [JSIdentifier \"x\"])")
+    , testCase "bug4" (testProg "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x" "Right (JSSourceElementsTop [JSIdentifier 'x'])")
 
-    , testCase "02_sm.js"   (testProg "{zero}\none1;two\n{three\nfour;five;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock [JSIdentifier \"zero\"],JSIdentifier \"one1\",JSSemicolon,JSIdentifier \"two\",JSStatementBlock [JSIdentifier \"three\",JSIdentifier \"four\",JSSemicolon,JSIdentifier \"five\",JSSemicolon,JSStatementBlock [JSIdentifier \"six\",JSSemicolon,JSStatementBlock [JSIdentifier \"seven\",JSSemicolon]]]])")
+    , testCase "02_sm.js"   (testProg "{zero}\none1;two\n{three\nfour;five;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock [JSIdentifier 'zero'],JSIdentifier 'one1',JSSemicolon,JSIdentifier 'two',JSStatementBlock [JSIdentifier 'three',JSIdentifier 'four',JSSemicolon,JSIdentifier 'five',JSSemicolon,JSStatementBlock [JSIdentifier 'six',JSSemicolon,JSStatementBlock [JSIdentifier 'seven',JSSemicolon]]]])")
 
-    , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock [JSIdentifier \"zero\"],JSIdentifier \"get\",JSSemicolon,JSIdentifier \"two\",JSStatementBlock [JSIdentifier \"three\",JSIdentifier \"four\",JSSemicolon,JSIdentifier \"set\",JSSemicolon,JSStatementBlock [JSIdentifier \"six\",JSSemicolon,JSStatementBlock [JSIdentifier \"seven\",JSSemicolon]]]])")
+    , testCase "02_sm.js.2" (testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" "Right (JSSourceElementsTop [JSStatementBlock [JSIdentifier 'zero'],JSIdentifier 'get',JSSemicolon,JSIdentifier 'two',JSStatementBlock [JSIdentifier 'three',JSIdentifier 'four',JSSemicolon,JSIdentifier 'set',JSSemicolon,JSStatementBlock [JSIdentifier 'six',JSSemicolon,JSStatementBlock [JSIdentifier 'seven',JSSemicolon]]]])")
 
-    , testCase "loc1" (testProg "x = 1\n  y=2;" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSDecimal \"1\"),JSOpAssign (\"=\",JSIdentifier \"y\",JSDecimal \"2\"),JSSemicolon])")
+    , testCase "loc1" (testProg "x = 1\n  y=2;" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2'),JSSemicolon])")
 
     -- https://github.com/alanz/language-javascript/issues/2
-    , testCase "issue2" (testProg "var img=document.createElement('img');\nimg.src=\"mylogo.jpg\";\n$(img).click(function() {\nalert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"img\") [JSLiteral \"=\",JSMemberExpression (JSMemberDot (JSIdentifier \"document\",JSIdentifier \"createElement\"),JSArguments (JSStringLiteral '\\'' \"img\"))]],JSOpAssign (\"=\",JSMemberDot (JSIdentifier \"img\",JSIdentifier \"src\"),JSStringLiteral '\"' \"mylogo.jpg\"),JSSemicolon,JSCallExpression (JSCallExpressionDot (JSMemberExpression (JSIdentifier \"$\",JSArguments (JSIdentifier \"img\")),JSIdentifier \"click\"),JSArguments (JSFunctionExpression \"\" () (JSStatementBlock [JSMemberExpression (JSIdentifier \"alert\",JSArguments (JSStringLiteral '\\'' \"clicked!\")),JSSemicolon])))),JSSemicolon])")
+    , testCase "issue2" (testProg "var img=document.createElement('img');\nimg.src=\"mylogo.jpg\";\n$(img).click(function() {\nalert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'img') [JSMemberExpression (JSMemberDot (JSIdentifier 'document',JSIdentifier 'createElement'),JSArguments (JSStringLiteralS 'img'))]],JSOpAssign ('=',JSMemberDot (JSIdentifier 'img',JSIdentifier 'src'),JSStringLiteralD 'mylogo.jpg'),JSSemicolon,JSCallExpression (JSCallExpressionDot (JSMemberExpression (JSIdentifier '$',JSArguments (JSIdentifier 'img')),JSIdentifier 'click'),JSArguments (JSFunctionExpression \"\" () (JSStatementBlock [JSMemberExpression (JSIdentifier 'alert',JSArguments (JSStringLiteralS 'clicked!')),JSSemicolon])))),JSSemicolon])")
 
     -- Working in ECMASCRIPT 5.1 changes
-    , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"       "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\\'' \"abc\\\\\\ndef\"),JSSemicolon])")
-    , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";"     "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\"' \"abc\\\\\\ndef\"),JSSemicolon])")
-    , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";"     "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\"' \"abc\\\\\\rdef\"),JSSemicolon])")
-    , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";"    "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\"' \"abc\\\\\\8232 def\"),JSSemicolon])")
-    , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";"    "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\"' \"abc\\\\\\8233 def\"),JSSemicolon])")
-    , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";"   "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSStringLiteral '\"' \"abc\\\\\\r\\ndef\"),JSSemicolon])")
+    , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"       "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralS 'abc\\\ndef'),JSSemicolon])")
+    , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";"     "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD 'abc\\\ndef'),JSSemicolon])")
+    , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";"     "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD 'abc\\\rdef'),JSSemicolon])")
+    , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";"    "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD 'abc\\\8232 def'),JSSemicolon])")
+    , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";"    "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD 'abc\\\8233 def'),JSSemicolon])")
+    , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";"   "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD 'abc\\\r\ndef'),JSSemicolon])")
 
     -- https://github.com/alanz/language-javascript/issues/4
-    , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}"  "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"k\") [JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"somename\"]]]]])")
-    , testCase "issue4bug1" (testProg "var k = {\ny: code\n}"      "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"k\") [JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"code\"]]]]])")
-    , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}"      "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"k\") [JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"mode\"]]]]])")
+    , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}"  "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'somename']]]]])")
+    , testCase "issue4bug1" (testProg "var k = {\ny: code\n}"      "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'code']]]]])")
+    , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}"      "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'mode']]]]])")
 
     -- https://github.com/alanz/language-javascript/issues/5
-    , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"1e8\"]])])")
-    , testCase "issue5ok2" (testProg "{ y: 1e8 }"      "Right (JSSourceElementsTop [JSStatementBlock [JSLabelled (JSIdentifier \"y\") (JSDecimal \"1e8\")]])")
-    , testCase "issue5ok3" (testProg "{ y: 18 }"       "Right (JSSourceElementsTop [JSStatementBlock [JSLabelled (JSIdentifier \"y\") (JSDecimal \"18\")]])")
-    , testCase "issue5ok4" (testProg "x = { y: 18 }"   "Right (JSSourceElementsTop [JSOpAssign (\"=\",JSIdentifier \"x\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSDecimal \"18\"]])])")
+    , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '1e8']])])")
+    , testCase "issue5ok2" (testProg "{ y: 1e8 }"      "Right (JSSourceElementsTop [JSStatementBlock [JSLabelled (JSIdentifier 'y') (JSDecimal '1e8')]])")
+    , testCase "issue5ok3" (testProg "{ y: 18 }"       "Right (JSSourceElementsTop [JSStatementBlock [JSLabelled (JSIdentifier 'y') (JSDecimal '18')]])")
+    , testCase "issue5ok4" (testProg "x = { y: 18 }"   "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '18']])])")
 
     -- https://github.com/alanz/language-javascript/issues/14
-    , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier \"z\") [JSLiteral \"=\",JSExpressionBinary (\"/\",JSMemberSquare (JSIdentifier \"x\",JSIdentifier \"i\"),JSIdentifier \"y\")]]])")
+    , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'z') [JSExpressionBinary (\"/\",JSMemberSquare (JSIdentifier 'x',JSIdentifier 'i'),JSIdentifier 'y')]]])")
 
     ]
 
 caseHelloWorld :: Assertion
-caseHelloWorld = "JSSourceElementsTop [JSIdentifier \"Hello\"]" @=? showStripped (readJs "Hello")
+caseHelloWorld = "JSSourceElementsTop [JSIdentifier 'Hello']" @=? showStripped (readJs "Hello")
 
 -- ---------------------------------------------------------------------
 
@@ -334,11 +334,11 @@ commentSuite = testGroup "Comments"
     , testCase "LiteralTrue"       (testLiteralC "/*c*/true"    "Right (JSSourceElementsTop [JSExpressionStatement (JSLiteral (TokenPn 5 1 6 [CommentA (TokenPn 0 1 1) \"/*c*/\"]) \"true\") JSSemiAuto])")
 
 {-
-    , testCase "LiteralHexInteger" (testLiteralC "/*d*/0x1234fF" "Right (NS (JSHexInteger \"0x1234fF\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*d*/\"])")
-    , testCase "LiteralDecimal"    (testLiteralC "/*e*/1.0e4"    "Right (NS (JSDecimal \"1.0e4\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*e*/\"])")
+    , testCase "LiteralHexInteger" (testLiteralC "/*d*/0x1234fF" "Right (NS (JSHexInteger '0x1234fF') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*d*/\"])")
+    , testCase "LiteralDecimal"    (testLiteralC "/*e*/1.0e4"    "Right (NS (JSDecimal '1.0e4') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*e*/\"])")
     , testCase "LiteralOctal"      (testLiteralC "/*x*/011"      "Right (NS (JSOctal \"011\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*x*/\"])")
-    , testCase "LiteralString1"    (testLiteralC "/*f*/\"hello\\nworld\"" "Right (NS (JSStringLiteral '\"' \"hello\\\\nworld\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*f*/\"])")
-    , testCase "LiteralString2"    (testLiteralC "/*g*/'hello\\nworld'"   "Right (NS (JSStringLiteral '\\'' \"hello\\\\nworld\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*g*/\"])")
+    , testCase "LiteralString1"    (testLiteralC "/*f*/\"hello\\nworld\"" "Right (NS (JSStringLiteralD 'hello\\\\nworld') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*f*/\"])")
+    , testCase "LiteralString2"    (testLiteralC "/*g*/'hello\\nworld'"   "Right (NS (JSStringLiteralS 'hello\\\\nworld') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*g*/\"])")
 -}
 
     , testCase "LiteralThis"       (testPEC "/*h*/this"     "Right (JSSourceElementsTop [JSExpressionStatement (JSLiteral (TokenPn 5 1 6 [CommentA (TokenPn 0 1 1) \"/*h*/\"]) \"this\") JSSemiAuto])")
@@ -349,56 +349,56 @@ commentSuite = testGroup "Comments"
     , testCase "ArrayLiteral1"     (testPEC "/*a*/[/*b*/]"      "Right (NS (JSArrayLiteral []) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 6 1 7) \"/*b*/\"])")
     , testCase "ArrayLiteral2"     (testPEC "/*a*/[/*b*/,/*c*/]"     "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 12 1 13) \"/*c*/\"])")
     , testCase "ArrayLiteral3"     (testPEC "/*a*/[/*b*/,/*c*/,/*d*/]"    "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSElision []) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 18 1 19) \"/*d*/\"])")
-    , testCase "ArrayLiteral4"     (testPEC "/*a*/[/*b/*,/*c*/,/*d*/x/*e*/]"   "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b/*,/*c*/\"],NS (JSIdentifier \"x\") (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
-    , testCase "ArrayLiteral5"     (testPEC "/*a*/[/*b*/,/*c*/,/*d*/x/*e*/]"   "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSElision []) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSIdentifier \"x\") (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
-    , testCase "ArrayLiteral6"     (testPEC "/*a*/[/*b*/,/*c*/x/*d*/,/*e*/,/*f*/x/*g*/]" "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSIdentifier \"x\") (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSElision []) (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"],NS (JSElision []) (TokenPn 24 1 25) [CommentA (TokenPn 24 1 25) \"/*e*/\"],NS (JSIdentifier \"x\") (TokenPn 30 1 31) [CommentA (TokenPn 30 1 31) \"/*f*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 36 1 37) \"/*g*/\"])")
-    , testCase "ArrayLiteral7"     (testPEC "/*a*/[/*b*/x/*c*/]"     "Right (NS (JSArrayLiteral [NS (JSIdentifier \"x\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 12 1 13) \"/*c*/\"])")
-    , testCase "ArrayLiteral8"     (testPEC "/*a*/[/*b*/x/*c*/,/*d*/]"    "Right (NS (JSArrayLiteral [NS (JSIdentifier \"x\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS ([JSComma]) (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 18 1 19) \"/*d*/\"])")
+    , testCase "ArrayLiteral4"     (testPEC "/*a*/[/*b/*,/*c*/,/*d*/x/*e*/]"   "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b/*,/*c*/\"],NS (JSIdentifier 'x') (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
+    , testCase "ArrayLiteral5"     (testPEC "/*a*/[/*b*/,/*c*/,/*d*/x/*e*/]"   "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSElision []) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSIdentifier 'x') (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
+    , testCase "ArrayLiteral6"     (testPEC "/*a*/[/*b*/,/*c*/x/*d*/,/*e*/,/*f*/x/*g*/]" "Right (NS (JSArrayLiteral [NS (JSElision []) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSIdentifier 'x') (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSElision []) (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"],NS (JSElision []) (TokenPn 24 1 25) [CommentA (TokenPn 24 1 25) \"/*e*/\"],NS (JSIdentifier 'x') (TokenPn 30 1 31) [CommentA (TokenPn 30 1 31) \"/*f*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 36 1 37) \"/*g*/\"])")
+    , testCase "ArrayLiteral7"     (testPEC "/*a*/[/*b*/x/*c*/]"     "Right (NS (JSArrayLiteral [NS (JSIdentifier 'x') (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 12 1 13) \"/*c*/\"])")
+    , testCase "ArrayLiteral8"     (testPEC "/*a*/[/*b*/x/*c*/,/*d*/]"    "Right (NS (JSArrayLiteral [NS (JSIdentifier 'x') (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS ([JSComma]) (TokenPn 17 1 18) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 18 1 19) \"/*d*/\"])")
 
     , testCase "ObjectLiteral1"    (testPEC "/*a*/{/*b*/}"       "Right (NS (JSObjectLiteral []) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 6 1 7) \"/*b*/\"])")
-    , testCase "ObjectLiteral2"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/}"    "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier \"x\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal \"1\") (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
-    , testCase "ObjectLiteral3"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/}"     "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier \"x\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal \"1\") (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSPropertyNameandValue (NS (JSIdentifier \"y\") (TokenPn 30 1 31) [CommentA (TokenPn 30 1 31) \"/*f*/\"]) [NS (JSDecimal \"2\") (TokenPn 42 1 43) [CommentA (TokenPn 42 1 43) \"/*h*/\"]]) (TokenPn 36 1 37) [CommentA (TokenPn 24 1 25) \"/*e*/\",CommentA (TokenPn 36 1 37) \"/*g*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 48 1 49) \"/*i*/\"])")
+    , testCase "ObjectLiteral2"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/}"    "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier 'x') (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal '1') (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 24 1 25) \"/*e*/\"])")
+    , testCase "ObjectLiteral3"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/}"     "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier 'x') (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal '1') (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS (JSPropertyNameandValue (NS (JSIdentifier 'y') (TokenPn 30 1 31) [CommentA (TokenPn 30 1 31) \"/*f*/\"]) [NS (JSDecimal '2') (TokenPn 42 1 43) [CommentA (TokenPn 42 1 43) \"/*h*/\"]]) (TokenPn 36 1 37) [CommentA (TokenPn 24 1 25) \"/*e*/\",CommentA (TokenPn 36 1 37) \"/*g*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 48 1 49) \"/*i*/\"])")
 
-    , testCase "ObjectLiteral5"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/}"    "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier \"x\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal \"1\") (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS ([JSComma]) (TokenPn 29 1 30) [CommentA (TokenPn 24 1 25) \"/*e*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 30 1 31) \"/*f*/\"])")
+    , testCase "ObjectLiteral5"    (testPEC "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/}"    "Right (NS (JSObjectLiteral [NS (JSPropertyNameandValue (NS (JSIdentifier 'x') (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]) [NS (JSDecimal '1') (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"],NS ([JSComma]) (TokenPn 29 1 30) [CommentA (TokenPn 24 1 25) \"/*e*/\"]]) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 30 1 31) \"/*f*/\"])")
 
     -- Edition 5 extensions
-    , testCase "ObjectLiteral7"    (testProgC "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"  "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"],NS (JSOpAssign \"=\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSObjectLiteral [NS (JSPropertyAccessor \"get\" (NS (JSIdentifier \"foo\") (TokenPn 26 1 27) [CommentA (TokenPn 26 1 27) \"/*e*/\"]) [] (NS (JSFunctionBody [NS (JSSourceElements [NS (JSReturn [NS (JSExpression [NS (JSDecimal \"1\") (TokenPn 65 1 66) [CommentA (TokenPn 65 1 66) \"/*j*/\"]]) (TokenPn 65 1 66) [],NS (JSLiteral \"\") (TokenPn 0 0 0) []]) (TokenPn 54 1 55) [CommentA (TokenPn 54 1 55) \"/*i*/\"]]) (TokenPn 54 1 55) []]) (TokenPn 54 1 55) [])) (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\",CommentA (TokenPn 35 1 36) \"/*f*/\",CommentA (TokenPn 41 1 42) \"/*g*/\",CommentA (TokenPn 47 1 48) \"/*h*/\",CommentA (TokenPn 72 1 73) \"/*k*/\"],NS (JSPropertyAccessor \"set\" (NS (JSIdentifier \"foo\") (TokenPn 92 1 93) [CommentA (TokenPn 92 1 93) \"/*n*/\"]) [NS (JSIdentifier \"a\") (TokenPn 107 1 108) [CommentA (TokenPn 107 1 108) \"/*p*/\"]] (NS (JSFunctionBody [NS (JSSourceElements [NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 126 1 127) [CommentA (TokenPn 126 1 127) \"/*s*/\"],NS (JSOpAssign \"=\") (TokenPn 132 1 133) [CommentA (TokenPn 132 1 133) \"/*t*/\"],NS (JSIdentifier \"a\") (TokenPn 138 1 139) [CommentA (TokenPn 138 1 139) \"/*u*/\"]]) (TokenPn 126 1 127) []]) (TokenPn 126 1 127) []]) (TokenPn 126 1 127) [])) (TokenPn 84 1 85) [CommentA (TokenPn 78 1 79) \"/*l*/\",CommentA (TokenPn 84 1 85) \"/*m*/\",CommentA (TokenPn 101 1 102) \"/*o*/\",CommentA (TokenPn 113 1 114) \"/*q*/\",CommentA (TokenPn 120 1 121) \"/*r*/\",CommentA (TokenPn 144 1 145) \"/*v*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\",CommentA (TokenPn 150 1 151) \"/*w*/\"]]) (TokenPn 0 1 1) []]) (TokenPn 0 1 1) [])")
+    , testCase "ObjectLiteral7"    (testProgC "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"  "Right (NS (JSSourceElementsTop [NS (JSExpression [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"],NS (JSOpAssign \"=\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"],NS (JSObjectLiteral [NS (JSPropertyAccessor \"get\" (NS (JSIdentifier 'foo') (TokenPn 26 1 27) [CommentA (TokenPn 26 1 27) \"/*e*/\"]) [] (NS (JSFunctionBody [NS (JSSourceElements [NS (JSReturn [NS (JSExpression [NS (JSDecimal '1') (TokenPn 65 1 66) [CommentA (TokenPn 65 1 66) \"/*j*/\"]]) (TokenPn 65 1 66) [],NS (JSLiteral '') (TokenPn 0 0 0) []]) (TokenPn 54 1 55) [CommentA (TokenPn 54 1 55) \"/*i*/\"]]) (TokenPn 54 1 55) []]) (TokenPn 54 1 55) [])) (TokenPn 18 1 19) [CommentA (TokenPn 18 1 19) \"/*d*/\",CommentA (TokenPn 35 1 36) \"/*f*/\",CommentA (TokenPn 41 1 42) \"/*g*/\",CommentA (TokenPn 47 1 48) \"/*h*/\",CommentA (TokenPn 72 1 73) \"/*k*/\"],NS (JSPropertyAccessor \"set\" (NS (JSIdentifier 'foo') (TokenPn 92 1 93) [CommentA (TokenPn 92 1 93) \"/*n*/\"]) [NS (JSIdentifier 'a') (TokenPn 107 1 108) [CommentA (TokenPn 107 1 108) \"/*p*/\"]] (NS (JSFunctionBody [NS (JSSourceElements [NS (JSExpression [NS (JSIdentifier 'x') (TokenPn 126 1 127) [CommentA (TokenPn 126 1 127) \"/*s*/\"],NS (JSOpAssign \"=\") (TokenPn 132 1 133) [CommentA (TokenPn 132 1 133) \"/*t*/\"],NS (JSIdentifier 'a') (TokenPn 138 1 139) [CommentA (TokenPn 138 1 139) \"/*u*/\"]]) (TokenPn 126 1 127) []]) (TokenPn 126 1 127) []]) (TokenPn 126 1 127) [])) (TokenPn 84 1 85) [CommentA (TokenPn 78 1 79) \"/*l*/\",CommentA (TokenPn 84 1 85) \"/*m*/\",CommentA (TokenPn 101 1 102) \"/*o*/\",CommentA (TokenPn 113 1 114) \"/*q*/\",CommentA (TokenPn 120 1 121) \"/*r*/\",CommentA (TokenPn 144 1 145) \"/*v*/\"]]) (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\",CommentA (TokenPn 150 1 151) \"/*w*/\"]]) (TokenPn 0 1 1) []]) (TokenPn 0 1 1) [])")
 
-    , testCase "ExpressionParen"   (testPEC "/*a*/(/*b*/56/*c*/)"     "Right (NS (JSExpressionParen (NS (JSExpression [NS (JSDecimal \"56\") (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 13 1 14) \"/*c*/\"])")
+    , testCase "ExpressionParen"   (testPEC "/*a*/(/*b*/56/*c*/)"     "Right (NS (JSExpressionParen (NS (JSExpression [NS (JSDecimal '56') (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])) (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\",CommentA (TokenPn 13 1 14) \"/*c*/\"])")
 
-    , testCase "Statement1"        (testStmtC "/*a*/x"        "Right (NS (JSExpression [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]]) (TokenPn 0 1 1) [])")
+    , testCase "Statement1"        (testStmtC "/*a*/x"        "Right (NS (JSExpression [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]]) (TokenPn 0 1 1) [])")
 
-    , testCase "Statement2"        (testStmtC "/*a*/null"     "Right (NS (JSExpression [NS (JSLiteral \"null\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]]) (TokenPn 0 1 1) [])")
+    , testCase "Statement2"        (testStmtC "/*a*/null"     "Right (NS (JSExpression [NS (JSLiteral 'null') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]]) (TokenPn 0 1 1) [])")
 
-    , testCase "Statement3"        (testStmtC "/*a*/true/*b*/?/*c*/1/*d*/:/*e*/2" "Right (NS (JSExpression [NS (JSExpressionTernary [NS (JSLiteral \"true\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSDecimal \"1\") (TokenPn 15 1 16) [CommentA (TokenPn 15 1 16) \"/*c*/\"]] [NS (JSDecimal \"2\") (TokenPn 27 1 28) [CommentA (TokenPn 27 1 28) \"/*e*/\"]]) (TokenPn 9 1 10) [CommentA (TokenPn 9 1 10) \"/*b*/\",CommentA (TokenPn 21 1 22) \"/*d*/\"]]) (TokenPn 9 1 10) [])")
+    , testCase "Statement3"        (testStmtC "/*a*/true/*b*/?/*c*/1/*d*/:/*e*/2" "Right (NS (JSExpression [NS (JSExpressionTernary [NS (JSLiteral 'true') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSDecimal '1') (TokenPn 15 1 16) [CommentA (TokenPn 15 1 16) \"/*c*/\"]] [NS (JSDecimal '2') (TokenPn 27 1 28) [CommentA (TokenPn 27 1 28) '/*e*/\"]]) (TokenPn 9 1 10) [CommentA (TokenPn 9 1 10) \"/*b*/\",CommentA (TokenPn 21 1 22) \"/*d*/\"]]) (TokenPn 9 1 10) [])")
 
-    , testCase "Statement4"        (testStmtC "/*a*/x/*b*/||/*c*/y"    "Right (NS (JSExpression [NS (JSExpressionBinary \"||\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement4"        (testStmtC "/*a*/x/*b*/||/*c*/y"    "Right (NS (JSExpression [NS (JSExpressionBinary \"||\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement5"        (testStmtC "/*a*/x/*b*/&&/*c*/y"    "Right (NS (JSExpression [NS (JSExpressionBinary \"&&\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement5"        (testStmtC "/*a*/x/*b*/&&/*c*/y"    "Right (NS (JSExpression [NS (JSExpressionBinary \"&&\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement6a"       (testStmtC "/*a*/x/*b*/|/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"|\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement6a"       (testStmtC "/*a*/x/*b*/|/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"|\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement6b"       (testStmtC "/*a*/x/*b*/^/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"^\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement6b"       (testStmtC "/*a*/x/*b*/^/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"^\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement7"        (testStmtC "/*a*/x/*b*/&/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"&\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement7"        (testStmtC "/*a*/x/*b*/&/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"&\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement8"        (testStmtC "/*a*/x/*b*/==/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"==\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement8"        (testStmtC "/*a*/x/*b*/==/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"==\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement9"        (testStmtC "/*a*/x/*b*/!=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"!=\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement9"        (testStmtC "/*a*/x/*b*/!=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"!=\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement10"       (testStmtC "/*a*/x/*b*/===/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"===\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 14 1 15) [CommentA (TokenPn 14 1 15) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement10"       (testStmtC "/*a*/x/*b*/===/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"===\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 14 1 15) [CommentA (TokenPn 14 1 15) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement11"       (testStmtC "/*a*/x/*b*/!==/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"!==\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 14 1 15) [CommentA (TokenPn 14 1 15) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement11"       (testStmtC "/*a*/x/*b*/!==/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"!==\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 14 1 15) [CommentA (TokenPn 14 1 15) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement12a"      (testStmtC "/*a*/x/*b*/</*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"<\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement12a"      (testStmtC "/*a*/x/*b*/</*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"<\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement12b"      (testStmtC "/*a*/x/*b*/>/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \">\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement12b"      (testStmtC "/*a*/x/*b*/>/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \">\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 12 1 13) [CommentA (TokenPn 12 1 13) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement12c"      (testStmtC "/*a*/x/*b*/<=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"<=\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement12c"      (testStmtC "/*a*/x/*b*/<=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \"<=\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement12d"      (testStmtC "/*a*/x/*b*/>=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \">=\" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
+    , testCase "Statement12d"      (testStmtC "/*a*/x/*b*/>=/*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \">=\" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 13 1 14) [CommentA (TokenPn 13 1 14) \"/*c*/\"]]) (TokenPn 6 1 7) [CommentA (TokenPn 6 1 7) \"/*b*/\"]]) (TokenPn 6 1 7) [])")
 
-    , testCase "Statement12e"      (testStmtC "/*a*/x /*b*/instanceof /*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \" instanceof \" [NS (JSIdentifier \"x\") (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier \"y\") (TokenPn 23 1 24) [CommentA (TokenPn 23 1 24) \"/*c*/\"]]) (TokenPn 7 1 8) [CommentA (TokenPn 7 1 8) \"/*b*/\"]]) (TokenPn 7 1 8) [])")
+    , testCase "Statement12e"      (testStmtC "/*a*/x /*b*/instanceof /*c*/y"     "Right (NS (JSExpression [NS (JSExpressionBinary \" instanceof \" [NS (JSIdentifier 'x') (TokenPn 0 1 1) [CommentA (TokenPn 0 1 1) \"/*a*/\"]] [NS (JSIdentifier 'y') (TokenPn 23 1 24) [CommentA (TokenPn 23 1 24) \"/*c*/\"]]) (TokenPn 7 1 8) [CommentA (TokenPn 7 1 8) \"/*b*/\"]]) (TokenPn 7 1 8) [])")
 -}
     ]
 

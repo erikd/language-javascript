@@ -160,7 +160,8 @@ data JSExpression
     | JSLiteral JSAnnot String
     | JSHexInteger JSAnnot String
     | JSOctal JSAnnot String
-    | JSStringLiteral JSAnnot Char String
+    | JSStringLiteralS JSAnnot String
+    | JSStringLiteralD JSAnnot String
     | JSRegEx JSAnnot String
 
     -- | Non Terminals
@@ -228,18 +229,18 @@ ss (JSCallExpression ex xs) = "JSCallExpression ("++ ss ex ++ "," ++ ssa xs ++ "
 ss (JSCallExpressionDot ex _os xs) = "JSCallExpressionDot (" ++ ss ex ++ "," ++ ss xs ++ ")"
 ss (JSCallExpressionSquare ex _os xs _cs) = "JSCallExpressionSquare (" ++ ss ex ++ "," ++ ss xs ++ ")"
 ss (JSComma _) = "JSComma"
-ss (JSDecimal _ s) = "JSDecimal " ++ show s
+ss (JSDecimal _ s) = "JSDecimal " ++ singleQuote s
 ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
 ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary (" ++ sbop op ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
 ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
 ss (JSExpressionPostfix xs op) = "JSExpressionPostfix (" ++ suop op ++ "," ++ ss xs ++ ")"
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary (" ++ ss x1 ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
 ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssid n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ "))"
-ss (JSHexInteger _ s) = "JSHexInteger " ++ show s
+ss (JSHexInteger _ s) = "JSHexInteger " ++ singleQuote s
 ss (JSOctal _ s) = "JSOctal " ++ show s
-ss (JSIdentifier _ s) = "JSIdentifier " ++ show s
-ss (JSLiteral _ []) = "JSLiteral \"\""
-ss (JSLiteral _ s) = "JSLiteral " ++ show s
+ss (JSIdentifier _ s) = "JSIdentifier " ++ singleQuote s
+ss (JSLiteral _ []) = "JSLiteral ''"
+ss (JSLiteral _ s) = "JSLiteral " ++ singleQuote s
 ss (JSMemberDot x1s _d x2 ) = "JSMemberDot (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
 ss (JSMemberExpression e a) = "JSMemberExpression (" ++ ss e ++ "," ++ ssa a ++ ")"
 ss (JSMemberNew _a n s) = "JSMemberNew (" ++ ss n ++ "," ++ ssa s ++ ")"
@@ -249,13 +250,17 @@ ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
 ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ show x1 ++ ") " ++ sss x2s
 ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ssac s ++ " (" ++ show x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
 ss (JSRegEx _ s) = "JSRegEx " ++ show s
-ss (JSStringLiteral _ c s) = "JSStringLiteral " ++ show c ++ " " ++ show s
+ss (JSStringLiteralS _ s) = "JSStringLiteralS " ++ singleQuote s
+ss (JSStringLiteralD _ s) = "JSStringLiteralD " ++ singleQuote s
 ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ suop op ++ "," ++ ss x ++ ")"
+
+
+singleQuote :: String -> String
+singleQuote s = '\'' : (s ++ "'")
 
 ssid :: JSIdent -> String
 ssid (JSIdentName _ s) = show s
 ssid JSIdentNone = "\"\""
-
 
 ssac :: JSAccessor -> String
 ssac (JSAccessorGet _) = "JSAccessorGet"
@@ -317,7 +322,7 @@ commaIf "" = ""
 commaIf xs = ',' : xs
 
 sopa :: JSAssignOp -> String
-sopa = show . showOp
+sopa = singleQuote . showOp
 
 showOp :: JSAssignOp -> String
 showOp (JSAssign _) = "="
@@ -350,7 +355,7 @@ sst (JSBreak _ JSIdentNone s) = "JSBreak" ++ commaIf (showsemi s)
 sst (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ show n ++ commaIf (showsemi s)
 sst (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (showsemi s)
 sst (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ show n ++ commaIf (showsemi s)
-sst (JSConstant _ xs _as) = "JSConstant const " ++ ssts xs
+sst (JSConstant _ xs _as) = "JSConstant " ++ ssts xs
 sst (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
 sst (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
@@ -362,7 +367,8 @@ sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ "
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSEmptyStatement _) = ""
 sst (JSExpressionStatement l s) = ss l ++ (let x = showsemi s in if not (null x) then ',':x else "")
-sst (JSReturn _ me s) = "JSReturn " ++ ssme me ++ " " ++ showsemi s
+sst (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ showsemi s
+sst (JSReturn _ Nothing s) = "JSReturn " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
 sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
 sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ssb xt1 ++ "," ++ stcs xtc ++ "," ++ stf xtf ++ ")"
@@ -372,7 +378,7 @@ sst (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ sst x ++ showsemi s
 
 ssvi :: JSVarInit -> String
-ssvi (JSVarInit _ n) = "[JSLiteral \"=\"," ++ ss n ++ "]"
+ssvi (JSVarInit _ n) = "[" ++ ss n ++ "]"
 ssvi JSVarInitNone = ""
 
 ssts :: [JSStatement] -> String
@@ -411,12 +417,8 @@ fromNEList (JSLOne i)      = [i]
 
 
 instance Show JSIdent where
-    show (JSIdentName _ s) = "JSIdentifier " ++ show s
+    show (JSIdentName _ s) = "JSIdentifier " ++ singleQuote s
     show JSIdentNone = "JSIdentNone"
-
-ssme :: Maybe JSExpression -> String
-ssme Nothing = "JSExpressionEmpty"
-ssme (Just e) = ss e
 
 commaJoin :: [String] -> String
 commaJoin s = intercalate "," $ filter (not . null) s

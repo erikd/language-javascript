@@ -54,13 +54,14 @@ instance RenderJS JSAST where
 
 instance RenderJS JSExpression where
     -- Terminals
-    (|>) pacc (JSIdentifier    annot s  ) = pacc |> annot |> s
-    (|>) pacc (JSDecimal       annot i  ) = pacc |> annot |> i
-    (|>) pacc (JSLiteral       annot l  ) = pacc |> annot |> l
-    (|>) pacc (JSHexInteger    annot i  ) = pacc |> annot |> i
-    (|>) pacc (JSOctal         annot i  ) = pacc |> annot |> i
-    (|>) pacc (JSStringLiteral annot s l) = pacc |> annot |> ((s:l)++[s])
-    (|>) pacc (JSRegEx         annot s  ) = pacc |> annot |> s
+    (|>) pacc (JSIdentifier     annot s) = pacc |> annot |> s
+    (|>) pacc (JSDecimal        annot i) = pacc |> annot |> i
+    (|>) pacc (JSLiteral        annot l) = pacc |> annot |> l
+    (|>) pacc (JSHexInteger     annot i) = pacc |> annot |> i
+    (|>) pacc (JSOctal          annot i) = pacc |> annot |> i
+    (|>) pacc (JSStringLiteralS annot l) = pacc |> annot |> (('\'':l)++"'")
+    (|>) pacc (JSStringLiteralD annot l) = pacc |> annot |> (('\"':l)++"\"")
+    (|>) pacc (JSRegEx          annot s) = pacc |> annot |> s
 
     -- Non-Terminals
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
