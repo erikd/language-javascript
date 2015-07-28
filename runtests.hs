@@ -1,8 +1,10 @@
 
 import Language.JavaScript.Parser
 import Language.JavaScript.Parser.Grammar5
+import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.Parser
 
+import Data.List (intercalate)
 import Test.Framework (defaultMain, testGroup, Test)
 import Test.Framework.Providers.HUnit
 import Test.HUnit hiding (Test)
@@ -10,7 +12,8 @@ import Test.HUnit hiding (Test)
 
 main :: IO ()
 main = defaultMain
-    [ testSuite
+    [ lexerSuite
+    , parserSuite
     -- ++AZ++temporary++ , commentSuite
     , commentPrintSuite
     -- , pendingSuite
@@ -22,8 +25,16 @@ pendingSuite = testGroup "Pending"
     , testCase "AutoSemi2"  (testProg "if (true) break\nfoo();"   "Right")
     ]
 
-testSuite :: Test
-testSuite = testGroup "Parser"
+lexerSuite:: Test
+lexerSuite = testGroup "Lexer"
+    [ testCase "assign1"    (testLexer "x=1"            "[IdentifierToken,SimpleAssignToken,DecimalToken]")
+    , testCase "assign2"    (testLexer "x=1\ny=2"       "[IdentifierToken,SimpleAssignToken,DecimalToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]")
+    , testCase "break"      (testLexer "break\nx=1"     "[BreakToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]")
+    , testCase "return"     (testLexer "return\nx=1"    "[ReturnToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]")
+    ]
+
+parserSuite :: Test
+parserSuite = testGroup "Parser"
     [ testCase "helloWorld"        caseHelloWorld
     , testCase "LiteralNull"       (testLiteral "null"     "Right (JSLiteral \"null\")")
     , testCase "LiteralFalse"      (testLiteral "false"    "Right (JSLiteral \"false\")")
@@ -743,3 +754,10 @@ testFileUtf8 :: FilePath -> String -> IO ()
 testFileUtf8 fileName expected = do
     res <- parseFileUtf8 fileName
     expected @=? showStripped res
+
+testLexer :: String -> String -> Assertion
+testLexer str expected =
+    expected @=? either id stringify (alexTestTokeniser str)
+
+stringify :: [Token] -> String
+stringify xs = "[" ++ intercalate "," (map (takeWhile (/= ' ') . show) xs) ++ "]"

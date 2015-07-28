@@ -7,6 +7,7 @@ module Language.JavaScript.Parser.Lexer
     , lexCont
     , alexError
     , runAlex
+    , alexTestTokeniser
     ) where
 
 import Language.JavaScript.Parser.LexerUtils
@@ -356,6 +357,20 @@ lexToken = do
                     setLastToken tok
                     return tok
 
+-- For tesing.
+alexTestTokeniser :: String -> Either String [Token]
+alexTestTokeniser input =
+    runAlex input $ loop []
+  where
+    loop acc = do
+        tok <- lexToken
+        case tok of
+            EOFToken {} ->
+                return $ case acc of
+                            [] -> []
+                            (TailToken{}:xs) -> reverse xs
+                            xs -> reverse xs
+            _ -> loop (tok:acc)
 
 -- This is called by the Happy parser.
 lexCont :: (Token -> Alex a) -> Alex a
