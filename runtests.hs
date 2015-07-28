@@ -13,11 +13,20 @@ main = defaultMain
     , commentSuite
     , commentPrintSuite
     , tempSuite
+    -- , pendingSuite
     ]
 
 tempSuite :: Test
 tempSuite = testGroup "Temporary tests"
-    [ -- For temporary tests.
+    -- For temporary tests.
+    [
+    ]
+
+pendingSuite :: Test
+pendingSuite = testGroup "Pending"
+    -- Tests that don't work yet.
+    [ testCase "AutoSemi1"        (testProg "function f() {\nreturn\n'v';\n}"      "Right (JSSourceElementsTop [JSFunction \"f\" () (JSStatementBlock [JSReturn,JSStringLiteralS 'v',JSSemicolon])])")
+    , testCase "AutoSemi2"        (testStmt "if(true) {\nif (false) break\nx++\n}"  "Right")
     ]
 
 testSuite :: Test
