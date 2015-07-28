@@ -333,6 +333,10 @@ parserSuite = testGroup "Parser"
     , testCase "AutoSemiBreak"     (testProg "if(true)break \nfoo();"      "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSBreak [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\",JSLiteral \"\"])")
     , testCase "AutoSemiContinue"  (testProg "if(true)continue \nfoo();"   "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSContinue [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\",JSLiteral \"\"])")
     , testCase "AutoSemiReturn"    (testProg "if(true)break \nfoo();"      "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSBreak [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\",JSLiteral \"\"])")
+
+    , testCase "BreakBlock"       (testProg "{break}"      "Right (JSSourceElementsTop [JSBlock ([JSBreak [] JSLiteral \"\"]),JSLiteral \"\"])")
+    , testCase "ContinueBlock"    (testProg "{continue}"   "Right (JSSourceElementsTop [JSBlock ([JSContinue [] JSLiteral \"\"]),JSLiteral \"\"])")
+    , testCase "ReturnBlock"      (testProg "{return}"     "Right (JSSourceElementsTop [JSBlock ([JSReturn [] JSLiteral \"\"]),JSLiteral \"\"])")
     ]
 
 caseHelloWorld :: Assertion
