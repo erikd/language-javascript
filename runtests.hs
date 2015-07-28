@@ -16,13 +16,12 @@ main = defaultMain
     , parserSuite
     -- ++AZ++temporary++ , commentSuite
     , commentPrintSuite
-    -- , pendingSuite
+    , pendingSuite
     ]
 
 pendingSuite :: Test
 pendingSuite = testGroup "Pending"
-    [ testCase "AutoSemi1"  (testProg "if (true) return\nfoo();"  "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSReturn [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\"])")
-    , testCase "AutoSemi2"  (testProg "if (true) break\nfoo();"   "Right")
+    [
     ]
 
 lexerSuite:: Test
@@ -331,6 +330,9 @@ parserSuite = testGroup "Parser"
      -- https://github.com/alanz/language-javascript/issues/14
     , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"z\") [JSLiteral \"=\",JSExpressionBinary \"/\" [JSMemberSquare [JSIdentifier \"x\"] (JSExpression [JSIdentifier \"i\"])] [JSIdentifier \"y\"]]],JSLiteral \"\"])")
 
+    , testCase "AutoSemiBreak"     (testProg "if(true)break \nfoo();"      "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSBreak [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "AutoSemiContinue"  (testProg "if(true)continue \nfoo();"   "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSContinue [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "AutoSemiReturn"    (testProg "if(true)break \nfoo();"      "Right (JSSourceElementsTop [JSIf (JSExpression [JSLiteral \"true\"]) ([JSBreak [] JSLiteral \"\"]) ([]),JSExpression [JSIdentifier \"foo\",JSArguments []],JSLiteral \";\",JSLiteral \"\"])")
     ]
 
 caseHelloWorld :: Assertion

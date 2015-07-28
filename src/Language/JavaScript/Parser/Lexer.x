@@ -385,12 +385,26 @@ lexCont cont = do
                 lexLoop
             WsToken {} -> do
                 addComment tok
-                lexLoop
+                ltok <- getLastToken
+                case ltok of
+                    BreakToken {} -> maybeAutoSemi tok
+                    ContinueToken {} -> maybeAutoSemi tok
+                    ReturnToken {} -> maybeAutoSemi tok
+                    _otherwise -> lexLoop
             _other -> do
                 cs <- getComment
                 let tok' = tok{ tokenComment=(toCommentAnnotation cs) }
                 setComment []
                 cont tok'
+
+    -- If the token is a WsToken and it contains a newline, convert it to an
+    -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
+    maybeAutoSemi ws@(WsToken sp tl cmt) =
+        if any (== '\n') tl
+            then cont $ AutoSemiToken sp tl cmt
+            else lexLoop
+    maybeAutoSemi _ = lexLoop
+
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
 toCommentAnnotation [] = [NoComment]
