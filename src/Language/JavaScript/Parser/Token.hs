@@ -35,108 +35,108 @@ data CommentAnnotation
 -- Each may be annotated with any comment occuring between the prior token and this one
 data Token
     -- Comment
-    = CommentToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation] } -- ^ Single line comment.
-    | WsToken      { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation] } -- ^ White space, for preservation.
+    = CommentToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation] } -- ^ Single line comment.
+    | WsToken      { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation] } -- ^ White space, for preservation.
 
     -- Identifiers
-    | IdentifierToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }            -- ^ Identifier.
+    | IdentifierToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }            -- ^ Identifier.
 
     -- Javascript Literals
 
-    | DecimalToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
+    | DecimalToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]   }
     -- ^ Literal: Decimal
-    | HexIntegerToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
+    | HexIntegerToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]   }
     -- ^ Literal: Hexadecimal Integer
-    | OctalToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
+    | OctalToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]   }
     -- ^ Literal: Octal Integer
-    | StringToken { token_span :: !TokenPosn, token_literal :: !String, token_delimiter :: !Char, token_comment :: ![CommentAnnotation]  }
+    | StringToken { tokenSpan :: !TokenPosn, token_literal :: !String, token_delimiter :: !Char, tokenComment :: ![CommentAnnotation]  }
     -- ^ Literal: string, delimited by either single or double quotes
-    | RegExToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]   }
+    | RegExToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]   }
     -- ^ Literal: Regular Expression
 
     -- Keywords
-    | BreakToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | CaseToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | CatchToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ConstToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ContinueToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | DebuggerToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | DefaultToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | DeleteToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | DoToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ElseToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | EnumToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | FalseToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | FinallyToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ForToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | FunctionToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | IfToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | InToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | InstanceofToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | NewToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | NullToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ReturnToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | SwitchToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ThisToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | ThrowToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | TrueToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | TryToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | TypeofToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | VarToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | VoidToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | WhileToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | WithToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+    | BreakToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | CaseToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | CatchToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ConstToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ContinueToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | DebuggerToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | DefaultToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | DeleteToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | DoToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ElseToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | EnumToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | FalseToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | FinallyToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ForToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | FunctionToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | IfToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | InToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | InstanceofToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | NewToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | NullToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ReturnToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | SwitchToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ThisToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | ThrowToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | TrueToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | TryToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | TypeofToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | VarToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | VoidToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | WhileToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | WithToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
     -- Future reserved words
-    | FutureToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+    | FutureToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
     -- Needed, not sure what they are though.
-    | GetToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | SetToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
+    | GetToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | SetToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
 
     -- Delimiters
     -- Operators
-    | SemiColonToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | CommaToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | HookToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | ColonToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | OrToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | AndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | BitwiseOrToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | BitwiseXorToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | BitwiseAndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | StrictEqToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | EqToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | AssignToken { token_span :: !TokenPosn, token_literal :: !String, token_comment :: ![CommentAnnotation]  }
-    | SimpleAssignToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | StrictNeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | NeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | LshToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | LeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | LtToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | UrshToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | RshToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | GeToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | GtToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | IncrementToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | DecrementToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | PlusToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | MinusToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | MulToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | DivToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | ModToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | NotToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | BitwiseNotToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | DotToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | LeftBracketToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | RightBracketToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | LeftCurlyToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | RightCurlyToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | LeftParenToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | RightParenToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
-    | CondcommentEndToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }
+    | SemiColonToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | CommaToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | HookToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | ColonToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | OrToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | AndToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | BitwiseOrToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | BitwiseXorToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | BitwiseAndToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | StrictEqToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | EqToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | AssignToken { tokenSpan :: !TokenPosn, token_literal :: !String, tokenComment :: ![CommentAnnotation]  }
+    | SimpleAssignToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | StrictNeToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | NeToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | LshToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | LeToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | LtToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | UrshToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | RshToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | GeToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | GtToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | IncrementToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | DecrementToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | PlusToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | MinusToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | MulToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | DivToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | ModToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | NotToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | BitwiseNotToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | DotToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | LeftBracketToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | RightBracketToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | LeftCurlyToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | RightCurlyToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | LeftParenToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | RightParenToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | CondcommentEndToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
 
     -- Special cases
-    | TailToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  } -- ^ Stuff between last JS and EOF
-    | EOFToken { token_span :: !TokenPosn, token_comment :: ![CommentAnnotation]  }  -- ^ End of file
+    | TailToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  } -- ^ Stuff between last JS and EOF
+    | EOFToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }  -- ^ End of file
     deriving (Eq, Show, Typeable)
 
 
