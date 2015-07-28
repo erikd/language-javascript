@@ -125,9 +125,9 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- ---------------------------------------------------------------------
 -- Sort out automatically inserted semi-colons
 
-AutoSemi :: { AST.JSNode }
-AutoSemi : ';' { AST.NT (AST.JSLiteral ";") (ss $1) (gc $1)}
-         |     { AST.NT (AST.JSLiteral "") tokenPosnEmpty []}
+MaybeSemi :: { AST.JSNode }
+MaybeSemi : ';' { AST.NT (AST.JSLiteral ";") (ss $1) (gc $1)}
+          |     { AST.NT (AST.JSLiteral "") tokenPosnEmpty []}
 
 -- ---------------------------------------------------------------------
 
@@ -865,8 +865,8 @@ StatementList : Statement               { [$1]       {- StatementList1 -} }
 -- VariableStatement :                                            See 12.2
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSNode }
-VariableStatement : Var   VariableDeclarationList AutoSemi { fp (AST.NN (AST.JSVariables $1 $2 $3))}
-                  | Const VariableDeclarationList AutoSemi { fp (AST.NN (AST.JSVariables $1 $2 $3))}
+VariableStatement : Var   VariableDeclarationList MaybeSemi { fp (AST.NN (AST.JSVariables $1 $2 $3))}
+                  | Const VariableDeclarationList MaybeSemi { fp (AST.NN (AST.JSVariables $1 $2 $3))}
 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration
@@ -943,9 +943,9 @@ StatementSemi : StatementNoEmpty Semi { [$1,$2] {- StatementSemi1 -}}
 --         for ( LeftHandSideExpression in Expression ) Statement
 --         for ( var VariableDeclarationNoIn in Expression ) Statement
 IterationStatement :: { AST.JSNode }
-IterationStatement : Do Statement While LParen Expression RParen AutoSemi
+IterationStatement : Do Statement While LParen Expression RParen MaybeSemi
                      { fp (AST.NN (AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7)) }
-                   | Do Expression AutoSemi While LParen Expression RParen AutoSemi
+                   | Do Expression MaybeSemi While LParen Expression RParen MaybeSemi
                      { fp (AST.NN (AST.JSDoWhile $1 $2 $4 $5 $6 $7 $8)) }
                    | While LParen Expression RParen Statement
                      { fp (AST.NN (AST.JSWhile $1 $2 $3 $4 $5)) }
@@ -962,27 +962,27 @@ IterationStatement : Do Statement While LParen Expression RParen AutoSemi
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSNode }
-ContinueStatement : Continue AutoSemi             { fp (AST.NN (AST.JSContinue $1 []   $2)) }
-                  | Continue Identifier AutoSemi  { fp (AST.NN (AST.JSContinue $1 [$2] $3)) }
+ContinueStatement : Continue MaybeSemi             { fp (AST.NN (AST.JSContinue $1 []   $2)) }
+                  | Continue Identifier MaybeSemi  { fp (AST.NN (AST.JSContinue $1 [$2] $3)) }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSNode }
-BreakStatement : Break AutoSemi             { fp (AST.NN (AST.JSBreak $1 []   $2)) }
-               | Break Identifier AutoSemi  { fp (AST.NN (AST.JSBreak $1 [$2] $3)) }
+BreakStatement : Break MaybeSemi             { fp (AST.NN (AST.JSBreak $1 []   $2)) }
+               | Break Identifier MaybeSemi  { fp (AST.NN (AST.JSBreak $1 [$2] $3)) }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSNode }
-ReturnStatement : Return AutoSemi             { fp (AST.NN (AST.JSReturn $1 []   $2)) }
-                | Return Expression AutoSemi  { fp (AST.NN (AST.JSReturn $1 [$2] $3)) }
+ReturnStatement : Return MaybeSemi             { fp (AST.NN (AST.JSReturn $1 []   $2)) }
+                | Return Expression MaybeSemi  { fp (AST.NN (AST.JSReturn $1 [$2] $3)) }
 
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement
 WithStatement :: { AST.JSNode }
-WithStatement : With LParen Expression RParen Statement AutoSemi  { fp (AST.NN (AST.JSWith $1 $2 $3 $4 [$5,$6])) }
+WithStatement : With LParen Expression RParen Statement MaybeSemi  { fp (AST.NN (AST.JSWith $1 $2 $3 $4 [$5,$6])) }
 
 -- SwitchStatement :                                                                        See 12.11
 --         switch ( Expression ) CaseBlock
@@ -1060,7 +1060,7 @@ Finally : FinallyL Block { fp (AST.NN (AST.JSFinally $1 $2)) }
 -- DebuggerStatement :                                                        See 12.15
 --        debugger ;
 DebuggerStatement :: { AST.JSNode }
-DebuggerStatement : 'debugger' AutoSemi { fp (AST.NT (AST.JSLiteral "debugger") (ss $1) (gc $1)) }
+DebuggerStatement : 'debugger' MaybeSemi { fp (AST.NT (AST.JSLiteral "debugger") (ss $1) (gc $1)) }
 
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
