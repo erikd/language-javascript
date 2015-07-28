@@ -262,7 +262,7 @@ SimpleAssign :: { AST.JSNode }
 SimpleAssign : '=' { fp (AST.NT (AST.JSLiteral "=") (ss $1) (gc $1))}
 
 Assign :: { AST.JSNode }
-Assign : 'assign' { fp (AST.NT (AST.JSLiteral (token_literal $1)) (ss $1) (gc $1))}
+Assign : 'assign' { fp (AST.NT (AST.JSLiteral (tokenLiteral $1)) (ss $1) (gc $1))}
 
 Var :: { AST.JSNode }
 Var : 'var' { fp (AST.NT (AST.JSLiteral "var") (ss $1) (gc $1))}
@@ -347,16 +347,16 @@ BooleanLiteral : 'true'  { fp (AST.NT (AST.JSLiteral "true")  (ss $1) (gc $1)) }
 --                     | HexIntegerLiteral
 --                     | OctalLiteral
 NumericLiteral :: { AST.JSNode }
-NumericLiteral : 'decimal'    { fp (AST.NT (AST.JSDecimal (token_literal $1)) (ss $1) (gc $1))}
-               | 'hexinteger' { fp (AST.NT (AST.JSHexInteger (token_literal $1)) (ss $1) (gc $1)) }
-               | 'octal'      { fp (AST.NT (AST.JSOctal (token_literal $1)) (ss $1) (gc $1)) }
+NumericLiteral : 'decimal'    { fp (AST.NT (AST.JSDecimal (tokenLiteral $1)) (ss $1) (gc $1))}
+               | 'hexinteger' { fp (AST.NT (AST.JSHexInteger (tokenLiteral $1)) (ss $1) (gc $1)) }
+               | 'octal'      { fp (AST.NT (AST.JSOctal (tokenLiteral $1)) (ss $1) (gc $1)) }
 
 StringLiteral :: { AST.JSNode }
-StringLiteral : 'string'  { fp (AST.NT (AST.JSStringLiteral (token_delimiter $1) (token_literal $1)) (ss $1) (gc $1)) }
+StringLiteral : 'string'  { fp (AST.NT (AST.JSStringLiteral (token_delimiter $1) (tokenLiteral $1)) (ss $1) (gc $1)) }
 
 -- <Regular Expression Literal> ::= RegExp
 RegularExpressionLiteral :: { AST.JSNode }
-RegularExpressionLiteral : 'regex' { fp (AST.NT (AST.JSRegEx (token_literal $1)) (ss $1) (gc $1)) }
+RegularExpressionLiteral : 'regex' { fp (AST.NT (AST.JSRegEx (tokenLiteral $1)) (ss $1) (gc $1)) }
 
 -- PrimaryExpression :                                                   See 11.1
 --        this
@@ -379,7 +379,7 @@ PrimaryExpression : 'this'                   { fp (AST.NT (AST.JSLiteral "this")
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSNode }
-Identifier : 'ident' {  (AST.NT (AST.JSIdentifier (token_literal $1)) (ss $1) (gc $1))}
+Identifier : 'ident' {  (AST.NT (AST.JSIdentifier (tokenLiteral $1)) (ss $1) (gc $1))}
            | 'get'   {  (AST.NT (AST.JSIdentifier "get") (ss $1) (gc $1))}
            | 'set'   {  (AST.NT (AST.JSIdentifier "set") (ss $1) (gc $1))}
 
@@ -419,7 +419,7 @@ IdentifierName : Identifier {$1}
              | 'void'       { fp (AST.NT (AST.JSIdentifier "void") (ss $1) (gc $1))}
              | 'while'      { fp (AST.NT (AST.JSIdentifier "while") (ss $1) (gc $1))}
              | 'with'       { fp (AST.NT (AST.JSIdentifier "with") (ss $1) (gc $1))}
-             | 'future'     { fp (AST.NT (AST.JSIdentifier (token_literal $1)) (ss $1) (gc $1))}
+             | 'future'     { fp (AST.NT (AST.JSIdentifier (tokenLiteral $1)) (ss $1) (gc $1))}
 
 
 
@@ -1140,48 +1140,24 @@ combineTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (AST.JSSourceEl
 
 
 parseError :: Token -> Alex a
--- parseError = throwError . UnexpectedToken
 parseError tok = alexError (show tok)
 
 -- --------------------------------
 
-{-
-mex :: [AST.JSNode] -> TokenPosn
-mex [] = tokenPosnEmpty
-mex xs = ex (head xs)
-
-ex :: AST.JSNode -> TokenPosn
-ex (AST.NN _node span _c) = span
--}
-
---ss token = toSrcSpan (token_span token)
 ss :: Token -> TokenPosn
-ss token = token_span token
+ss = tokenSpan
 
 -- ------------------------------
 
 gc :: Token -> [CommentAnnotation]
-gc token = token_comment token
+gc = tokenComment
 mgc :: [Token] -> [CommentAnnotation]
-mgc xs = concatMap gc xs
+mgc xs = concatMap tokenComment xs
 
 -- ---------------------------------------------------------------------
 
 fp :: AST.JSNode -> AST.JSNode
 fp (AST.NN x)      = (AST.NN x)
 fp (AST.NT x p cs) = (AST.NT x p cs)
-{-
-fp (AST.NN x p cs) = (AST.NN x p' cs)
-  where
-    p' = case (filter (/= NoComment) cs) of
-      [] -> p
-      [(CommentA posn _)]    -> posn
-      ((CommentA posn _):_)  -> posn
--}
 
 }
-
--- Set emacs mode
--- Local Variables:
--- mode:haskell
--- End:
