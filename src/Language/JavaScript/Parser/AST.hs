@@ -28,90 +28,15 @@ import Language.JavaScript.Parser.Token
 
 -- ---------------------------------------------------------------------
 
-data JSAnnot = JSAnnot TokenPosn [CommentAnnotation]-- ^Annotation: position and comment/whitespace information
-             | JSNoAnnot -- ^No annotation
-    deriving Eq
+data JSAnnot
+    = JSAnnot TokenPosn [CommentAnnotation] -- ^Annotation: position and comment/whitespace information
+    | JSNoAnnot -- ^No annotation
+    deriving (Eq, Show)
 
-instance Show JSAnnot where
-    show JSNoAnnot = ""
-    show (JSAnnot pos cs) = "(" ++ show pos ++ " " ++ show cs ++ ")"
 
-data JSBinOp
-    = JSBinOpAnd JSAnnot
-    | JSBinOpBitAnd JSAnnot
-    | JSBinOpBitOr JSAnnot
-    | JSBinOpBitXor JSAnnot
-    | JSBinOpDivide JSAnnot
-    | JSBinOpEq JSAnnot
-    | JSBinOpGe JSAnnot
-    | JSBinOpGt JSAnnot
-    | JSBinOpIn JSAnnot
-    | JSBinOpInstanceOf JSAnnot
-    | JSBinOpLe JSAnnot
-    | JSBinOpLsh JSAnnot
-    | JSBinOpLt JSAnnot
-    | JSBinOpMinus JSAnnot
-    | JSBinOpMod JSAnnot
-    | JSBinOpNeq JSAnnot
-    | JSBinOpOr JSAnnot
-    | JSBinOpPlus JSAnnot
-    | JSBinOpRsh JSAnnot
-    | JSBinOpStrictEq JSAnnot
-    | JSBinOpStrictNeq JSAnnot
-    | JSBinOpTimes JSAnnot
-    | JSBinOpUrsh JSAnnot
-    deriving (Show, Eq)
-
-data JSUnaryOp
-    = JSUnaryOpDecr JSAnnot
-    | JSUnaryOpDelete JSAnnot
-    | JSUnaryOpIncr JSAnnot
-    | JSUnaryOpMinus JSAnnot
-    | JSUnaryOpNot JSAnnot
-    | JSUnaryOpPlus JSAnnot
-    | JSUnaryOpTilde JSAnnot
-    | JSUnaryOpTypeof JSAnnot
-    | JSUnaryOpVoid JSAnnot
-    deriving (Show, Eq)
-
-data JSSemi
-    = JSSemi JSAnnot
-    | JSSemiAuto
-    deriving (Show, Eq)
-
-data JSAssignOp
-    = JSAssign JSAnnot
-    | JSTimesAssign JSAnnot
-    | JSDivideAssign JSAnnot
-    | JSModAssign JSAnnot
-    | JSPlusAssign JSAnnot
-    | JSMinusAssign JSAnnot
-    | JSLshAssign JSAnnot
-    | JSRshAssign JSAnnot
-    | JSUrshAssign JSAnnot
-    | JSBwAndAssign JSAnnot
-    | JSBwXorAssign JSAnnot
-    | JSBwOrAssign JSAnnot
-    deriving (Show, Eq)
-
-data JSTryCatch
-    = JSCatch JSAnnot JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,rb,block
-    | JSCatchIf JSAnnot JSAnnot JSExpression JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,if,expr,rb,block
-    deriving (Show, Eq)
-
-data JSTryFinally
-    = JSFinally JSAnnot JSBlock -- ^finally,block
-    | JSNoFinally
-    deriving (Show, Eq)
-
-data JSBlock
-    = JSBlock JSAnnot [JSStatement] JSAnnot -- ^lbrace, stmts, rbrace
-    deriving (Show, Eq)
-
-data JSSwitchParts
-    = JSCase JSAnnot JSExpression JSAnnot [JSStatement]    -- ^expr,colon,stmtlist
-    | JSDefault JSAnnot JSAnnot [JSStatement] -- ^colon,stmtlist
-    deriving (Show, Eq)
+data JSAST
+    = JSSourceElementsTop [JSStatement] -- ^source elements
+    deriving (Eq, Show)
 
 data JSStatement
     = JSStatementBlock JSBlock      -- ^statement block
@@ -137,21 +62,7 @@ data JSStatement
     | JSVariable JSAnnot [JSStatement] JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSSemi -- ^with,lb,expr,rb,stmt list
-    deriving (Show, Eq)
-
-data JSAST
-    = JSSourceElementsTop [JSStatement] -- ^source elements
-    deriving (Show, Eq)
-
-data JSVarInit
-    = JSVarInit JSAnnot JSExpression -- ^ assignop, initializer
-    | JSVarInitNone
-    deriving (Show, Eq)
-
--- | The JSExpression is the building block of the AST.
--- Each has a syntactic part 'Node'. In addition, the leaf elements
--- (terminals) have a position 'TokenPosn', as well as an array of comments
--- and/or whitespace that was collected while parsing.
+    deriving (Eq, Show)
 
 data JSExpression
     -- | Terminals
@@ -186,32 +97,114 @@ data JSExpression
     | JSPropertyAccessor JSAccessor JSIdent JSAnnot [JSExpression] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSIdent JSAnnot [JSExpression] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSExpression
-    deriving (Show, Eq)
+    deriving (Eq, Show)
+
+data JSBinOp
+    = JSBinOpAnd JSAnnot
+    | JSBinOpBitAnd JSAnnot
+    | JSBinOpBitOr JSAnnot
+    | JSBinOpBitXor JSAnnot
+    | JSBinOpDivide JSAnnot
+    | JSBinOpEq JSAnnot
+    | JSBinOpGe JSAnnot
+    | JSBinOpGt JSAnnot
+    | JSBinOpIn JSAnnot
+    | JSBinOpInstanceOf JSAnnot
+    | JSBinOpLe JSAnnot
+    | JSBinOpLsh JSAnnot
+    | JSBinOpLt JSAnnot
+    | JSBinOpMinus JSAnnot
+    | JSBinOpMod JSAnnot
+    | JSBinOpNeq JSAnnot
+    | JSBinOpOr JSAnnot
+    | JSBinOpPlus JSAnnot
+    | JSBinOpRsh JSAnnot
+    | JSBinOpStrictEq JSAnnot
+    | JSBinOpStrictNeq JSAnnot
+    | JSBinOpTimes JSAnnot
+    | JSBinOpUrsh JSAnnot
+    deriving (Eq, Show)
+
+data JSUnaryOp
+    = JSUnaryOpDecr JSAnnot
+    | JSUnaryOpDelete JSAnnot
+    | JSUnaryOpIncr JSAnnot
+    | JSUnaryOpMinus JSAnnot
+    | JSUnaryOpNot JSAnnot
+    | JSUnaryOpPlus JSAnnot
+    | JSUnaryOpTilde JSAnnot
+    | JSUnaryOpTypeof JSAnnot
+    | JSUnaryOpVoid JSAnnot
+    deriving (Eq, Show)
+
+data JSSemi
+    = JSSemi JSAnnot
+    | JSSemiAuto
+    deriving (Eq, Show)
+
+data JSAssignOp
+    = JSAssign JSAnnot
+    | JSTimesAssign JSAnnot
+    | JSDivideAssign JSAnnot
+    | JSModAssign JSAnnot
+    | JSPlusAssign JSAnnot
+    | JSMinusAssign JSAnnot
+    | JSLshAssign JSAnnot
+    | JSRshAssign JSAnnot
+    | JSUrshAssign JSAnnot
+    | JSBwAndAssign JSAnnot
+    | JSBwXorAssign JSAnnot
+    | JSBwOrAssign JSAnnot
+    deriving (Eq, Show)
+
+data JSTryCatch
+    = JSCatch JSAnnot JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,rb,block
+    | JSCatchIf JSAnnot JSAnnot JSExpression JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,if,expr,rb,block
+    deriving (Eq, Show)
+
+data JSTryFinally
+    = JSFinally JSAnnot JSBlock -- ^finally,block
+    | JSNoFinally
+    deriving (Eq, Show)
+
+data JSBlock
+    = JSBlock JSAnnot [JSStatement] JSAnnot -- ^lbrace, stmts, rbrace
+    deriving (Eq, Show)
+
+data JSSwitchParts
+    = JSCase JSAnnot JSExpression JSAnnot [JSStatement]    -- ^expr,colon,stmtlist
+    | JSDefault JSAnnot JSAnnot [JSStatement] -- ^colon,stmtlist
+    deriving (Eq, Show)
+
+data JSVarInit
+    = JSVarInit JSAnnot JSExpression -- ^ assignop, initializer
+    | JSVarInitNone
+    deriving (Eq, Show)
 
 -- | Accessors for JSPropertyAccessor is either 'get' or 'set'.
 data JSAccessor
     = JSAccessorGet JSAnnot
     | JSAccessorSet JSAnnot
-    deriving (Show, Eq)
+    deriving (Eq, Show)
 
 data JSIdent
     = JSIdentName JSAnnot String
     | JSIdentNone
-    deriving Eq
+    deriving (Eq, Show)
 
 data JSList a
     = JSParams (JSNonEmptyList a) -- ^tail, comma, ident
     | JSNoParams
-    deriving (Show, Eq)
+    deriving (Eq, Show)
 
 data JSNonEmptyList a
     = JSLCons (JSNonEmptyList a) JSAnnot a
     | JSLOne a
-    deriving Eq
+    deriving (Eq, Show)
 
 data JSArguments
     = JSArguments JSAnnot (JSList JSExpression) JSAnnot    -- ^lb, args, rb
-    deriving (Show, Eq)
+    deriving (Eq, Show)
 
 -- Strip out the location info, leaving the original JSExpression text representation
 showStripped :: JSAST -> String
@@ -237,7 +230,7 @@ ss (JSExpressionPostfix xs op) = "JSExpressionPostfix (" ++ suop op ++ "," ++ ss
 ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary (" ++ ss x1 ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
 ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssid n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ "))"
 ss (JSHexInteger _ s) = "JSHexInteger " ++ singleQuote s
-ss (JSOctal _ s) = "JSOctal " ++ show s
+ss (JSOctal _ s) = "JSOctal " ++ singleQuote s
 ss (JSIdentifier _ s) = "JSIdentifier " ++ singleQuote s
 ss (JSLiteral _ []) = "JSLiteral ''"
 ss (JSLiteral _ s) = "JSLiteral " ++ singleQuote s
@@ -247,9 +240,9 @@ ss (JSMemberNew _a n s) = "JSMemberNew (" ++ ss n ++ "," ++ ssa s ++ ")"
 ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
 ss (JSNewExpression _n e) = "JSNewExpression " ++ ss e
 ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ sss xs
-ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ show x1 ++ ") " ++ sss x2s
-ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ssac s ++ " (" ++ show x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
-ss (JSRegEx _ s) = "JSRegEx " ++ show s
+ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ssid2 x1 ++ ") " ++ sss x2s
+ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ssac s ++ " (" ++ ssid2 x1 ++ ") " ++ sss x2s ++ " (" ++ ssb x3 ++ ")"
+ss (JSRegEx _ s) = "JSRegEx " ++ singleQuote s
 ss (JSStringLiteralS _ s) = "JSStringLiteralS " ++ singleQuote s
 ss (JSStringLiteralD _ s) = "JSStringLiteralD " ++ singleQuote s
 ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ suop op ++ "," ++ ss x ++ ")"
@@ -259,20 +252,22 @@ singleQuote :: String -> String
 singleQuote s = '\'' : (s ++ "'")
 
 ssid :: JSIdent -> String
-ssid (JSIdentName _ s) = show s
-ssid JSIdentNone = "\"\""
+ssid (JSIdentName _ s) = singleQuote s
+ssid JSIdentNone = "''"
+
+ssid2 :: JSIdent -> String
+ssid2 (JSIdentName _ s) = "JSIdentifier " ++ singleQuote s
+ssid2 JSIdentNone = "JSIdentNone"
 
 ssac :: JSAccessor -> String
 ssac (JSAccessorGet _) = "JSAccessorGet"
 ssac (JSAccessorSet _) = "JSAccessorSet"
 
-
 sss :: [JSExpression] -> String
 sss xs = "[" ++ commaJoin (map ss xs) ++ "]"
 
--- The test suite expects operators to be double quoted.
 sbop :: JSBinOp -> String
-sbop = show . showbinop
+sbop = singleQuote . showbinop
 
 showbinop :: JSBinOp -> String
 showbinop (JSBinOpAnd _) = "&&"
@@ -300,18 +295,18 @@ showbinop (JSBinOpTimes _) = "*"
 showbinop (JSBinOpUrsh _) = ">>>"
 
 suop :: JSUnaryOp -> String
-suop = show . showuop
+suop = singleQuote . showuop
 
 showuop :: JSUnaryOp -> String
 showuop (JSUnaryOpDecr _) = "--"
-showuop (JSUnaryOpDelete _) = "delete "
+showuop (JSUnaryOpDelete _) = "delete"
 showuop (JSUnaryOpIncr _) = "++"
 showuop (JSUnaryOpMinus _) = "-"
 showuop (JSUnaryOpNot _) = "!"
 showuop (JSUnaryOpPlus _) = "+"
 showuop (JSUnaryOpTilde _) = "~"
-showuop (JSUnaryOpTypeof _) = "typeof "
-showuop (JSUnaryOpVoid _) = "void "
+showuop (JSUnaryOpTypeof _) = "typeof"
+showuop (JSUnaryOpVoid _) = "void"
 
 showsemi :: JSSemi -> String
 showsemi (JSSemi _) = "JSSemicolon"
@@ -352,9 +347,9 @@ stf JSNoFinally = "JSFinally ()"
 sst :: JSStatement -> String
 sst (JSStatementBlock blk) = ssb blk
 sst (JSBreak _ JSIdentNone s) = "JSBreak" ++ commaIf (showsemi s)
-sst (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ show n ++ commaIf (showsemi s)
+sst (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ singleQuote n ++ commaIf (showsemi s)
 sst (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (showsemi s)
-sst (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ show n ++ commaIf (showsemi s)
+sst (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ singleQuote n ++ commaIf (showsemi s)
 sst (JSConstant _ xs _as) = "JSConstant " ++ ssts xs
 sst (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ showsemi x3 ++ ")"
 sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
@@ -394,8 +389,8 @@ ssw (JSDefault _ _c xs) = "JSDefault (" ++ ssts xs ++ ")"
 ssws :: [JSSwitchParts] -> String
 ssws xs = "[" ++ commaJoin (map ssw xs) ++ "]"
 
-ssjl :: Show a => JSList a -> String
-ssjl (JSParams nel) = "(" ++ show nel ++ ")"
+ssjl :: JSList JSIdent -> String
+ssjl (JSParams nel) = "(" ++ commaJoin (map ssid2 $ fromNEList nel) ++ ")"
 ssjl JSNoParams = "()"
 
 ssjle :: JSList JSExpression -> String
@@ -406,21 +401,9 @@ ssa :: JSArguments -> String
 ssa (JSArguments _lb xs _rb) = "JSArguments " ++ ssjle xs
 
 
-instance Show a => Show (JSNonEmptyList a) where
-    show (JSLCons l _ i) = show l ++ "," ++ show i
-    show (JSLOne i)      = show i
-
+commaJoin :: [String] -> String
+commaJoin s = intercalate "," $ filter (not . null) s
 
 fromNEList :: JSNonEmptyList a -> [a]
 fromNEList (JSLCons l _ i) = fromNEList l ++ [i]
 fromNEList (JSLOne i)      = [i]
-
-
-instance Show JSIdent where
-    show (JSIdentName _ s) = "JSIdentifier " ++ singleQuote s
-    show JSIdentNone = "JSIdentNone"
-
-commaJoin :: [String] -> String
-commaJoin s = intercalate "," $ filter (not . null) s
-
--- EOF
