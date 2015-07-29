@@ -1,32 +1,38 @@
 
+import Data.List (intercalate)
 import Test.Framework (defaultMain, testGroup, Test)
 import Test.Framework.Providers.HUnit
 import Test.HUnit hiding (Test)
 
-import Language.JavaScript.Parser.Parser
 import Language.JavaScript.Parser
 import Language.JavaScript.Parser.Grammar5
+import Language.JavaScript.Parser.Lexer
+import Language.JavaScript.Parser.Parser
+
 
 main :: IO ()
 main = defaultMain
-    [ testSuite
+    [ lexerSuite
+    , testSuite
     , commentSuite
     , commentPrintSuite
-    , tempSuite
     -- , pendingSuite
     ]
 
-tempSuite :: Test
-tempSuite = testGroup "Temporary tests"
-    -- For temporary tests.
-    [
-    ]
 
 pendingSuite :: Test
 pendingSuite = testGroup "Pending"
     -- Tests that don't work yet.
     [ testCase "AutoSemi1"        (testProg "function f() {\nreturn\n'v';\n}"      "Right (JSSourceElementsTop [JSFunction \"f\" () (JSStatementBlock [JSReturn,JSStringLiteralS 'v',JSSemicolon])])")
     , testCase "AutoSemi2"        (testStmt "if(true) {\nif (false) break\nx++\n}"  "Right")
+    ]
+
+lexerSuite :: Test
+lexerSuite = testGroup "Lexer"
+    [ testCase "assign1"    (testLexer "x=1"            "[IdentifierToken,SimpleAssignToken,DecimalToken]")
+    , testCase "assign2"    (testLexer "x=1\ny=2"       "[IdentifierToken,SimpleAssignToken,DecimalToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]")
+    , testCase "break"      (testLexer "break\nx=1"     "[BreakToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]")
+    , testCase "return"     (testLexer "return\nx=1"    "[ReturnToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]")
     ]
 
 testSuite :: Test
@@ -773,3 +779,10 @@ testFileUtf8 :: FilePath -> String -> IO ()
 testFileUtf8 fileName expected = do
     res <- parseFileUtf8 fileName
     expected @=? showStripped res
+
+testLexer :: String -> String -> Assertion
+testLexer str expected =
+    expected @=? either id stringify (alexTestTokeniser str)
+
+stringify :: [Token] -> String
+stringify xs = "[" ++ intercalate "," (map (takeWhile (/= ' ') . show) xs) ++ "]"
