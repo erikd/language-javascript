@@ -395,7 +395,7 @@ lexCont cont = do
                 lexLoop
             _other -> do
                 cs <- getComment
-                let tok' = tok{ token_comment=(toCommentAnnotation cs) }
+                let tok' = tok{ tokenComment=(toCommentAnnotation cs) }
                 setComment []
                 cont tok'
 
@@ -405,8 +405,8 @@ toCommentAnnotation [] = [NoComment]
 toCommentAnnotation xs =
     reverse $ map go xs
   where
-    go tok@(CommentToken {}) = (CommentA (token_span tok) (token_literal tok))
-    go tok@(WsToken      {}) = (WhiteSpace (token_span tok) (token_literal tok))
+    go tok@(CommentToken {}) = (CommentA (tokenSpan tok) (tokenLiteral tok))
+    go tok@(WsToken      {}) = (WhiteSpace (tokenSpan tok) (tokenLiteral tok))
     go _                     = error "toCommentAnnotation"
 
 -- ---------------------------------------------------------------------

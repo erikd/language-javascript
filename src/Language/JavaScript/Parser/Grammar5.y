@@ -282,7 +282,7 @@ OpAssign : '*='	  { AST.JSTimesAssign  (AST.JSAnnot (ss $1) (gc $1)) }
          | '|='	  { AST.JSBwOrAssign   (AST.JSAnnot (ss $1) (gc $1)) }
 
 Assign :: { AST.JSExpression }
-Assign : 'assign' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
+Assign : 'assign' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
 
 Var :: { AST.JSAnnot }
 Var : 'var' { AST.JSAnnot (ss $1) (gc $1) }
@@ -371,19 +371,19 @@ BooleanLiteral : 'true'  { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "true" }
 --                     | HexIntegerLiteral
 --                     | OctalLiteral
 NumericLiteral :: { AST.JSExpression }
-NumericLiteral : 'decimal'    { AST.JSDecimal (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
-               | 'hexinteger' { AST.JSHexInteger (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
-               | 'octal'      { AST.JSOctal (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
+NumericLiteral : 'decimal'    { AST.JSDecimal (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
+               | 'hexinteger' { AST.JSHexInteger (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
+               | 'octal'      { AST.JSOctal (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
 
 StringLiteral :: { AST.JSExpression }
 StringLiteral : 'string'  { case (token_delimiter $1) of
-								'\'' -> AST.JSStringLiteralS (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1)
-								'\"' -> AST.JSStringLiteralD (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1)
+								'\'' -> AST.JSStringLiteralS (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1)
+								'\"' -> AST.JSStringLiteralD (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1)
 								}
 
 -- <Regular Expression Literal> ::= RegExp
 RegularExpressionLiteral :: { AST.JSExpression }
-RegularExpressionLiteral : 'regex' { AST.JSRegEx (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
+RegularExpressionLiteral : 'regex' { AST.JSRegEx (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
 
 -- PrimaryExpression :                                                   See 11.1
 --        this
@@ -406,7 +406,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (AST.JSAnnot (ss $1
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSExpression }
-Identifier : 'ident' { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
+Identifier : 'ident' { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
            | 'get'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "get" }
            | 'set'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "set" }
 
@@ -446,7 +446,7 @@ IdentifierName : Identifier {$1}
              | 'void'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "void" }
              | 'while'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "while" }
              | 'with'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "with" }
-             | 'future'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (token_literal $1) }
+             | 'future'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
 
 
 
@@ -1155,12 +1155,12 @@ parseError tok = alexError (show tok)
 -- --------------------------------
 
 ss :: Token -> TokenPosn
-ss token = token_span token
+ss token = tokenSpan token
 
 -- ------------------------------
 
 gc :: Token -> [CommentAnnotation]
-gc token = token_comment token
+gc token = tokenComment token
 mgc :: [Token] -> [CommentAnnotation]
 mgc xs = concatMap gc xs
 
