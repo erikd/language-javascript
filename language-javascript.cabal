@@ -10,7 +10,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Alan Zimmerman
 Maintainer:          Erik de Castro Lopo <erikd@mega-nerd.com>
-Copyright:           (c) 2010-2015 Alan Zimmerman, 2015 Erik de Castro Lopp
+Copyright:           (c) 2010-2015 Alan Zimmerman, 2015 Erik de Castro Lopo
 Category:            Language
 Build-type:          Simple
 homepage:            http://github.com/erikd/language-javascript
