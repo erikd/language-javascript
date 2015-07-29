@@ -134,8 +134,8 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- ---------------------------------------------------------------------
 -- Sort out automatically inserted semi-colons
 
-AutoSemi :: { AST.JSSemi }
-AutoSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
+MaybeSemi :: { AST.JSSemi }
+MaybeSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
          |     { AST.JSSemiAuto }
 
 -- ---------------------------------------------------------------------
@@ -893,8 +893,8 @@ StatementList : Statement               { [$1]       {- 'StatementList1' -} }
 -- VariableStatement :                                            See 12.2
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSStatement }
-VariableStatement : Var   VariableDeclarationList AutoSemi { AST.JSVariable $1 $2 $3 {- 'VariableStatement1' -} }
-                  | Const VariableDeclarationList AutoSemi { AST.JSConstant $1 $2 $3 {- 'VariableStatement2' -} }
+VariableStatement : Var   VariableDeclarationList MaybeSemi { AST.JSVariable $1 $2 $3 {- 'VariableStatement1' -} }
+                  | Const VariableDeclarationList MaybeSemi { AST.JSConstant $1 $2 $3 {- 'VariableStatement2' -} }
 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration
@@ -933,7 +933,7 @@ EmptyStatement : Semi { AST.JSEmptyStatement $1 {- 'EmptyStatement' -} }
 --       According to http://sideshowbarker.github.com/es5-spec/#x12.4, the ambiguity is with
 --       Block or FunctionDeclaration
 ExpressionStatement :: { AST.JSStatement }
-ExpressionStatement : Expression AutoSemi { AST.JSExpressionStatement $1 $2 {- 'ExpressionStatement' -} }
+ExpressionStatement : Expression MaybeSemi { AST.JSExpressionStatement $1 $2 {- 'ExpressionStatement' -} }
 
 
 -- IfStatement :                                                                            See 12.5
@@ -955,7 +955,7 @@ IfStatement : If LParen Expression RParen Semi
 --         for ( LeftHandSideExpression in Expression ) Statement
 --         for ( var VariableDeclarationNoIn in Expression ) Statement
 IterationStatement :: { AST.JSStatement }
-IterationStatement : Do StatementNoEmpty While LParen Expression RParen AutoSemi
+IterationStatement : Do StatementNoEmpty While LParen Expression RParen MaybeSemi
                      { AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement1' -} }
                    | While LParen Expression RParen Statement
                      { AST.JSWhile $1 $2 $3 $4 $5 {- 'IterationStatement2' -} }
@@ -972,27 +972,27 @@ IterationStatement : Do StatementNoEmpty While LParen Expression RParen AutoSemi
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSStatement }
-ContinueStatement : Continue AutoSemi             { AST.JSContinue $1 AST.JSIdentNone $2  {- 'ContinueStatement1' -} }
-                  | Continue Identifier AutoSemi  { AST.JSContinue $1 (identName $2) $3   {- 'ContinueStatement2' -} }
+ContinueStatement : Continue MaybeSemi             { AST.JSContinue $1 AST.JSIdentNone $2  {- 'ContinueStatement1' -} }
+                  | Continue Identifier MaybeSemi  { AST.JSContinue $1 (identName $2) $3   {- 'ContinueStatement2' -} }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSStatement }
-BreakStatement : Break AutoSemi             { AST.JSBreak $1 AST.JSIdentNone $2 {- 'BreakStatement1' -} }
-               | Break Identifier AutoSemi  { AST.JSBreak $1 (identName $2) $3  {- 'BreakStatement2' -} }
+BreakStatement : Break MaybeSemi             { AST.JSBreak $1 AST.JSIdentNone $2 {- 'BreakStatement1' -} }
+               | Break Identifier MaybeSemi  { AST.JSBreak $1 (identName $2) $3  {- 'BreakStatement2' -} }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSStatement }
-ReturnStatement : Return AutoSemi             { AST.JSReturn $1 Nothing $2 }
-                | Return Expression AutoSemi  { AST.JSReturn $1 (Just $2) $3 }
+ReturnStatement : Return MaybeSemi             { AST.JSReturn $1 Nothing $2 }
+                | Return Expression MaybeSemi  { AST.JSReturn $1 (Just $2) $3 }
 
 -- WithStatement :                                                                          See 12.10
 --         with ( Expression ) Statement
 WithStatement :: { AST.JSStatement }
-WithStatement : With LParen Expression RParen Statement AutoSemi  { AST.JSWith $1 $2 $3 $4 $5 $6 }
+WithStatement : With LParen Expression RParen Statement MaybeSemi  { AST.JSWith $1 $2 $3 $4 $5 $6 }
 
 -- SwitchStatement :                                                                        See 12.11
 --         switch ( Expression ) CaseBlock
@@ -1070,7 +1070,7 @@ Finally : FinallyL Block { AST.JSFinally $1 $2 {- 'Finally' -} }
 -- DebuggerStatement :                                                        See 12.15
 --        debugger ;
 DebuggerStatement :: { AST.JSStatement }
-DebuggerStatement : 'debugger' AutoSemi { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "debugger") $2 {- 'DebuggerStatement' -} }
+DebuggerStatement : 'debugger' MaybeSemi { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "debugger") $2 {- 'DebuggerStatement' -} }
 
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
