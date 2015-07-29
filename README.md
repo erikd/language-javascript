@@ -45,6 +45,8 @@ Changes
 -------
 
 ```
+0.5.14.0 Fix a break/continue/return parsing problem
+
 0.5.13.3 Fix utf8-string lower bound typo no 2
 
 0.5.13.2 Fix utf8-string lower bound typo
