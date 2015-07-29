@@ -1155,14 +1155,14 @@ parseError tok = alexError (show tok)
 -- --------------------------------
 
 ss :: Token -> TokenPosn
-ss token = tokenSpan token
+ss = tokenSpan
 
 -- ------------------------------
 
 gc :: Token -> [CommentAnnotation]
-gc token = tokenComment token
+gc = tokenComment
 mgc :: [Token] -> [CommentAnnotation]
-mgc xs = concatMap gc xs
+mgc xs = concatMap tokenComment xs
 
 -- ---------------------------------------------------------------------
 -- | mkUnary : The parser detects '+' and '-' as the binary version of these
@@ -1182,8 +1182,3 @@ identName (AST.JSIdentifier a s) = AST.JSIdentName a s
 identName x = error $ "Cannot convert '" ++ show x ++ "' to s JSIdentName."
 
 }
-
--- Set emacs mode
--- Local Variables:
--- mode:haskell
--- End:
