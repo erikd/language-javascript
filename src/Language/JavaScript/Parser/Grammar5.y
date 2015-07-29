@@ -136,7 +136,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- Sort out automatically inserted semi-colons.
 -- A MaybeSemi is an actual semi-colon or nothing.
 -- An AutoSemu is either an actual semi-colon or 'virtual' semi-colon inserted
--- by the Alex lexer.
+-- by the Alex lexer or nothing.
 
 MaybeSemi :: { AST.JSSemi }
 MaybeSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
@@ -145,6 +145,7 @@ MaybeSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
 AutoSemi :: { AST.JSSemi }
 AutoSemi : ';'         { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
          | 'autosemi'  { AST.JSSemiAuto }
+         |             { AST.JSSemiAuto }
 
 -- ---------------------------------------------------------------------
 

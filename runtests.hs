@@ -334,6 +334,10 @@ testSuite = testGroup "Parser"
     , testCase "AutoSemiBreak"     (testProg "if(true)break \nfoo();"       "Right (JSSourceElementsTop [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
     , testCase "AutoSemiContinue"  (testProg "if(true)continue \nfoo();"    "Right (JSSourceElementsTop [JSIf (JSLiteral 'true') (JSContinue),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
     , testCase "AutoSemiReturn"    (testProg "if(true)break \nfoo();"       "Right (JSSourceElementsTop [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
+
+    , testCase "BreakBlock"       (testProg "{break}"      "Right (JSSourceElementsTop [JSStatementBlock [JSBreak]])")
+    , testCase "ContinueBlock"    (testProg "{continue}"   "Right (JSSourceElementsTop [JSStatementBlock [JSContinue]])")
+    , testCase "ReturnBlock"      (testProg "{return}"     "Right (JSSourceElementsTop [JSStatementBlock [JSReturn ]])")
     ]
 
 caseHelloWorld :: Assertion
