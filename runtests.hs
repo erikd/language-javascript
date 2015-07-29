@@ -16,15 +16,13 @@ main = defaultMain
     , testSuite
     , commentSuite
     , commentPrintSuite
-    -- , pendingSuite
+    , pendingSuite
     ]
 
 
 pendingSuite :: Test
 pendingSuite = testGroup "Pending"
-    -- Tests that don't work yet.
-    [ testCase "AutoSemi1"        (testProg "function f() {\nreturn\n'v';\n}"      "Right (JSSourceElementsTop [JSFunction \"f\" () (JSStatementBlock [JSReturn,JSStringLiteralS 'v',JSSemicolon])])")
-    , testCase "AutoSemi2"        (testStmt "if(true) {\nif (false) break\nx++\n}"  "Right")
+    [
     ]
 
 lexerSuite :: Test
@@ -333,6 +331,9 @@ testSuite = testGroup "Parser"
     -- https://github.com/alanz/language-javascript/issues/14
     , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSSourceElementsTop [JSVariable var [JSVarDecl (JSIdentifier 'z') [JSExpressionBinary (\"/\",JSMemberSquare (JSIdentifier 'x',JSIdentifier 'i'),JSIdentifier 'y')]]])")
 
+    , testCase "AutoSemiBreak"     (testProg "if(true)break \nfoo();"       "Right (JSSourceElementsTop [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
+    , testCase "AutoSemiContinue"  (testProg "if(true)continue \nfoo();"    "Right (JSSourceElementsTop [JSIf (JSLiteral 'true') (JSContinue),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
+    , testCase "AutoSemiReturn"    (testProg "if(true)break \nfoo();"       "Right (JSSourceElementsTop [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
     ]
 
 caseHelloWorld :: Assertion

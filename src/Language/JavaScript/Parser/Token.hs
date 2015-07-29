@@ -94,6 +94,7 @@ data Token
 
     -- Delimiters
     -- Operators
+    | AutoSemiToken { tokenSpan :: !TokenPosn, tokenLiteral :: !String, tokenComment :: ![CommentAnnotation]  }
     | SemiColonToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | CommaToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | HookToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }

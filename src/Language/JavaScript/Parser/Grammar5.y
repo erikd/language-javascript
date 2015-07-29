@@ -80,6 +80,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      ')'	{ RightParenToken {} }
      '@*/'	{ CondcommentEndToken {} }
 
+     'autosemi'   { AutoSemiToken {} }
      'break'      { BreakToken {} }
      'case'       { CaseToken {} }
      'catch'      { CatchToken {} }
@@ -132,11 +133,18 @@ import qualified Language.JavaScript.Parser.AST as AST
 %%
 
 -- ---------------------------------------------------------------------
--- Sort out automatically inserted semi-colons
+-- Sort out automatically inserted semi-colons.
+-- A MaybeSemi is an actual semi-colon or nothing.
+-- An AutoSemu is either an actual semi-colon or 'virtual' semi-colon inserted
+-- by the Alex lexer.
 
 MaybeSemi :: { AST.JSSemi }
 MaybeSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
-         |     { AST.JSSemiAuto }
+         |      { AST.JSSemiAuto }
+
+AutoSemi :: { AST.JSSemi }
+AutoSemi : ';'         { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
+         | 'autosemi'  { AST.JSSemiAuto }
 
 -- ---------------------------------------------------------------------
 
@@ -972,21 +980,21 @@ IterationStatement : Do StatementNoEmpty While LParen Expression RParen MaybeSem
 --         continue [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSStatement }
-ContinueStatement : Continue MaybeSemi             { AST.JSContinue $1 AST.JSIdentNone $2  {- 'ContinueStatement1' -} }
+ContinueStatement : Continue AutoSemi              { AST.JSContinue $1 AST.JSIdentNone $2  {- 'ContinueStatement1' -} }
                   | Continue Identifier MaybeSemi  { AST.JSContinue $1 (identName $2) $3   {- 'ContinueStatement2' -} }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
 -- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSStatement }
-BreakStatement : Break MaybeSemi             { AST.JSBreak $1 AST.JSIdentNone $2 {- 'BreakStatement1' -} }
+BreakStatement : Break AutoSemi              { AST.JSBreak $1 AST.JSIdentNone $2 {- 'BreakStatement1' -} }
                | Break Identifier MaybeSemi  { AST.JSBreak $1 (identName $2) $3  {- 'BreakStatement2' -} }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
 -- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSStatement }
-ReturnStatement : Return MaybeSemi             { AST.JSReturn $1 Nothing $2 }
+ReturnStatement : Return AutoSemi              { AST.JSReturn $1 Nothing $2 }
                 | Return Expression MaybeSemi  { AST.JSReturn $1 (Just $2) $3 }
 
 -- WithStatement :                                                                          See 12.10
