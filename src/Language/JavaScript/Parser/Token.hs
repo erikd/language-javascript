@@ -13,8 +13,9 @@
 -----------------------------------------------------------------------------
 
 module Language.JavaScript.Parser.Token
-    -- * The tokens
-    ( Token (..)
+    (
+      -- * The tokens
+      Token (..)
     , CommentAnnotation (..)
     -- * String conversion
     , debugTokenString
