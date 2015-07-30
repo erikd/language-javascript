@@ -50,7 +50,7 @@ data Token
     -- ^ Literal: Hexadecimal Integer
     | OctalToken { tokenSpan :: !TokenPosn, tokenLiteral :: !String, tokenComment :: ![CommentAnnotation]   }
     -- ^ Literal: Octal Integer
-    | StringToken { tokenSpan :: !TokenPosn, tokenLiteral :: !String, token_delimiter :: !Char, tokenComment :: ![CommentAnnotation]  }
+    | StringToken { tokenSpan :: !TokenPosn, tokenLiteral :: !String, tokenDelimiter :: !Char, tokenComment :: ![CommentAnnotation]  }
     -- ^ Literal: string, delimited by either single or double quotes
     | RegExToken { tokenSpan :: !TokenPosn, tokenLiteral :: !String, tokenComment :: ![CommentAnnotation]   }
     -- ^ Literal: Regular Expression

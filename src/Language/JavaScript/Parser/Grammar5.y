@@ -385,7 +385,7 @@ NumericLiteral : 'decimal'    { AST.JSDecimal (AST.JSAnnot (ss $1) (gc $1)) (tok
                | 'octal'      { AST.JSOctal (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
 
 StringLiteral :: { AST.JSExpression }
-StringLiteral : 'string'  { case (token_delimiter $1) of
+StringLiteral : 'string'  { case (tokenDelimiter $1) of
 								'\'' -> AST.JSStringLiteralS (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1)
 								'\"' -> AST.JSStringLiteralD (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1)
 								}
