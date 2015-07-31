@@ -309,7 +309,6 @@ tokens :-
      "}"    { adapt (symbolToken  RightCurlyToken)}
      "("    { adapt (symbolToken  LeftParenToken)}
      ")"    { adapt (symbolToken  RightParenToken)}
-     "@*/"  { adapt (symbolToken  CondcommentEndToken)}
 }
 
 

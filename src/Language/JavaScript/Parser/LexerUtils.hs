@@ -21,9 +21,6 @@ module Language.JavaScript.Parser.LexerUtils (
   , wsToken
   , regExToken
   , decimalToken
-  -- , endOfLine
-  , endOfFileToken
-  , assignToken
   , hexIntegerToken
   , octalToken
   , stringToken
@@ -42,12 +39,7 @@ type StartCode = Int
 symbolToken :: Monad m => (TokenPosn -> [CommentAnnotation] -> Token) -> TokenPosn -> Int -> String -> m Token
 symbolToken mkToken location _ _ = return (mkToken location [])
 
--- special tokens for the end of file and end of line
-endOfFileToken :: Token
-endOfFileToken = EOFToken tokenPosnEmpty []
-
-mkString
-  :: (Monad m) => (TokenPosn -> String -> Token) -> TokenPosn -> Int -> String -> m Token
+mkString :: (Monad m) => (TokenPosn -> String -> Token) -> TokenPosn -> Int -> String -> m Token
 mkString toToken loc len str = return (toToken loc (take len str))
 
 decimalToken :: TokenPosn -> String -> Token
@@ -59,9 +51,6 @@ hexIntegerToken loc str = HexIntegerToken loc str []
 octalToken :: TokenPosn -> String -> Token
 octalToken loc str = OctalToken loc str []
 
-assignToken :: TokenPosn -> String -> Token
-assignToken loc str = AssignToken loc str []
-
 regExToken :: TokenPosn -> String -> Token
 regExToken loc str = RegExToken loc str []
 
@@ -69,7 +58,6 @@ stringToken :: TokenPosn -> String -> Token
 stringToken loc str = StringToken loc str1 delimiter []
   where
     str1 = init $ tail str
-    -- str1 = stripLineContinuations $ init $ tail str
     delimiter = head str
 
 commentToken :: TokenPosn -> String -> Token

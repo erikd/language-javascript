@@ -30,55 +30,54 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 %token
 
-     ';'	{ SemiColonToken {} }
-     ','	{ CommaToken {} }
-     '?'	{ HookToken {} }
-     ':'	{ ColonToken {} }
-     '||'	{ OrToken {} }
-     '&&'	{ AndToken {} }
-     '|'	{ BitwiseOrToken {} }
-     '^'	{ BitwiseXorToken {} }
-     '&'	{ BitwiseAndToken {} }
-     '==='	{ StrictEqToken {} }
-     '=='	{ EqToken {} }
-     '*='	{ TimesAssignToken {} }
-     '/='	{ DivideAssignToken {} }
-     '%='	{ ModAssignToken {} }
-     '+='	{ PlusAssignToken {} }
-     '-='	{ MinusAssignToken {} }
-     '<<='	{ LshAssignToken {} }
-     '>>='	{ RshAssignToken {} }
-     '>>>='	{ UrshAssignToken {} }
-     '&='	{ AndAssignToken {} }
-     '^='	{ XorAssignToken {} }
-     '|='	{ OrAssignToken {} }
-     '='	{ SimpleAssignToken {} }
-     '!=='	{ StrictNeToken {} }
-     '!='	{ NeToken {} }
-     '<<'	{ LshToken {} }
-     '<='	{ LeToken {} }
-     '<'	{ LtToken {} }
-     '>>>'	{ UrshToken {} }
-     '>>'	{ RshToken {} }
-     '>='	{ GeToken {} }
-     '>'	{ GtToken {} }
-     '++'	{ IncrementToken {} }
-     '--'	{ DecrementToken {} }
-     '+'	{ PlusToken {} }
-     '-'	{ MinusToken {} }
-     '*'	{ MulToken {} }
-     '/'	{ DivToken {} }
-     '%'	{ ModToken {} }
-     '!'	{ NotToken {} }
-     '~'	{ BitwiseNotToken {} }
-     '.'	{ DotToken {} }
-     '['	{ LeftBracketToken {} }
-     ']'	{ RightBracketToken {} }
-     '{'	{ LeftCurlyToken {} }
-     '}'	{ RightCurlyToken {} }
-     '('	{ LeftParenToken {} }
-     ')'	{ RightParenToken {} }
-     '@*/'	{ CondcommentEndToken {} }
+     ';'    { SemiColonToken {} }
+     ','    { CommaToken {} }
+     '?'    { HookToken {} }
+     ':'    { ColonToken {} }
+     '||'   { OrToken {} }
+     '&&'   { AndToken {} }
+     '|'    { BitwiseOrToken {} }
+     '^'    { BitwiseXorToken {} }
+     '&'    { BitwiseAndToken {} }
+     '==='  { StrictEqToken {} }
+     '=='   { EqToken {} }
+     '*='   { TimesAssignToken {} }
+     '/='   { DivideAssignToken {} }
+     '%='   { ModAssignToken {} }
+     '+='   { PlusAssignToken {} }
+     '-='   { MinusAssignToken {} }
+     '<<='  { LshAssignToken {} }
+     '>>='  { RshAssignToken {} }
+     '>>>=' { UrshAssignToken {} }
+     '&='   { AndAssignToken {} }
+     '^='   { XorAssignToken {} }
+     '|='   { OrAssignToken {} }
+     '='    { SimpleAssignToken {} }
+     '!=='  { StrictNeToken {} }
+     '!='   { NeToken {} }
+     '<<'   { LshToken {} }
+     '<='   { LeToken {} }
+     '<'    { LtToken {} }
+     '>>>'  { UrshToken {} }
+     '>>'   { RshToken {} }
+     '>='   { GeToken {} }
+     '>'    { GtToken {} }
+     '++'   { IncrementToken {} }
+     '--'   { DecrementToken {} }
+     '+'    { PlusToken {} }
+     '-'    { MinusToken {} }
+     '*'    { MulToken {} }
+     '/'    { DivToken {} }
+     '%'    { ModToken {} }
+     '!'    { NotToken {} }
+     '~'    { BitwiseNotToken {} }
+     '.'    { DotToken {} }
+     '['    { LeftBracketToken {} }
+     ']'    { RightBracketToken {} }
+     '{'    { LeftCurlyToken {} }
+     '}'    { RightCurlyToken {} }
+     '('    { LeftParenToken {} }
+     ')'    { RightParenToken {} }
 
      'autosemi'   { AutoSemiToken {} }
      'break'      { BreakToken {} }
@@ -122,12 +121,10 @@ import qualified Language.JavaScript.Parser.AST as AST
      'octal'      { OctalToken {} }
      'string'     { StringToken {} }
      'regex'      { RegExToken {} }
-     'assign'     { AssignToken {} }
 
      'future'     { FutureToken {} }
 
      'tail'       { TailToken {} }
-     'eof'        { EOFToken {} }
 
 
 %%
@@ -139,11 +136,11 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- by the Alex lexer or nothing.
 
 MaybeSemi :: { AST.JSSemi }
-MaybeSemi : ';' { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
+MaybeSemi : ';' { AST.JSSemi (AST.JSAnnot (ts $1) (tc $1)) }
          |      { AST.JSSemiAuto }
 
 AutoSemi :: { AST.JSSemi }
-AutoSemi : ';'         { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
+AutoSemi : ';'         { AST.JSSemi (AST.JSAnnot (ts $1) (tc $1)) }
          | 'autosemi'  { AST.JSSemiAuto }
          |             { AST.JSSemiAuto }
 
@@ -152,210 +149,207 @@ AutoSemi : ';'         { AST.JSSemi (AST.JSAnnot (ss $1) (gc $1)) }
 -- Helpers
 
 LParen :: { AST.JSAnnot }
-LParen : '(' { AST.JSAnnot (ss $1) (gc $1) }
+LParen : '(' { AST.JSAnnot (ts $1) (tc $1) }
 
 RParen :: { AST.JSAnnot }
-RParen : ')' { AST.JSAnnot (ss $1) (gc $1) }
+RParen : ')' { AST.JSAnnot (ts $1) (tc $1) }
 
 LBrace :: { AST.JSAnnot }
-LBrace : '{' { AST.JSAnnot (ss $1) (gc $1) }
+LBrace : '{' { AST.JSAnnot (ts $1) (tc $1) }
 
 RBrace :: { AST.JSAnnot }
-RBrace : '}' { AST.JSAnnot (ss $1) (gc $1) }
+RBrace : '}' { AST.JSAnnot (ts $1) (tc $1) }
 
 LSquare :: { AST.JSAnnot }
-LSquare : '[' { AST.JSAnnot (ss $1) (gc $1) }
+LSquare : '[' { AST.JSAnnot (ts $1) (tc $1) }
 
 RSquare :: { AST.JSAnnot }
-RSquare : ']' { AST.JSAnnot (ss $1) (gc $1) }
+RSquare : ']' { AST.JSAnnot (ts $1) (tc $1) }
 
 Comma :: { AST.JSExpression }
-Comma : ',' { AST.JSComma (AST.JSAnnot (ss $1) (gc $1)) }
+Comma : ',' { AST.JSComma (AST.JSAnnot (ts $1) (tc $1)) }
 
 Colon :: { AST.JSAnnot }
-Colon : ':' { AST.JSAnnot (ss $1) (gc $1) }
+Colon : ':' { AST.JSAnnot (ts $1) (tc $1) }
 
 Semi :: { AST.JSAnnot }
-Semi : ';' { AST.JSAnnot (ss $1) (gc $1) }
+Semi : ';' { AST.JSAnnot (ts $1) (tc $1) }
 
 Dot :: { AST.JSAnnot }
-Dot : '.' { AST.JSAnnot (ss $1) (gc $1) }
+Dot : '.' { AST.JSAnnot (ts $1) (tc $1) }
 
 Increment :: { AST.JSUnaryOp }
-Increment : '++' { AST.JSUnaryOpIncr (AST.JSAnnot (ss $1) (gc $1)) }
+Increment : '++' { AST.JSUnaryOpIncr (AST.JSAnnot (ts $1) (tc $1)) }
 
 Decrement :: { AST.JSUnaryOp }
-Decrement : '--' { AST.JSUnaryOpDecr (AST.JSAnnot (ss $1) (gc $1)) }
+Decrement : '--' { AST.JSUnaryOpDecr (AST.JSAnnot (ts $1) (tc $1)) }
 
 Delete :: { AST.JSUnaryOp }
-Delete : 'delete' { AST.JSUnaryOpDelete (AST.JSAnnot (ss $1) (gc $1)) }
+Delete : 'delete' { AST.JSUnaryOpDelete (AST.JSAnnot (ts $1) (tc $1)) }
 
 Void :: { AST.JSUnaryOp }
-Void : 'void' { AST.JSUnaryOpVoid (AST.JSAnnot (ss $1) (gc $1)) }
+Void : 'void' { AST.JSUnaryOpVoid (AST.JSAnnot (ts $1) (tc $1)) }
 
 Typeof :: { AST.JSUnaryOp }
-Typeof : 'typeof' { AST.JSUnaryOpTypeof (AST.JSAnnot (ss $1) (gc $1)) }
+Typeof : 'typeof' { AST.JSUnaryOpTypeof (AST.JSAnnot (ts $1) (tc $1)) }
 
 Plus :: { AST.JSBinOp }
-Plus : '+' { AST.JSBinOpPlus (AST.JSAnnot (ss $1) (gc $1)) }
+Plus : '+' { AST.JSBinOpPlus (AST.JSAnnot (ts $1) (tc $1)) }
 
 Minus :: { AST.JSBinOp }
-Minus : '-' { AST.JSBinOpMinus (AST.JSAnnot (ss $1) (gc $1)) }
+Minus : '-' { AST.JSBinOpMinus (AST.JSAnnot (ts $1) (tc $1)) }
 
 Tilde :: { AST.JSUnaryOp }
-Tilde : '~' { AST.JSUnaryOpTilde (AST.JSAnnot (ss $1) (gc $1)) }
+Tilde : '~' { AST.JSUnaryOpTilde (AST.JSAnnot (ts $1) (tc $1)) }
 
 Not :: { AST.JSUnaryOp }
-Not : '!' { AST.JSUnaryOpNot (AST.JSAnnot (ss $1) (gc $1)) }
+Not : '!' { AST.JSUnaryOpNot (AST.JSAnnot (ts $1) (tc $1)) }
 
 Mul :: { AST.JSBinOp }
-Mul : '*' { AST.JSBinOpTimes (AST.JSAnnot (ss $1) (gc $1)) }
+Mul : '*' { AST.JSBinOpTimes (AST.JSAnnot (ts $1) (tc $1)) }
 
 Div :: { AST.JSBinOp }
-Div : '/' { AST.JSBinOpDivide (AST.JSAnnot (ss $1) (gc $1)) }
+Div : '/' { AST.JSBinOpDivide (AST.JSAnnot (ts $1) (tc $1)) }
 
 Mod :: { AST.JSBinOp }
-Mod : '%' { AST.JSBinOpMod (AST.JSAnnot (ss $1) (gc $1)) }
+Mod : '%' { AST.JSBinOpMod (AST.JSAnnot (ts $1) (tc $1)) }
 
 Lsh :: { AST.JSBinOp }
-Lsh : '<<' { AST.JSBinOpLsh (AST.JSAnnot (ss $1) (gc $1)) }
+Lsh : '<<' { AST.JSBinOpLsh (AST.JSAnnot (ts $1) (tc $1)) }
 
 Rsh :: { AST.JSBinOp }
-Rsh : '>>' { AST.JSBinOpRsh (AST.JSAnnot (ss $1) (gc $1)) }
+Rsh : '>>' { AST.JSBinOpRsh (AST.JSAnnot (ts $1) (tc $1)) }
 
 Ursh :: { AST.JSBinOp }
-Ursh : '>>>' { AST.JSBinOpUrsh (AST.JSAnnot (ss $1) (gc $1)) }
+Ursh : '>>>' { AST.JSBinOpUrsh (AST.JSAnnot (ts $1) (tc $1)) }
 
 Le :: { AST.JSBinOp }
-Le : '<=' { AST.JSBinOpLe (AST.JSAnnot (ss $1) (gc $1)) }
+Le : '<=' { AST.JSBinOpLe (AST.JSAnnot (ts $1) (tc $1)) }
 
 Lt :: { AST.JSBinOp }
-Lt : '<' { AST.JSBinOpLt (AST.JSAnnot (ss $1) (gc $1)) }
+Lt : '<' { AST.JSBinOpLt (AST.JSAnnot (ts $1) (tc $1)) }
 
 Ge :: { AST.JSBinOp }
-Ge : '>=' { AST.JSBinOpGe (AST.JSAnnot (ss $1) (gc $1)) }
+Ge : '>=' { AST.JSBinOpGe (AST.JSAnnot (ts $1) (tc $1)) }
 
 Gt :: { AST.JSBinOp }
-Gt : '>' { AST.JSBinOpGt (AST.JSAnnot (ss $1) (gc $1)) }
+Gt : '>' { AST.JSBinOpGt (AST.JSAnnot (ts $1) (tc $1)) }
 
 In :: { AST.JSBinOp }
-In : 'in' { AST.JSBinOpIn (AST.JSAnnot (ss $1) (gc $1)) }
+In : 'in' { AST.JSBinOpIn (AST.JSAnnot (ts $1) (tc $1)) }
 
 Instanceof :: { AST.JSBinOp }
-Instanceof : 'instanceof' { AST.JSBinOpInstanceOf (AST.JSAnnot (ss $1) (gc $1)) }
+Instanceof : 'instanceof' { AST.JSBinOpInstanceOf (AST.JSAnnot (ts $1) (tc $1)) }
 
 StrictEq :: { AST.JSBinOp }
-StrictEq : '===' { AST.JSBinOpStrictEq (AST.JSAnnot (ss $1) (gc $1)) }
+StrictEq : '===' { AST.JSBinOpStrictEq (AST.JSAnnot (ts $1) (tc $1)) }
 
 Equal :: { AST.JSBinOp }
-Equal : '==' { AST.JSBinOpEq (AST.JSAnnot (ss $1) (gc $1)) }
+Equal : '==' { AST.JSBinOpEq (AST.JSAnnot (ts $1) (tc $1)) }
 
 StrictNe :: { AST.JSBinOp }
-StrictNe : '!==' { AST.JSBinOpStrictNeq (AST.JSAnnot (ss $1) (gc $1)) }
+StrictNe : '!==' { AST.JSBinOpStrictNeq (AST.JSAnnot (ts $1) (tc $1)) }
 
 Ne :: { AST.JSBinOp }
-Ne : '!=' { AST.JSBinOpNeq (AST.JSAnnot (ss $1) (gc $1))}
+Ne : '!=' { AST.JSBinOpNeq (AST.JSAnnot (ts $1) (tc $1))}
 
 Or :: { AST.JSBinOp }
-Or : '||' { AST.JSBinOpOr (AST.JSAnnot (ss $1) (gc $1)) }
+Or : '||' { AST.JSBinOpOr (AST.JSAnnot (ts $1) (tc $1)) }
 
 And :: { AST.JSBinOp }
-And : '&&' { AST.JSBinOpAnd (AST.JSAnnot (ss $1) (gc $1)) }
+And : '&&' { AST.JSBinOpAnd (AST.JSAnnot (ts $1) (tc $1)) }
 
 BitOr :: { AST.JSBinOp }
-BitOr : '|' { AST.JSBinOpBitOr (AST.JSAnnot (ss $1) (gc $1)) }
+BitOr : '|' { AST.JSBinOpBitOr (AST.JSAnnot (ts $1) (tc $1)) }
 
 BitAnd :: { AST.JSBinOp }
-BitAnd : '&' { AST.JSBinOpBitAnd (AST.JSAnnot (ss $1) (gc $1)) }
+BitAnd : '&' { AST.JSBinOpBitAnd (AST.JSAnnot (ts $1) (tc $1)) }
 
 BitXor :: { AST.JSBinOp }
-BitXor : '^' { AST.JSBinOpBitXor (AST.JSAnnot (ss $1) (gc $1))}
+BitXor : '^' { AST.JSBinOpBitXor (AST.JSAnnot (ts $1) (tc $1))}
 
 Hook :: { AST.JSAnnot }
-Hook : '?' { AST.JSAnnot (ss $1) (gc $1) }
+Hook : '?' { AST.JSAnnot (ts $1) (tc $1) }
 
 SimpleAssign :: { AST.JSAnnot }
-SimpleAssign : '=' { AST.JSAnnot (ss $1) (gc $1) }
+SimpleAssign : '=' { AST.JSAnnot (ts $1) (tc $1) }
 
 OpAssign :: { AST.JSAssignOp }
-OpAssign : '*='	  { AST.JSTimesAssign  (AST.JSAnnot (ss $1) (gc $1)) }
-         | '/='	  { AST.JSDivideAssign (AST.JSAnnot (ss $1) (gc $1)) }
-         | '%='	  { AST.JSModAssign    (AST.JSAnnot (ss $1) (gc $1)) }
-         | '+='	  { AST.JSPlusAssign   (AST.JSAnnot (ss $1) (gc $1)) }
-         | '-='	  { AST.JSMinusAssign  (AST.JSAnnot (ss $1) (gc $1)) }
-         | '<<='  { AST.JSLshAssign    (AST.JSAnnot (ss $1) (gc $1)) }
-         | '>>='  { AST.JSRshAssign    (AST.JSAnnot (ss $1) (gc $1)) }
-         | '>>>=' { AST.JSUrshAssign   (AST.JSAnnot (ss $1) (gc $1)) }
-         | '&='	  { AST.JSBwAndAssign  (AST.JSAnnot (ss $1) (gc $1)) }
-         | '^='	  { AST.JSBwXorAssign  (AST.JSAnnot (ss $1) (gc $1)) }
-         | '|='	  { AST.JSBwOrAssign   (AST.JSAnnot (ss $1) (gc $1)) }
-
-Assign :: { AST.JSExpression }
-Assign : 'assign' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
+OpAssign : '*='     { AST.JSTimesAssign  (AST.JSAnnot (ts $1) (tc $1)) }
+         | '/='     { AST.JSDivideAssign (AST.JSAnnot (ts $1) (tc $1)) }
+         | '%='     { AST.JSModAssign    (AST.JSAnnot (ts $1) (tc $1)) }
+         | '+='     { AST.JSPlusAssign   (AST.JSAnnot (ts $1) (tc $1)) }
+         | '-='     { AST.JSMinusAssign  (AST.JSAnnot (ts $1) (tc $1)) }
+         | '<<='    { AST.JSLshAssign    (AST.JSAnnot (ts $1) (tc $1)) }
+         | '>>='    { AST.JSRshAssign    (AST.JSAnnot (ts $1) (tc $1)) }
+         | '>>>='   { AST.JSUrshAssign   (AST.JSAnnot (ts $1) (tc $1)) }
+         | '&='     { AST.JSBwAndAssign  (AST.JSAnnot (ts $1) (tc $1)) }
+         | '^='     { AST.JSBwXorAssign  (AST.JSAnnot (ts $1) (tc $1)) }
+         | '|='     { AST.JSBwOrAssign   (AST.JSAnnot (ts $1) (tc $1)) }
 
 Var :: { AST.JSAnnot }
-Var : 'var' { AST.JSAnnot (ss $1) (gc $1) }
+Var : 'var' { AST.JSAnnot (ts $1) (tc $1) }
 
 Const :: { AST.JSAnnot }
-Const : 'const' { AST.JSAnnot (ss $1) (gc $1) }
+Const : 'const' { AST.JSAnnot (ts $1) (tc $1) }
 
 If :: { AST.JSAnnot }
-If : 'if' { AST.JSAnnot (ss $1) (gc $1) }
+If : 'if' { AST.JSAnnot (ts $1) (tc $1) }
 
 Else :: { AST.JSAnnot }
-Else : 'else' { AST.JSAnnot (ss $1) (gc $1) }
+Else : 'else' { AST.JSAnnot (ts $1) (tc $1) }
 
 Do :: { AST.JSAnnot }
-Do : 'do' { AST.JSAnnot (ss $1) (gc $1) }
+Do : 'do' { AST.JSAnnot (ts $1) (tc $1) }
 
 While :: { AST.JSAnnot }
-While : 'while' { AST.JSAnnot (ss $1) (gc $1) }
+While : 'while' { AST.JSAnnot (ts $1) (tc $1) }
 
 For :: { AST.JSAnnot }
-For : 'for' { AST.JSAnnot (ss $1) (gc $1) }
+For : 'for' { AST.JSAnnot (ts $1) (tc $1) }
 
 Continue :: { AST.JSAnnot }
-Continue : 'continue' { AST.JSAnnot (ss $1) (gc $1) }
+Continue : 'continue' { AST.JSAnnot (ts $1) (tc $1) }
 
 Break :: { AST.JSAnnot }
-Break : 'break' { AST.JSAnnot (ss $1) (gc $1) }
+Break : 'break' { AST.JSAnnot (ts $1) (tc $1) }
 
 Return :: { AST.JSAnnot }
-Return : 'return' { AST.JSAnnot (ss $1) (gc $1) }
+Return : 'return' { AST.JSAnnot (ts $1) (tc $1) }
 
 With :: { AST.JSAnnot }
-With : 'with' { AST.JSAnnot (ss $1) (gc $1) }
+With : 'with' { AST.JSAnnot (ts $1) (tc $1) }
 
 Switch :: { AST.JSAnnot }
-Switch : 'switch' { AST.JSAnnot (ss $1) (gc $1) }
+Switch : 'switch' { AST.JSAnnot (ts $1) (tc $1) }
 
 Case :: { AST.JSAnnot }
-Case : 'case' { AST.JSAnnot (ss $1) (gc $1) }
+Case : 'case' { AST.JSAnnot (ts $1) (tc $1) }
 
 Default :: { AST.JSAnnot }
-Default : 'default' { AST.JSAnnot (ss $1) (gc $1) }
+Default : 'default' { AST.JSAnnot (ts $1) (tc $1) }
 
 Throw :: { AST.JSAnnot }
-Throw : 'throw' { AST.JSAnnot (ss $1) (gc $1) {- 'Throw' -} }
+Throw : 'throw' { AST.JSAnnot (ts $1) (tc $1) {- 'Throw' -} }
 
 Try :: { AST.JSAnnot }
-Try : 'try' { AST.JSAnnot (ss $1) (gc $1) }
+Try : 'try' { AST.JSAnnot (ts $1) (tc $1) }
 
 CatchL :: { AST.JSAnnot }
-CatchL : 'catch' { AST.JSAnnot (ss $1) (gc $1) }
+CatchL : 'catch' { AST.JSAnnot (ts $1) (tc $1) }
 
 FinallyL :: { AST.JSAnnot }
-FinallyL : 'finally' { AST.JSAnnot (ss $1) (gc $1) }
+FinallyL : 'finally' { AST.JSAnnot (ts $1) (tc $1) }
 
 Function :: { AST.JSAnnot }
-Function : 'function' { AST.JSAnnot (ss $1) (gc $1) {- 'Function' -} }
+Function : 'function' { AST.JSAnnot (ts $1) (tc $1) {- 'Function' -} }
 
 New :: { AST.JSAnnot }
-New : 'new' { AST.JSAnnot (ss $1) (gc $1) }
+New : 'new' { AST.JSAnnot (ts $1) (tc $1) }
 
 
 Eof :: { AST.JSStatement }
-Eof : 'tail' { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "") AST.JSSemiAuto {- 'Eof' -} }
+Eof : 'tail' { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "") AST.JSSemiAuto {- 'Eof' -} }
 
 -- Literal ::                                                                See 7.8
 --         NullLiteral
@@ -370,29 +364,29 @@ Literal : NullLiteral     { $1 }
         | RegularExpressionLiteral { $1 }
 
 NullLiteral :: { AST.JSExpression }
-NullLiteral : 'null' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "null" }
+NullLiteral : 'null' { AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "null" }
 
 BooleanLiteral :: { AST.JSExpression }
-BooleanLiteral : 'true'  { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "true" }
-               | 'false' { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "false" }
+BooleanLiteral : 'true'  { AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "true" }
+               | 'false' { AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "false" }
 
 -- <Numeric Literal> ::= DecimalLiteral
 --                     | HexIntegerLiteral
 --                     | OctalLiteral
 NumericLiteral :: { AST.JSExpression }
-NumericLiteral : 'decimal'    { AST.JSDecimal (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
-               | 'hexinteger' { AST.JSHexInteger (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
-               | 'octal'      { AST.JSOctal (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
+NumericLiteral : 'decimal'    { AST.JSDecimal (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
+               | 'hexinteger' { AST.JSHexInteger (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
+               | 'octal'      { AST.JSOctal (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
 
 StringLiteral :: { AST.JSExpression }
 StringLiteral : 'string'  { case (tokenDelimiter $1) of
-								'\'' -> AST.JSStringLiteralS (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1)
-								'\"' -> AST.JSStringLiteralD (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1)
-								}
+                                '\'' -> AST.JSStringLiteralS (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1)
+                                '\"' -> AST.JSStringLiteralD (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1)
+                                }
 
 -- <Regular Expression Literal> ::= RegExp
 RegularExpressionLiteral :: { AST.JSExpression }
-RegularExpressionLiteral : 'regex' { AST.JSRegEx (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
+RegularExpressionLiteral : 'regex' { AST.JSRegEx (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
 
 -- PrimaryExpression :                                                   See 11.1
 --        this
@@ -402,7 +396,7 @@ RegularExpressionLiteral : 'regex' { AST.JSRegEx (AST.JSAnnot (ss $1) (gc $1)) (
 --        ObjectLiteral
 --        ( Expression )
 PrimaryExpression :: { AST.JSExpression }
-PrimaryExpression : 'this'                   { AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "this" }
+PrimaryExpression : 'this'                   { AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "this" }
                   | Identifier               { $1 {- 'PrimaryExpression1' -} }
                   | Literal                  { $1 {- 'PrimaryExpression2' -} }
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
@@ -415,47 +409,47 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (AST.JSAnnot (ss $1
 --         IdentifierStart
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSExpression }
-Identifier : 'ident' { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
-           | 'get'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "get" }
-           | 'set'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "set" }
+Identifier : 'ident' { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
+           | 'get'   { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "get" }
+           | 'set'   { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "set" }
 
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSExpression }
 IdentifierName : Identifier {$1}
-             | 'break'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "break" }
-             | 'case'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "case" }
-             | 'catch'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "catch" }
-             | 'const'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "const" }
-             | 'continue'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "continue" }
-             | 'debugger'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "debugger" }
-             | 'default'    { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "default" }
-             | 'delete'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "delete" }
-             | 'do'         { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "do" }
-             | 'else'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "else" }
-             | 'enum'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "enum" }
-             | 'false'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "false" }
-             | 'finally'    { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "finally" }
-             | 'for'        { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "for" }
-             | 'function'   { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "function" }
-             | 'get'        { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "get" }
-             | 'if'         { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "if" }
-             | 'in'         { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "in" }
-             | 'instanceof' { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "instanceof" }
-             | 'new'        { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "new" }
-             | 'null'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "null" }
-             | 'return'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "return" }
-             | 'set'        { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "set" }
-             | 'switch'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "switch" }
-             | 'this'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "this" }
-             | 'throw'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "throw" }
-             | 'true'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "true" }
-             | 'try'        { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "try" }
-             | 'typeof'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "typeof" }
-             | 'var'        { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "var" }
-             | 'void'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "void" }
-             | 'while'      { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "while" }
-             | 'with'       { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) "with" }
-             | 'future'     { AST.JSIdentifier (AST.JSAnnot (ss $1) (gc $1)) (tokenLiteral $1) }
+             | 'break'      { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "break" }
+             | 'case'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "case" }
+             | 'catch'      { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "catch" }
+             | 'const'      { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "const" }
+             | 'continue'   { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "continue" }
+             | 'debugger'   { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "debugger" }
+             | 'default'    { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "default" }
+             | 'delete'     { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "delete" }
+             | 'do'         { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "do" }
+             | 'else'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "else" }
+             | 'enum'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "enum" }
+             | 'false'      { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "false" }
+             | 'finally'    { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "finally" }
+             | 'for'        { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "for" }
+             | 'function'   { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "function" }
+             | 'get'        { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "get" }
+             | 'if'         { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "if" }
+             | 'in'         { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "in" }
+             | 'instanceof' { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "instanceof" }
+             | 'new'        { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "new" }
+             | 'null'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "null" }
+             | 'return'     { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "return" }
+             | 'set'        { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "set" }
+             | 'switch'     { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "switch" }
+             | 'this'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "this" }
+             | 'throw'      { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "throw" }
+             | 'true'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "true" }
+             | 'try'        { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "try" }
+             | 'typeof'     { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "typeof" }
+             | 'var'        { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "var" }
+             | 'void'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "void" }
+             | 'while'      { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "while" }
+             | 'with'       { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) "with" }
+             | 'future'     { AST.JSIdentifier (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
 
 
 
@@ -464,27 +458,27 @@ IdentifierName : Identifier {$1}
 --        [ ElementList ]
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSExpression }
-ArrayLiteral : LSquare RSquare                           { AST.JSArrayLiteral $1 [] $2 }
-             | LSquare Elision RSquare                   { AST.JSArrayLiteral $1 $2 $3 }
-             | LSquare ElementList RSquare               { AST.JSArrayLiteral $1 $2 $3 }
-             | LSquare ElementList Elision RSquare       { AST.JSArrayLiteral $1 ($2 ++ $3) $4 }
+ArrayLiteral : LSquare RSquare                          { AST.JSArrayLiteral $1 [] $2 }
+             | LSquare Elision RSquare                  { AST.JSArrayLiteral $1 $2 $3 }
+             | LSquare ElementList RSquare              { AST.JSArrayLiteral $1 $2 $3 }
+             | LSquare ElementList Elision RSquare      { AST.JSArrayLiteral $1 ($2 ++ $3) $4 }
 
 
 -- ElementList :                                                         See 11.1.4
 --        Elisionopt AssignmentExpression
 --        ElementList , Elisionopt AssignmentExpression
 ElementList :: { [AST.JSExpression] }
-ElementList : Elision AssignmentExpression                   { $1 ++ [$2]   {- 'ElementList1' -} }
-            | AssignmentExpression                           { [$1]         {- 'ElementList2' -} }
-            | ElementList Elision AssignmentExpression       { (($1)++($2 ++ [$3])) {- 'ElementList3' -} }
+ElementList : Elision AssignmentExpression              { $1 ++ [$2]   {- 'ElementList1' -} }
+            | AssignmentExpression                      { [$1]         {- 'ElementList2' -} }
+            | ElementList Elision AssignmentExpression  { (($1)++($2 ++ [$3])) {- 'ElementList3' -} }
 
 
 -- Elision :                                                             See 11.1.4
 --        ,
 --        Elision ,
 Elision :: { [AST.JSExpression] }
-Elision : Comma         { [$1] }
-        | Comma Elision { $1:$2 }
+Elision : Comma             { [$1] }
+        | Comma Elision     { $1:$2 }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
@@ -503,7 +497,7 @@ ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiter
 --        PropertyAssignment
 --        PropertyNameAndValueList , PropertyAssignment
 PropertyNameandValueList :: { [ AST.JSExpression ] }
-PropertyNameandValueList : PropertyAssignment                              { [$1] {- 'PropertyNameandValueList1' -} }
+PropertyNameandValueList : PropertyAssignment                                { [$1] {- 'PropertyNameandValueList1' -} }
                          | PropertyNameandValueList Comma PropertyAssignment { ($1++[$2]++[$3]) {- 'PropertyNameandValueList2' -} }
 
 -- PropertyAssignment :                                                  See 11.1.5
@@ -515,10 +509,10 @@ PropertyAssignment :: { AST.JSExpression }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue (identName $1) $2 [$3] }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ss $1) (gc $1))) (identName $2) $3 [] $4 $5 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ts $1) (tc $1))) (identName $2) $3 [] $4 $5 }
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ss $1) (gc $1))) (identName $2) $3 [$4] $5 $6 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ts $1) (tc $1))) (identName $2) $3 [$4] $5 $6 }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName
@@ -613,7 +607,7 @@ PostfixExpression : LeftHandSideExpression { $1 {- 'PostfixExpression' -} }
 --        ~ UnaryExpression
 --        ! UnaryExpression
 UnaryExpression :: { AST.JSExpression }
-UnaryExpression : PostfixExpression { $1 {- 'UnaryExpression' -} }
+UnaryExpression : PostfixExpression         { $1 {- 'UnaryExpression' -} }
                 | Delete    UnaryExpression { AST.JSUnaryExpression $1 $2 }
                 | Void      UnaryExpression { AST.JSUnaryExpression $1 $2 }
                 | Typeof    UnaryExpression { AST.JSUnaryExpression $1 $2 }
@@ -630,7 +624,7 @@ UnaryExpression : PostfixExpression { $1 {- 'UnaryExpression' -} }
 --        MultiplicativeExpression / UnaryExpression
 --        MultiplicativeExpression % UnaryExpression
 MultiplicativeExpression :: { AST.JSExpression }
-MultiplicativeExpression : UnaryExpression { $1 {- 'MultiplicativeExpression' -} }
+MultiplicativeExpression : UnaryExpression                              { $1 {- 'MultiplicativeExpression' -} }
                          | MultiplicativeExpression Mul UnaryExpression { AST.JSExpressionBinary {- '*' -} $1 $2 $3 }
                          | MultiplicativeExpression Div UnaryExpression { AST.JSExpressionBinary {- '/' -} $1 $2 $3 }
                          | MultiplicativeExpression Mod UnaryExpression { AST.JSExpressionBinary {- '%' -} $1 $2 $3 }
@@ -640,9 +634,9 @@ MultiplicativeExpression : UnaryExpression { $1 {- 'MultiplicativeExpression' -}
 --        AdditiveExpression + MultiplicativeExpression
 --        AdditiveExpression - MultiplicativeExpression
 AdditiveExpression :: { AST.JSExpression }
-AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression { AST.JSExpressionBinary {- '+' -} $1 $2 $3 }
-                   | AdditiveExpression Minus MultiplicativeExpression { AST.JSExpressionBinary {- '-' -} $1 $2 $3 }
-                   | MultiplicativeExpression { $1 {- '(goRegExp $1)-} {- 'AdditiveExpression' -} }
+AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression  { AST.JSExpressionBinary {- '+' -} $1 $2 $3 }
+                   | AdditiveExpression Minus MultiplicativeExpression  { AST.JSExpressionBinary {- '-' -} $1 $2 $3 }
+                   | MultiplicativeExpression                           { $1 {- 'AdditiveExpression' -} }
 
 -- ShiftExpression :                                           See 11.7
 --        AdditiveExpression
@@ -650,10 +644,10 @@ AdditiveExpression : AdditiveExpression Plus  MultiplicativeExpression { AST.JSE
 --        ShiftExpression >> AdditiveExpression
 --        ShiftExpression >>> AdditiveExpression
 ShiftExpression :: { AST.JSExpression }
-ShiftExpression : ShiftExpression Lsh  AdditiveExpression { AST.JSExpressionBinary {- '<<' -}  $1 $2 $3 }
-                | ShiftExpression Rsh  AdditiveExpression { AST.JSExpressionBinary {- '>>' -}  $1 $2 $3 }
-                | ShiftExpression Ursh AdditiveExpression { AST.JSExpressionBinary {- '>>>' -} $1 $2 $3 }
-                | AdditiveExpression { $1 {- 'ShiftExpression' -} }
+ShiftExpression : ShiftExpression Lsh  AdditiveExpression   { AST.JSExpressionBinary {- '<<' -}  $1 $2 $3 }
+                | ShiftExpression Rsh  AdditiveExpression   { AST.JSExpressionBinary {- '>>' -}  $1 $2 $3 }
+                | ShiftExpression Ursh AdditiveExpression   { AST.JSExpressionBinary {- '>>>' -} $1 $2 $3 }
+                | AdditiveExpression                        { $1 {- 'ShiftExpression' -} }
 
 -- RelationalExpression :                                      See 11.8
 --        ShiftExpression
@@ -1079,7 +1073,7 @@ Finally : FinallyL Block { AST.JSFinally $1 $2 {- 'Finally' -} }
 -- DebuggerStatement :                                                        See 12.15
 --        debugger ;
 DebuggerStatement :: { AST.JSStatement }
-DebuggerStatement : 'debugger' MaybeSemi { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ss $1) (gc $1)) "debugger") $2 {- 'DebuggerStatement' -} }
+DebuggerStatement : 'debugger' MaybeSemi { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "debugger") $2 {- 'DebuggerStatement' -} }
 
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
@@ -1162,19 +1156,20 @@ blockToStatement (AST.JSBlock a b c) = AST.JSStatementBlock a b c
 
 
 parseError :: Token -> Alex a
-parseError tok = alexError (show tok)
+parseError = alexError . show
 
 -- --------------------------------
 
-ss :: Token -> TokenPosn
-ss = tokenSpan
+ts :: Token -> TokenPosn
+ts = tokenSpan
 
 -- ------------------------------
 
-gc :: Token -> [CommentAnnotation]
-gc = tokenComment
-mgc :: [Token] -> [CommentAnnotation]
-mgc xs = concatMap tokenComment xs
+tc :: Token -> [CommentAnnotation]
+tc = tokenComment
+
+mtc :: [Token] -> [CommentAnnotation]
+mtc xs = concatMap tokenComment xs
 
 -- ---------------------------------------------------------------------
 -- | mkUnary : The parser detects '+' and '-' as the binary version of these
