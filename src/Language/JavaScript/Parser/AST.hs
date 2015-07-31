@@ -358,7 +358,7 @@ sst (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ssts x1s ++ 
 sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSFunction _ n _lb pl _rb x3) = "JSFunction " ++ ssid n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 sst (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
-sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ") (" ++ sst x3 ++ ")"
+sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ sst x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSEmptyStatement _) = ""
 sst (JSExpressionStatement l s) = ss l ++ (let x = showsemi s in if not (null x) then ',':x else "")
@@ -370,7 +370,7 @@ sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ssb xt1 ++ "," ++ stcs xtc ++ "," ++ st
 sst (JSVarDecl x1 x2) = "JSVarDecl (" ++ ss x1 ++ ") " ++ ssvi x2
 sst (JSVariable _ xs _as) = "JSVariable var " ++ ssts xs
 sst (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
-sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") " ++ sst x ++ showsemi s
+sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") (" ++ sst x ++ ") " ++ showsemi s
 
 ssvi :: JSVarInit -> String
 ssvi (JSVarInit _ n) = "[" ++ ss n ++ "]"

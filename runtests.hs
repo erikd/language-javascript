@@ -186,8 +186,8 @@ testSuite = testGroup "Parser"
 
     , testCase "If1" (testStmt "if (1) {}"  "Right (JSSourceElementsTop [JSIf (JSDecimal '1') (JSStatementBlock [])])")
 
-    , testCase "IfElse1" (testStmt "if (1) {} else {}"     "Right (JSSourceElementsTop [JSIf (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])])")
-    , testCase "IfElse2" (testStmt "if (1) x=1; else {}"   "Right (JSSourceElementsTop [JSIf (JSDecimal '1') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon) (JSStatementBlock [])])")
+    , testCase "IfElse1" (testStmt "if (1) {} else {}"     "Right (JSSourceElementsTop [JSIfElse (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])])")
+    , testCase "IfElse2" (testStmt "if (1) x=1; else {}"   "Right (JSSourceElementsTop [JSIfElse (JSDecimal '1') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon) (JSStatementBlock [])])")
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSSourceElementsTop [JSDoWhile (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')]) (JSLiteral 'true') (JSSemicolon)])")
     , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);"    "Right (JSSourceElementsTop [JSDoWhile (JSOpAssign ('=',JSIdentifier 'x',JSExpressionBinary ('+',JSIdentifier 'x',JSDecimal '1')),JSSemicolon) (JSExpressionBinary ('<',JSIdentifier 'x',JSDecimal '4')) (JSSemicolon)])")
@@ -218,7 +218,7 @@ testSuite = testGroup "Parser"
     , testCase "Return2" (testStmt "return x;"      "Right (JSSourceElementsTop [JSReturn JSIdentifier 'x' JSSemicolon])")
     , testCase "Return3" (testStmt "return 123;"    "Right (JSSourceElementsTop [JSReturn JSDecimal '123' JSSemicolon])")
 
-    , testCase "With1" (testStmt "with (x) {};"     "Right (JSSourceElementsTop [JSWith (JSIdentifier 'x') JSStatementBlock []JSSemicolon])")
+    , testCase "With1" (testStmt "with (x) {};"     "Right (JSSourceElementsTop [JSWith (JSIdentifier 'x') (JSStatementBlock []) JSSemicolon])")
 
     , testCase "Labelled1" (testStmt "abc:x=1"      "Right (JSSourceElementsTop [JSLabelled (JSIdentifier 'abc') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'))])")
 
@@ -263,7 +263,7 @@ testSuite = testGroup "Parser"
     , testCase "05_regex4" (testProg "x=i(/^$/g,\"\\\\$&\")" "Right (JSSourceElementsTop [JSOpAssign ('=',JSIdentifier 'x',JSMemberExpression (JSIdentifier 'i',JSArguments (JSRegEx '/^$/g',JSStringLiteralD '\\\\$&')))])")
 
     , testCase "05_regex5" (testProg "if(/^[a-z]/.test(t)){consts+=t.toUpperCase();keywords[t]=i}else consts+=(/^\\W/.test(t)?opTypeNames[t]:t);"
-                                "Right (JSSourceElementsTop [JSIf (JSMemberExpression (JSMemberDot (JSRegEx '/^[a-z]/',JSIdentifier 'test'),JSArguments (JSIdentifier 't'))) (JSStatementBlock [JSOpAssign ('+=',JSIdentifier 'consts',JSMemberExpression (JSMemberDot (JSIdentifier 't',JSIdentifier 'toUpperCase'),JSArguments ())),JSSemicolon,JSOpAssign ('=',JSMemberSquare (JSIdentifier 'keywords',JSIdentifier 't'),JSIdentifier 'i')]) (JSOpAssign ('+=',JSIdentifier 'consts',JSExpressionParen (JSExpressionTernary (JSMemberExpression (JSMemberDot (JSRegEx '/^\\W/',JSIdentifier 'test'),JSArguments (JSIdentifier 't')),JSMemberSquare (JSIdentifier 'opTypeNames',JSIdentifier 't'),JSIdentifier 't'))),JSSemicolon)])")
+                                "Right (JSSourceElementsTop [JSIfElse (JSMemberExpression (JSMemberDot (JSRegEx '/^[a-z]/',JSIdentifier 'test'),JSArguments (JSIdentifier 't'))) (JSStatementBlock [JSOpAssign ('+=',JSIdentifier 'consts',JSMemberExpression (JSMemberDot (JSIdentifier 't',JSIdentifier 'toUpperCase'),JSArguments ())),JSSemicolon,JSOpAssign ('=',JSMemberSquare (JSIdentifier 'keywords',JSIdentifier 't'),JSIdentifier 'i')]) (JSOpAssign ('+=',JSIdentifier 'consts',JSExpressionParen (JSExpressionTernary (JSMemberExpression (JSMemberDot (JSRegEx '/^\\W/',JSIdentifier 'test'),JSArguments (JSIdentifier 't')),JSMemberSquare (JSIdentifier 'opTypeNames',JSIdentifier 't'),JSIdentifier 't'))),JSSemicolon)])")
 
     , testCase "if_semi" (testProg "if(x);x=1"     "Right (JSSourceElementsTop [JSIf (JSIdentifier 'x') (),JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')])")
 
