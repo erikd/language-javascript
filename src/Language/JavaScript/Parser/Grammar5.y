@@ -883,8 +883,8 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
 
 
 StatementBlock :: { AST.JSStatement }
-StatementBlock : LBrace RBrace               { AST.JSStatementBlock (AST.JSBlock $1 [] $2) {- 'StatementBlock1' -} }
-               | LBrace StatementList RBrace { AST.JSStatementBlock (AST.JSBlock $1 $2 $3) {- 'StatementBlock2' -} }
+StatementBlock : Block               { blockToStatement $1 {- 'StatementBlock1' -} }
+
 
 -- Block :                                                        See 12.1
 --         { StatementListopt }
@@ -1156,6 +1156,9 @@ combineSourceElementsTop (AST.JSSourceElementsTop xs) x1 = AST.JSSourceElementsT
 
 combineTop :: AST.JSAST -> AST.JSStatement -> AST.JSAST
 combineTop (AST.JSSourceElementsTop xs) x1 = AST.JSSourceElementsTop (xs++[x1])
+
+blockToStatement :: AST.JSBlock -> AST.JSStatement
+blockToStatement (AST.JSBlock a b c) = AST.JSStatementBlock a b c
 
 
 parseError :: Token -> Alex a

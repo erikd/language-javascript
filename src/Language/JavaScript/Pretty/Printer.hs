@@ -207,7 +207,7 @@ instance RenderJS [JSSwitchParts] where
     (|>) = foldl' (|>)
 
 instance RenderJS JSStatement where
-    (|>) pacc (JSStatementBlock blk)                       = pacc |> blk
+    (|>) pacc (JSStatementBlock alb blk arb)               = pacc |> alb |> "{" |> blk |> arb |> "}"
     (|>) pacc (JSBreak annot mi s)                         = pacc |> annot |> "break" |> mi |> s
     (|>) pacc (JSContinue annot mi s)                      = pacc |> annot |> "continue" |> mi |> s
     (|>) pacc (JSConstant annot xs s)                      = pacc |> annot |> "const" |> xs |> s

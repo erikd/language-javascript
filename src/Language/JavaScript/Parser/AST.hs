@@ -39,7 +39,7 @@ data JSAST
     deriving (Eq, Show)
 
 data JSStatement
-    = JSStatementBlock JSBlock      -- ^statement block
+    = JSStatementBlock JSAnnot [JSStatement] JSAnnot      -- ^lbrace, stmts, rbrace
     | JSBreak JSAnnot JSIdent JSSemi        -- ^break,optional identifier, autosemi
     | JSConstant JSAnnot [JSStatement] JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot JSIdent JSSemi     -- ^continue, optional identifier,autosemi
@@ -345,7 +345,7 @@ stf (JSFinally _ x) = "JSFinally (" ++ ssb x ++ ")"
 stf JSNoFinally = "JSFinally ()"
 
 sst :: JSStatement -> String
-sst (JSStatementBlock blk) = ssb blk
+sst (JSStatementBlock _ xs _) = "JSStatementBlock " ++ ssts xs
 sst (JSBreak _ JSIdentNone s) = "JSBreak" ++ commaIf (showsemi s)
 sst (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ singleQuote n ++ commaIf (showsemi s)
 sst (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (showsemi s)
@@ -380,7 +380,7 @@ ssts :: [JSStatement] -> String
 ssts xs = "[" ++ commaJoin (map sst xs) ++ "]"
 
 ssb :: JSBlock -> String
-ssb (JSBlock _ xs _) = "JSStatementBlock " ++ ssts xs
+ssb (JSBlock _ xs _) = "JSBlock " ++ ssts xs
 
 ssw :: JSSwitchParts -> String
 ssw (JSCase _ x1 _c x2s) = "JSCase (" ++ ss x1 ++ ") (" ++ ssts x2s ++ ")"
