@@ -207,7 +207,7 @@ instance RenderJS [JSSwitchParts] where
     (|>) = foldl' (|>)
 
 instance RenderJS JSStatement where
-    (|>) pacc (JSStatementBlock alb blk arb)               = pacc |> alb |> "{" |> blk |> arb |> "}"
+    (|>) pacc (JSStatementBlock alb blk arb s)             = pacc |> alb |> "{" |> blk |> arb |> "}" |> s
     (|>) pacc (JSBreak annot mi s)                         = pacc |> annot |> "break" |> mi |> s
     (|>) pacc (JSContinue annot mi s)                      = pacc |> annot |> "continue" |> mi |> s
     (|>) pacc (JSConstant annot xs s)                      = pacc |> annot |> "const" |> xs |> s
@@ -216,15 +216,15 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForIn af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForVar af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
     (|>) pacc (JSForVarIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
-    (|>) pacc (JSFunction af n alb x2s arb x3)             = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3
+    (|>) pacc (JSFunction af n alb x2s arb x3 s)           = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s
     (|>) pacc (JSIfElse annot alb x1 arb x2s ea x3s)       = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> ea |> "else" |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
     (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
     (|>) pacc (JSExpressionStatement l s)                  = pacc |> l |> s
     (|>) pacc (JSReturn annot me s)                        = pacc |> annot |> "return" |> me |> s
-    (|>) pacc (JSSwitch annot alp x arp alb x2 arb)        = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}"
-    (|>) pacc (JSThrow annot x)                            = pacc |> annot |> "throw" |> x
+    (|>) pacc (JSSwitch annot alp x arp alb x2 arb s)      = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}" |> s
+    (|>) pacc (JSThrow annot x s)                          = pacc |> annot |> "throw" |> x |> s
     (|>) pacc (JSTry annot tb tcs tf)                      = pacc |> annot |> "try" |> tb |> tcs |> tf
     (|>) pacc (JSVarDecl x1 x2)                            = pacc |> x1 |> x2
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s

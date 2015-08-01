@@ -877,7 +877,7 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
 
 
 StatementBlock :: { AST.JSStatement }
-StatementBlock : Block               { blockToStatement $1 {- 'StatementBlock1' -} }
+StatementBlock : Block MaybeSemi       { blockToStatement $1 $2 {- 'StatementBlock1' -} }
 
 
 -- Block :                                                        See 12.1
@@ -936,19 +936,19 @@ EmptyStatement : Semi { AST.JSEmptyStatement $1 {- 'EmptyStatement' -} }
 --       According to http://sideshowbarker.github.com/es5-spec/#x12.4, the ambiguity is with
 --       Block or FunctionDeclaration
 ExpressionStatement :: { AST.JSStatement }
-ExpressionStatement : Expression MaybeSemi { AST.JSExpressionStatement $1 $2 {- 'ExpressionStatement' -} }
+ExpressionStatement : Expression MaybeSemi { expressionToStatement $1 $2 {- 'ExpressionStatement' -} }
 
 
 -- IfStatement :                                                                            See 12.5
 --         if ( Expression ) Statement else Statement
 --         if ( Expression ) Statement
 IfStatement :: { AST.JSStatement } -- +++XXXX++
-IfStatement : If LParen Expression RParen Semi
-                  { AST.JSIf $1 $2 $3 $4 (AST.JSEmptyStatement $5) {- 'IfStatement1' -} }
+IfStatement : If LParen Expression RParen EmptyStatement
+                  { AST.JSIf $1 $2 $3 $4 $5                            {- 'IfStatement1' -} }
             | If LParen Expression RParen StatementNoEmpty Else Statement
-                  {  AST.JSIfElse $1 $2 $3 $4 $5 $6 $7             {- 'IfStatement3' -} }
+                  {  AST.JSIfElse $1 $2 $3 $4 $5 $6 $7                 {- 'IfStatement3' -} }
             | If LParen Expression RParen StatementNoEmpty
-                  { AST.JSIf $1 $2 $3 $4 $5                        {- 'IfStatement3' -} }
+                  { AST.JSIf $1 $2 $3 $4 $5                            {- 'IfStatement3' -} }
 
 -- IterationStatement :                                                                     See 12.6
 --         do Statement while ( Expression );
@@ -1000,7 +1000,7 @@ WithStatement : With LParen Expression RParen Statement MaybeSemi  { AST.JSWith 
 -- SwitchStatement :                                                                        See 12.11
 --         switch ( Expression ) CaseBlock
 SwitchStatement :: { AST.JSStatement }
-SwitchStatement : Switch LParen Expression RParen LBrace CaseBlock RBrace { AST.JSSwitch $1 $2 $3 $4 $5 $6 $7 }
+SwitchStatement : Switch LParen Expression RParen LBrace CaseBlock RBrace MaybeSemi { AST.JSSwitch $1 $2 $3 $4 $5 $6 $7 $8 }
 
 -- CaseBlock :                                                                              See 12.11
 --         { CaseClausesopt }
@@ -1039,7 +1039,7 @@ LabelledStatement : Identifier Colon Statement { AST.JSLabelled $1 $2 $3 {- 'Lab
 -- TODO : sort out no LineTerminator here
 --        Does it need a semi at the end?
 ThrowStatement :: { AST.JSStatement }
-ThrowStatement : Throw Expression { AST.JSThrow $1 $2 {- 'ThrowStatement' -} }
+ThrowStatement : Throw Expression MaybeSemi { AST.JSThrow $1 $2 $3 {- 'ThrowStatement' -} }
 
 -- Note: worked in updated syntax as per https://developer.mozilla.org/en/JavaScript/Reference/Statements/try...catch
 --   i.e., 0 or more catches, then an optional finally
@@ -1078,18 +1078,26 @@ DebuggerStatement : 'debugger' MaybeSemi { AST.JSExpressionStatement (AST.JSLite
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSStatement }
-FunctionDeclaration : Function Identifier LParen FormalParameterList RParen FunctionBody
-                      { AST.JSFunction $1 (identName $2) $3 (AST.JSParams $4) $5 $6 {- 'FunctionDeclaration1' -} }
-                    | Function Identifier LParen RParen FunctionBody
-                      { AST.JSFunction $1 (identName $2) $3 AST.JSNoParams $4 $5 {- 'FunctionDeclaration2' -} }
+FunctionDeclaration : NamedFunctionExpression MaybeSemi  {  expressionToStatement $1 $2              {- 'FunctionDeclaration1' -} }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
 FunctionExpression :: { AST.JSExpression }
-FunctionExpression : Function IdentifierOpt LParen RParen FunctionBody
-                     { AST.JSFunctionExpression $1 $2 $3 AST.JSNoParams $4 $5 {- 'FunctionExpression1' -} }
-                   | Function IdentifierOpt LParen FormalParameterList RParen FunctionBody
-                     { AST.JSFunctionExpression $1 $2 $3 (AST.JSParams $4) $5 $6 {- 'FunctionExpression2' -} }
+FunctionExpression : LambdaExpression           { $1     {- 'FunctionExpression1' -} }
+                   | NamedFunctionExpression     { $1     {- 'FunctionExpression2' -} }
+
+NamedFunctionExpression :: { AST.JSExpression }
+NamedFunctionExpression : Function Identifier LParen RParen FunctionBody
+                            { AST.JSFunctionExpression $1 (identName $2) $3 AST.JSNoParams $4 $5        {- 'NamedFunctionExpression1' -} }
+                        | Function Identifier LParen FormalParameterList RParen FunctionBody
+                            { AST.JSFunctionExpression $1 (identName $2) $3 (AST.JSParams $4) $5 $6     {- 'NamedFunctionExpression2' -} }
+
+LambdaExpression :: { AST.JSExpression }
+LambdaExpression : Function LParen RParen FunctionBody
+                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 AST.JSNoParams $3 $4 {- 'LambdaExpression1' -} }
+                 | Function LParen FormalParameterList RParen FunctionBody
+                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 (AST.JSParams $3) $4 $5 {- 'LambdaExpression2' -} }
+
 
 IdentifierOpt :: { AST.JSIdent }
 IdentifierOpt : Identifier { identName $1     {- 'IdentifierOpt1' -} }
@@ -1105,15 +1113,14 @@ FormalParameterList : Identifier                            { AST.JSLOne (identN
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
 FunctionBody :: { AST.JSBlock }
-FunctionBody : LBrace SourceElements RBrace { AST.JSBlock $1 $2 $3 {- 'FunctionBody1' -} }
-             | LBrace                RBrace { AST.JSBlock $1 [] $2 {- 'FunctionBody2' -} }
+FunctionBody : Block                    { $1    {- 'FunctionBody1' -} }
 
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
 
 Program :: { AST.JSAST }
-Program : SourceElementsTop Eof { combineTop $1 $2             {- 'Program1' -} }
-        | Eof                   { AST.JSSourceElementsTop [$1] {- 'Program2' -} }
+Program : StatementList Eof        { AST.JSSourceElementsTop ($1++[$2])    {- 'Program1' -} }
+        | Eof                   { AST.JSSourceElementsTop [$1]             {- 'Program2' -} }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
@@ -1123,36 +1130,17 @@ PrimaryExpressionMain :: { AST.JSAST }
 PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] {- 'PrimaryExpression' -} }
 
 StatementMain :: { AST.JSAST }
-StatementMain : Statement Eof { AST.JSSourceElementsTop [$1] {- 'StatementMain' -} }
+StatementMain : Program                        { $1    {- 'StatementMain' -} }
 
-
--- SourceElements :                                                           See clause 14
---        SourceElement
---        SourceElements SourceElement
-SourceElements :: { [AST.JSStatement] }
-SourceElements : SourceElement                { [$1]     {- 'SourceElements1' -} }
-               | SourceElements SourceElement { $1++[$2] {- 'SourceElements2' -} }
-
-SourceElementsTop :: { AST.JSAST }
-SourceElementsTop : SourceElement                   { AST.JSSourceElementsTop [$1]     {- 'SourceElementsTop1' -} }
-                  | SourceElementsTop SourceElement { (combineSourceElementsTop $1 $2) {- 'SourceElementsTop2' -} }
-
--- SourceElement :
---       Statement
---       FunctionDeclaration
-SourceElement :: { AST.JSStatement }
-SourceElement : Statement            { $1 {- 'SourceElement1' -} }
-              | FunctionDeclaration  { $1 {- 'SourceElement2' -} }
 
 {
-combineSourceElementsTop :: AST.JSAST -> AST.JSStatement -> AST.JSAST
-combineSourceElementsTop (AST.JSSourceElementsTop xs) x1 = AST.JSSourceElementsTop (xs++[x1])
 
-combineTop :: AST.JSAST -> AST.JSStatement -> AST.JSAST
-combineTop (AST.JSSourceElementsTop xs) x1 = AST.JSSourceElementsTop (xs++[x1])
+blockToStatement :: AST.JSBlock -> AST.JSSemi -> AST.JSStatement
+blockToStatement (AST.JSBlock a b c) s = AST.JSStatementBlock a b c s
 
-blockToStatement :: AST.JSBlock -> AST.JSStatement
-blockToStatement (AST.JSBlock a b c) = AST.JSStatementBlock a b c
+expressionToStatement :: AST.JSExpression -> AST.JSSemi -> AST.JSStatement
+expressionToStatement (AST.JSFunctionExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSFunction a b c d e f s
+expressionToStatement exp s = AST.JSExpressionStatement exp s
 
 
 parseError :: Token -> Alex a

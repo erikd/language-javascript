@@ -39,7 +39,7 @@ data JSAST
     deriving (Eq, Show)
 
 data JSStatement
-    = JSStatementBlock JSAnnot [JSStatement] JSAnnot      -- ^lbrace, stmts, rbrace
+    = JSStatementBlock JSAnnot [JSStatement] JSAnnot JSSemi     -- ^lbrace, stmts, rbrace, autosemi
     | JSBreak JSAnnot JSIdent JSSemi        -- ^break,optional identifier, autosemi
     | JSConstant JSAnnot [JSStatement] JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot JSIdent JSSemi     -- ^continue, optional identifier,autosemi
@@ -48,15 +48,15 @@ data JSStatement
     | JSForIn JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSAnnot JSAnnot [JSStatement] JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSStatement JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock  -- ^fn,name, lb,parameter list,rb,block
+    | JSFunction JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSIf JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^if,(,expr,),stmt
     | JSIfElse JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled JSExpression JSAnnot JSStatement -- ^identifier,colon,stmt
     | JSEmptyStatement JSAnnot
     | JSExpressionStatement JSExpression JSSemi
     | JSReturn JSAnnot (Maybe JSExpression) JSSemi -- ^optional expression,autosemi
-    | JSSwitch JSAnnot JSAnnot JSExpression JSAnnot JSAnnot [JSSwitchParts] JSAnnot-- ^switch,lb,expr,rb,caseblock
-    | JSThrow JSAnnot JSExpression -- ^throw val
+    | JSSwitch JSAnnot JSAnnot JSExpression JSAnnot JSAnnot [JSSwitchParts] JSAnnot JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
+    | JSThrow JSAnnot JSExpression JSSemi -- ^throw val autosemi
     | JSTry JSAnnot JSBlock [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
     | JSVarDecl JSExpression JSVarInit -- ^identifier, initializer
     | JSVariable JSAnnot [JSStatement] JSSemi -- ^var|const, decl, autosemi
@@ -345,7 +345,7 @@ stf (JSFinally _ x) = "JSFinally (" ++ ssb x ++ ")"
 stf JSNoFinally = "JSFinally ()"
 
 sst :: JSStatement -> String
-sst (JSStatementBlock _ xs _) = "JSStatementBlock " ++ ssts xs
+sst (JSStatementBlock _ xs _ _) = "JSStatementBlock " ++ ssts xs
 sst (JSBreak _ JSIdentNone s) = "JSBreak" ++ commaIf (showsemi s)
 sst (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ singleQuote n ++ commaIf (showsemi s)
 sst (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (showsemi s)
@@ -356,21 +356,21 @@ sst (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ sss x1s ++ " " ++ sss
 sst (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ssts x1s ++ " " ++ sss x2s ++ " " ++ sss x3s ++ " (" ++ sst x4 ++ ")"
 sst (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ sst x1 ++ ") (" ++ ss x2 ++ ") (" ++ sst x3 ++ ")"
-sst (JSFunction _ n _lb pl _rb x3) = "JSFunction " ++ ssid n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
+sst (JSFunction _ n _lb pl _rb x3 _) = "JSFunction " ++ ssid n ++ " " ++ ssjl pl ++ " (" ++ ssb x3 ++ ")"
 sst (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ sst x2 ++ ") (" ++ sst x3 ++ ")"
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
-sst (JSEmptyStatement _) = ""
+sst (JSEmptyStatement _) = "JSEmptyStatement"
 sst (JSExpressionStatement l s) = ss l ++ (let x = showsemi s in if not (null x) then ',':x else "")
 sst (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ showsemi s
 sst (JSReturn _ Nothing s) = "JSReturn " ++ showsemi s
-sst (JSSwitch _ _lp x _rp _lb x2 _rb) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
-sst (JSThrow _ x) = "JSThrow (" ++ ss x ++ ")"
+sst (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2
+sst (JSThrow _ x _) = "JSThrow (" ++ ss x ++ ")"
 sst (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ssb xt1 ++ "," ++ stcs xtc ++ "," ++ stf xtf ++ ")"
 sst (JSVarDecl x1 x2) = "JSVarDecl (" ++ ss x1 ++ ") " ++ ssvi x2
 sst (JSVariable _ xs _as) = "JSVariable var " ++ ssts xs
 sst (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
-sst (JSWith _ _lb x1 _rb x s) = "JSWith (" ++ ss x1 ++ ") (" ++ sst x ++ ") " ++ showsemi s
+sst (JSWith _ _lb x1 _rb x _) = "JSWith (" ++ ss x1 ++ ") (" ++ sst x ++ ")"
 
 ssvi :: JSVarInit -> String
 ssvi (JSVarInit _ n) = "[" ++ ss n ++ "]"
