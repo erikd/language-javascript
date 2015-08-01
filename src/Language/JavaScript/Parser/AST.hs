@@ -35,7 +35,10 @@ data JSAnnot
 
 
 data JSAST
-    = JSSourceElementsTop [JSStatement] JSAnnot -- ^source elements, tailing whitespace
+    = JSAstProgram [JSStatement] JSAnnot -- ^source elements, tailing whitespace
+    | JSAstStatement JSStatement JSAnnot
+    | JSAstExpression JSExpression JSAnnot
+    | JSAstLiteral JSExpression JSAnnot
     deriving (Eq, Show)
 
 data JSStatement
@@ -210,7 +213,10 @@ data JSArguments
 
 -- Strip out the location info, leaving the original JSExpression text representation
 showStripped :: JSAST -> String
-showStripped (JSSourceElementsTop xs _) = "JSSourceElementsTop " ++ ssts xs
+showStripped (JSAstProgram xs _) = "JSAstProgram " ++ ssts xs
+showStripped (JSAstStatement s _) = "JSAstStatement (" ++ sst s ++ ")"
+showStripped (JSAstExpression e _) = "JSAstExpression (" ++ ss e ++ ")"
+showStripped (JSAstLiteral s _)  = "JSAstLiteral (" ++ ss s ++ ")"
 
 
 ss :: JSExpression -> String

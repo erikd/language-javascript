@@ -1119,18 +1119,18 @@ FunctionBody : Block                    { $1    {- 'FunctionBody1' -} }
 --        SourceElementsopt
 
 Program :: { AST.JSAST }
-Program : StatementList Eof     	{ AST.JSSourceElementsTop $1 $2   	{- 'Program1' -} }
-        | Eof                   	{ AST.JSSourceElementsTop [] $1 	{- 'Program2' -} }
+Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
+        | Eof                   	{ AST.JSAstProgram [] $1 	{- 'Program2' -} }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
-LiteralMain : Literal Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] $2 {- 'LiteralMain' -} }
+LiteralMain : Literal Eof			{ AST.JSAstLiteral $1 $2	{- 'LiteralMain' -} }
 
 PrimaryExpressionMain :: { AST.JSAST }
-PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] $2 {- 'PrimaryExpression' -} }
+PrimaryExpressionMain : PrimaryExpression Eof	{ AST.JSAstExpression $1 $2 {- 'PrimaryExpression' -} }
 
 StatementMain :: { AST.JSAST }
-StatementMain : Program                        { $1    {- 'StatementMain' -} }
+StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'StatementMain' -} }
 
 
 {

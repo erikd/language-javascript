@@ -49,8 +49,10 @@ class RenderJS a where
 
 
 instance RenderJS JSAST where
-    (|>) pacc (JSSourceElementsTop xs a) = pacc |> xs |> a
-
+    (|>) pacc (JSAstProgram xs a)   = pacc |> xs |> a
+    (|>) pacc (JSAstStatement s a)  = pacc |> s |> a
+    (|>) pacc (JSAstExpression e a) = pacc |> e |> a
+    (|>) pacc (JSAstLiteral x a)    = pacc |> x |> a
 
 instance RenderJS JSExpression where
     -- Terminals
