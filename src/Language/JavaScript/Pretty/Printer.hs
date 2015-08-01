@@ -49,7 +49,7 @@ class RenderJS a where
 
 
 instance RenderJS JSAST where
-    (|>) pacc (JSSourceElementsTop xs) = pacc |> xs
+    (|>) pacc (JSSourceElementsTop xs a) = pacc |> xs |> a
 
 
 instance RenderJS JSExpression where

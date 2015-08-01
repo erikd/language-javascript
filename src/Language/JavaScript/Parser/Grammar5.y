@@ -348,8 +348,8 @@ New :: { AST.JSAnnot }
 New : 'new' { AST.JSAnnot (ts $1) (tc $1) }
 
 
-Eof :: { AST.JSStatement }
-Eof : 'tail' { AST.JSExpressionStatement (AST.JSLiteral (AST.JSAnnot (ts $1) (tc $1)) "") AST.JSSemiAuto {- 'Eof' -} }
+Eof :: { AST.JSAnnot }
+Eof : 'tail' { AST.JSAnnot (ts $1) (tc $1) {- 'Eof' -} }
 
 -- Literal ::                                                                See 7.8
 --         NullLiteral
@@ -1119,15 +1119,15 @@ FunctionBody : Block                    { $1    {- 'FunctionBody1' -} }
 --        SourceElementsopt
 
 Program :: { AST.JSAST }
-Program : StatementList Eof        { AST.JSSourceElementsTop ($1++[$2])    {- 'Program1' -} }
-        | Eof                   { AST.JSSourceElementsTop [$1]             {- 'Program2' -} }
+Program : StatementList Eof     	{ AST.JSSourceElementsTop $1 $2   	{- 'Program1' -} }
+        | Eof                   	{ AST.JSSourceElementsTop [] $1 	{- 'Program2' -} }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
-LiteralMain : Literal Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] {- 'LiteralMain' -} }
+LiteralMain : Literal Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] $2 {- 'LiteralMain' -} }
 
 PrimaryExpressionMain :: { AST.JSAST }
-PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] {- 'PrimaryExpression' -} }
+PrimaryExpressionMain : PrimaryExpression Eof { AST.JSSourceElementsTop [AST.JSExpressionStatement $1 AST.JSSemiAuto] $2 {- 'PrimaryExpression' -} }
 
 StatementMain :: { AST.JSAST }
 StatementMain : Program                        { $1    {- 'StatementMain' -} }
