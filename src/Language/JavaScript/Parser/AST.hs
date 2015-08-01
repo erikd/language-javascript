@@ -54,6 +54,8 @@ data JSStatement
     | JSLabelled JSExpression JSAnnot JSStatement -- ^identifier,colon,stmt
     | JSEmptyStatement JSAnnot
     | JSExpressionStatement JSExpression JSSemi
+    | JSAssignStatement JSExpression JSAssignOp JSExpression JSSemi -- ^lhs, assignop, rhs, autosemi
+    | JSMethodCall JSExpression JSArguments JSSemi
     | JSReturn JSAnnot (Maybe JSExpression) JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSAnnot JSExpression JSAnnot JSAnnot [JSSwitchParts] JSAnnot JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
     | JSThrow JSAnnot JSExpression JSSemi -- ^throw val autosemi
@@ -358,6 +360,8 @@ sst (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ sst x2 
 sst (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ sst x2 ++ ")"
 sst (JSEmptyStatement _) = "JSEmptyStatement"
 sst (JSExpressionStatement l s) = ss l ++ (let x = showsemi s in if not (null x) then ',':x else "")
+sst (JSAssignStatement lhs op rhs s) ="JSOpAssign (" ++ sopa op ++ "," ++ ss lhs ++ "," ++ ss rhs ++ (let x = showsemi s in if not (null x) then "),"++x else ")")
+sst (JSMethodCall e a s) = "JSMemberExpression (" ++ ss e ++ "," ++ ssa a ++ (let x = showsemi s in if not (null x) then "),"++x else ")")
 sst (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ showsemi s
 sst (JSReturn _ Nothing s) = "JSReturn " ++ showsemi s
 sst (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ssws x2

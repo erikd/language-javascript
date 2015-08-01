@@ -1140,6 +1140,8 @@ blockToStatement (AST.JSBlock a b c) s = AST.JSStatementBlock a b c s
 
 expressionToStatement :: AST.JSExpression -> AST.JSSemi -> AST.JSStatement
 expressionToStatement (AST.JSFunctionExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSFunction a b c d e f s
+expressionToStatement (AST.JSAssignExpression lhs op rhs) s = AST.JSAssignStatement lhs op rhs s
+expressionToStatement (AST.JSMemberExpression e a) s = AST.JSMethodCall e a s
 expressionToStatement exp s = AST.JSExpressionStatement exp s
 
 

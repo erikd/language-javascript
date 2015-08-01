@@ -222,6 +222,8 @@ instance RenderJS JSStatement where
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
     (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
     (|>) pacc (JSExpressionStatement l s)                  = pacc |> l |> s
+    (|>) pacc (JSAssignStatement lhs op rhs s)             = pacc |> lhs |> op |> rhs |> s
+    (|>) pacc (JSMethodCall e a s)                         = pacc |> e |> a |> s
     (|>) pacc (JSReturn annot me s)                        = pacc |> annot |> "return" |> me |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb s)      = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}" |> s
     (|>) pacc (JSThrow annot x s)                          = pacc |> annot |> "throw" |> x |> s
