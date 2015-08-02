@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Language.JavaScript.Parser.AST
     ( JSExpression (..)
     , JSAnnot (..)
@@ -22,6 +24,7 @@ module Language.JavaScript.Parser.AST
     , showStripped
     ) where
 
+import Data.Data
 import Data.List
 import Language.JavaScript.Parser.SrcLocation (TokenPosn (..))
 import Language.JavaScript.Parser.Token
@@ -31,7 +34,7 @@ import Language.JavaScript.Parser.Token
 data JSAnnot
     = JSAnnot TokenPosn [CommentAnnotation] -- ^Annotation: position and comment/whitespace information
     | JSNoAnnot -- ^No annotation
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 
 data JSAST
@@ -39,7 +42,7 @@ data JSAST
     | JSAstStatement JSStatement JSAnnot
     | JSAstExpression JSExpression JSAnnot
     | JSAstLiteral JSExpression JSAnnot
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSStatement
     = JSStatementBlock JSAnnot [JSStatement] JSAnnot JSSemi     -- ^lbrace, stmts, rbrace, autosemi
@@ -67,7 +70,7 @@ data JSStatement
     | JSVariable JSAnnot [JSStatement] JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSSemi -- ^with,lb,expr,rb,stmt list
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
     -- | Terminals
@@ -102,7 +105,7 @@ data JSExpression
     | JSPropertyAccessor JSAccessor JSIdent JSAnnot [JSExpression] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue JSIdent JSAnnot [JSExpression] -- ^name, colon, value
     | JSUnaryExpression JSUnaryOp JSExpression
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
     = JSBinOpAnd JSAnnot
@@ -128,7 +131,7 @@ data JSBinOp
     | JSBinOpStrictNeq JSAnnot
     | JSBinOpTimes JSAnnot
     | JSBinOpUrsh JSAnnot
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSUnaryOp
     = JSUnaryOpDecr JSAnnot
@@ -140,12 +143,12 @@ data JSUnaryOp
     | JSUnaryOpTilde JSAnnot
     | JSUnaryOpTypeof JSAnnot
     | JSUnaryOpVoid JSAnnot
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSSemi
     = JSSemi JSAnnot
     | JSSemiAuto
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSAssignOp
     = JSAssign JSAnnot
@@ -160,56 +163,56 @@ data JSAssignOp
     | JSBwAndAssign JSAnnot
     | JSBwXorAssign JSAnnot
     | JSBwOrAssign JSAnnot
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSTryCatch
     = JSCatch JSAnnot JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,rb,block
     | JSCatchIf JSAnnot JSAnnot JSExpression JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,if,expr,rb,block
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSTryFinally
     = JSFinally JSAnnot JSBlock -- ^finally,block
     | JSNoFinally
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSBlock
     = JSBlock JSAnnot [JSStatement] JSAnnot -- ^lbrace, stmts, rbrace
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSSwitchParts
     = JSCase JSAnnot JSExpression JSAnnot [JSStatement]    -- ^expr,colon,stmtlist
     | JSDefault JSAnnot JSAnnot [JSStatement] -- ^colon,stmtlist
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSVarInit
     = JSVarInit JSAnnot JSExpression -- ^ assignop, initializer
     | JSVarInitNone
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 -- | Accessors for JSPropertyAccessor is either 'get' or 'set'.
 data JSAccessor
     = JSAccessorGet JSAnnot
     | JSAccessorSet JSAnnot
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSIdent
     = JSIdentName JSAnnot String
     | JSIdentNone
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSList a
     = JSParams (JSNonEmptyList a) -- ^tail, comma, ident
     | JSNoParams
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSNonEmptyList a
     = JSLCons (JSNonEmptyList a) JSAnnot a
     | JSLOne a
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 data JSArguments
     = JSArguments JSAnnot (JSList JSExpression) JSAnnot    -- ^lb, args, rb
-    deriving (Eq, Show)
+    deriving (Data, Eq, Show, Typeable)
 
 -- Strip out the location info, leaving the original JSExpression text representation
 showStripped :: JSAST -> String
