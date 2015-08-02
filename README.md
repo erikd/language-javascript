@@ -45,6 +45,8 @@ Changes
 -------
 
 ```
+0.5.14.2 Update Alex dependency
+
 0.5.14.1 Fix haddocks
 
 0.5.14.0 Fix a break/continue/return parsing problem
