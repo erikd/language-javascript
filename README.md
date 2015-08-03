@@ -1,7 +1,7 @@
 Parser for JavaScript
 ---------------------
 
-[![Build Status](https://secure.travis-ci.org/alanz/language-javascript.png?branch=master)](http://travis-ci.org/alanz/language-javascript)
+[![Build Status](https://secure.travis-ci.org/erikd/language-javascript.png?branch=master)](http://travis-ci.org/erikd/language-javascript)
 
 Based (loosely) on language-python
 
@@ -110,7 +110,7 @@ Changes
 0.4.9 Make alex and happy versions more explicit. Expose the AlexSpan
       data type, so parse error positions can be reported.
 
-0.4.8 Close issue https://github.com/alanz/language-javascript/issues/5 by
+0.4.8 Close issue https://github.com/erikd/language-javascript/issues/5 by
       correcting the lexical analyser for DecimalLiteral
 
 0.4.7 Continue ECMASCRIPT update, remove incorrect future reserved words for
