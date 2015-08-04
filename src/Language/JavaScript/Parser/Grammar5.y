@@ -949,6 +949,8 @@ IfStatement : If LParen Expression RParen EmptyStatement
                   {  AST.JSIfElse $1 $2 $3 $4 $5 $6 $7                 {- 'IfStatement3' -} }
             | If LParen Expression RParen StatementNoEmpty
                   { AST.JSIf $1 $2 $3 $4 $5                            {- 'IfStatement3' -} }
+            | If LParen Expression RParen EmptyStatement Else Statement
+                  {  AST.JSIfElse $1 $2 $3 $4 $5 $6 $7                 {- 'IfStatement4' -} }
 
 -- IterationStatement :                                                                     See 12.6
 --         do Statement while ( Expression );
