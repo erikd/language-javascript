@@ -188,6 +188,7 @@ testSuite = testGroup "Parser"
 
     , testCase "IfElse1" (testStmt "if (1) {} else {}"     "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])))")
     , testCase "IfElse2" (testStmt "if (1) x=1; else {}"   "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon) (JSStatementBlock [])))")
+    , testCase "IfElse3" (testStmt " if (1);else break"    "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSEmptyStatement) (JSBreak)))")
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSAstStatement (JSDoWhile (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')]) (JSLiteral 'true') (JSSemicolon)))")
     , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);"    "Right (JSAstStatement (JSDoWhile (JSOpAssign ('=',JSIdentifier 'x',JSExpressionBinary ('+',JSIdentifier 'x',JSDecimal '1')),JSSemicolon) (JSExpressionBinary ('<',JSIdentifier 'x',JSDecimal '4')) (JSSemicolon)))")
