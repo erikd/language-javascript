@@ -188,6 +188,7 @@ parserSuite = testGroup "Parser"
 
     , testCase "IfElse1" (testStmt "if (1) {} else {}"  "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSBlock ([])]) ([JSLiteral \"else\",JSBlock ([])]))")
     , testCase "IfElse2" (testStmt "if (1) x=1; else {}" "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"],JSLiteral \";\"]) ([JSLiteral \"else\",JSBlock ([])]))")
+    , testCase "IfElse3" (testStmt " if (1);else break"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSLiteral \";\"]) ([JSLiteral \"else\",JSBreak [] JSLiteral \"\"]))")
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSDoWhile (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
     , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);" "Right (JSDoWhile (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSExpressionBinary \"+\" [JSIdentifier \"x\"] [JSDecimal \"1\"]]) (JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"4\"]]) (JSLiteral \";\"))")
