@@ -1,11 +1,11 @@
 {
 {-# LANGUAGE BangPatterns #-}
-module Language.JavaScript.Parser.Grammar5 (
-    parseProgram
-  , parseLiteral
-  , parsePrimaryExpression
-  , parseStatement
-  ) where
+module Language.JavaScript.Parser.Grammar5
+	( parseProgram
+	, parseStatement
+	, parseExpression
+	, parseLiteral
+	) where
 
 import Data.Char
 import Language.JavaScript.Parser.Lexer
@@ -19,7 +19,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- The name of the generated function to be exported from the module
 %name parseProgram           Program
 %name parseLiteral           LiteralMain
-%name parsePrimaryExpression PrimaryExpressionMain
+%name parseExpression		 ExpressionMain
 %name parseStatement         StatementMain
 
 %tokentype { Token }
@@ -1128,8 +1128,8 @@ Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
 LiteralMain :: { AST.JSAST }
 LiteralMain : Literal Eof			{ AST.JSAstLiteral $1 $2	{- 'LiteralMain' -} }
 
-PrimaryExpressionMain :: { AST.JSAST }
-PrimaryExpressionMain : PrimaryExpression Eof	{ AST.JSAstExpression $1 $2 {- 'PrimaryExpression' -} }
+ExpressionMain :: { AST.JSAST }
+ExpressionMain : Expression Eof					{ AST.JSAstExpression $1 $2 {- 'ExpressionMain' -} }
 
 StatementMain :: { AST.JSAST }
 StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'StatementMain' -} }

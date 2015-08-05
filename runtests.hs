@@ -667,10 +667,10 @@ testLiteralC literal expected = expected @=? show (parseUsing parseLiteral liter
 
 
 testPE :: String -> String -> Assertion
-testPE str expected = expected @=? showStrippedMaybe (parseUsing parsePrimaryExpression str "src")
+testPE str expected = expected @=? showStrippedMaybe (parseUsing parseExpression str "src")
 
 testPEC :: String -> String -> Assertion
-testPEC str expected = expected @=? show (parseUsing parsePrimaryExpression str "src")
+testPEC str expected = expected @=? show (parseUsing parseExpression str "src")
 
 testStmt :: String -> String -> Assertion
 testStmt str expected = do
