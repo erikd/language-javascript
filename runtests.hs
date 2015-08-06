@@ -198,16 +198,16 @@ testSuite = testGroup "Parser"
     , testCase "For1"       (testStmt "for(;;);"             "Right (JSAstStatement (JSFor [] [] [] (JSEmptyStatement)))")
     , testCase "For2"       (testStmt "for(x=1;x<10;x++);"   "Right (JSAstStatement (JSFor [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')] [JSExpressionBinary ('<',JSIdentifier 'x',JSDecimal '10')] [JSExpressionPostfix ('++',JSIdentifier 'x')] (JSEmptyStatement)))")
 
-    , testCase "ForVar1"    (testStmt "for(var x;;);"        "Right (JSAstStatement (JSForVar [JSVarDecl (JSIdentifier 'x') ] [] [] (JSEmptyStatement)))")
-    , testCase "ForVar2a"   (testStmt "for(var x=1;;);"      "Right (JSAstStatement (JSForVar [JSVarDecl (JSIdentifier 'x') [JSDecimal '1']] [] [] (JSEmptyStatement)))")
-    , testCase "ForVar2b"   (testStmt "for(var x;y;z){}"     "Right (JSAstStatement (JSForVar [JSVarDecl (JSIdentifier 'x') ] [JSIdentifier 'y'] [JSIdentifier 'z'] (JSStatementBlock [])))")
+    , testCase "ForVar1"    (testStmt "for(var x;;);"        "Right (JSAstStatement (JSForVar [JSVarInitExpression (JSIdentifier 'x') ] [] [] (JSEmptyStatement)))")
+    , testCase "ForVar2a"   (testStmt "for(var x=1;;);"      "Right (JSAstStatement (JSForVar [JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1']] [] [] (JSEmptyStatement)))")
+    , testCase "ForVar2b"   (testStmt "for(var x;y;z){}"     "Right (JSAstStatement (JSForVar [JSVarInitExpression (JSIdentifier 'x') ] [JSIdentifier 'y'] [JSIdentifier 'z'] (JSStatementBlock [])))")
 
     , testCase "ForIn1"     (testStmt "for(x in 5){}"        "Right (JSAstStatement (JSForIn JSIdentifier 'x' (JSDecimal '5') (JSStatementBlock [])))")
 
-    , testCase "ForVarIn1"  (testStmt "for(var x in 5){}"    "Right (JSAstStatement (JSForVarIn (JSVarDecl (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))")
+    , testCase "ForVarIn1"  (testStmt "for(var x in 5){}"    "Right (JSAstStatement (JSForVarIn (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))")
 
-    , testCase "Var1" (testStmt "var x=1;"          "Right (JSAstStatement (JSVariable var [JSVarDecl (JSIdentifier 'x') [JSDecimal '1']]))")
-    , testCase "Var2" (testStmt "const x=1,y=2;"    "Right (JSAstStatement (JSConstant [JSVarDecl (JSIdentifier 'x') [JSDecimal '1'],JSComma,JSVarDecl (JSIdentifier 'y') [JSDecimal '2']]))")
+    , testCase "Var1" (testStmt "var x=1;"          "Right (JSAstStatement (JSVariable [JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1']]))")
+    , testCase "Var2" (testStmt "const x=1,y=2;"    "Right (JSAstStatement (JSConstant [JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'],JSComma,JSVarInitExpression (JSIdentifier 'y') [JSDecimal '2']]))")
 
     , testCase "Continue1" (testStmt "continue;"    "Right (JSAstStatement (JSContinue,JSSemicolon))")
     , testCase "Continue2" (testStmt "continue x;"  "Right (JSAstStatement (JSContinue 'x',JSSemicolon))")
@@ -296,7 +296,7 @@ testSuite = testGroup "Parser"
     , testCase "bug2.b" (testProg "function() {\nz = function z(o) {\nreturn r;\n};}" "Right (JSAstProgram [JSFunctionExpression '' () (JSBlock [JSOpAssign ('=',JSIdentifier 'z',JSFunctionExpression 'z' (JSIdentifier 'o') (JSBlock [JSReturn JSIdentifier 'r' JSSemicolon]))),JSSemicolon]))])")
 
     -- https://github.com/alanz/hjsmin/issues/#issue/3
-    , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSAstProgram [JSVariable var [JSVarDecl (JSIdentifier 'myLatlng') [JSMemberNew (JSMemberDot (JSMemberDot (JSIdentifier 'google',JSIdentifier 'maps'),JSIdentifier 'LatLng'),JSArguments (JSDecimal '56.8379100',JSDecimal '60.5806664'))]]])")
+    , testCase "bug3" (testProg "var myLatlng = new google.maps.LatLng(56.8379100, 60.5806664);" "Right (JSAstProgram [JSVariable [JSVarInitExpression (JSIdentifier 'myLatlng') [JSMemberNew (JSMemberDot (JSMemberDot (JSIdentifier 'google',JSIdentifier 'maps'),JSIdentifier 'LatLng'),JSArguments (JSDecimal '56.8379100',JSDecimal '60.5806664'))]]])")
 
     -- https://github.com/alanz/hjsmin/issues/#issue/4
     , testCase "bug4" (testProg "/* * geolocation. пытаемся определить свое местоположение * если не получается то используем defaultLocation * @Param {object} map экземпляр карты * @Param {object LatLng} defaultLocation Координаты центра по умолчанию * @Param {function} callbackAfterLocation Фу-ия которая вызывается после * геолокации. Т.к запрос геолокации асинхронен */x" "Right (JSAstProgram [JSIdentifier 'x'])")
@@ -308,7 +308,7 @@ testSuite = testGroup "Parser"
     , testCase "loc1" (testProg "x = 1\n  y=2;" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2'),JSSemicolon])")
 
     -- https://github.com/alanz/language-javascript/issues/2
-    , testCase "issue2" (testProg "var img=document.createElement('img');\nimg.src=\"mylogo.jpg\";\n$(img).click(function() {\nalert('clicked!');\n});" "Right (JSAstProgram [JSVariable var [JSVarDecl (JSIdentifier 'img') [JSMemberExpression (JSMemberDot (JSIdentifier 'document',JSIdentifier 'createElement'),JSArguments (JSStringLiteralS 'img'))]],JSOpAssign ('=',JSMemberDot (JSIdentifier 'img',JSIdentifier 'src'),JSStringLiteralD 'mylogo.jpg'),JSSemicolon,JSCallExpression (JSCallExpressionDot (JSMemberExpression (JSIdentifier '$',JSArguments (JSIdentifier 'img')),JSIdentifier 'click'),JSArguments (JSFunctionExpression '' () (JSBlock [JSMemberExpression (JSIdentifier 'alert',JSArguments (JSStringLiteralS 'clicked!')),JSSemicolon])))),JSSemicolon])")
+    , testCase "issue2" (testProg "var img=document.createElement('img');\nimg.src=\"mylogo.jpg\";\n$(img).click(function() {\nalert('clicked!');\n});" "Right (JSAstProgram [JSVariable [JSVarInitExpression (JSIdentifier 'img') [JSMemberExpression (JSMemberDot (JSIdentifier 'document',JSIdentifier 'createElement'),JSArguments (JSStringLiteralS 'img'))]],JSOpAssign ('=',JSMemberDot (JSIdentifier 'img',JSIdentifier 'src'),JSStringLiteralD 'mylogo.jpg'),JSSemicolon,JSCallExpression (JSCallExpressionDot (JSMemberExpression (JSIdentifier '$',JSArguments (JSIdentifier 'img')),JSIdentifier 'click'),JSArguments (JSFunctionExpression '' () (JSBlock [JSMemberExpression (JSIdentifier 'alert',JSArguments (JSStringLiteralS 'clicked!')),JSSemicolon])))),JSSemicolon])")
 
     -- Working in ECMASCRIPT 5.1 changes
     , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"       "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralS 'abc\\\ndef'),JSSemicolon])")
@@ -319,9 +319,9 @@ testSuite = testGroup "Parser"
     , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";"   "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteralD 'abc\\\r\ndef'),JSSemicolon])")
 
     -- https://github.com/alanz/language-javascript/issues/4
-    , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}"  "Right (JSAstProgram [JSVariable var [JSVarDecl (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'somename']]]]])")
-    , testCase "issue4bug1" (testProg "var k = {\ny: code\n}"      "Right (JSAstProgram [JSVariable var [JSVarDecl (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'code']]]]])")
-    , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}"      "Right (JSAstProgram [JSVariable var [JSVarDecl (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'mode']]]]])")
+    , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}"  "Right (JSAstProgram [JSVariable [JSVarInitExpression (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'somename']]]]])")
+    , testCase "issue4bug1" (testProg "var k = {\ny: code\n}"      "Right (JSAstProgram [JSVariable [JSVarInitExpression (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'code']]]]])")
+    , testCase "issue4bug2" (testProg "var k = {\ny: mode\n}"      "Right (JSAstProgram [JSVariable [JSVarInitExpression (JSIdentifier 'k') [JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSIdentifier 'mode']]]]])")
 
     -- https://github.com/alanz/language-javascript/issues/5
     , testCase "issue5bug1" (testProg "x = { y: 1e8 }" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '1e8']])])")
@@ -330,7 +330,7 @@ testSuite = testGroup "Parser"
     , testCase "issue5ok4" (testProg "x = { y: 18 }"   "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '18']])])")
 
     -- https://github.com/alanz/language-javascript/issues/14
-    , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSAstProgram [JSVariable var [JSVarDecl (JSIdentifier 'z') [JSExpressionBinary ('/',JSMemberSquare (JSIdentifier 'x',JSIdentifier 'i'),JSIdentifier 'y')]]])")
+    , testCase "issue14" (testProg "var z = x[i] / y;" "Right (JSAstProgram [JSVariable [JSVarInitExpression (JSIdentifier 'z') [JSExpressionBinary ('/',JSMemberSquare (JSIdentifier 'x',JSIdentifier 'i'),JSIdentifier 'y')]]])")
 
     , testCase "AutoSemiBreak"     (testProg "if(true)break \nfoo();"       "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")
     , testCase "AutoSemiContinue"  (testProg "if(true)continue \nfoo();"    "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSContinue),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])")

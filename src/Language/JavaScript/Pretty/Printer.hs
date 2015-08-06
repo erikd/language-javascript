@@ -87,6 +87,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
     (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
+    (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
 
 -- -----------------------------------------------------------------------------
 -- Need an instance of RenderJS for every component of every JSExpression or JSAnnot
@@ -230,7 +231,6 @@ instance RenderJS JSStatement where
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb s)      = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}" |> s
     (|>) pacc (JSThrow annot x s)                          = pacc |> annot |> "throw" |> x |> s
     (|>) pacc (JSTry annot tb tcs tf)                      = pacc |> annot |> "try" |> tb |> tcs |> tf
-    (|>) pacc (JSVarDecl x1 x2)                            = pacc |> x1 |> x2
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
@@ -265,7 +265,7 @@ instance RenderJS (Maybe JSExpression) where
 instance RenderJS JSArguments where
     (|>) pacc (JSArguments lp xs rp) = pacc |> lp |> "(" |> xs |> rp |> ")"
 
-instance RenderJS JSVarInit where
+instance RenderJS JSVarInitializer where
     (|>) pacc (JSVarInit a x) = pacc |> a |> "=" |> x
     (|>) pacc JSVarInitNone   = pacc
 
