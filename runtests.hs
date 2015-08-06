@@ -271,7 +271,7 @@ testSuite = testGroup "Parser"
 
     , testCase "67_bob" (testProg "(match = /^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/(input))" "Right (JSAstProgram [JSExpressionParen (JSOpAssign ('=',JSIdentifier 'match',JSMemberExpression (JSRegEx '/^\"(?:\\\\.|[^\"])*\"|^'(?:[^']|\\\\.)*'/',JSArguments (JSIdentifier 'input'))))])")
 
-    , testCase "122_jsexec" (testProg "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));"   "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'v',JSExpressionBinary (' in ',JSMemberExpression (JSIdentifier 'getValue',JSArguments (JSMemberExpression (JSIdentifier 'execute',JSArguments (JSMemberSquare (JSIdentifier 'n',JSDecimal '0'),JSIdentifier 'x')))),JSMemberExpression (JSIdentifier 'getValue',JSArguments (JSMemberExpression (JSIdentifier 'execute',JSArguments (JSMemberSquare (JSIdentifier 'n',JSDecimal '1'),JSIdentifier 'x')))))),JSSemicolon])")
+    , testCase "122_jsexec" (testProg "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));"   "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'v',JSExpressionBinary ('in',JSMemberExpression (JSIdentifier 'getValue',JSArguments (JSMemberExpression (JSIdentifier 'execute',JSArguments (JSMemberSquare (JSIdentifier 'n',JSDecimal '0'),JSIdentifier 'x')))),JSMemberExpression (JSIdentifier 'getValue',JSArguments (JSMemberExpression (JSIdentifier 'execute',JSArguments (JSMemberSquare (JSIdentifier 'n',JSDecimal '1'),JSIdentifier 'x')))))),JSSemicolon])")
 
     , testCase "bug1a" (testProg "/* */\nfunction f() {\n/*  */\n}\n" "Right (JSAstProgram [JSFunction 'f' () (JSBlock [])])")
     , testCase "bug1b" (testProg "/* **/\nfunction f() {\n/*  */\n}\n" "Right (JSAstProgram [JSFunction 'f' () (JSBlock [])])")
