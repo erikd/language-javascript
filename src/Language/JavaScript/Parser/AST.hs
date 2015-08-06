@@ -57,7 +57,7 @@ data JSStatement
     | JSFunction JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSIf JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^if,(,expr,),stmt
     | JSIfElse JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
-    | JSLabelled JSExpression JSAnnot JSStatement -- ^identifier,colon,stmt
+    | JSLabelled JSIdent JSAnnot JSStatement -- ^identifier,colon,stmt
     | JSEmptyStatement JSAnnot
     | JSExpressionStatement JSExpression JSSemi
     | JSAssignStatement JSExpression JSAssignOp JSExpression JSSemi -- ^lhs, assignop, rhs, autosemi

@@ -1034,7 +1034,7 @@ DefaultClause : Default Colon                { AST.JSDefault $1 $2 [] {- 'Defaul
 -- LabelledStatement :                                                        See 12.12
 --        Identifier : Statement
 LabelledStatement :: { AST.JSStatement }
-LabelledStatement : Identifier Colon Statement { AST.JSLabelled $1 $2 $3 {- 'LabelledStatement' -} }
+LabelledStatement : Identifier Colon Statement { AST.JSLabelled (identName $1) $2 $3 {- 'LabelledStatement' -} }
 
 -- ThrowStatement :                                                           See 12.13
 --        throw [no LineTerminator here] Expression ;
