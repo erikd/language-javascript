@@ -201,8 +201,8 @@ data JSIdent
     deriving (Data, Eq, Show, Typeable)
 
 data JSList a
-    = JSParams (JSNonEmptyList a) -- ^tail, comma, ident
-    | JSNoParams
+    = JSList (JSNonEmptyList a) -- ^tail, comma, ident
+    | JSEmptyList
     deriving (Data, Eq, Show, Typeable)
 
 data JSNonEmptyList a
@@ -402,12 +402,12 @@ ssws :: [JSSwitchParts] -> String
 ssws xs = "[" ++ commaJoin (map ssw xs) ++ "]"
 
 ssjl :: JSList JSIdent -> String
-ssjl (JSParams nel) = "(" ++ commaJoin (map ssid2 $ fromNEList nel) ++ ")"
-ssjl JSNoParams = "()"
+ssjl (JSList nel) = "(" ++ commaJoin (map ssid2 $ fromNEList nel) ++ ")"
+ssjl JSEmptyList = "()"
 
 ssjle :: JSList JSExpression -> String
-ssjle (JSParams nel) = "(" ++ commaJoin (map ss $ fromNEList nel) ++ ")"
-ssjle JSNoParams = "()"
+ssjle (JSList nel) = "(" ++ commaJoin (map ss $ fromNEList nel) ++ ")"
+ssjle JSEmptyList = "()"
 
 ssa :: JSArguments -> String
 ssa (JSArguments _lb xs _rb) = "JSArguments " ++ ssjle xs

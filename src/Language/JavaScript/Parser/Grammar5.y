@@ -567,8 +567,8 @@ CallExpression : MemberExpression Arguments
 --        ()
 --        ( ArgumentList )
 Arguments :: { AST.JSArguments }
-Arguments : LParen RParen               { AST.JSArguments $1 AST.JSNoParams $2    {- 'Arguments1' -} }
-          | LParen ArgumentList RParen  { AST.JSArguments $1 (AST.JSParams $2) $3 {- 'Arguments2' -} }
+Arguments : LParen RParen               { AST.JSArguments $1 AST.JSEmptyList $2    {- 'Arguments1' -} }
+          | LParen ArgumentList RParen  { AST.JSArguments $1 (AST.JSList $2) $3 {- 'Arguments2' -} }
 
 -- ArgumentList :                                               See 11.2
 --        AssignmentExpression
@@ -1090,15 +1090,15 @@ FunctionExpression : LambdaExpression           { $1     {- 'FunctionExpression1
 
 NamedFunctionExpression :: { AST.JSExpression }
 NamedFunctionExpression : Function Identifier LParen RParen FunctionBody
-                            { AST.JSFunctionExpression $1 (identName $2) $3 AST.JSNoParams $4 $5        {- 'NamedFunctionExpression1' -} }
+                            { AST.JSFunctionExpression $1 (identName $2) $3 AST.JSEmptyList $4 $5        {- 'NamedFunctionExpression1' -} }
                         | Function Identifier LParen FormalParameterList RParen FunctionBody
-                            { AST.JSFunctionExpression $1 (identName $2) $3 (AST.JSParams $4) $5 $6     {- 'NamedFunctionExpression2' -} }
+                            { AST.JSFunctionExpression $1 (identName $2) $3 (AST.JSList $4) $5 $6     {- 'NamedFunctionExpression2' -} }
 
 LambdaExpression :: { AST.JSExpression }
 LambdaExpression : Function LParen RParen FunctionBody
-                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 AST.JSNoParams $3 $4 {- 'LambdaExpression1' -} }
+                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 AST.JSEmptyList $3 $4 {- 'LambdaExpression1' -} }
                  | Function LParen FormalParameterList RParen FunctionBody
-                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 (AST.JSParams $3) $4 $5 {- 'LambdaExpression2' -} }
+                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 (AST.JSList $3) $4 $5 {- 'LambdaExpression2' -} }
 
 
 IdentifierOpt :: { AST.JSIdent }
@@ -1178,6 +1178,6 @@ nodePos (AST.JSComma p) = p
 
 identName :: AST.JSExpression -> AST.JSIdent
 identName (AST.JSIdentifier a s) = AST.JSIdentName a s
-identName x = error $ "Cannot convert '" ++ show x ++ "' to s JSIdentName."
+identName x = error $ "Cannot convert '" ++ show x ++ "' to a JSIdentName."
 
 }

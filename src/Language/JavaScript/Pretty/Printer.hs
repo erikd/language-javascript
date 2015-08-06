@@ -247,8 +247,8 @@ instance RenderJS JSAccessor where
     (|>) pacc (JSAccessorSet annot) = pacc |> annot |> "set"
 
 instance RenderJS a => RenderJS (JSList a) where
-    (|>) pacc (JSParams nel) = pacc |> nel
-    (|>) pacc JSNoParams = pacc
+    (|>) pacc (JSList nel) = pacc |> nel
+    (|>) pacc JSEmptyList  = pacc
 
 instance RenderJS a => RenderJS (JSNonEmptyList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i
