@@ -18,6 +18,7 @@ module Language.JavaScript.Parser.AST
     , JSAccessor (..)
     , JSIdent (..)
     , JSVarInitializer (..)
+    , JSArrayElement (..)
     , JSCommaList (..)
     , JSCommaTrailingList (..)
 
@@ -83,7 +84,7 @@ data JSExpression
     | JSRegEx JSAnnot String
 
     -- | Non Terminals
-    | JSArrayLiteral JSAnnot [JSExpression] JSAnnot -- ^lb, contents, rb
+    | JSArrayLiteral JSAnnot [JSArrayElement] JSAnnot -- ^lb, contents, rb
     | JSAssignExpression JSExpression JSAssignOp JSExpression -- ^lhs, assignop, rhs
     | JSCallExpression JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot  -- ^expr, bl, args, rb
     | JSCallExpressionDot JSExpression JSAnnot JSExpression  -- ^expr, dot, expr
@@ -203,6 +204,11 @@ data JSAccessor
 data JSIdent
     = JSIdentName JSAnnot String
     | JSIdentNone
+    deriving (Data, Eq, Show, Typeable)
+
+data JSArrayElement
+    = JSArrayElement JSExpression
+    | JSArrayComma JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSCommaList a
@@ -375,6 +381,10 @@ instance ShowStripped JSVarInitializer where
 instance ShowStripped JSSemi where
     ss (JSSemi _) = "JSSemicolon"
     ss JSSemiAuto = ""
+
+instance ShowStripped JSArrayElement where
+    ss (JSArrayElement e) = ss e
+    ss (JSArrayComma _) = "JSComma"
 
 instance ShowStripped a => ShowStripped (JSCommaList a) where
     ss xs = "(" ++ commaJoin (map ss $ fromCommaList xs) ++ ")"

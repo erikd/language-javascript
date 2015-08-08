@@ -248,6 +248,13 @@ instance RenderJS JSAccessor where
     (|>) pacc (JSAccessorGet annot) = pacc |> annot |> "get"
     (|>) pacc (JSAccessorSet annot) = pacc |> annot |> "set"
 
+instance RenderJS JSArrayElement where
+    (|>) pacc (JSArrayElement e) = pacc |> e
+    (|>) pacc (JSArrayComma a)   = pacc |> a |> ","
+
+instance RenderJS [JSArrayElement] where
+    (|>) = foldl' (|>)
+
 instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i
     (|>) pacc (JSLOne i)       = pacc |> i

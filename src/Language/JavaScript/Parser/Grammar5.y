@@ -458,27 +458,27 @@ IdentifierName : Identifier {$1}
 --        [ ElementList ]
 --        [ ElementList , Elisionopt ]
 ArrayLiteral :: { AST.JSExpression }
-ArrayLiteral : LSquare RSquare                          { AST.JSArrayLiteral $1 [] $2 }
-             | LSquare Elision RSquare                  { AST.JSArrayLiteral $1 $2 $3 }
-             | LSquare ElementList RSquare              { AST.JSArrayLiteral $1 $2 $3 }
-             | LSquare ElementList Elision RSquare      { AST.JSArrayLiteral $1 ($2 ++ $3) $4 }
+ArrayLiteral : LSquare RSquare                          { AST.JSArrayLiteral $1 [] $2           {- 'ArrayLiteral11' -} }
+             | LSquare Elision RSquare                  { AST.JSArrayLiteral $1 $2 $3           {- 'ArrayLiteral12' -}  }
+             | LSquare ElementList RSquare              { AST.JSArrayLiteral $1 $2 $3           {- 'ArrayLiteral13' -}  }
+             | LSquare ElementList Elision RSquare      { AST.JSArrayLiteral $1 ($2 ++ $3) $4   {- 'ArrayLiteral14' -} }
 
 
 -- ElementList :                                                         See 11.1.4
 --        Elisionopt AssignmentExpression
 --        ElementList , Elisionopt AssignmentExpression
-ElementList :: { [AST.JSExpression] }
-ElementList : Elision AssignmentExpression              { $1 ++ [$2]   {- 'ElementList1' -} }
-            | AssignmentExpression                      { [$1]         {- 'ElementList2' -} }
-            | ElementList Elision AssignmentExpression  { (($1)++($2 ++ [$3])) {- 'ElementList3' -} }
+ElementList :: { [AST.JSArrayElement] }
+ElementList : Elision AssignmentExpression              { $1 ++ [AST.JSArrayElement $2]             {- 'ElementList1' -} }
+            | AssignmentExpression                      { [AST.JSArrayElement $1]                   {- 'ElementList2' -} }
+            | ElementList Elision AssignmentExpression  { (($1)++($2 ++ [AST.JSArrayElement $3]))   {- 'ElementList3' -} }
 
 
 -- Elision :                                                             See 11.1.4
 --        ,
 --        Elision ,
-Elision :: { [AST.JSExpression] }
-Elision : Comma             { [$1] }
-        | Comma Elision     { $1:$2 }
+Elision :: { [AST.JSArrayElement] }
+Elision : Comma             { [AST.JSArrayComma (nodePos $1)]       {- 'Elision1' -} }
+        | Comma Elision     { (AST.JSArrayComma  (nodePos $1)):$2   {- 'Elision2' -} }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
