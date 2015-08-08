@@ -68,7 +68,7 @@ instance RenderJS JSExpression where
     -- Non-Terminals
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
-    (|>) pacc (JSCallExpression       ex xs)                  = pacc |> ex |> xs
+    (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSComma                annot)                  = pacc |> annot |> ","
@@ -79,8 +79,8 @@ instance RenderJS JSExpression where
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> "?" |> v1 |> c |> ":" |> v2
     (|>) pacc (JSFunctionExpression   annot n lb x2s rb x3)   = pacc |> annot |> "function" |> n |> lb |> "(" |> x2s |> rb |> ")" |> x3
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
-    (|>) pacc (JSMemberExpression     e a)                    = pacc |> e |> a
-    (|>) pacc (JSMemberNew            a n s)                  = pacc |> a |> "new" |> n |> s
+    (|>) pacc (JSMemberExpression     e lb a rb)              = pacc |> e |> lb |> "(" |> a |> rb |> ")"
+    (|>) pacc (JSMemberNew            a lb n rb s)            = pacc |> a |> "new" |> lb |> "(" |> n |> rb |> ")" |> s
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSNewExpression        n e)                    = pacc |> n |> "new" |> e
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
@@ -226,7 +226,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
     (|>) pacc (JSExpressionStatement l s)                  = pacc |> l |> s
     (|>) pacc (JSAssignStatement lhs op rhs s)             = pacc |> lhs |> op |> rhs |> s
-    (|>) pacc (JSMethodCall e a s)                         = pacc |> e |> a |> s
+    (|>) pacc (JSMethodCall e lp a rp s)                   = pacc |> e |> lp |> "(" |> a |> rp |> ")" |> s
     (|>) pacc (JSReturn annot me s)                        = pacc |> annot |> "return" |> me |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb s)      = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}" |> s
     (|>) pacc (JSThrow annot x s)                          = pacc |> annot |> "throw" |> x |> s
@@ -258,9 +258,6 @@ instance RenderJS JSIdent where
 instance RenderJS (Maybe JSExpression) where
     (|>) pacc (Just e) = pacc |> e
     (|>) pacc Nothing  = pacc
-
-instance RenderJS JSArguments where
-    (|>) pacc (JSArguments lp xs rp) = pacc |> lp |> "(" |> xs |> rp |> ")"
 
 instance RenderJS JSVarInitializer where
     (|>) pacc (JSVarInit a x) = pacc |> a |> "=" |> x

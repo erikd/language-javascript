@@ -15,7 +15,6 @@ module Language.JavaScript.Parser.AST
     , JSAST (..)
     , JSAccessor (..)
     , JSIdent (..)
-    , JSArguments (..)
     , JSVarInitializer (..)
 
     , JSCommaList (..)
@@ -60,7 +59,7 @@ data JSStatement
     | JSEmptyStatement JSAnnot
     | JSExpressionStatement JSExpression JSSemi
     | JSAssignStatement JSExpression JSAssignOp JSExpression JSSemi -- ^lhs, assignop, rhs, autosemi
-    | JSMethodCall JSExpression JSArguments JSSemi
+    | JSMethodCall JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot JSSemi
     | JSReturn JSAnnot (Maybe JSExpression) JSSemi -- ^optional expression,autosemi
     | JSSwitch JSAnnot JSAnnot JSExpression JSAnnot JSAnnot [JSSwitchParts] JSAnnot JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
     | JSThrow JSAnnot JSExpression JSSemi -- ^throw val autosemi
@@ -84,7 +83,7 @@ data JSExpression
     -- | Non Terminals
     | JSArrayLiteral JSAnnot [JSExpression] JSAnnot -- ^lb, contents, rb
     | JSAssignExpression JSExpression JSAssignOp JSExpression -- ^lhs, assignop, rhs
-    | JSCallExpression JSExpression JSArguments  -- ^expr, args
+    | JSCallExpression JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot  -- ^expr, bl, args, rb
     | JSCallExpressionDot JSExpression JSAnnot JSExpression  -- ^expr, dot, expr
     | JSCallExpressionSquare JSExpression JSAnnot JSExpression JSAnnot  -- ^expr, [, expr, ]
     | JSComma JSAnnot-- ^comma
@@ -95,8 +94,8 @@ data JSExpression
     | JSExpressionTernary JSExpression JSAnnot JSExpression JSAnnot JSExpression -- ^cond, ?, trueval, :, falseval
     | JSFunctionExpression JSAnnot JSIdent JSAnnot (JSCommaList JSIdent) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot JSExpression JSAnnot JSExpression -- ^firstpart, dot, name
-    | JSMemberExpression JSExpression JSArguments -- expr, args
-    | JSMemberNew JSAnnot JSExpression JSArguments -- ^new, name, args
+    | JSMemberExpression JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot -- expr, lb, args, rb
+    | JSMemberNew JSAnnot JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot -- ^new, name, lb, args, rb
     | JSMemberSquare JSExpression JSAnnot JSExpression JSAnnot -- ^firstpart, lb, expr, rb
     | JSNewExpression JSAnnot JSExpression -- ^new, expr
     | JSObjectLiteral JSAnnot [JSExpression] JSAnnot -- ^lbrace contents rbrace
@@ -199,10 +198,6 @@ data JSIdent
     | JSIdentNone
     deriving (Data, Eq, Show, Typeable)
 
-data JSArguments
-    = JSArguments JSAnnot (JSCommaList JSExpression) JSAnnot    -- ^lb, args, rb
-    deriving (Data, Eq, Show, Typeable)
-
 data JSCommaList a
     = JSLCons (JSCommaList a) JSAnnot a -- ^head, comma, ident
     | JSLOne a -- ^ single element (no comma)
@@ -243,7 +238,7 @@ instance ShowStripped JSStatement where
     ss (JSEmptyStatement _) = "JSEmptyStatement"
     ss (JSExpressionStatement l s) = ss l ++ (let x = ss s in if not (null x) then ',':x else "")
     ss (JSAssignStatement lhs op rhs s) ="JSOpAssign (" ++ ss op ++ "," ++ ss lhs ++ "," ++ ss rhs ++ (let x = ss s in if not (null x) then "),"++x else ")")
-    ss (JSMethodCall e a s) = "JSMemberExpression (" ++ ss e ++ "," ++ ss a ++ (let x = ss s in if not (null x) then "),"++x else ")")
+    ss (JSMethodCall e _ a _ s) = "JSMemberExpression (" ++ ss e ++ ",JSArguments " ++ ss a ++ (let x = ss s in if not (null x) then "),"++x else ")")
     ss (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ ss s
     ss (JSReturn _ Nothing s) = "JSReturn " ++ ss s
     ss (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
@@ -256,7 +251,7 @@ instance ShowStripped JSStatement where
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
     ss (JSAssignExpression lhs op rhs) = "JSOpAssign (" ++ ss op ++ "," ++ ss lhs ++ "," ++ ss rhs ++ ")"
-    ss (JSCallExpression ex xs) = "JSCallExpression ("++ ss ex ++ "," ++ ss xs ++ ")"
+    ss (JSCallExpression ex _ xs _) = "JSCallExpression ("++ ss ex ++ ",JSArguments " ++ ss xs ++ ")"
     ss (JSCallExpressionDot ex _os xs) = "JSCallExpressionDot (" ++ ss ex ++ "," ++ ss xs ++ ")"
     ss (JSCallExpressionSquare ex _os xs _cs) = "JSCallExpressionSquare (" ++ ss ex ++ "," ++ ss xs ++ ")"
     ss (JSComma _) = "JSComma"
@@ -273,8 +268,8 @@ instance ShowStripped JSExpression where
     ss (JSLiteral _ []) = "JSLiteral ''"
     ss (JSLiteral _ s) = "JSLiteral " ++ singleQuote s
     ss (JSMemberDot x1s _d x2 ) = "JSMemberDot (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
-    ss (JSMemberExpression e a) = "JSMemberExpression (" ++ ss e ++ "," ++ ss a ++ ")"
-    ss (JSMemberNew _a n s) = "JSMemberNew (" ++ ss n ++ "," ++ ss s ++ ")"
+    ss (JSMemberExpression e _ a _) = "JSMemberExpression (" ++ ss e ++ ",JSArguments " ++ ss a ++ ")"
+    ss (JSMemberNew _a n _ s _) = "JSMemberNew (" ++ ss n ++ ",JSArguments " ++ ss s ++ ")"
     ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
     ss (JSNewExpression _n e) = "JSNewExpression " ++ ss e
     ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ ss xs
@@ -362,9 +357,6 @@ instance ShowStripped JSAssignOp where
 instance ShowStripped JSVarInitializer where
     ss (JSVarInit _ n) = "[" ++ ss n ++ "]"
     ss JSVarInitNone = ""
-
-instance ShowStripped JSArguments where
-    ss (JSArguments _lb xs _rb) = "JSArguments " ++ ss xs
 
 instance ShowStripped JSSemi where
     ss (JSSemi _) = "JSSemicolon"

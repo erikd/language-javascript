@@ -539,7 +539,7 @@ MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression1' -} }
                  | FunctionExpression  { $1 {- 'MemberExpression2' -} }
                  | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 {- 'MemberExpression3' -} }
                  | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3       {- 'MemberExpression4' -} }
-                 | New MemberExpression Arguments              { AST.JSMemberNew $1 $2 $3       {- 'MemberExpression5' -} }
+                 | New MemberExpression Arguments              { mkJSMemberNew $1 $2 $3         {- 'MemberExpression5' -} }
 
 -- NewExpression :                                              See 11.2
 --        MemberExpression
@@ -555,9 +555,9 @@ NewExpression : MemberExpression    { $1                        {- 'NewExpressio
 --        CallExpression . IdentifierName
 CallExpression :: { AST.JSExpression }
 CallExpression : MemberExpression Arguments
-                    { AST.JSMemberExpression $1 $2 {- 'CallExpression1' -} }
+                    { mkJSMemberExpression $1 $2 {- 'CallExpression1' -} }
                | CallExpression Arguments
-                    { AST.JSCallExpression $1 $2 {- 'CallExpression2' -} }
+                    { mkJSCallExpression $1 $2 {- 'CallExpression2' -} }
                | CallExpression LSquare Expression RSquare
                     { AST.JSCallExpressionSquare $1 $2 $3 $4 {- 'CallExpression3' -} }
                | CallExpression Dot IdentifierName
@@ -566,9 +566,9 @@ CallExpression : MemberExpression Arguments
 -- Arguments :                                                  See 11.2
 --        ()
 --        ( ArgumentList )
-Arguments :: { AST.JSArguments }
-Arguments : LParen RParen               { AST.JSArguments $1 AST.JSLNil $2  {- 'Arguments1' -} }
-          | LParen ArgumentList RParen  { AST.JSArguments $1 $2 $3			{- 'Arguments2' -} }
+Arguments :: { JSArguments }
+Arguments : LParen RParen               { JSArguments $1 AST.JSLNil $2  {- 'Arguments1' -} }
+          | LParen ArgumentList RParen  { JSArguments $1 $2 $3			{- 'Arguments2' -} }
 
 -- ArgumentList :                                               See 11.2
 --        AssignmentExpression
@@ -1132,14 +1132,28 @@ StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'Statement
 
 {
 
+-- Need this type while build the AST, but is not actually part of the AST.
+data JSArguments = JSArguments AST.JSAnnot (AST.JSCommaList AST.JSExpression) AST.JSAnnot    -- ^lb, args, rb
+
+
 blockToStatement :: AST.JSBlock -> AST.JSSemi -> AST.JSStatement
 blockToStatement (AST.JSBlock a b c) s = AST.JSStatementBlock a b c s
 
 expressionToStatement :: AST.JSExpression -> AST.JSSemi -> AST.JSStatement
 expressionToStatement (AST.JSFunctionExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSFunction a b c d e f s
 expressionToStatement (AST.JSAssignExpression lhs op rhs) s = AST.JSAssignStatement lhs op rhs s
-expressionToStatement (AST.JSMemberExpression e a) s = AST.JSMethodCall e a s
+expressionToStatement (AST.JSMemberExpression e l a r) s = AST.JSMethodCall e l a r s
 expressionToStatement exp s = AST.JSExpressionStatement exp s
+
+
+mkJSCallExpression :: AST.JSExpression -> JSArguments -> AST.JSExpression
+mkJSCallExpression e (JSArguments l arglist r) = AST.JSCallExpression e l arglist r
+
+mkJSMemberExpression :: AST.JSExpression -> JSArguments -> AST.JSExpression
+mkJSMemberExpression e (JSArguments l arglist r) = AST.JSMemberExpression e l arglist r
+
+mkJSMemberNew :: AST.JSAnnot -> AST.JSExpression -> JSArguments -> AST.JSExpression
+mkJSMemberNew a e (JSArguments l arglist r) = AST.JSMemberNew a e l arglist r
 
 
 parseError :: Token -> Alex a
