@@ -18,8 +18,7 @@ module Language.JavaScript.Parser.AST
     , JSArguments (..)
     , JSVarInitializer (..)
 
-    , JSList (..)
-    , JSNonEmptyList (..)
+    , JSCommaList (..)
 
     , showStripped
     ) where
@@ -54,7 +53,7 @@ data JSStatement
     | JSForIn JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar JSAnnot JSAnnot JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
+    | JSFunction JSAnnot JSIdent JSAnnot (JSCommaList JSIdent) JSAnnot JSBlock JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSIf JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^if,(,expr,),stmt
     | JSIfElse JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled JSIdent JSAnnot JSStatement -- ^identifier,colon,stmt
@@ -94,7 +93,7 @@ data JSExpression
     | JSExpressionParen JSAnnot JSExpression JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix JSExpression JSUnaryOp -- ^expression, operator
     | JSExpressionTernary JSExpression JSAnnot JSExpression JSAnnot JSExpression -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot JSIdent JSAnnot (JSList JSIdent) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
+    | JSFunctionExpression JSAnnot JSIdent JSAnnot (JSCommaList JSIdent) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot JSExpression JSAnnot JSExpression -- ^firstpart, dot, name
     | JSMemberExpression JSExpression JSArguments -- expr, args
     | JSMemberNew JSAnnot JSExpression JSArguments -- ^new, name, args
@@ -200,20 +199,18 @@ data JSIdent
     | JSIdentNone
     deriving (Data, Eq, Show, Typeable)
 
-data JSList a
-    = JSList (JSNonEmptyList a)
-    | JSEmptyList
-    deriving (Data, Eq, Show, Typeable)
-
-data JSNonEmptyList a
-    = JSLCons (JSNonEmptyList a) JSAnnot a -- ^head, comma, ident
-    | JSLOne a
-    deriving (Data, Eq, Show, Typeable)
-
 data JSArguments
-    = JSArguments JSAnnot (JSList JSExpression) JSAnnot    -- ^lb, args, rb
+    = JSArguments JSAnnot (JSCommaList JSExpression) JSAnnot    -- ^lb, args, rb
     deriving (Data, Eq, Show, Typeable)
 
+data JSCommaList a
+    = JSLCons (JSCommaList a) JSAnnot a -- ^head, comma, ident
+    | JSLOne a -- ^ single element (no comma)
+    | JSLNil
+    deriving (Data, Eq, Show, Typeable)
+
+-- -----------------------------------------------------------------------------
+-- | Show the AST elements stipped of their JSAnnot data.
 
 -- Strip out the location info
 showStripped :: JSAST -> String
@@ -222,8 +219,6 @@ showStripped (JSAstStatement s _) = "JSAstStatement (" ++ ss s ++ ")"
 showStripped (JSAstExpression e _) = "JSAstExpression (" ++ ss e ++ ")"
 showStripped (JSAstLiteral s _)  = "JSAstLiteral (" ++ ss s ++ ")"
 
--- -----------------------------------------------------------------------------
--- | Show the AST elements stipped of their JSAnnot data.
 
 class ShowStripped a where
     ss :: a -> String
@@ -375,10 +370,8 @@ instance ShowStripped JSSemi where
     ss (JSSemi _) = "JSSemicolon"
     ss JSSemiAuto = ""
 
-
-instance ShowStripped a => ShowStripped (JSList a) where
-    ss (JSList nel) = "(" ++ commaJoin (map ss $ fromNEList nel) ++ ")"
-    ss JSEmptyList = "()"
+instance ShowStripped a => ShowStripped (JSCommaList a) where
+    ss xs = "(" ++ commaJoin (map ss $ fromCommaList xs) ++ ")"
 
 instance ShowStripped a => ShowStripped [a] where
     ss xs = "[" ++ commaJoin (map ss xs) ++ "]"
@@ -389,9 +382,10 @@ instance ShowStripped a => ShowStripped [a] where
 commaJoin :: [String] -> String
 commaJoin s = intercalate "," $ filter (not . null) s
 
-fromNEList :: JSNonEmptyList a -> [a]
-fromNEList (JSLCons l _ i) = fromNEList l ++ [i]
-fromNEList (JSLOne i)      = [i]
+fromCommaList :: JSCommaList a -> [a]
+fromCommaList (JSLCons l _ i) = fromCommaList l ++ [i]
+fromCommaList (JSLOne i)      = [i]
+fromCommaList JSLNil = []
 
 singleQuote :: String -> String
 singleQuote s = '\'' : (s ++ "'")

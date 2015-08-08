@@ -567,13 +567,13 @@ CallExpression : MemberExpression Arguments
 --        ()
 --        ( ArgumentList )
 Arguments :: { AST.JSArguments }
-Arguments : LParen RParen               { AST.JSArguments $1 AST.JSEmptyList $2    {- 'Arguments1' -} }
-          | LParen ArgumentList RParen  { AST.JSArguments $1 (AST.JSList $2) $3 {- 'Arguments2' -} }
+Arguments : LParen RParen               { AST.JSArguments $1 AST.JSLNil $2  {- 'Arguments1' -} }
+          | LParen ArgumentList RParen  { AST.JSArguments $1 $2 $3			{- 'Arguments2' -} }
 
 -- ArgumentList :                                               See 11.2
 --        AssignmentExpression
 --        ArgumentList , AssignmentExpression
-ArgumentList :: { AST.JSNonEmptyList AST.JSExpression }
+ArgumentList :: { AST.JSCommaList AST.JSExpression }
 ArgumentList : AssignmentExpression                    { AST.JSLOne $1                  {- 'ArgumentList1' -} }
              | ArgumentList Comma AssignmentExpression { AST.JSLCons $1 (nodePos $2) $3 {- 'ArgumentList2' -} }
 
@@ -1085,15 +1085,15 @@ FunctionExpression : LambdaExpression           { $1     {- 'FunctionExpression1
 
 NamedFunctionExpression :: { AST.JSExpression }
 NamedFunctionExpression : Function Identifier LParen RParen FunctionBody
-                            { AST.JSFunctionExpression $1 (identName $2) $3 AST.JSEmptyList $4 $5        {- 'NamedFunctionExpression1' -} }
+                            { AST.JSFunctionExpression $1 (identName $2) $3 AST.JSLNil $4 $5    {- 'NamedFunctionExpression1' -} }
                         | Function Identifier LParen FormalParameterList RParen FunctionBody
-                            { AST.JSFunctionExpression $1 (identName $2) $3 (AST.JSList $4) $5 $6     {- 'NamedFunctionExpression2' -} }
+                            { AST.JSFunctionExpression $1 (identName $2) $3 $4 $5 $6            {- 'NamedFunctionExpression2' -} }
 
 LambdaExpression :: { AST.JSExpression }
 LambdaExpression : Function LParen RParen FunctionBody
-                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 AST.JSEmptyList $3 $4 {- 'LambdaExpression1' -} }
+                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 AST.JSLNil $3 $4	{- 'LambdaExpression1' -} }
                  | Function LParen FormalParameterList RParen FunctionBody
-                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 (AST.JSList $3) $4 $5 {- 'LambdaExpression2' -} }
+                    { AST.JSFunctionExpression $1 AST.JSIdentNone $2 $3 $4 $5           {- 'LambdaExpression2' -} }
 
 
 IdentifierOpt :: { AST.JSIdent }
@@ -1103,7 +1103,7 @@ IdentifierOpt : Identifier { identName $1     {- 'IdentifierOpt1' -} }
 -- FormalParameterList :                                                      See clause 13
 --        Identifier
 --        FormalParameterList , Identifier
-FormalParameterList :: { AST.JSNonEmptyList AST.JSIdent }
+FormalParameterList :: { AST.JSCommaList AST.JSIdent }
 FormalParameterList : Identifier                            { AST.JSLOne (identName $1) {- 'FormalParameterList' -} }
                     | FormalParameterList Comma Identifier  { AST.JSLCons $1 (nodePos $2) (identName $3) }
 

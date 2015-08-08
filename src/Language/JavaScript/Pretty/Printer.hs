@@ -246,13 +246,10 @@ instance RenderJS JSAccessor where
     (|>) pacc (JSAccessorGet annot) = pacc |> annot |> "get"
     (|>) pacc (JSAccessorSet annot) = pacc |> annot |> "set"
 
-instance RenderJS a => RenderJS (JSList a) where
-    (|>) pacc (JSList nel) = pacc |> nel
-    (|>) pacc JSEmptyList  = pacc
-
-instance RenderJS a => RenderJS (JSNonEmptyList a) where
+instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i
     (|>) pacc (JSLOne i)       = pacc |> i
+    (|>) pacc JSLNil           = pacc
 
 instance RenderJS JSIdent where
     (|>) pacc (JSIdentName a s) = pacc |> a |> s
