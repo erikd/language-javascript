@@ -13,11 +13,13 @@ module Language.JavaScript.Parser.AST
     , JSBlock (..)
     , JSSwitchParts (..)
     , JSAST (..)
+    , JSObjectProperty (..)
+    , JSObjectPropertyList
     , JSAccessor (..)
     , JSIdent (..)
     , JSVarInitializer (..)
-
     , JSCommaList (..)
+    , JSCommaTrailingList (..)
 
     , showStripped
     ) where
@@ -98,9 +100,7 @@ data JSExpression
     | JSMemberNew JSAnnot JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot -- ^new, name, lb, args, rb
     | JSMemberSquare JSExpression JSAnnot JSExpression JSAnnot -- ^firstpart, lb, expr, rb
     | JSNewExpression JSAnnot JSExpression -- ^new, expr
-    | JSObjectLiteral JSAnnot [JSExpression] JSAnnot -- ^lbrace contents rbrace
-    | JSPropertyAccessor JSAccessor JSIdent JSAnnot [JSExpression] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue JSIdent JSAnnot [JSExpression] -- ^name, colon, value
+    | JSObjectLiteral JSAnnot JSObjectPropertyList JSAnnot -- ^lbrace contents rbrace
     | JSUnaryExpression JSUnaryOp JSExpression
     | JSVarInitExpression JSExpression JSVarInitializer -- ^identifier, initializer
     deriving (Data, Eq, Show, Typeable)
@@ -187,7 +187,14 @@ data JSVarInitializer
     | JSVarInitNone
     deriving (Data, Eq, Show, Typeable)
 
--- | Accessors for JSPropertyAccessor is either 'get' or 'set'.
+data JSObjectProperty
+    = JSPropertyAccessor JSAccessor JSIdent JSAnnot [JSExpression] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameandValue JSIdent JSAnnot [JSExpression] -- ^name, colon, value
+    deriving (Data, Eq, Show, Typeable)
+
+type JSObjectPropertyList = JSCommaTrailingList JSObjectProperty
+
+-- | Accessors for JSObjectProperty is either 'get' or 'set'.
 data JSAccessor
     = JSAccessorGet JSAnnot
     | JSAccessorSet JSAnnot
@@ -199,9 +206,14 @@ data JSIdent
     deriving (Data, Eq, Show, Typeable)
 
 data JSCommaList a
-    = JSLCons (JSCommaList a) JSAnnot a -- ^head, comma, ident
+    = JSLCons (JSCommaList a) JSAnnot a -- ^head, comma, a
     | JSLOne a -- ^ single element (no comma)
     | JSLNil
+    deriving (Data, Eq, Show, Typeable)
+
+data JSCommaTrailingList a
+    = JSCTLComma (JSCommaList a) JSAnnot -- ^list, trailing comma
+    | JSCTLNone (JSCommaList a) -- ^list
     deriving (Data, Eq, Show, Typeable)
 
 -- -----------------------------------------------------------------------------
@@ -273,8 +285,6 @@ instance ShowStripped JSExpression where
     ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
     ss (JSNewExpression _n e) = "JSNewExpression " ++ ss e
     ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ ss xs
-    ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
-    ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
     ss (JSRegEx _ s) = "JSRegEx " ++ singleQuote s
     ss (JSStringLiteralS _ s) = "JSStringLiteralS " ++ singleQuote s
     ss (JSStringLiteralD _ s) = "JSStringLiteralD " ++ singleQuote s
@@ -292,6 +302,10 @@ instance ShowStripped JSTryFinally where
 instance ShowStripped JSIdent where
     ss (JSIdentName _ s) = "JSIdentifier " ++ singleQuote s
     ss JSIdentNone = "JSIdentNone"
+
+instance ShowStripped JSObjectProperty where
+    ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
+    ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
 
 instance ShowStripped JSAccessor where
     ss (JSAccessorGet _) = "JSAccessorGet"
@@ -364,6 +378,10 @@ instance ShowStripped JSSemi where
 
 instance ShowStripped a => ShowStripped (JSCommaList a) where
     ss xs = "(" ++ commaJoin (map ss $ fromCommaList xs) ++ ")"
+
+instance ShowStripped a => ShowStripped (JSCommaTrailingList a) where
+    ss (JSCTLComma xs _) = "[" ++ commaJoin (map ss $ fromCommaList xs) ++ ",JSComma]"
+    ss (JSCTLNone xs)    = "[" ++ commaJoin (map ss $ fromCommaList xs) ++ "]"
 
 instance ShowStripped a => ShowStripped [a] where
     ss xs = "[" ++ commaJoin (map ss xs) ++ "]"

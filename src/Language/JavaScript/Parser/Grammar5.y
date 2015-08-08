@@ -485,9 +485,9 @@ Elision : Comma             { [$1] }
 --        { PropertyNameAndValueList }
 --        { PropertyNameAndValueList , }
 ObjectLiteral :: { AST.JSExpression }
-ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiteral $1 [] $2          }
-              | LBrace PropertyNameandValueList RBrace       { AST.JSObjectLiteral $1 $2 $3          }
-              | LBrace PropertyNameandValueList Comma RBrace { AST.JSObjectLiteral $1 ($2++[$3]) $4  }
+ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiteral $1 (AST.JSCTLNone AST.JSLNil) $2        {- 'ObjectLiteal1' -} }
+              | LBrace PropertyNameandValueList RBrace       { AST.JSObjectLiteral $1 (AST.JSCTLNone $2) $3                {- 'ObjectLiteal2' -} }
+              | LBrace PropertyNameandValueList Comma RBrace { AST.JSObjectLiteral $1 (AST.JSCTLComma $2 (nodePos $3)) $4  {- 'ObjectLiteal3' -} }
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
@@ -496,16 +496,16 @@ ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiter
 -- PropertyNameAndValueList :                                            See 11.1.5
 --        PropertyAssignment
 --        PropertyNameAndValueList , PropertyAssignment
-PropertyNameandValueList :: { [ AST.JSExpression ] }
-PropertyNameandValueList : PropertyAssignment                                { [$1] {- 'PropertyNameandValueList1' -} }
-                         | PropertyNameandValueList Comma PropertyAssignment { ($1++[$2]++[$3]) {- 'PropertyNameandValueList2' -} }
+PropertyNameandValueList :: { AST.JSCommaList AST.JSObjectProperty }
+PropertyNameandValueList : PropertyAssignment                                { AST.JSLOne $1                    {- 'PropertyNameandValueList1' -} }
+                         | PropertyNameandValueList Comma PropertyAssignment { AST.JSLCons $1 (nodePos $2) $3   {- 'PropertyNameandValueList2' -} }
 
 -- PropertyAssignment :                                                  See 11.1.5
 --        PropertyName : AssignmentExpression
 --        get PropertyName() { FunctionBody }
 --        set PropertyName( PropertySetParameterList ) { FunctionBody }
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
-PropertyAssignment :: { AST.JSExpression }
+PropertyAssignment :: { AST.JSObjectProperty }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue (identName $1) $2 [$3] }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody

@@ -85,9 +85,9 @@ testSuite = testGroup "Parser"
 
     , testCase "ObjectLiteral1"     (testPE "{}"        "Right (JSAstExpression (JSObjectLiteral []))")
     , testCase "ObjectLiteral2"     (testPE "{x:1}"     "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1']]))")
-    , testCase "ObjectLiteral3"     (testPE "{x:1,y:2}" "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSComma,JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '2']]))")
+    , testCase "ObjectLiteral3"     (testPE "{x:1,y:2}" "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '2']]))")
 
-    , testCase "ObjectLiteral4"     (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'evaluate') [JSIdentifier 'evaluate'],JSComma,JSPropertyNameandValue (JSIdentifier 'load') [JSFunctionExpression 'load' (JSIdentifier 's') (JSBlock [JSIf (JSIdentifier 'x') (JSReturn JSIdentifier 's' JSSemicolon),JSDecimal '1']))]]))")
+    , testCase "ObjectLiteral4"     (testPE "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'evaluate') [JSIdentifier 'evaluate'],JSPropertyNameandValue (JSIdentifier 'load') [JSFunctionExpression 'load' (JSIdentifier 's') (JSBlock [JSIf (JSIdentifier 'x') (JSReturn JSIdentifier 's' JSSemicolon),JSDecimal '1']))]]))")
 
     , testCase "ObjectLiteral5"     (testPE "{x:1,}"    "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSComma]))")
 
@@ -96,9 +96,9 @@ testSuite = testGroup "Parser"
     , testCase "ObjectLiteral6"     (testProg "a={\n  values: 7,\n}\n" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'a',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'values') [JSDecimal '7'],JSComma])])")
 
     -- Edition 5 extensions
-    , testCase "ObjectLiteral7"     (testProg "x={get foo() {return 1},set foo(a) {x=a}}" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyAccessor JSAccessorGet (JSIdentifier 'foo') [] (JSBlock [JSReturn JSDecimal '1' ]),JSComma,JSPropertyAccessor JSAccessorSet (JSIdentifier 'foo') [JSIdentifier 'a'] (JSBlock [JSOpAssign ('=',JSIdentifier 'x',JSIdentifier 'a')])])])")
+    , testCase "ObjectLiteral7"     (testProg "x={get foo() {return 1},set foo(a) {x=a}}" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyAccessor JSAccessorGet (JSIdentifier 'foo') [] (JSBlock [JSReturn JSDecimal '1' ]),JSPropertyAccessor JSAccessorSet (JSIdentifier 'foo') [JSIdentifier 'a'] (JSBlock [JSOpAssign ('=',JSIdentifier 'x',JSIdentifier 'a')])])])")
 
-    , testCase "ObjectLiteral8"     (testProg "a={if:1,interface:2}" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'a',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'if') [JSDecimal '1'],JSComma,JSPropertyNameandValue (JSIdentifier 'interface') [JSDecimal '2']])])")
+    , testCase "ObjectLiteral8"     (testProg "a={if:1,interface:2}" "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'a',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'if') [JSDecimal '1'],JSPropertyNameandValue (JSIdentifier 'interface') [JSDecimal '2']])])")
 
     , testCase "OpPrecedence"       (testProg "2+3*4+5"  "Right (JSAstProgram [JSExpressionBinary ('+',JSExpressionBinary ('+',JSDecimal '2',JSExpressionBinary ('*',JSDecimal '3',JSDecimal '4')),JSDecimal '5')])")
 

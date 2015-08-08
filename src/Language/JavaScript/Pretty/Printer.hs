@@ -84,8 +84,6 @@ instance RenderJS JSExpression where
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSNewExpression        n e)                    = pacc |> n |> "new" |> e
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
-    (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
-    (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
     (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
 
@@ -242,6 +240,10 @@ instance RenderJS [JSStatement] where
 instance RenderJS JSBlock where
     (|>) pacc (JSBlock alb ss arb) = pacc |> alb |> "{" |> ss |> arb |> "}"
 
+instance RenderJS JSObjectProperty where
+    (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
+    (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
+
 instance RenderJS JSAccessor where
     (|>) pacc (JSAccessorGet annot) = pacc |> annot |> "get"
     (|>) pacc (JSAccessorSet annot) = pacc |> annot |> "set"
@@ -250,6 +252,10 @@ instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i
     (|>) pacc (JSLOne i)       = pacc |> i
     (|>) pacc JSLNil           = pacc
+
+instance RenderJS a => RenderJS (JSCommaTrailingList a) where
+    (|>) pacc (JSCTLComma xs a) = pacc |> xs |> a |> ","
+    (|>) pacc (JSCTLNone xs)   = pacc |> xs
 
 instance RenderJS JSIdent where
     (|>) pacc (JSIdentName a s) = pacc |> a |> s
