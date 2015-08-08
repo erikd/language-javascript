@@ -48,12 +48,12 @@ data JSAST
 data JSStatement
     = JSStatementBlock JSAnnot [JSStatement] JSAnnot JSSemi     -- ^lbrace, stmts, rbrace, autosemi
     | JSBreak JSAnnot JSIdent JSSemi        -- ^break,optional identifier, autosemi
-    | JSConstant JSAnnot [JSExpression] JSSemi -- ^const, decl, autosemi
+    | JSConstant JSAnnot (JSCommaList JSExpression) JSSemi -- ^const, decl, autosemi
     | JSContinue JSAnnot JSIdent JSSemi     -- ^continue, optional identifier,autosemi
     | JSDoWhile JSAnnot JSStatement JSAnnot JSAnnot JSExpression JSAnnot JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
-    | JSFor JSAnnot JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
+    | JSFor JSAnnot JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
     | JSForIn JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
-    | JSForVar JSAnnot JSAnnot JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot [JSExpression] JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+    | JSForVar JSAnnot JSAnnot JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn JSAnnot JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction JSAnnot JSIdent JSAnnot (JSCommaList JSIdent) JSAnnot JSBlock JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSIf JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^if,(,expr,),stmt
@@ -67,7 +67,7 @@ data JSStatement
     | JSSwitch JSAnnot JSAnnot JSExpression JSAnnot JSAnnot [JSSwitchParts] JSAnnot JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
     | JSThrow JSAnnot JSExpression JSSemi -- ^throw val autosemi
     | JSTry JSAnnot JSBlock [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
-    | JSVariable JSAnnot [JSExpression] JSSemi -- ^var|const, decl, autosemi
+    | JSVariable JSAnnot (JSCommaList JSExpression) JSSemi -- ^var|const, decl, autosemi
     | JSWhile JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Data, Eq, Show, Typeable)
@@ -89,7 +89,6 @@ data JSExpression
     | JSCallExpression JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot  -- ^expr, bl, args, rb
     | JSCallExpressionDot JSExpression JSAnnot JSExpression  -- ^expr, dot, expr
     | JSCallExpressionSquare JSExpression JSAnnot JSExpression JSAnnot  -- ^expr, [, expr, ]
-    | JSComma JSAnnot-- ^comma
     | JSCommaExpression JSExpression JSAnnot JSExpression          -- ^expression components
     | JSExpressionBinary JSExpression JSBinOp JSExpression -- ^lhs, op, rhs
     | JSExpressionParen JSAnnot JSExpression JSAnnot -- ^lb,expression,rb
@@ -272,7 +271,6 @@ instance ShowStripped JSExpression where
     ss (JSCallExpression ex _ xs _) = "JSCallExpression ("++ ss ex ++ ",JSArguments " ++ ss xs ++ ")"
     ss (JSCallExpressionDot ex _os xs) = "JSCallExpressionDot (" ++ ss ex ++ "," ++ ss xs ++ ")"
     ss (JSCallExpressionSquare ex _os xs _cs) = "JSCallExpressionSquare (" ++ ss ex ++ "," ++ ss xs ++ ")"
-    ss (JSComma _) = "JSComma"
     ss (JSDecimal _ s) = "JSDecimal " ++ singleQuote s
     ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
     ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary (" ++ ss op ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"

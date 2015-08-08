@@ -166,8 +166,8 @@ LSquare : '[' { AST.JSAnnot (ts $1) (tc $1) }
 RSquare :: { AST.JSAnnot }
 RSquare : ']' { AST.JSAnnot (ts $1) (tc $1) }
 
-Comma :: { AST.JSExpression }
-Comma : ',' { AST.JSComma (AST.JSAnnot (ts $1) (tc $1)) }
+Comma :: { AST.JSAnnot }
+Comma : ',' { AST.JSAnnot (ts $1) (tc $1) }
 
 Colon :: { AST.JSAnnot }
 Colon : ':' { AST.JSAnnot (ts $1) (tc $1) }
@@ -477,17 +477,17 @@ ElementList : Elision AssignmentExpression              { $1 ++ [AST.JSArrayElem
 --        ,
 --        Elision ,
 Elision :: { [AST.JSArrayElement] }
-Elision : Comma             { [AST.JSArrayComma (nodePos $1)]       {- 'Elision1' -} }
-        | Comma Elision     { (AST.JSArrayComma  (nodePos $1)):$2   {- 'Elision2' -} }
+Elision : Comma             { [AST.JSArrayComma $1]     {- 'Elision1' -} }
+        | Comma Elision     { (AST.JSArrayComma $1):$2  {- 'Elision2' -} }
 
 -- ObjectLiteral :                                                       See 11.1.5
 --        { }
 --        { PropertyNameAndValueList }
 --        { PropertyNameAndValueList , }
 ObjectLiteral :: { AST.JSExpression }
-ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiteral $1 (AST.JSCTLNone AST.JSLNil) $2        {- 'ObjectLiteal1' -} }
-              | LBrace PropertyNameandValueList RBrace       { AST.JSObjectLiteral $1 (AST.JSCTLNone $2) $3                {- 'ObjectLiteal2' -} }
-              | LBrace PropertyNameandValueList Comma RBrace { AST.JSObjectLiteral $1 (AST.JSCTLComma $2 (nodePos $3)) $4  {- 'ObjectLiteal3' -} }
+ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiteral $1 (AST.JSCTLNone AST.JSLNil) $2     {- 'ObjectLiteal1' -} }
+              | LBrace PropertyNameandValueList RBrace       { AST.JSObjectLiteral $1 (AST.JSCTLNone $2) $3             {- 'ObjectLiteal2' -} }
+              | LBrace PropertyNameandValueList Comma RBrace { AST.JSObjectLiteral $1 (AST.JSCTLComma $2 $3) $4         {- 'ObjectLiteal3' -} }
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
@@ -497,8 +497,8 @@ ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiter
 --        PropertyAssignment
 --        PropertyNameAndValueList , PropertyAssignment
 PropertyNameandValueList :: { AST.JSCommaList AST.JSObjectProperty }
-PropertyNameandValueList : PropertyAssignment                                { AST.JSLOne $1                    {- 'PropertyNameandValueList1' -} }
-                         | PropertyNameandValueList Comma PropertyAssignment { AST.JSLCons $1 (nodePos $2) $3   {- 'PropertyNameandValueList2' -} }
+PropertyNameandValueList : PropertyAssignment                                { AST.JSLOne $1        {- 'PropertyNameandValueList1' -} }
+                         | PropertyNameandValueList Comma PropertyAssignment { AST.JSLCons $1 $2 $3 {- 'PropertyNameandValueList2' -} }
 
 -- PropertyAssignment :                                                  See 11.1.5
 --        PropertyName : AssignmentExpression
@@ -574,8 +574,8 @@ Arguments : LParen RParen               { JSArguments $1 AST.JSLNil $2  {- 'Argu
 --        AssignmentExpression
 --        ArgumentList , AssignmentExpression
 ArgumentList :: { AST.JSCommaList AST.JSExpression }
-ArgumentList : AssignmentExpression                    { AST.JSLOne $1                  {- 'ArgumentList1' -} }
-             | ArgumentList Comma AssignmentExpression { AST.JSLCons $1 (nodePos $2) $3 {- 'ArgumentList2' -} }
+ArgumentList : AssignmentExpression                    { AST.JSLOne $1          {- 'ArgumentList1' -} }
+             | ArgumentList Comma AssignmentExpression { AST.JSLCons $1 $2 $3   {- 'ArgumentList2' -} }
 
 -- LeftHandSideExpression :                                     See 11.2
 --        NewExpression
@@ -820,23 +820,23 @@ AssignmentOperator : OpAssign     { $1 }
 --         Expression , AssignmentExpression
 Expression :: { AST.JSExpression }
 Expression : AssignmentExpression { $1 {- 'Expression' -} }
-           | Expression Comma AssignmentExpression  { AST.JSCommaExpression $1 (nodePos $2) $3 {- 'Expression2' -} }
+           | Expression Comma AssignmentExpression  { AST.JSCommaExpression $1 $2 $3    {- 'Expression2' -} }
 
 -- ExpressionNoIn :                                               See 11.14
 --         AssignmentExpressionNoIn
 --         ExpressionNoIn , AssignmentExpressionNoIn
 ExpressionNoIn :: { AST.JSExpression }
 ExpressionNoIn : AssignmentExpressionNoIn { $1 {- 'ExpressionNoIn' -} }
-               | ExpressionNoIn Comma AssignmentExpressionNoIn  { AST.JSCommaExpression $1 (nodePos $2) $3 {- 'ExpressionNoIn2' -} }
+               | ExpressionNoIn Comma AssignmentExpressionNoIn  { AST.JSCommaExpression $1 $2 $3 {- 'ExpressionNoIn2' -} }
 
 -- TODO: still required?
-ExpressionOpt :: { [AST.JSExpression] }
-ExpressionOpt : Expression { [$1] {- 'ExpressionOpt' -} }
-              |            { []   {- 'ExpressionOpt' -} }
+ExpressionOpt :: { AST.JSCommaList AST.JSExpression }
+ExpressionOpt : Expression { AST.JSLOne $1  {- 'ExpressionOpt1' -} }
+              |            { AST.JSLNil     {- 'ExpressionOpt2' -} }
 
-ExpressionNoInOpt :: { [AST.JSExpression] }
-ExpressionNoInOpt : ExpressionNoIn { [$1] {- 'ExpressionOpt' -} }
-                  |                { []   {- 'ExpressionOpt' -} }
+ExpressionNoInOpt :: { AST.JSCommaList AST.JSExpression }
+ExpressionNoInOpt : ExpressionNoIn { AST.JSLOne $1  {- 'ExpressionOpt1' -} }
+                  |                { AST.JSLNil     {- 'ExpressionOpt2' -} }
 
 
 -- Statement :                                                    See clause 12
@@ -902,22 +902,22 @@ VariableStatement : Var   VariableDeclarationList MaybeSemi { AST.JSVariable $1 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration
 --         VariableDeclarationList , VariableDeclaration
-VariableDeclarationList :: { [AST.JSExpression] }
-VariableDeclarationList : VariableDeclaration { [$1] {- 'VariableDeclarationList1' -} }
-                        | VariableDeclarationList Comma VariableDeclaration { ($1++[$2,$3]) {- 'VariableDeclarationList2' -} }
+VariableDeclarationList :: { AST.JSCommaList AST.JSExpression }
+VariableDeclarationList : VariableDeclaration                               { AST.JSLOne $1         {- 'VariableDeclarationList1' -} }
+                        | VariableDeclarationList Comma VariableDeclaration { AST.JSLCons $1 $2 $3  {- 'VariableDeclarationList2' -} }
 
 -- VariableDeclarationListNoIn :                                  See 12.2
 --         VariableDeclarationNoIn
 --         VariableDeclarationListNoIn , VariableDeclarationNoIn
-VariableDeclarationListNoIn :: { [AST.JSExpression] }
-VariableDeclarationListNoIn : VariableDeclarationNoIn { [$1] {- 'VariableDeclarationList3' -} }
-                            | VariableDeclarationListNoIn Comma VariableDeclarationNoIn { ($1++[$2,$3]) {- 'VariableDeclarationListNoIn' -} }
+VariableDeclarationListNoIn :: { AST.JSCommaList AST.JSExpression }
+VariableDeclarationListNoIn : VariableDeclarationNoIn                                   { AST.JSLOne $1         {- 'VariableDeclarationListNoIn1' -} }
+                            | VariableDeclarationListNoIn Comma VariableDeclarationNoIn { AST.JSLCons $1 $2 $3  {- 'VariableDeclarationListNoIn2' -} }
 
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
 VariableDeclaration :: { AST.JSExpression }
-VariableDeclaration : Identifier SimpleAssign AssignmentExpression { AST.JSVarInitExpression $1 (AST.JSVarInit $2 $3) {- 'JSVarInitExpressionInit1' -} }
-                    | Identifier                                   { AST.JSVarInitExpression $1 AST.JSVarInitNone     {- 'JSVarInitExpression1' -} }
+VariableDeclaration : Identifier SimpleAssign AssignmentExpression { AST.JSVarInitExpression $1 (AST.JSVarInit $2 $3) {- 'JSVarInitExpression1' -} }
+                    | Identifier                                   { AST.JSVarInitExpression $1 AST.JSVarInitNone     {- 'JSVarInitExpression2' -} }
 
 -- VariableDeclarationNoIn :                                      See 12.2
 --         Identifier InitialiserNoInopt
@@ -1104,8 +1104,8 @@ IdentifierOpt : Identifier { identName $1     {- 'IdentifierOpt1' -} }
 --        Identifier
 --        FormalParameterList , Identifier
 FormalParameterList :: { AST.JSCommaList AST.JSIdent }
-FormalParameterList : Identifier                            { AST.JSLOne (identName $1) {- 'FormalParameterList' -} }
-                    | FormalParameterList Comma Identifier  { AST.JSLCons $1 (nodePos $2) (identName $3) }
+FormalParameterList : Identifier                            { AST.JSLOne (identName $1)         {- 'FormalParameterList1' -} }
+                    | FormalParameterList Comma Identifier  { AST.JSLCons $1 $2 (identName $3)  {- 'FormalParameterList2' -} }
 
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
@@ -1181,9 +1181,6 @@ mkUnary (AST.JSBinOpMinus annot) = AST.JSUnaryOpMinus annot
 mkUnary (AST.JSBinOpPlus  annot) = AST.JSUnaryOpPlus  annot
 
 mkUnary x = error $ "Invalid unary op : " ++ show x
-
-nodePos :: AST.JSExpression -> AST.JSAnnot
-nodePos (AST.JSComma p) = p
 
 identName :: AST.JSExpression -> AST.JSIdent
 identName (AST.JSIdentifier a s) = AST.JSIdentName a s

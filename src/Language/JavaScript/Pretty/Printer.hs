@@ -71,7 +71,6 @@ instance RenderJS JSExpression where
     (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
-    (|>) pacc (JSComma                annot)                  = pacc |> annot |> ","
     (|>) pacc (JSCommaExpression      le c re)                = pacc |> le |> c |> "," |> re
     (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"
