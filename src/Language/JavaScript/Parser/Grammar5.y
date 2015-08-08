@@ -975,21 +975,18 @@ IterationStatement : Do StatementNoEmpty While LParen Expression RParen MaybeSem
 
 -- ContinueStatement :                                                                      See 12.7
 --         continue [no LineTerminator here] Identifieropt ;
--- TODO: deal with [no LineTerminator here]
 ContinueStatement :: { AST.JSStatement }
 ContinueStatement : Continue AutoSemi              { AST.JSContinue $1 AST.JSIdentNone $2  {- 'ContinueStatement1' -} }
                   | Continue Identifier MaybeSemi  { AST.JSContinue $1 (identName $2) $3   {- 'ContinueStatement2' -} }
 
 -- BreakStatement :                                                                         See 12.8
 --         break [no LineTerminator here] Identifieropt ;
--- TODO: deal with [no LineTerminator here]
 BreakStatement :: { AST.JSStatement }
 BreakStatement : Break AutoSemi              { AST.JSBreak $1 AST.JSIdentNone $2 {- 'BreakStatement1' -} }
                | Break Identifier MaybeSemi  { AST.JSBreak $1 (identName $2) $3  {- 'BreakStatement2' -} }
 
 -- ReturnStatement :                                                                        See 12.9
 --         return [no LineTerminator here] Expressionopt ;
--- TODO: deal with [no LineTerminator here]
 ReturnStatement :: { AST.JSStatement }
 ReturnStatement : Return AutoSemi              { AST.JSReturn $1 Nothing $2 }
                 | Return Expression MaybeSemi  { AST.JSReturn $1 (Just $2) $3 }
@@ -1038,8 +1035,6 @@ LabelledStatement : Identifier Colon Statement { AST.JSLabelled (identName $1) $
 
 -- ThrowStatement :                                                           See 12.13
 --        throw [no LineTerminator here] Expression ;
--- TODO : sort out no LineTerminator here
---        Does it need a semi at the end?
 ThrowStatement :: { AST.JSStatement }
 ThrowStatement : Throw Expression MaybeSemi { AST.JSThrow $1 $2 $3 {- 'ThrowStatement' -} }
 
