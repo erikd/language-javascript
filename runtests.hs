@@ -775,11 +775,14 @@ traversalsSuite = testGroup "traversals"
 
   , group "warnUnnamedFns" warnUnnamedFns $
       [ ("function foo() { }\n foo()", return)
-      , ("function() { }\n foo()",   \ast -> tell ["Unnamed function at TokenPn 0 1 1"] >> return ast)
-      , ("\nfunction() { }\n foo()", \ast -> tell ["Unnamed function at TokenPn 1 2 1"] >> return ast)
+      , ("function() { }\n foo()",   positions ["0 1 1"])
+      , ("\nfunction() { }\n foo()", positions ["1 2 1"])
+      , ("(function() { \nreturn function()\n { return 3\n  }\n}\n)()", positions ["22 2 8", "1 1 2"])
       ]
   ]
   where
+  positions ps ast = tell (map ("Unnamed function at TokenPn " ++) ps) >> return ast
+
   group :: (Applicative m, Monad m, Show (m JSNode), Eq (m JSNode)) =>
            String -> (JSNode -> m JSNode) -> [(String, JSNode -> m JSNode)] -> Test
   group name f testData =
