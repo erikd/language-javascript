@@ -1,5 +1,9 @@
 
-module Language.JavaScript.Parser.Traversals where
+module Language.JavaScript.Parser.Traversals
+  ( innerNode
+  , unpackNode
+  , everywhereOnJSNodesM
+  ) where
 
 import Control.Applicative
 import Control.Monad
@@ -10,6 +14,11 @@ innerNode :: Applicative f => (Node -> f Node) -> JSNode -> f JSNode
 innerNode f n = case n of
   NN n'          -> NN <$> f n'
   NT n' pos anns -> NT <$> f n' <*> pure pos <*> pure anns
+
+unpackNode :: JSNode -> Node
+unpackNode n = case n of
+  NN n'     -> n'
+  NT n' _ _ -> n'
 
 everywhereOnJSNodesM :: (Applicative m, Monad m) => (JSNode -> m JSNode) -> JSNode -> m JSNode
 everywhereOnJSNodesM f = go
