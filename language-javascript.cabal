@@ -46,12 +46,13 @@ Library
       build-tools:       happy >= 1.18.5, alex >= 3.0.5
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
-                       Language.JavaScript.Parser.Parser
-                       Language.JavaScript.Parser.Lexer
-                       Language.JavaScript.Parser.Grammar5
                        Language.JavaScript.Parser.AST
-                       Language.JavaScript.Pretty.Printer
+                       Language.JavaScript.Parser.Grammar5
+                       Language.JavaScript.Parser.Lexer
+                       Language.JavaScript.Parser.Parser
                        Language.JavaScript.Parser.SrcLocation
+                       Language.JavaScript.Pretty.Printer
+                       Language.JavaScript.Process.Minify
   Other-modules:       Language.JavaScript.Parser.LexerUtils
                        Language.JavaScript.Parser.ParseError
                        Language.JavaScript.Parser.ParserMonad

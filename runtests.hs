@@ -11,6 +11,7 @@ import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.Parser
 
 import Tests.ExpressionParser
+import Tests.Minify
 import Tests.ProgramParser
 import Tests.RoundTrip
 import Tests.StatementParser
@@ -32,6 +33,8 @@ testAll = do
     testStatementParser
     testProgramParser
     testRoundTrip
+    testMinifyExpr
+    testMinifyStmt
 
 
 testLexer :: Spec
