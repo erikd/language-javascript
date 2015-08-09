@@ -52,6 +52,7 @@ Library
                        Language.JavaScript.Parser.AST
                        Language.JavaScript.Pretty.Printer
                        Language.JavaScript.Parser.SrcLocation
+                       Language.JavaScript.Parser.Traversals
   Other-modules:       Language.JavaScript.Parser.LexerUtils
                        Language.JavaScript.Parser.ParseError
                        Language.JavaScript.Parser.ParserMonad
