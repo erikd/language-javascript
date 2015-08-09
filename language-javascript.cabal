@@ -57,16 +57,14 @@ Library
                        Language.JavaScript.Parser.ParserMonad
                        Language.JavaScript.Parser.StringEscape
                        Language.JavaScript.Parser.Token
-  ghc-options:         -Wall
+  ghc-options:         -Wall -fwarn-tabs
 
 Test-Suite test-language-javascript
   Type: exitcode-stdio-1.0
   Main-is: runtests.hs
   build-depends: base, Cabal >= 1.9.2
                  , QuickCheck >= 2
-                 , HUnit
-                 , test-framework-hunit
-                 , test-framework
+                 , hspec
                  , array            >= 0.3
                  , utf8-light       >= 0.4
                  , containers       >= 0.2
@@ -76,7 +74,10 @@ Test-Suite test-language-javascript
                  , blaze-builder    >= 0.2
                  -- need our own library for tests
                  , language-javascript >= 0.5.5
-
+  Other-modules:    Tests.ExpressionParser
+                    Tests.ProgramParser
+                    Tests.StatementParser
+  ghc-options:   -Wall -fwarn-tabs
 
 source-repository head
   type:     git
