@@ -1,5 +1,6 @@
 
-import Control.Monad (when)
+import Control.Monad (forM_, when)
+import Data.Char (chr)
 import Data.List (intercalate)
 import System.Exit
 import Test.Hspec
@@ -42,7 +43,7 @@ testLexer = describe "Lexer:" $ do
     it "assignment" $ do
         testLex "x=1"        `shouldBe` "[IdentifierToken,SimpleAssignToken,DecimalToken]"
         testLex "x=1\ny=2"   `shouldBe` "[IdentifierToken,SimpleAssignToken,DecimalToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]"
-    it "break/continure/return" $ do
+    it "break/continue/return" $ do
         testLex "break\nx=1"     `shouldBe` "[BreakToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]"
         testLex "continue\nx=1"  `shouldBe` "[ContinueToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]"
         testLex "return\nx=1"    `shouldBe` "[ReturnToken,WsToken,IdentifierToken,SimpleAssignToken,DecimalToken]"
@@ -79,6 +80,17 @@ testLiteralParser = describe "Parse literals:" $ do
     it "strings" $ do
         testLiteral "\"hello\\nworld\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteralD 'hello\\nworld'))"
         testLiteral "'hello\\nworld'"   `shouldBe` "Right (JSAstLiteral (JSStringLiteralS 'hello\\nworld'))"
+        forM_ (filter (/= '"') asciiTestString) $ \ ch -> do
+            let str = "char " ++ [ch]
+            testLiteral ("\"" ++ str ++ "\"")   `shouldBe` ("Right (JSAstLiteral (JSStringLiteralD '" ++ str ++ "'))")
+        forM_ (filter (/= '\'') asciiTestString) $ \ ch -> do
+            let str = "char " ++ [ch]
+            testLiteral ("'" ++ str ++ "'")     `shouldBe` ("Right (JSAstLiteral (JSStringLiteralS '" ++ str ++ "'))")
+
+
+-- 8 bit ASCII, minus the backslash escape character.
+asciiTestString :: String
+asciiTestString = filter (/= '\\') $ map chr [0 .. 255]
 
 
 testLex :: String -> String
