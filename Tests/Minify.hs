@@ -105,6 +105,11 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " { get foo ( ) { return x } } " `shouldBe` "{get foo(){return x}}"
         minifyExpr " { set foo ( a ) { x = a } } " `shouldBe` "{set foo(a){x=a}}"
 
+    it "string concatenation" $ do
+        minifyExpr " 'ab' + \"cd\" " `shouldBe` "'abcd'"
+        minifyExpr " \"ef\" + 'gh' " `shouldBe` "\"efgh\""
+        minifyExpr " \"ij\" + 'kl' + 'mn' " `shouldBe` "\"ijklmn\""
+
 
 testMinifyStmt :: Spec
 testMinifyStmt = describe "Minify statements:" $ do
@@ -124,10 +129,13 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " if ( 1 ) ; " `shouldBe` "if(1);"
 
     it "if/else" $ do
-        minifyStmt " if ( 1 ) ; else break ; " `shouldBe` "if(1){return}else break"
-        minifyStmt " if ( 1 ) break ; else break ; " `shouldBe` "if(1){break}else break"
-        minifyStmt " if ( 1 ) continue ; else continue ; " `shouldBe` "if(1){continue}else continue"
-        minifyStmt " if ( 1 ) return ; else return ; " `shouldBe` "if(1){return}else return"
+        minifyStmt " if ( a ) ; else break ; " `shouldBe` "if(a){return}else break"
+        minifyStmt " if ( b ) break ; else break ; " `shouldBe` "if(b){break}else break"
+        minifyStmt " if ( c ) continue ; else continue ; " `shouldBe` "if(c){continue}else continue"
+        minifyStmt " if ( d ) return ; else return ; " `shouldBe` "if(d){return}else return"
+        minifyStmt " if ( e ) { b = 1 } else c = 2 ;" `shouldBe` "if(e){b=1}else c=2"
+        minifyStmt " if ( f ) { b = 1 } else { c = 2 ; d = 4 ; } ;" `shouldBe` "if(f){b=1}else{c=2;d=4}"
+        minifyStmt " if ( g ) { ex ; } else { ex ; } ; " `shouldBe` "if(g){ex}else ex"
 
     it "while" $ do
         minifyStmt " while ( x < 2 ) x ++ ; " `shouldBe` "while(x<2)x++"
@@ -156,7 +164,7 @@ testMinifyStmt = describe "Minify statements:" $ do
 
     it "with" $ do
         minifyStmt " with ( x ) { } ; " `shouldBe` "with(x){}"
-        minifyStmt "    with({ first: 'John' }) { foo ('Hello '+first); }" `shouldBe` "with({first:'John'}){foo('Hello '+first)}"
+        minifyStmt "    with({ first: 'John' }) { foo ('Hello '+first); }" `shouldBe` "with({first:'John'})foo('Hello '+first)"
 
     it "throw" $ do
         minifyStmt " throw a " `shouldBe` "throw a"

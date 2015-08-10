@@ -34,7 +34,8 @@ fixSpace = fix spaceAnnot
 
 
 fixStmt :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
-fixStmt a s (JSStatementBlock _lb ss _rb _) = JSStatementBlock a (fixStatementList False ss) emptyAnnot s
+fixStmt a s (JSStatementBlock _lb [st] _rb _) = fixStmt a s st
+fixStmt _ s (JSStatementBlock _lb ss _rb _) = JSStatementBlock emptyAnnot (fixStatementList False ss) emptyAnnot s
 fixStmt a s (JSBreak _ i _) = JSBreak a (fixSpace i) s
 fixStmt a s (JSConstant _ ss _) = JSConstant a (fixVarList ss) s
 fixStmt a s (JSContinue _ i _) = JSContinue a (fixSpace i) s
@@ -49,7 +50,7 @@ fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) empt
 fixStmt a s (JSLabelled e _ st) = JSLabelled (fix a e) emptyAnnot (fixStmtE s st)
 fixStmt _ _ (JSEmptyStatement _) = JSEmptyStatement emptyAnnot
 fixStmt a s (JSExpressionStatement e _) = JSExpressionStatement (fix a e) s
-fixStmt a s (JSAssignStatement lhs op rhs _) = JSAssignStatement (fix a lhs) (fixEmpty op) (fix a rhs) s
+fixStmt a s (JSAssignStatement lhs op rhs _) = JSAssignStatement (fix a lhs) (fixEmpty op) (fixEmpty rhs) s
 fixStmt a s (JSMethodCall e _ args _ _) = JSMethodCall (fix a e) emptyAnnot (fixEmpty args) emptyAnnot s
 fixStmt a s (JSReturn _ me _) = JSReturn a (fixSpace me) s
 fixStmt a s (JSSwitch _ _ e _ _ sps _ _) = JSSwitch a emptyAnnot (fixEmpty e) emptyAnnot emptyAnnot (map fixEmpty sps) emptyAnnot s
@@ -94,7 +95,7 @@ instance MinifyJS JSExpression where
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
     fix a (JSCallExpressionSquare ex _ xs _)          = JSCallExpressionSquare (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCommaExpression      le _ re)            = JSCommaExpression (fix a le) emptyAnnot (fixEmpty re)
-    fix a (JSExpressionBinary     lhs op rhs)         = let (ta, bop) = fixBinaryOp op in JSExpressionBinary (fix a lhs) bop (fix ta rhs)
+    fix a (JSExpressionBinary     lhs op rhs)         = fixBinOpExpression a op (fixEmpty lhs) (fixEmpty rhs)
     fix _ (JSExpressionParen      _ e _)              = JSExpressionParen emptyAnnot (fixEmpty e) emptyAnnot
     fix a (JSExpressionPostfix    e op)               = JSExpressionPostfix (fix a e) (fixEmpty op)
     fix a (JSExpressionTernary    cond _ v1 _ v2)     = JSExpressionTernary (fix a cond) emptyAnnot (fixEmpty v1) emptyAnnot (fixEmpty v2)
@@ -112,6 +113,16 @@ fixVarList :: JSCommaList JSExpression -> JSCommaList JSExpression
 fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
 fixVarList (JSLOne a) = JSLOne (fixSpace a)
 fixVarList JSLNil = JSLNil
+
+fixBinOpExpression :: JSAnnot -> JSBinOp -> JSExpression -> JSExpression -> JSExpression
+fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralS _ s1) (JSStringLiteralS _ s2) = JSStringLiteralS emptyAnnot (s1 ++ s2)
+fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralS _ s1) (JSStringLiteralD _ s2) = JSStringLiteralS emptyAnnot (s1 ++ s2)
+fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralD _ s1) (JSStringLiteralS _ s2) = JSStringLiteralD emptyAnnot (s1 ++ s2)
+fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralD _ s1) (JSStringLiteralD _ s2) = JSStringLiteralD emptyAnnot (s1 ++ s2)
+fixBinOpExpression a (JSBinOpIn _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpIn spaceAnnot) (fix spaceAnnot rhs)
+fixBinOpExpression a (JSBinOpInstanceOf _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpInstanceOf spaceAnnot) (fix spaceAnnot rhs)
+fixBinOpExpression a op lhs rhs = JSExpressionBinary (fix a lhs) (fixEmpty op) (fixEmpty rhs)
+
 
 instance MinifyJS JSBinOp where
     fix _ (JSBinOpAnd        _) = JSBinOpAnd emptyAnnot
@@ -137,11 +148,6 @@ instance MinifyJS JSBinOp where
     fix _ (JSBinOpStrictNeq  _) = JSBinOpStrictNeq emptyAnnot
     fix _ (JSBinOpTimes      _) = JSBinOpTimes emptyAnnot
     fix _ (JSBinOpUrsh       _) = JSBinOpUrsh emptyAnnot
-
-fixBinaryOp :: JSBinOp -> (JSAnnot, JSBinOp)
-fixBinaryOp (JSBinOpIn _) = (spaceAnnot, JSBinOpIn spaceAnnot)
-fixBinaryOp (JSBinOpInstanceOf _) = (spaceAnnot, JSBinOpInstanceOf spaceAnnot)
-fixBinaryOp op = (emptyAnnot, fixEmpty op)
 
 
 instance MinifyJS JSUnaryOp where
