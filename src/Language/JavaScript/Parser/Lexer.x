@@ -59,8 +59,11 @@ $not_eol_char = ~$eol_char -- anything but an end of line character
 
 -- {String Chars1} = {Printable} + {HT} - ["\]
 -- {String Chars2} = {Printable} + {HT} - [\'']
-$StringChars1 = [$printable $ht] # [$dq \\]
-$StringChars2 = [$printable $ht] # [$sq \\]
+$StringCharsDoubleQuote = [$printable $ht] # [$dq \\]
+$StringCharsSingleQuote = [$printable $ht] # [$sq \\]
+
+-- Character values < 0x20.
+$low_unprintable = [\x00-\x1f]
 
 -- LineContinuation :: \ LineTerminatorSequence
 @LineContinuation = [\\] @LineTerminatorSequence
@@ -76,7 +79,7 @@ $short_str_char = [^ \n \r ' \" \\]
 -- $RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
 -- $RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
--- $NonTerminator = $StringChars1 # [$cr $lf]
+-- $NonTerminator = $StringCharsDoubleQuote # [$cr $lf]
 $NonTerminator = [$printable] # [$cr $lf]
 -- {Non Zero Digits}={Digit}-[0]
 
@@ -202,10 +205,11 @@ tokens :-
 -- <reg,divide> @IDHead(@IDTail)*  { \loc len str -> keywordOrIdent (take len str) loc }
 <reg,divide> @IdentifierStart(@IdentifierPart)*  { \ap@(loc,_,_,str) len -> keywordOrIdent (take len str) (toTokenPosn loc) }
 
+-- ECMA-262 : Section 7.8.4 String Literals
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"'
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
-<reg,divide>  $dq ( $StringChars1 | \\ $printable | @LineContinuation )* $dq
-            | $sq ( $StringChars2 | \\ $printable | @LineContinuation )* $sq { adapt (mkString stringToken) }
+<reg,divide>  $dq ( $StringCharsDoubleQuote | \\ $printable | $low_unprintable | @LineContinuation )* $dq
+            | $sq ( $StringCharsSingleQuote | \\ $printable | $low_unprintable | @LineContinuation )* $sq { adapt (mkString stringToken) }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
 <reg,divide> ("0x"|"0X") @HexDigit+ { adapt (mkString hexIntegerToken) }

@@ -61,6 +61,7 @@ parserSuite = testGroup "Parser"
 
     , testCase "LiteralString1"    (testLiteral "\"hello\\nworld\"" "Right (JSStringLiteral '\"' \"hello\\\\nworld\")")
     , testCase "LiteralString2"    (testLiteral "'hello\\nworld'"  "Right (JSStringLiteral '\\'' \"hello\\\\nworld\")")
+    , testCase "LiteralString3"    (testLiteral "\"escape \x1b\""    "Right (JSStringLiteral '\"' \"escape \\ESC\")")
 
     , testCase "LiteralThis"       (testPE "this"  "Right (JSLiteral \"this\")")
 
