@@ -1,10 +1,16 @@
+{-# LANGUAGE ViewPatterns #-}
 
 import Language.JavaScript.Parser
 import Language.JavaScript.Parser.Grammar5
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.Parser
+import Language.JavaScript.Parser.Traversals
 
+import Control.Applicative (Applicative(..))
+import Control.Monad (ap, liftM)
 import Data.List (intercalate)
+import Data.Maybe (fromMaybe)
+import Data.String (fromString)
 import Test.Framework (defaultMain, testGroup, Test)
 import Test.Framework.Providers.HUnit
 import Test.HUnit hiding (Test)
@@ -16,6 +22,7 @@ main = defaultMain
     , parserSuite
     -- ++AZ++temporary++ , commentSuite
     , commentPrintSuite
+    , traversalsSuite
     , pendingSuite
     ]
 
@@ -721,6 +728,70 @@ commentPrintSuite = testGroup "Comments"
     , testCase "comment-only" (testRoundTrip "// comment\n\n")
     , testCase "empty-src" (testRoundTrip "")
     ]
+
+-- ---------------------------------------------------------------------
+-- Traversals
+
+guardThrowLiteral :: JSNode -> Maybe JSNode
+guardThrowLiteral n = case unpackNode n of
+  JSThrow _ (unpackNode -> JSExpression ((unpackNode -> JSStringLiteral _ _):_)) ->
+    Nothing
+  _ ->
+    return n
+
+-- | A basic version of Writer, including a Show instance (transformers doesn't)
+data Log a = Log [String] a deriving (Eq, Show)
+
+instance Functor Log where
+  fmap = liftM
+
+instance Applicative Log where
+  pure = return
+  (<*>) = ap
+
+instance Monad Log where
+  return = Log []
+  (Log ls x) >>= f =
+    let Log ls' y = f x
+    in  Log (ls ++ ls') y
+
+tell :: [String] -> Log ()
+tell x = Log x ()
+
+warnUnnamedFns :: JSNode -> Log JSNode
+warnUnnamedFns n = case unpackNode n of
+  JSFunctionExpression (NT _ pos _) [] _ _ _ _ -> do
+    tell ["Unnamed function at " ++ show pos]
+    return n
+  _ ->
+    return n
+
+traversalsSuite :: Test
+traversalsSuite = testGroup "traversals"
+  [ group "guardThrowLiteral" guardThrowLiteral $
+      [ ("function foo() { }\n foo()", Just)
+      , ("function foo() { throw \"hi\" }\n foo()", const Nothing)
+      , ("function foo() { throw new Error(\"hi\") }\n foo()", Just)
+      ]
+
+  , group "warnUnnamedFns" warnUnnamedFns $
+      [ ("function foo() { }\n foo()", return)
+      , ("function() { }\n foo()",   positions ["0 1 1"])
+      , ("\nfunction() { }\n foo()", positions ["1 2 1"])
+      , ("(function() { \nreturn function()\n { return 3\n  }\n}\n)()", positions ["22 2 8", "1 1 2"])
+      ]
+  ]
+  where
+  positions ps ast = tell (map ("Unnamed function at TokenPn " ++) ps) >> return ast
+
+  group :: (Applicative m, Monad m, Show (m JSNode), Eq (m JSNode)) =>
+           String -> (JSNode -> m JSNode) -> [(String, JSNode -> m JSNode)] -> Test
+  group name f testData =
+    testGroup name $ map (go f) testData
+    where
+    go f (source, expectedOf) = testCase (fromString (show source)) $ do
+      ast <- either fail return $ parse source "src"
+      expectedOf ast @=? everywhereOnJSNodesM f ast
 
 -- ---------------------------------------------------------------------
 -- Test utilities
