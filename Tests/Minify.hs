@@ -123,6 +123,8 @@ testMinifyStmt = describe "Minify statements:" $ do
     it "block" $ do
         minifyStmt "\n{ a = 1\nb = 2\n } " `shouldBe` "{a=1;b=2}"
         minifyStmt " { c = 3 ; d = 4 ; } " `shouldBe` "{c=3;d=4}"
+        minifyStmt " { ; e = 1 } " `shouldBe` "e=1"
+        minifyStmt " { { } ; f = 1 ; { } ; } ; " `shouldBe` "f=1"
 
     it "if" $ do
         minifyStmt " if ( 1 ) return ; " `shouldBe` "if(1)return"
@@ -164,7 +166,7 @@ testMinifyStmt = describe "Minify statements:" $ do
 
     it "with" $ do
         minifyStmt " with ( x ) { } ; " `shouldBe` "with(x){}"
-        minifyStmt "    with({ first: 'John' }) { foo ('Hello '+first); }" `shouldBe` "with({first:'John'})foo('Hello '+first)"
+        minifyStmt " with ({ first: 'John' }) { foo ('Hello '+first); }" `shouldBe` "with({first:'John'})foo('Hello '+first)"
 
     it "throw" $ do
         minifyStmt " throw a " `shouldBe` "throw a"

@@ -14,7 +14,7 @@ import Language.JavaScript.Parser.Token
 -- ---------------------------------------------------------------------
 
 minifyJS :: JSAST -> JSAST
-minifyJS (JSAstProgram xs _) = JSAstProgram (fixStatementList False xs) emptyAnnot
+minifyJS (JSAstProgram xs _) = JSAstProgram (fixStatementList xs) emptyAnnot
 minifyJS (JSAstStatement (JSStatementBlock _ [s] _ _) _) = JSAstStatement (fixStmtE noSemi s) emptyAnnot
 minifyJS (JSAstStatement s _) = JSAstStatement (fixStmtE noSemi s) emptyAnnot
 minifyJS (JSAstExpression e _) =  JSAstExpression (fixEmpty e) emptyAnnot
@@ -32,21 +32,24 @@ fixEmpty = fix emptyAnnot
 fixSpace :: MinifyJS a => a -> a
 fixSpace = fix spaceAnnot
 
+-- -----------------------------------------------------------------------------
+-- During minification, Javascript statements may need to have explicit
+-- semicolons inserted between the,, so that simply adding a JSStatement
+-- instance for the MinifyJS typeclass would not be sufficient.
 
 fixStmt :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
-fixStmt a s (JSStatementBlock _lb [st] _rb _) = fixStmt a s st
-fixStmt _ s (JSStatementBlock _lb ss _rb _) = JSStatementBlock emptyAnnot (fixStatementList False ss) emptyAnnot s
+fixStmt a s (JSStatementBlock _lb ss _rb _) = fixStatementBlock a s ss
 fixStmt a s (JSBreak _ i _) = JSBreak a (fixSpace i) s
 fixStmt a s (JSConstant _ ss _) = JSConstant a (fixVarList ss) s
 fixStmt a s (JSContinue _ i _) = JSContinue a (fixSpace i) s
-fixStmt a s (JSDoWhile _ st _ _ e _ _) = JSDoWhile a (blockStatement noSemi st) emptyAnnot emptyAnnot (fixEmpty e) emptyAnnot s
+fixStmt a s (JSDoWhile _ st _ _ e _ _) = JSDoWhile a (mkStatementBlock noSemi st) emptyAnnot emptyAnnot (fixEmpty e) emptyAnnot s
 fixStmt a s (JSFor _ _ el1 _ el2 _ el3 _ st) = JSFor a emptyAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSForIn _ _ e1 op e2 _ st) = JSForIn a emptyAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSForVar _ _ _ el1 _ el2 _ el3 _ st) = JSForVar a emptyAnnot spaceAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSForVarIn _ _ _ e1 op e2 _ st) = JSForVarIn a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSFunction _ n _ ps _ blk _) = JSFunction a (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (blockStatement noSemi st) emptyAnnot (fixStmt spaceAnnot s sf)
+fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (mkStatementBlock noSemi st) emptyAnnot (fixStmt spaceAnnot s sf)
 fixStmt a s (JSLabelled e _ st) = JSLabelled (fix a e) emptyAnnot (fixStmtE s st)
 fixStmt _ _ (JSEmptyStatement _) = JSEmptyStatement emptyAnnot
 fixStmt a s (JSExpressionStatement e _) = JSExpressionStatement (fix a e) s
@@ -64,18 +67,36 @@ fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot 
 fixStmtE :: JSSemi -> JSStatement -> JSStatement
 fixStmtE = fixStmt emptyAnnot
 
-blockStatement :: JSSemi -> JSStatement -> JSStatement
-blockStatement s (JSStatementBlock _ blk _ _) = JSStatementBlock emptyAnnot (fixStatementList False blk) emptyAnnot s
-blockStatement s (JSEmptyStatement _) = JSStatementBlock emptyAnnot [JSReturn emptyAnnot Nothing noSemi] emptyAnnot s
-blockStatement s x = JSStatementBlock emptyAnnot [fixStmtE noSemi x] emptyAnnot s
+-- Turn a single JSStatement into a JSStatementBlock.
+mkStatementBlock :: JSSemi -> JSStatement -> JSStatement
+mkStatementBlock s (JSStatementBlock _ blk _ _) = JSStatementBlock emptyAnnot (fixStatementList blk) emptyAnnot s
+mkStatementBlock s (JSEmptyStatement _) = JSStatementBlock emptyAnnot [JSReturn emptyAnnot Nothing noSemi] emptyAnnot s
+mkStatementBlock s x = JSStatementBlock emptyAnnot [fixStmtE noSemi x] emptyAnnot s
 
-fixStatementList :: Bool -> [JSStatement] -> [JSStatement]
-fixStatementList _ [] = []
-fixStatementList True [x] = [fixStmtE semi x]
-fixStatementList False [x] = [fixStmtE  noSemi x]
-fixStatementList True xs = map (fixStmtE  semi) xs
-fixStatementList False (x:xs) = fixStmtE semi x : fixStatementList False xs
+-- Filter a list of JSStatment, dropping JSEmptyStatement and empty
+-- JSStatementBlocks. If the resulting list contains only a single element,
+-- remove the enclosing JSStatementBlock and return the inner JSStatement.
+fixStatementBlock :: JSAnnot -> JSSemi -> [JSStatement] -> JSStatement
+fixStatementBlock a s ss =
+    case filter (not . isEmpty) ss of
+        [] -> JSStatementBlock emptyAnnot [] emptyAnnot s
+        [sx] -> fixStmt a s sx
+        sss -> JSStatementBlock emptyAnnot (fixStatementList sss) emptyAnnot s
+  where
+    isEmpty (JSEmptyStatement _) = True
+    isEmpty (JSStatementBlock _ [] _ _) = True
+    isEmpty _ = False
 
+-- Force semi-colons between statements, and make sure the last statement in a
+-- block has no semi-colon.
+fixStatementList :: [JSStatement] -> [JSStatement]
+fixStatementList [] = []
+fixStatementList [x] = [fixStmtE  noSemi x]
+fixStatementList (x:xs) = fixStmtE semi x : fixStatementList xs
+
+
+-- -----------------------------------------------------------------------------
+-- JSExpression and the rest can use the MinifyJS typeclass.
 
 instance MinifyJS JSExpression where
     -- Terminals
@@ -204,7 +225,7 @@ fixCase e = fix spaceAnnot e
 
 
 instance MinifyJS JSBlock where
-    fix _ (JSBlock _ ss _) = JSBlock emptyAnnot (fixStatementList False ss) emptyAnnot
+    fix _ (JSBlock _ ss _) = JSBlock emptyAnnot (fixStatementList ss) emptyAnnot
 
 
 instance MinifyJS JSObjectProperty where
