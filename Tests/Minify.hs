@@ -31,6 +31,13 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " [ x ] " `shouldBe` "[x]"
         minifyExpr " [ x , y ] " `shouldBe` "[x,y]"
 
+    it "object literals" $ do
+        minifyExpr " { } " `shouldBe` "{}"
+        minifyExpr " { a : 1 } " `shouldBe` "{a:1}"
+        minifyExpr " { b : 2 , } " `shouldBe` "{b:2}"
+        minifyExpr " { c : 3 , d : 4 , } " `shouldBe` "{c:3,d:4}"
+        minifyExpr " { 'str' : true , 42 : false , } " `shouldBe` "{'str':true,42:false}"
+
     it "parentheses" $ do
         minifyExpr " ( 'hello' ) " `shouldBe` "('hello')"
         minifyExpr " ( 12 ) " `shouldBe` "(12)"

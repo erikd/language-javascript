@@ -47,6 +47,7 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "a={\n  values: 7,\n}\n"   `shouldBe` "Right (JSAstExpression (JSOpAssign ('=',JSIdentifier 'a',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'values') [JSDecimal '7'],JSComma])))"
         testExpr "x={get foo() {return 1},set foo(a) {x=a}}" `shouldBe` "Right (JSAstExpression (JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyAccessor JSAccessorGet (JSIdentifier 'foo') [] (JSBlock [JSReturn JSDecimal '1' ]),JSPropertyAccessor JSAccessorSet (JSIdentifier 'foo') [JSIdentifier 'a'] (JSBlock [JSOpAssign ('=',JSIdentifier 'x',JSIdentifier 'a')])])))"
         testExpr "{evaluate:evaluate,load:function load(s){if(x)return s;1}}" `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'evaluate') [JSIdentifier 'evaluate'],JSPropertyNameandValue (JSIdentifier 'load') [JSFunctionExpression 'load' (JSIdentifier 's') (JSBlock [JSIf (JSIdentifier 'x') (JSReturn JSIdentifier 's' JSSemicolon),JSDecimal '1']))]]))"
+        testExpr "obj = { name : 'A', 'str' : 'B', 123 : 'C', }" `shouldBe` "Right (JSAstExpression (JSOpAssign ('=',JSIdentifier 'obj',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'name') [JSStringLiteral 'A'],JSPropertyNameandValue (JSIdentifier ''str'') [JSStringLiteral 'B'],JSPropertyNameandValue (JSIdentifier '123') [JSStringLiteral 'C'],JSComma])))"
 
     it "unary expression" $ do
         testExpr "delete y" `shouldBe` "Right (JSAstExpression (JSUnaryExpression ('delete',JSIdentifier 'y')))"

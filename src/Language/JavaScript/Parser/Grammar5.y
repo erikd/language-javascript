@@ -503,22 +503,22 @@ PropertyNameandValueList : PropertyAssignment                                { A
 --        set PropertyName( PropertySetParameterList ) { FunctionBody }
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSObjectProperty }
-PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue (identName $1) $2 [$3] }
+PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ts $1) (tc $1))) (identName $2) $3 [] $4 $5 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorGet (AST.JSAnnot (ts $1) (tc $1))) $2 $3 [] $4 $5 }
                    -- Should be "set" in next, but is not a Token
                    | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ts $1) (tc $1))) (identName $2) $3 [$4] $5 $6 }
+                       { AST.JSPropertyAccessor (AST.JSAccessorSet (AST.JSAnnot (ts $1) (tc $1))) $2 $3 [$4] $5 $6 }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName
 --        StringLiteral
 --        NumericLiteral
-PropertyName :: { AST.JSExpression }
-PropertyName : IdentifierName { $1 {- 'PropertyName1' -} }
-             | StringLiteral  { $1 {- 'PropertyName2' -} }
-             | NumericLiteral { $1 {- 'PropertyName3' -} }
+PropertyName :: { AST.JSPropertyName }
+PropertyName : IdentifierName { propName $1 {- 'PropertyName1' -} }
+             | StringLiteral  { propName $1 {- 'PropertyName2' -} }
+             | NumericLiteral { propName $1 {- 'PropertyName3' -} }
 
 -- PropertySetParameterList :                                            See 11.1.5
 --        Identifier
@@ -1182,5 +1182,13 @@ mkUnary x = error $ "Invalid unary op : " ++ show x
 identName :: AST.JSExpression -> AST.JSIdent
 identName (AST.JSIdentifier a s) = AST.JSIdentName a s
 identName x = error $ "Cannot convert '" ++ show x ++ "' to a JSIdentName."
+
+propName :: AST.JSExpression ->  AST.JSPropertyName
+propName (AST.JSIdentifier a s) = AST.JSPropertyIdent a s
+propName (AST.JSDecimal a s) = AST.JSPropertyNumber a s
+propName (AST.JSHexInteger a s) = AST.JSPropertyNumber a s
+propName (AST.JSOctal a s) = AST.JSPropertyNumber a s
+propName (AST.JSStringLiteral a s) = AST.JSPropertyString a s
+propName x = error $ "Cannot convert '" ++ show x ++ "' to a JSPropertyName."
 
 }

@@ -235,6 +235,11 @@ instance MinifyJS JSObjectProperty where
     fix a (JSPropertyAccessor     s n _ ps _ b) = JSPropertyAccessor (fix a s) (fixSpace n) emptyAnnot (map fixEmpty ps) emptyAnnot (fixEmpty b)
     fix a (JSPropertyNameandValue n _ vs)       = JSPropertyNameandValue (fix a n) emptyAnnot (map fixEmpty vs)
 
+instance MinifyJS JSPropertyName where
+    fix a (JSPropertyIdent _ s)  = JSPropertyIdent a s
+    fix a (JSPropertyString _ s) = JSPropertyString a s
+    fix a (JSPropertyNumber _ s) = JSPropertyNumber a s
+
 instance MinifyJS JSAccessor where
     fix a (JSAccessorGet _) = JSAccessorGet a
     fix a (JSAccessorSet _) = JSAccessorSet a
