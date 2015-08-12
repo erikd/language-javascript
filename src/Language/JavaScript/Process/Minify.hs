@@ -105,8 +105,7 @@ instance MinifyJS JSExpression where
     fix a (JSLiteral        _ s) = JSLiteral a s
     fix a (JSHexInteger     _ s) = JSHexInteger a s
     fix a (JSOctal          _ s) = JSOctal a s
-    fix _ (JSStringLiteralS _ s) = JSStringLiteralS emptyAnnot s
-    fix _ (JSStringLiteralD _ s) = JSStringLiteralD emptyAnnot s
+    fix _ (JSStringLiteral  _ s) = JSStringLiteral emptyAnnot s
     fix _ (JSRegEx          _ s) = JSRegEx emptyAnnot s
 
     -- Non-Terminals
@@ -136,13 +135,18 @@ fixVarList (JSLOne a) = JSLOne (fixSpace a)
 fixVarList JSLNil = JSLNil
 
 fixBinOpExpression :: JSAnnot -> JSBinOp -> JSExpression -> JSExpression -> JSExpression
-fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralS _ s1) (JSStringLiteralS _ s2) = JSStringLiteralS emptyAnnot (s1 ++ s2)
-fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralS _ s1) (JSStringLiteralD _ s2) = JSStringLiteralS emptyAnnot (s1 ++ s2)
-fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralD _ s1) (JSStringLiteralS _ s2) = JSStringLiteralD emptyAnnot (s1 ++ s2)
-fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteralD _ s1) (JSStringLiteralD _ s2) = JSStringLiteralD emptyAnnot (s1 ++ s2)
+fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteral _ s1) (JSStringLiteral _ s2) = JSStringLiteral emptyAnnot (stringLitConcat s1 s2)
 fixBinOpExpression a (JSBinOpIn _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpIn spaceAnnot) (fix spaceAnnot rhs)
 fixBinOpExpression a (JSBinOpInstanceOf _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpInstanceOf spaceAnnot) (fix spaceAnnot rhs)
 fixBinOpExpression a op lhs rhs = JSExpressionBinary (fix a lhs) (fixEmpty op) (fixEmpty rhs)
+
+-- Concatenate two JSStringLiterals. Since the strings will include the string
+-- terminators (either single or double quotes) we use whatever terminator is
+-- used bu the first string.
+stringLitConcat :: String -> String -> String
+stringLitConcat xs [] = xs
+stringLitConcat [] ys = ys
+stringLitConcat xs@(x:_) (_:ys) = init xs ++ init ys ++ [x]
 
 
 instance MinifyJS JSBinOp where
@@ -219,8 +223,7 @@ instance MinifyJS JSSwitchParts where
     fix _ (JSDefault _ _ ss) = JSDefault emptyAnnot emptyAnnot (map (fixStmtE semi) ss)
 
 fixCase :: JSExpression -> JSExpression
-fixCase (JSStringLiteralS _ s) = JSStringLiteralS emptyAnnot s
-fixCase (JSStringLiteralD _ s) = JSStringLiteralD emptyAnnot s
+fixCase (JSStringLiteral _ s) = JSStringLiteral emptyAnnot s
 fixCase e = fix spaceAnnot e
 
 

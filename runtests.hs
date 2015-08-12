@@ -78,14 +78,14 @@ testLiteralParser = describe "Parse literals:" $ do
     it "octal numbers" $
         testLiteral "010"       `shouldBe` "Right (JSAstLiteral (JSOctal '010'))"
     it "strings" $ do
-        testLiteral "\"hello\\nworld\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteralD 'hello\\nworld'))"
-        testLiteral "'hello\\nworld'"   `shouldBe` "Right (JSAstLiteral (JSStringLiteralS 'hello\\nworld'))"
+        testLiteral "\"hello\\nworld\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"hello\\nworld\"))"
+        testLiteral "'hello\\nworld'"   `shouldBe` "Right (JSAstLiteral (JSStringLiteral 'hello\\nworld'))"
         forM_ (filter (/= '"') asciiTestString) $ \ ch -> do
             let str = "char " ++ [ch]
-            testLiteral ("\"" ++ str ++ "\"")   `shouldBe` ("Right (JSAstLiteral (JSStringLiteralD '" ++ str ++ "'))")
+            testLiteral ("\"" ++ str ++ "\"")   `shouldBe` ("Right (JSAstLiteral (JSStringLiteral \"" ++ str ++ "\"))")
         forM_ (filter (/= '\'') asciiTestString) $ \ ch -> do
             let str = "char " ++ [ch]
-            testLiteral ("'" ++ str ++ "'")     `shouldBe` ("Right (JSAstLiteral (JSStringLiteralS '" ++ str ++ "'))")
+            testLiteral ("'" ++ str ++ "'")     `shouldBe` ("Right (JSAstLiteral (JSStringLiteral '" ++ str ++ "'))")
 
 
 -- 8 bit ASCII, minus the backslash escape character.

@@ -79,8 +79,7 @@ data JSExpression
     | JSLiteral JSAnnot String
     | JSHexInteger JSAnnot String
     | JSOctal JSAnnot String
-    | JSStringLiteralS JSAnnot String
-    | JSStringLiteralD JSAnnot String
+    | JSStringLiteral JSAnnot String
     | JSRegEx JSAnnot String
 
     -- | Non Terminals
@@ -290,8 +289,7 @@ instance ShowStripped JSExpression where
     ss (JSNewExpression _n e) = "JSNewExpression " ++ ss e
     ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ ss xs
     ss (JSRegEx _ s) = "JSRegEx " ++ singleQuote s
-    ss (JSStringLiteralS _ s) = "JSStringLiteralS " ++ singleQuote s
-    ss (JSStringLiteralD _ s) = "JSStringLiteralD " ++ singleQuote s
+    ss (JSStringLiteral _ s) = "JSStringLiteral " ++ s
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
 

@@ -61,8 +61,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSLiteral        annot l) = pacc |> annot |> l
     (|>) pacc (JSHexInteger     annot i) = pacc |> annot |> i
     (|>) pacc (JSOctal          annot i) = pacc |> annot |> i
-    (|>) pacc (JSStringLiteralS annot l) = pacc |> annot |> (('\'':l)++"'")
-    (|>) pacc (JSStringLiteralD annot l) = pacc |> annot |> (('\"':l)++"\"")
+    (|>) pacc (JSStringLiteral  annot s) = pacc |> annot |> s
     (|>) pacc (JSRegEx          annot s) = pacc |> annot |> s
 
     -- Non-Terminals

@@ -379,10 +379,7 @@ NumericLiteral : 'decimal'    { AST.JSDecimal (AST.JSAnnot (ts $1) (tc $1)) (tok
                | 'octal'      { AST.JSOctal (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
 
 StringLiteral :: { AST.JSExpression }
-StringLiteral : 'string'  { case (tokenDelimiter $1) of
-                                '\'' -> AST.JSStringLiteralS (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1)
-                                '\"' -> AST.JSStringLiteralD (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1)
-                                }
+StringLiteral : 'string'  { AST.JSStringLiteral (AST.JSAnnot (ts $1) (tc $1)) (tokenLiteral $1) }
 
 -- <Regular Expression Literal> ::= RegExp
 RegularExpressionLiteral :: { AST.JSExpression }

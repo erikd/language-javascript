@@ -55,10 +55,7 @@ regExToken :: TokenPosn -> String -> Token
 regExToken loc str = RegExToken loc str []
 
 stringToken :: TokenPosn -> String -> Token
-stringToken loc str = StringToken loc str1 delimiter []
-  where
-    str1 = init $ tail str
-    delimiter = head str
+stringToken loc str = StringToken loc str []
 
 commentToken :: TokenPosn -> String -> Token
 commentToken loc str = CommentToken loc str []
