@@ -135,7 +135,7 @@ fixVarList (JSLOne a) = JSLOne (fixSpace a)
 fixVarList JSLNil = JSLNil
 
 fixBinOpExpression :: JSAnnot -> JSBinOp -> JSExpression -> JSExpression -> JSExpression
-fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteral _ s1) (JSStringLiteral _ s2) = JSStringLiteral emptyAnnot (stringLitConcat s1 s2)
+fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteral _ s1) (JSStringLiteral _ s2) = stringLitConcat s1 s2
 fixBinOpExpression a (JSBinOpIn _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpIn spaceAnnot) (fix spaceAnnot rhs)
 fixBinOpExpression a (JSBinOpInstanceOf _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpInstanceOf spaceAnnot) (fix spaceAnnot rhs)
 fixBinOpExpression a op lhs rhs = JSExpressionBinary (fix a lhs) (fixEmpty op) (fixEmpty rhs)
@@ -143,11 +143,14 @@ fixBinOpExpression a op lhs rhs = JSExpressionBinary (fix a lhs) (fixEmpty op) (
 -- Concatenate two JSStringLiterals. Since the strings will include the string
 -- terminators (either single or double quotes) we use whatever terminator is
 -- used bu the first string.
-stringLitConcat :: String -> String -> String
-stringLitConcat xs [] = xs
-stringLitConcat [] ys = ys
-stringLitConcat xs@(x:_) (_:ys) = init xs ++ init ys ++ [x]
-
+stringLitConcat :: String -> String -> JSExpression
+stringLitConcat xs [] = JSStringLiteral emptyAnnot xs
+stringLitConcat [] ys = JSStringLiteral emptyAnnot ys
+stringLitConcat xall@(q:_) yall@(_:ys) =
+    if q `notElem` ys
+        then JSStringLiteral emptyAnnot (init xall ++ init ys ++ [q])
+        else -- TODO: Correct, but can we do better?
+            JSExpressionBinary (JSStringLiteral emptyAnnot xall) (JSBinOpPlus emptyAnnot) (JSStringLiteral emptyAnnot yall)
 
 instance MinifyJS JSBinOp where
     fix _ (JSBinOpAnd        _) = JSBinOpAnd emptyAnnot

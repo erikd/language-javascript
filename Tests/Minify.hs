@@ -114,8 +114,10 @@ testMinifyExpr = describe "Minify expressions:" $ do
 
     it "string concatenation" $ do
         minifyExpr " 'ab' + \"cd\" " `shouldBe` "'abcd'"
-        minifyExpr " \"ef\" + 'gh' " `shouldBe` "\"efgh\""
-        minifyExpr " \"ij\" + 'kl' + 'mn' " `shouldBe` "\"ijklmn\""
+        minifyExpr " \"bc\" + 'de' " `shouldBe` "\"bcde\""
+        minifyExpr " \"cd\" + 'ef' + 'gh' " `shouldBe` "\"cdefgh\""
+        -- TODO: Correct, but can we do better?
+        minifyExpr " 'de' + \"'fg'\" + 'hi' " `shouldBe` "'de'+\"'fg'\"+'hi'"
 
 
 testMinifyStmt :: Spec
