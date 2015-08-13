@@ -190,7 +190,7 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " try { } catch ( c ) { } finally { } " `shouldBe` "try{}catch(c){}finally{}"
         minifyStmt " try { } catch ( d ) { } catch ( x ){ } finally { } " `shouldBe` "try{}catch(d){}catch(x){}finally{}"
         minifyStmt " try { } catch ( e ) { } catch ( y ) { } " `shouldBe` "try{}catch(e){}catch(y){}"
-        minifyStmt " try { } catch ( f  if true ) { } catch ( z ) { } " `shouldBe` "try{}catch(fiftrue){}catch(z){}"
+        minifyStmt " try { } catch ( f  if f == x ) { } catch ( z ) { } " `shouldBe` "try{}catch(f if f==x){}catch(z){}"
 
     it "variable declaration" $ do
         minifyStmt " var a  " `shouldBe` "var a"

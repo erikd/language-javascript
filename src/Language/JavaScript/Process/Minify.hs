@@ -210,7 +210,7 @@ instance MinifyJS JSAssignOp where
 
 instance MinifyJS JSTryCatch where
     fix a (JSCatch _ _ x1 _ x3) = JSCatch a emptyAnnot (fixEmpty x1) emptyAnnot (fixEmpty x3)
-    fix a (JSCatchIf _ _ x1 _ ex _ x3) = JSCatchIf a emptyAnnot (fixEmpty x1) emptyAnnot (fixEmpty ex) emptyAnnot (fixEmpty x3)
+    fix a (JSCatchIf _ _ x1 _ ex _ x3) = JSCatchIf a emptyAnnot (fixEmpty x1) spaceAnnot (fixSpace ex) emptyAnnot (fixEmpty x3)
 
 
 instance MinifyJS JSTryFinally where
