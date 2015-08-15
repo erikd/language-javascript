@@ -185,7 +185,8 @@ testMinifyStmt = describe "Minify statements:" $ do
 
     it "switch" $ do
         minifyStmt " switch ( a ) { } ; " `shouldBe` "switch(a){}"
-        minifyStmt " switch ( b ) { case 1 : case 'a': case \"b\" : break ; default : break ; } ; " `shouldBe` "switch(b){case 1:case'a':case\"b\":break;default:break;}"
+        minifyStmt " switch ( b ) { case 1 : 1 ; case 2 : 2 ; } ;" `shouldBe` "switch(b){case 1:1;case 2:2}"
+        minifyStmt " switch ( c ) { case 1 : case 'a': case \"b\" : break ; default : break ; } ; " `shouldBe` "switch(c){case 1:case'a':case\"b\":break;default:break}"
 
     it "try/catch/finally" $ do
         minifyStmt " try { } catch ( a ) { } " `shouldBe` "try{}catch(a){}"

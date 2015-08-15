@@ -56,7 +56,7 @@ fixStmt a s (JSExpressionStatement e _) = JSExpressionStatement (fix a e) s
 fixStmt a s (JSAssignStatement lhs op rhs _) = JSAssignStatement (fix a lhs) (fixEmpty op) (fixEmpty rhs) s
 fixStmt a s (JSMethodCall e _ args _ _) = JSMethodCall (fix a e) emptyAnnot (fixEmpty args) emptyAnnot s
 fixStmt a s (JSReturn _ me _) = JSReturn a (fixSpace me) s
-fixStmt a s (JSSwitch _ _ e _ _ sps _ _) = JSSwitch a emptyAnnot (fixEmpty e) emptyAnnot emptyAnnot (map fixEmpty sps) emptyAnnot s
+fixStmt a s (JSSwitch _ _ e _ _ sps _ _) = JSSwitch a emptyAnnot (fixEmpty e) emptyAnnot emptyAnnot (fixSwitchParts sps) emptyAnnot s
 fixStmt a s (JSThrow _ e _) = JSThrow a (fixSpace e) s
 fixStmt a _ (JSTry _ b tc tf) = JSTry a (fixEmpty b) (map fixEmpty tc) (fixEmpty tf)
 fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
@@ -230,9 +230,15 @@ instance MinifyJS JSTryFinally where
     fix _ JSNoFinally = JSNoFinally
 
 
-instance MinifyJS JSSwitchParts where
-    fix _ (JSCase _ e _ ss) = JSCase emptyAnnot (fixCase e) emptyAnnot (map (fixStmtE semi) ss)
-    fix _ (JSDefault _ _ ss) = JSDefault emptyAnnot emptyAnnot (map (fixStmtE semi) ss)
+fixSwitchParts :: [JSSwitchParts] -> [JSSwitchParts]
+fixSwitchParts parts =
+    case parts of
+        [] -> []
+        [x] -> [fixPart noSemi x]
+        (x:xs) -> fixPart semi x : fixSwitchParts xs
+  where
+    fixPart s (JSCase _ e _ ss) = JSCase emptyAnnot (fixCase e) emptyAnnot (map (fixStmtE s) ss)
+    fixPart s (JSDefault _ _ ss) = JSDefault emptyAnnot emptyAnnot (map (fixStmtE s) ss)
 
 fixCase :: JSExpression -> JSExpression
 fixCase (JSStringLiteral _ s) = JSStringLiteral emptyAnnot s
