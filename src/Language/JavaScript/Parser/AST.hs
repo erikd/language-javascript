@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, FlexibleInstances #-}
 
 module Language.JavaScript.Parser.AST
     ( JSExpression (..)
@@ -34,197 +34,197 @@ import Language.JavaScript.Parser.Token
 -- ---------------------------------------------------------------------
 
 data JSAnnot
-    = JSAnnot TokenPosn [CommentAnnotation] -- ^Annotation: position and comment/whitespace information
+    = JSAnnot !TokenPosn ![CommentAnnotation] -- ^Annotation: position and comment/whitespace information
     | JSNoAnnot -- ^No annotation
     deriving (Data, Eq, Show, Typeable)
 
 
 data JSAST
-    = JSAstProgram [JSStatement] JSAnnot -- ^source elements, tailing whitespace
-    | JSAstStatement JSStatement JSAnnot
-    | JSAstExpression JSExpression JSAnnot
-    | JSAstLiteral JSExpression JSAnnot
+    = JSAstProgram ![JSStatement] !JSAnnot -- ^source elements, tailing whitespace
+    | JSAstStatement !JSStatement !JSAnnot
+    | JSAstExpression !JSExpression !JSAnnot
+    | JSAstLiteral !JSExpression !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSStatement
-    = JSStatementBlock JSAnnot [JSStatement] JSAnnot JSSemi     -- ^lbrace, stmts, rbrace, autosemi
-    | JSBreak JSAnnot JSIdent JSSemi        -- ^break,optional identifier, autosemi
-    | JSConstant JSAnnot (JSCommaList JSExpression) JSSemi -- ^const, decl, autosemi
-    | JSContinue JSAnnot JSIdent JSSemi     -- ^continue, optional identifier,autosemi
-    | JSDoWhile JSAnnot JSStatement JSAnnot JSAnnot JSExpression JSAnnot JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
-    | JSFor JSAnnot JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
-    | JSForIn JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,expr,in,expr,rb,stmt
-    | JSForVar JSAnnot JSAnnot JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot (JSCommaList JSExpression) JSAnnot JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
-    | JSForVarIn JSAnnot JSAnnot JSAnnot JSExpression JSBinOp JSExpression JSAnnot JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction JSAnnot JSIdent JSAnnot (JSCommaList JSIdent) JSAnnot JSBlock JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
-    | JSIf JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^if,(,expr,),stmt
-    | JSIfElse JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSAnnot JSStatement -- ^if,(,expr,),stmt,else,rest
-    | JSLabelled JSIdent JSAnnot JSStatement -- ^identifier,colon,stmt
-    | JSEmptyStatement JSAnnot
-    | JSExpressionStatement JSExpression JSSemi
-    | JSAssignStatement JSExpression JSAssignOp JSExpression JSSemi -- ^lhs, assignop, rhs, autosemi
-    | JSMethodCall JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot JSSemi
-    | JSReturn JSAnnot (Maybe JSExpression) JSSemi -- ^optional expression,autosemi
-    | JSSwitch JSAnnot JSAnnot JSExpression JSAnnot JSAnnot [JSSwitchParts] JSAnnot JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
-    | JSThrow JSAnnot JSExpression JSSemi -- ^throw val autosemi
-    | JSTry JSAnnot JSBlock [JSTryCatch] JSTryFinally -- ^try,block,catches,finally
-    | JSVariable JSAnnot (JSCommaList JSExpression) JSSemi -- ^var|const, decl, autosemi
-    | JSWhile JSAnnot JSAnnot JSExpression JSAnnot JSStatement -- ^while,lb,expr,rb,stmt
-    | JSWith JSAnnot JSAnnot JSExpression JSAnnot JSStatement JSSemi -- ^with,lb,expr,rb,stmt list
+    = JSStatementBlock !JSAnnot ![JSStatement] !JSAnnot !JSSemi     -- ^lbrace, stmts, rbrace, autosemi
+    | JSBreak !JSAnnot !JSIdent !JSSemi        -- ^break,optional identifier, autosemi
+    | JSConstant !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
+    | JSContinue !JSAnnot !JSIdent !JSSemi     -- ^continue, optional identifier,autosemi
+    | JSDoWhile !JSAnnot !JSStatement !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
+    | JSFor !JSAnnot !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSStatement -- ^for,lb,expr,semi,expr,semi,expr,rb.stmt
+    | JSForIn !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,expr,in,expr,rb,stmt
+    | JSForVar !JSAnnot !JSAnnot !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+    | JSForVarIn !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
+    | JSIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^if,(,expr,),stmt
+    | JSIfElse !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSAnnot !JSStatement -- ^if,(,expr,),stmt,else,rest
+    | JSLabelled !JSIdent !JSAnnot !JSStatement -- ^identifier,colon,stmt
+    | JSEmptyStatement !JSAnnot
+    | JSExpressionStatement !JSExpression !JSSemi
+    | JSAssignStatement !JSExpression !JSAssignOp !JSExpression !JSSemi -- ^lhs, assignop, rhs, autosemi
+    | JSMethodCall !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSSemi
+    | JSReturn !JSAnnot !(Maybe JSExpression) !JSSemi -- ^optional expression,autosemi
+    | JSSwitch !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSAnnot ![JSSwitchParts] !JSAnnot !JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
+    | JSThrow !JSAnnot !JSExpression !JSSemi -- ^throw val autosemi
+    | JSTry !JSAnnot !JSBlock ![JSTryCatch] !JSTryFinally -- ^try,block,catches,finally
+    | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
+    | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
+    | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
     -- | Terminals
-    = JSIdentifier JSAnnot String
-    | JSDecimal JSAnnot String
-    | JSLiteral JSAnnot String
-    | JSHexInteger JSAnnot String
-    | JSOctal JSAnnot String
-    | JSStringLiteral JSAnnot String
-    | JSRegEx JSAnnot String
+    = JSIdentifier !JSAnnot !String
+    | JSDecimal !JSAnnot !String
+    | JSLiteral !JSAnnot !String
+    | JSHexInteger !JSAnnot !String
+    | JSOctal !JSAnnot !String
+    | JSStringLiteral !JSAnnot !String
+    | JSRegEx !JSAnnot !String
 
     -- | Non Terminals
-    | JSArrayLiteral JSAnnot [JSArrayElement] JSAnnot -- ^lb, contents, rb
-    | JSAssignExpression JSExpression JSAssignOp JSExpression -- ^lhs, assignop, rhs
-    | JSCallExpression JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot  -- ^expr, bl, args, rb
-    | JSCallExpressionDot JSExpression JSAnnot JSExpression  -- ^expr, dot, expr
-    | JSCallExpressionSquare JSExpression JSAnnot JSExpression JSAnnot  -- ^expr, [, expr, ]
-    | JSCommaExpression JSExpression JSAnnot JSExpression          -- ^expression components
-    | JSExpressionBinary JSExpression JSBinOp JSExpression -- ^lhs, op, rhs
-    | JSExpressionParen JSAnnot JSExpression JSAnnot -- ^lb,expression,rb
-    | JSExpressionPostfix JSExpression JSUnaryOp -- ^expression, operator
-    | JSExpressionTernary JSExpression JSAnnot JSExpression JSAnnot JSExpression -- ^cond, ?, trueval, :, falseval
-    | JSFunctionExpression JSAnnot JSIdent JSAnnot (JSCommaList JSIdent) JSAnnot JSBlock -- ^fn,name,lb, parameter list,rb,block`
-    | JSMemberDot JSExpression JSAnnot JSExpression -- ^firstpart, dot, name
-    | JSMemberExpression JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot -- expr, lb, args, rb
-    | JSMemberNew JSAnnot JSExpression JSAnnot (JSCommaList JSExpression) JSAnnot -- ^new, name, lb, args, rb
-    | JSMemberSquare JSExpression JSAnnot JSExpression JSAnnot -- ^firstpart, lb, expr, rb
-    | JSNewExpression JSAnnot JSExpression -- ^new, expr
-    | JSObjectLiteral JSAnnot JSObjectPropertyList JSAnnot -- ^lbrace contents rbrace
-    | JSUnaryExpression JSUnaryOp JSExpression
-    | JSVarInitExpression JSExpression JSVarInitializer -- ^identifier, initializer
+    | JSArrayLiteral !JSAnnot ![JSArrayElement] !JSAnnot -- ^lb, contents, rb
+    | JSAssignExpression !JSExpression !JSAssignOp !JSExpression -- ^lhs, assignop, rhs
+    | JSCallExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot  -- ^expr, bl, args, rb
+    | JSCallExpressionDot !JSExpression !JSAnnot !JSExpression  -- ^expr, dot, expr
+    | JSCallExpressionSquare !JSExpression !JSAnnot !JSExpression !JSAnnot  -- ^expr, [, expr, ]
+    | JSCommaExpression !JSExpression !JSAnnot !JSExpression          -- ^expression components
+    | JSExpressionBinary !JSExpression !JSBinOp !JSExpression -- ^lhs, op, rhs
+    | JSExpressionParen !JSAnnot !JSExpression !JSAnnot -- ^lb,expression,rb
+    | JSExpressionPostfix !JSExpression !JSUnaryOp -- ^expression, operator
+    | JSExpressionTernary !JSExpression !JSAnnot !JSExpression !JSAnnot !JSExpression -- ^cond, ?, trueval, :, falseval
+    | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
+    | JSMemberDot !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, name
+    | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
+    | JSMemberNew !JSAnnot !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- ^new, name, lb, args, rb
+    | JSMemberSquare !JSExpression !JSAnnot !JSExpression !JSAnnot -- ^firstpart, lb, expr, rb
+    | JSNewExpression !JSAnnot !JSExpression -- ^new, expr
+    | JSObjectLiteral !JSAnnot !JSObjectPropertyList !JSAnnot -- ^lbrace contents rbrace
+    | JSUnaryExpression !JSUnaryOp !JSExpression
+    | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
     deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
-    = JSBinOpAnd JSAnnot
-    | JSBinOpBitAnd JSAnnot
-    | JSBinOpBitOr JSAnnot
-    | JSBinOpBitXor JSAnnot
-    | JSBinOpDivide JSAnnot
-    | JSBinOpEq JSAnnot
-    | JSBinOpGe JSAnnot
-    | JSBinOpGt JSAnnot
-    | JSBinOpIn JSAnnot
-    | JSBinOpInstanceOf JSAnnot
-    | JSBinOpLe JSAnnot
-    | JSBinOpLsh JSAnnot
-    | JSBinOpLt JSAnnot
-    | JSBinOpMinus JSAnnot
-    | JSBinOpMod JSAnnot
-    | JSBinOpNeq JSAnnot
-    | JSBinOpOr JSAnnot
-    | JSBinOpPlus JSAnnot
-    | JSBinOpRsh JSAnnot
-    | JSBinOpStrictEq JSAnnot
-    | JSBinOpStrictNeq JSAnnot
-    | JSBinOpTimes JSAnnot
-    | JSBinOpUrsh JSAnnot
+    = JSBinOpAnd !JSAnnot
+    | JSBinOpBitAnd !JSAnnot
+    | JSBinOpBitOr !JSAnnot
+    | JSBinOpBitXor !JSAnnot
+    | JSBinOpDivide !JSAnnot
+    | JSBinOpEq !JSAnnot
+    | JSBinOpGe !JSAnnot
+    | JSBinOpGt !JSAnnot
+    | JSBinOpIn !JSAnnot
+    | JSBinOpInstanceOf !JSAnnot
+    | JSBinOpLe !JSAnnot
+    | JSBinOpLsh !JSAnnot
+    | JSBinOpLt !JSAnnot
+    | JSBinOpMinus !JSAnnot
+    | JSBinOpMod !JSAnnot
+    | JSBinOpNeq !JSAnnot
+    | JSBinOpOr !JSAnnot
+    | JSBinOpPlus !JSAnnot
+    | JSBinOpRsh !JSAnnot
+    | JSBinOpStrictEq !JSAnnot
+    | JSBinOpStrictNeq !JSAnnot
+    | JSBinOpTimes !JSAnnot
+    | JSBinOpUrsh !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSUnaryOp
-    = JSUnaryOpDecr JSAnnot
-    | JSUnaryOpDelete JSAnnot
-    | JSUnaryOpIncr JSAnnot
-    | JSUnaryOpMinus JSAnnot
-    | JSUnaryOpNot JSAnnot
-    | JSUnaryOpPlus JSAnnot
-    | JSUnaryOpTilde JSAnnot
-    | JSUnaryOpTypeof JSAnnot
-    | JSUnaryOpVoid JSAnnot
+    = JSUnaryOpDecr !JSAnnot
+    | JSUnaryOpDelete !JSAnnot
+    | JSUnaryOpIncr !JSAnnot
+    | JSUnaryOpMinus !JSAnnot
+    | JSUnaryOpNot !JSAnnot
+    | JSUnaryOpPlus !JSAnnot
+    | JSUnaryOpTilde !JSAnnot
+    | JSUnaryOpTypeof !JSAnnot
+    | JSUnaryOpVoid !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSSemi
-    = JSSemi JSAnnot
+    = JSSemi !JSAnnot
     | JSSemiAuto
     deriving (Data, Eq, Show, Typeable)
 
 data JSAssignOp
-    = JSAssign JSAnnot
-    | JSTimesAssign JSAnnot
-    | JSDivideAssign JSAnnot
-    | JSModAssign JSAnnot
-    | JSPlusAssign JSAnnot
-    | JSMinusAssign JSAnnot
-    | JSLshAssign JSAnnot
-    | JSRshAssign JSAnnot
-    | JSUrshAssign JSAnnot
-    | JSBwAndAssign JSAnnot
-    | JSBwXorAssign JSAnnot
-    | JSBwOrAssign JSAnnot
+    = JSAssign !JSAnnot
+    | JSTimesAssign !JSAnnot
+    | JSDivideAssign !JSAnnot
+    | JSModAssign !JSAnnot
+    | JSPlusAssign !JSAnnot
+    | JSMinusAssign !JSAnnot
+    | JSLshAssign !JSAnnot
+    | JSRshAssign !JSAnnot
+    | JSUrshAssign !JSAnnot
+    | JSBwAndAssign !JSAnnot
+    | JSBwXorAssign !JSAnnot
+    | JSBwOrAssign !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSTryCatch
-    = JSCatch JSAnnot JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,rb,block
-    | JSCatchIf JSAnnot JSAnnot JSExpression JSAnnot JSExpression JSAnnot JSBlock -- ^catch,lb,ident,if,expr,rb,block
+    = JSCatch !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSBlock -- ^catch,lb,ident,rb,block
+    | JSCatchIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSExpression !JSAnnot !JSBlock -- ^catch,lb,ident,if,expr,rb,block
     deriving (Data, Eq, Show, Typeable)
 
 data JSTryFinally
-    = JSFinally JSAnnot JSBlock -- ^finally,block
+    = JSFinally !JSAnnot !JSBlock -- ^finally,block
     | JSNoFinally
     deriving (Data, Eq, Show, Typeable)
 
 data JSBlock
-    = JSBlock JSAnnot [JSStatement] JSAnnot -- ^lbrace, stmts, rbrace
+    = JSBlock !JSAnnot ![JSStatement] !JSAnnot -- ^lbrace, stmts, rbrace
     deriving (Data, Eq, Show, Typeable)
 
 data JSSwitchParts
-    = JSCase JSAnnot JSExpression JSAnnot [JSStatement]    -- ^expr,colon,stmtlist
-    | JSDefault JSAnnot JSAnnot [JSStatement] -- ^colon,stmtlist
+    = JSCase !JSAnnot !JSExpression !JSAnnot ![JSStatement]    -- ^expr,colon,stmtlist
+    | JSDefault !JSAnnot !JSAnnot ![JSStatement] -- ^colon,stmtlist
     deriving (Data, Eq, Show, Typeable)
 
 data JSVarInitializer
-    = JSVarInit JSAnnot JSExpression -- ^ assignop, initializer
+    = JSVarInit !JSAnnot !JSExpression -- ^ assignop, initializer
     | JSVarInitNone
     deriving (Data, Eq, Show, Typeable)
 
 data JSObjectProperty
-    = JSPropertyAccessor JSAccessor JSPropertyName JSAnnot [JSExpression] JSAnnot JSBlock -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue JSPropertyName JSAnnot [JSExpression] -- ^name, colon, value
+    = JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot ![JSExpression] !JSAnnot !JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
     deriving (Data, Eq, Show, Typeable)
 
 data JSPropertyName
-    = JSPropertyIdent JSAnnot String
-    | JSPropertyString JSAnnot String
-    | JSPropertyNumber JSAnnot String
+    = JSPropertyIdent !JSAnnot !String
+    | JSPropertyString !JSAnnot !String
+    | JSPropertyNumber !JSAnnot !String
     deriving (Data, Eq, Show, Typeable)
 
 type JSObjectPropertyList = JSCommaTrailingList JSObjectProperty
 
 -- | Accessors for JSObjectProperty is either 'get' or 'set'.
 data JSAccessor
-    = JSAccessorGet JSAnnot
-    | JSAccessorSet JSAnnot
+    = JSAccessorGet !JSAnnot
+    | JSAccessorSet !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSIdent
-    = JSIdentName JSAnnot String
+    = JSIdentName !JSAnnot !String
     | JSIdentNone
     deriving (Data, Eq, Show, Typeable)
 
 data JSArrayElement
-    = JSArrayElement JSExpression
-    | JSArrayComma JSAnnot
+    = JSArrayElement !JSExpression
+    | JSArrayComma !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSCommaList a
-    = JSLCons (JSCommaList a) JSAnnot a -- ^head, comma, a
-    | JSLOne a -- ^ single element (no comma)
+    = JSLCons !(JSCommaList a) !JSAnnot !a -- ^head, comma, a
+    | JSLOne !a -- ^ single element (no comma)
     | JSLNil
     deriving (Data, Eq, Show, Typeable)
 
 data JSCommaTrailingList a
-    = JSCTLComma (JSCommaList a) JSAnnot -- ^list, trailing comma
-    | JSCTLNone (JSCommaList a) -- ^list
+    = JSCTLComma !(JSCommaList a) !JSAnnot -- ^list, trailing comma
+    | JSCTLNone !(JSCommaList a) -- ^list
     deriving (Data, Eq, Show, Typeable)
 
 -- -----------------------------------------------------------------------------
