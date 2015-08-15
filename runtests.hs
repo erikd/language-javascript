@@ -36,6 +36,7 @@ testAll = do
     testRoundTrip
     testMinifyExpr
     testMinifyStmt
+    testMinifyProg
 
 
 testLexer :: Spec

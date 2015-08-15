@@ -90,9 +90,18 @@ fixStatementBlock a s ss =
 -- Force semi-colons between statements, and make sure the last statement in a
 -- block has no semi-colon.
 fixStatementList :: [JSStatement] -> [JSStatement]
-fixStatementList [] = []
-fixStatementList [x] = [fixStmtE  noSemi x]
-fixStatementList (x:xs) = fixStmtE semi x : fixStatementList xs
+fixStatementList =
+    fixList noSemi . filter (not . isRedundant)
+  where
+    isRedundant (JSStatementBlock _ [] _ _) = True
+    isRedundant (JSEmptyStatement _) = True
+    isRedundant _ = False
+
+    fixList _ [] = []
+    fixList s [JSStatementBlock _ blk _ _] = fixList s blk
+    fixList s [x] = [fixStmtE s x]
+    fixList s (JSStatementBlock _ blk _ _:xs) = fixList semi (filter (not . isRedundant) blk) ++ fixList s xs
+    fixList s (x:xs) = fixStmtE semi x : fixList s xs
 
 
 -- -----------------------------------------------------------------------------

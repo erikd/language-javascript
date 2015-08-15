@@ -1,6 +1,7 @@
 module Tests.Minify
     ( testMinifyExpr
     , testMinifyStmt
+    , testMinifyProg
     ) where
 
 import Control.Monad (forM_)
@@ -200,6 +201,23 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " var c = 1 ; " `shouldBe` "var c=1"
         minifyStmt " var d = 1, x = 2 ; " `shouldBe` "var d=1,x=2"
 
+
+testMinifyProg :: Spec
+testMinifyProg = describe "Minify programs:" $ do
+    it "simple" $ do
+        minifyProg " a = f ? e : g ; " `shouldBe` "a=f?e:g"
+        minifyProg " for ( i = 0 ; ; ) { ; var t = 1 ; } " `shouldBe` "for(i=0;;)var t=1"
+    it "empty block" $ do
+        minifyProg " a = 1 ; { } ; " `shouldBe`  "a=1"
+        minifyProg " { } ; b = 1 ; " `shouldBe`  "b=1"
+    it "empty statement" $ do
+        minifyProg " a = 1 + b ; c ; ; { d ; } ; " `shouldBe` "a=1+b;c;d"
+        minifyProg " b = a + 2 ; c ; { d ; } ; ; " `shouldBe` "b=a+2;c;d"
+    it "nested block" $ do
+        minifyProg "{a;;x;};y;z;;" `shouldBe` "a;x;y;z"
+        minifyProg "{b;;{x;y;};};z;;" `shouldBe` "b;x;y;z"
+
+
 -- -----------------------------------------------------------------------------
 -- Minify test helpers.
 
@@ -209,3 +227,5 @@ minifyExpr str = either id (renderToString . minifyJS) (parseUsing parseExpressi
 minifyStmt :: String -> String
 minifyStmt str = either id (renderToString . minifyJS) (parseUsing parseStatement str "src")
 
+minifyProg :: String -> String
+minifyProg str = either id (renderToString . minifyJS) (parseUsing parseProgram str "src")
