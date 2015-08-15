@@ -5,16 +5,19 @@ module Language.JavaScript.Pretty.Printer
     ( -- * Printing
       renderJS
     , renderToString
+    , renderToText
     ) where
 
 import Blaze.ByteString.Builder (Builder, toLazyByteString)
 import Data.List
 import Data.Monoid (mappend, mempty)
+import Data.Text.Lazy (Text)
 import Language.JavaScript.Parser.AST
 import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Parser.Token
 import qualified Blaze.ByteString.Builder.Char.Utf8 as BS
 import qualified Data.ByteString.Lazy as LB
+import qualified Data.Text.Lazy.Encoding as LT
 import qualified Codec.Binary.UTF8.String as US
 
 -- ---------------------------------------------------------------------
@@ -41,6 +44,10 @@ renderJS node = bb
 renderToString :: JSAST -> String
 -- need to be careful to not lose the unicode encoding on output
 renderToString js = US.decode $ LB.unpack $ toLazyByteString $ renderJS js
+
+renderToText :: JSAST -> Text
+-- need to be careful to not lose the unicode encoding on output
+renderToText = LT.decodeUtf8 . toLazyByteString . renderJS
 
 
 class RenderJS a where

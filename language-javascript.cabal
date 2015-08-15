@@ -36,6 +36,7 @@ Library
                    -- For the round trip output
                    , blaze-builder    >= 0.2
                    , bytestring       >= 0.9.1
+                   , text             >= 1.2
                    , utf8-string      >= 0.3.7 && < 2
   if impl(ghc >= 7.10)
     build-tools:       happy >= 1.19, alex >= 3.1.4

@@ -29,6 +29,7 @@ module Language.JavaScript.Parser
        -- * Pretty Printing
        , renderJS
        , renderToString
+       , renderToText
        ) where
 
 
