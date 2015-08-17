@@ -1,25 +1,27 @@
 
-LIBSRC = $(shell find src/Language -name \*.hs) $(LEXER).hs $(GRAMMAR).hs
+LIBSRC = $(shell find src/Language -name \*.hs) $(LEXER) $(GRAMMAR)
 
-LEXER = src/Language/JavaScript/Parser/Lexer
-GRAMMAR = src/Language/JavaScript/Parser/Grammar5
+LEXER = dist/build/Language/JavaScript/Parser/Lexer.hs
+GRAMMAR = dist/build/Language/JavaScript/Parser/Grammar5.hs
+
+GHC = cabal exec -- ghc
+GHCFLAGS = -Wall -fwarn-tabs -rtsopts -prof -auto-all -caf-all
+
 
 check : runtests.exe
 	./runtests.exe
 
-quickcheck : quickcheck.exe
-	./quickcheck.exe
 
 clean :
-	find . -name \*.o -o -name \*.hi -exec rm -f {} \;
-	rm -f $(GRAMMAR).hs $(TARGETS)
+	find dist/build/ src/ -name \*.{o -o -name \*.hi | xargs rm -f
+	rm -f $(LEXER) $(GRAMMAR) $(TARGETS) *.exe
 
 %.exe : %.hs $(LIBSRC)
-	ghc -Wall --make -i:src $< -o $@
+	$(GHC) $(GHCFLAGS) -O2 -i:src -i:dist/build --make $< -o $@
 
 
-$(GRAMMAR).hs : $(GRAMMAR).y
+$(GRAMMAR) : src/Language/JavaScript/Parser/Grammar5.y
 	happy $+ -o $@
 
-$(LEXER).hs : src-dev/Language/JavaScript/Parser/Lexer.x
-	./runalex.sh
+$(LEXER) : src/Language/JavaScript/Parser/Lexer.x
+	alex $+ -o $@
