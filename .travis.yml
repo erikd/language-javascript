@@ -26,7 +26,7 @@ install:
 script:
  - cabal-1.22 configure --enable-tests
  - cabal-1.22 build
- - dist/build/test-language-javascript/test-language-javascript
+ - dist/build/testsuite/testsuite
  - cabal-1.22 check
  - cabal-1.22 haddock
  - cabal-1.22 sdist
