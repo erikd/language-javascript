@@ -59,9 +59,9 @@ Library
                        Language.JavaScript.Parser.Token
   ghc-options:         -Wall
 
-Test-Suite test-language-javascript
+Test-Suite testsuite
   Type: exitcode-stdio-1.0
-  Main-is: runtests.hs
+  Main-is: testsuite.hs
   build-depends: base, Cabal >= 1.9.2
                  , QuickCheck >= 2
                  , HUnit
