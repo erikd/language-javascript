@@ -218,6 +218,11 @@ testMinifyProg = describe "Minify programs:" $ do
         minifyProg "{a;;x;};y;z;;" `shouldBe` "a;x;y;z"
         minifyProg "{b;;{x;y;};};z;;" `shouldBe` "b;x;y;z"
 
+    it "variable declaration" $ do
+        minifyProg " var a = 1 ; var b = 2 ;" `shouldBe` "var a=1,b=2"
+        minifyProg " var c=1;var d=2;var e=3;" `shouldBe` "var c=1,d=2,e=3"
+        minifyProg " const f = 1 ; const g = 2 ;" `shouldBe` "const f=1,g=2"
+        minifyProg " var h = 1 ; const i = 2 ;" `shouldBe` "var h=1;const i=2"
 
 -- -----------------------------------------------------------------------------
 -- Minify test helpers.

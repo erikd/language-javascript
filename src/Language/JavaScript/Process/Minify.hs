@@ -101,8 +101,25 @@ fixStatementList =
     fixList s [JSStatementBlock _ blk _ _] = fixList s blk
     fixList s [x] = [fixStmtE s x]
     fixList s (JSStatementBlock _ blk _ _:xs) = fixList semi (filter (not . isRedundant) blk) ++ fixList s xs
+    fixList s (JSConstant _ vs1 _:JSConstant _ vs2 _: xs) = fixList s (JSConstant spaceAnnot (concatCommaList vs1 vs2) s : xs)
+    fixList s (JSVariable _ vs1 _:JSVariable _ vs2 _: xs) = fixList s (JSVariable spaceAnnot (concatCommaList vs1 vs2) s : xs)
     fixList s (x:xs) = fixStmtE semi x : fixList s xs
 
+concatCommaList :: JSCommaList a -> JSCommaList a -> JSCommaList a
+concatCommaList xs JSLNil = xs
+concatCommaList JSLNil ys = ys
+concatCommaList xs (JSLOne y) = JSLCons xs emptyAnnot y
+concatCommaList xs ys =
+    let recurse (z, zs) = concatCommaList (JSLCons xs emptyAnnot z) zs
+    in  maybe xs recurse $ headCommaList ys
+
+headCommaList :: JSCommaList a -> Maybe (a, JSCommaList a)
+headCommaList JSLNil = Nothing
+headCommaList (JSLOne x) = Just (x, JSLNil)
+headCommaList (JSLCons (JSLOne x) _ y) = Just (x, JSLOne y)
+headCommaList (JSLCons xs _ y) =
+    let rebuild (x, ys) = (x, JSLCons ys emptyAnnot y)
+    in  rebuild <$> headCommaList xs
 
 -- -----------------------------------------------------------------------------
 -- JSExpression and the rest can use the MinifyJS typeclass.
