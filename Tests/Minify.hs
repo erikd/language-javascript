@@ -202,6 +202,9 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " var c = 1 ; " `shouldBe` "var c=1"
         minifyStmt " var d = 1, x = 2 ; " `shouldBe` "var d=1,x=2"
 
+    it "string concatenation" $
+        minifyStmt " f (\"ab\"+\"cd\") " `shouldBe` "f(\"abcd\")"
+
 
 testMinifyProg :: Spec
 testMinifyProg = describe "Minify programs:" $ do

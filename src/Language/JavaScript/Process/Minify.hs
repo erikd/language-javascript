@@ -173,9 +173,10 @@ fixBinOpExpression a op lhs rhs = JSExpressionBinary (fix a lhs) (fixEmpty op) (
 stringLitConcat :: String -> String -> JSExpression
 stringLitConcat xs [] = JSStringLiteral emptyAnnot xs
 stringLitConcat [] ys = JSStringLiteral emptyAnnot ys
-stringLitConcat xall@(q:_) yall@(_:ys) =
+stringLitConcat xall@(q:_) yall@(_:yss) =
+    let ys = init yss in
     if q `notElem` ys
-        then JSStringLiteral emptyAnnot (init xall ++ init ys ++ [q])
+        then JSStringLiteral emptyAnnot (init xall ++ ys ++ [q])
         else -- TODO: Correct, but can we do better?
             JSExpressionBinary (JSStringLiteral emptyAnnot xall) (JSBinOpPlus emptyAnnot) (JSStringLiteral emptyAnnot yall)
 
