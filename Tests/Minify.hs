@@ -217,7 +217,8 @@ testMinifyProg = describe "Minify programs:" $ do
     it "nested block" $ do
         minifyProg "{a;;x;};y;z;;" `shouldBe` "a;x;y;z"
         minifyProg "{b;;{x;y;};};z;;" `shouldBe` "b;x;y;z"
-
+    it "functions" $
+        minifyProg " function f() {} ; function g() {} ;" `shouldBe` "function f(){}\nfunction g(){}"
     it "variable declaration" $ do
         minifyProg " var a = 1 ; var b = 2 ;" `shouldBe` "var a=1,b=2"
         minifyProg " var c=1;var d=2;var e=3;" `shouldBe` "var c=1,d=2,e=3"

@@ -91,19 +91,20 @@ fixStatementBlock a s ss =
 -- block has no semi-colon.
 fixStatementList :: [JSStatement] -> [JSStatement]
 fixStatementList =
-    fixList noSemi . filter (not . isRedundant)
+    fixList emptyAnnot noSemi . filter (not . isRedundant)
   where
     isRedundant (JSStatementBlock _ [] _ _) = True
     isRedundant (JSEmptyStatement _) = True
     isRedundant _ = False
 
-    fixList _ [] = []
-    fixList s [JSStatementBlock _ blk _ _] = fixList s blk
-    fixList s [x] = [fixStmtE s x]
-    fixList s (JSStatementBlock _ blk _ _:xs) = fixList semi (filter (not . isRedundant) blk) ++ fixList s xs
-    fixList s (JSConstant _ vs1 _:JSConstant _ vs2 _: xs) = fixList s (JSConstant spaceAnnot (concatCommaList vs1 vs2) s : xs)
-    fixList s (JSVariable _ vs1 _:JSVariable _ vs2 _: xs) = fixList s (JSVariable spaceAnnot (concatCommaList vs1 vs2) s : xs)
-    fixList s (x:xs) = fixStmtE semi x : fixList s xs
+    fixList _ _ [] = []
+    fixList a s [JSStatementBlock _ blk _ _] = fixList a s blk
+    fixList a s [x] = [fixStmt a s x]
+    fixList _ s (JSStatementBlock _ blk _ _:xs) = fixList emptyAnnot semi (filter (not . isRedundant) blk) ++ fixList emptyAnnot s xs
+    fixList a s (JSConstant _ vs1 _:JSConstant _ vs2 _: xs) = fixList a s (JSConstant spaceAnnot (concatCommaList vs1 vs2) s : xs)
+    fixList a s (JSVariable _ vs1 _:JSVariable _ vs2 _: xs) = fixList a s (JSVariable spaceAnnot (concatCommaList vs1 vs2) s : xs)
+    fixList a s (x1@JSFunction{}:x2@JSFunction{}:xs) = fixStmt a noSemi x1 : fixList newlineAnnot s (x2:xs)
+    fixList a s (x:xs) = fixStmt a semi x : fixList emptyAnnot s xs
 
 concatCommaList :: JSCommaList a -> JSCommaList a -> JSCommaList a
 concatCommaList xs JSLNil = xs
@@ -316,6 +317,8 @@ spaceAnnot = JSAnnot tokenPosnEmpty [WhiteSpace tokenPosnEmpty " "]
 emptyAnnot :: JSAnnot
 emptyAnnot = JSAnnot tokenPosnEmpty []
 
+newlineAnnot :: JSAnnot
+newlineAnnot = JSAnnot tokenPosnEmpty [WhiteSpace tokenPosnEmpty "\n"]
 
 semi :: JSSemi
 semi = JSSemi emptyAnnot
