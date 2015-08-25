@@ -49,6 +49,7 @@ fixStmt a s (JSForVar _ _ _ el1 _ el2 _ el3 _ st) = JSForVar a emptyAnnot spaceA
 fixStmt a s (JSForVarIn _ _ _ e1 op e2 _ st) = JSForVarIn a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSFunction _ n _ ps _ blk _) = JSFunction a (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE s st)
+fixStmt a s (JSIfElse _ _ e _ (JSEmptyStatement _) _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (JSEmptyStatement emptyAnnot) emptyAnnot (fixStmt spaceAnnot s sf)
 fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (mkStatementBlock noSemi st) emptyAnnot (fixStmt spaceAnnot s sf)
 fixStmt a s (JSLabelled e _ st) = JSLabelled (fix a e) emptyAnnot (fixStmtE s st)
 fixStmt _ _ (JSEmptyStatement _) = JSEmptyStatement emptyAnnot
@@ -70,7 +71,6 @@ fixStmtE = fixStmt emptyAnnot
 -- Turn a single JSStatement into a JSStatementBlock.
 mkStatementBlock :: JSSemi -> JSStatement -> JSStatement
 mkStatementBlock s (JSStatementBlock _ blk _ _) = JSStatementBlock emptyAnnot (fixStatementList blk) emptyAnnot s
-mkStatementBlock s (JSEmptyStatement _) = JSStatementBlock emptyAnnot [JSReturn emptyAnnot Nothing noSemi] emptyAnnot s
 mkStatementBlock s x = JSStatementBlock emptyAnnot [fixStmtE noSemi x] emptyAnnot s
 
 -- Filter a list of JSStatment, dropping JSEmptyStatement and empty

@@ -141,13 +141,14 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " if ( 1 ) ; " `shouldBe` "if(1);"
 
     it "if/else" $ do
-        minifyStmt " if ( a ) ; else break ; " `shouldBe` "if(a){return}else break"
+        minifyStmt " if ( a ) ; else break ; " `shouldBe` "if(a);else break"
         minifyStmt " if ( b ) break ; else break ; " `shouldBe` "if(b){break}else break"
         minifyStmt " if ( c ) continue ; else continue ; " `shouldBe` "if(c){continue}else continue"
         minifyStmt " if ( d ) return ; else return ; " `shouldBe` "if(d){return}else return"
         minifyStmt " if ( e ) { b = 1 } else c = 2 ;" `shouldBe` "if(e){b=1}else c=2"
         minifyStmt " if ( f ) { b = 1 } else { c = 2 ; d = 4 ; } ;" `shouldBe` "if(f){b=1}else{c=2;d=4}"
         minifyStmt " if ( g ) { ex ; } else { ex ; } ; " `shouldBe` "if(g){ex}else ex"
+        minifyStmt " if ( h ) ; else if ( 2 ){ 3 ; } " `shouldBe` "if(h);else if(2)3"
 
     it "while" $ do
         minifyStmt " while ( x < 2 ) x ++ ; " `shouldBe` "while(x<2)x++"
