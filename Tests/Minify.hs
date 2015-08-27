@@ -212,6 +212,10 @@ testMinifyProg = describe "Minify programs:" $ do
     it "simple" $ do
         minifyProg " a = f ? e : g ; " `shouldBe` "a=f?e:g"
         minifyProg " for ( i = 0 ; ; ) { ; var t = 1 ; } " `shouldBe` "for(i=0;;)var t=1"
+    it "if" $
+        minifyProg " if ( x ) { } ; t ; " `shouldBe` "if(x);t"
+    it "if/else" $
+        minifyProg " if ( true ) { } else { } ; break ; " `shouldBe` "if(true){}else{}break"
     it "empty block" $ do
         minifyProg " a = 1 ; { } ; " `shouldBe`  "a=1"
         minifyProg " { } ; b = 1 ; " `shouldBe`  "b=1"
