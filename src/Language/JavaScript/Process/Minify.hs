@@ -34,7 +34,7 @@ fixSpace = fix spaceAnnot
 
 -- -----------------------------------------------------------------------------
 -- During minification, Javascript statements may need to have explicit
--- semicolons inserted between the,, so that simply adding a JSStatement
+-- semicolons inserted between them, so that simply adding a JSStatement
 -- instance for the MinifyJS typeclass would not be sufficient.
 
 fixStmt :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
@@ -48,9 +48,9 @@ fixStmt a s (JSForIn _ _ e1 op e2 _ st) = JSForIn a emptyAnnot (fixEmpty e1) (fi
 fixStmt a s (JSForVar _ _ _ el1 _ el2 _ el3 _ st) = JSForVar a emptyAnnot spaceAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSForVarIn _ _ _ e1 op e2 _ st) = JSForVarIn a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSFunction _ n _ ps _ blk _) = JSFunction a (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
-fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixIfElseBlock s st)
+fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixIfElseBlock emptyAnnot s st)
 fixStmt a s (JSIfElse _ _ e _ (JSEmptyStatement _) _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (JSEmptyStatement emptyAnnot) emptyAnnot (fixStmt spaceAnnot s sf)
-fixStmt a _ (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (mkStatementBlock noSemi st) emptyAnnot (fixStmt spaceAnnot noSemi sf)
+fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (mkStatementBlock noSemi st) emptyAnnot (fixIfElseBlock spaceAnnot s sf)
 fixStmt a s (JSLabelled e _ st) = JSLabelled (fix a e) emptyAnnot (fixStmtE s st)
 fixStmt _ _ (JSEmptyStatement _) = JSEmptyStatement emptyAnnot
 fixStmt a s (JSExpressionStatement e _) = JSExpressionStatement (fix a e) s
@@ -64,9 +64,9 @@ fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
 fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot (fixStmt a s st)
 fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE noSemi st) s
 
-fixIfElseBlock :: JSSemi -> JSStatement -> JSStatement
-fixIfElseBlock _ (JSStatementBlock _ [] _ _) = (JSEmptyStatement emptyAnnot)
-fixIfElseBlock s st = fixStmtE s st
+fixIfElseBlock :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
+fixIfElseBlock _ _ (JSStatementBlock _ [] _ _) = (JSEmptyStatement emptyAnnot)
+fixIfElseBlock a s st = fixStmt a s st
 
 fixStmtE :: JSSemi -> JSStatement -> JSStatement
 fixStmtE = fixStmt emptyAnnot

@@ -214,8 +214,9 @@ testMinifyProg = describe "Minify programs:" $ do
         minifyProg " for ( i = 0 ; ; ) { ; var t = 1 ; } " `shouldBe` "for(i=0;;)var t=1"
     it "if" $
         minifyProg " if ( x ) { } ; t ; " `shouldBe` "if(x);t"
-    it "if/else" $
-        minifyProg " if ( true ) { } else { } ; break ; " `shouldBe` "if(true){}else{}break"
+    it "if/else" $ do
+        minifyProg " if ( a ) { } else { } ; break ; " `shouldBe` "if(a){}else;break"
+        minifyProg " if ( b ) {x = 1} else {x = 2} f () ; " `shouldBe` "if(b){x=1}else x=2;f()"
     it "empty block" $ do
         minifyProg " a = 1 ; { } ; " `shouldBe`  "a=1"
         minifyProg " { } ; b = 1 ; " `shouldBe`  "b=1"
