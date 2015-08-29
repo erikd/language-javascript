@@ -14,7 +14,7 @@ import Language.JavaScript.Parser.Token
 -- ---------------------------------------------------------------------
 
 minifyJS :: JSAST -> JSAST
-minifyJS (JSAstProgram xs _) = JSAstProgram (fixStatementList xs) emptyAnnot
+minifyJS (JSAstProgram xs _) = JSAstProgram (fixStatementList noSemi xs) emptyAnnot
 minifyJS (JSAstStatement (JSStatementBlock _ [s] _ _) _) = JSAstStatement (fixStmtE noSemi s) emptyAnnot
 minifyJS (JSAstStatement s _) = JSAstStatement (fixStmtE noSemi s) emptyAnnot
 minifyJS (JSAstExpression e _) =  JSAstExpression (fixEmpty e) emptyAnnot
@@ -73,7 +73,7 @@ fixStmtE = fixStmt emptyAnnot
 
 -- Turn a single JSStatement into a JSStatementBlock.
 mkStatementBlock :: JSSemi -> JSStatement -> JSStatement
-mkStatementBlock s (JSStatementBlock _ blk _ _) = JSStatementBlock emptyAnnot (fixStatementList blk) emptyAnnot s
+mkStatementBlock s (JSStatementBlock _ blk _ _) = JSStatementBlock emptyAnnot (fixStatementList noSemi blk) emptyAnnot s
 mkStatementBlock s x = JSStatementBlock emptyAnnot [fixStmtE noSemi x] emptyAnnot s
 
 -- Filter a list of JSStatment, dropping JSEmptyStatement and empty
@@ -84,7 +84,7 @@ fixStatementBlock a s ss =
     case filter (not . isEmpty) ss of
         [] -> JSStatementBlock emptyAnnot [] emptyAnnot s
         [sx] -> fixStmt a s sx
-        sss -> JSStatementBlock emptyAnnot (fixStatementList sss) emptyAnnot s
+        sss -> JSStatementBlock emptyAnnot (fixStatementList noSemi sss) emptyAnnot s
   where
     isEmpty (JSEmptyStatement _) = True
     isEmpty (JSStatementBlock _ [] _ _) = True
@@ -92,9 +92,9 @@ fixStatementBlock a s ss =
 
 -- Force semi-colons between statements, and make sure the last statement in a
 -- block has no semi-colon.
-fixStatementList :: [JSStatement] -> [JSStatement]
-fixStatementList =
-    fixList emptyAnnot noSemi . filter (not . isRedundant)
+fixStatementList :: JSSemi -> [JSStatement] -> [JSStatement]
+fixStatementList trailingSemi =
+    fixList emptyAnnot trailingSemi . filter (not . isRedundant)
   where
     isRedundant (JSStatementBlock _ [] _ _) = True
     isRedundant (JSEmptyStatement _) = True
@@ -259,8 +259,8 @@ fixSwitchParts parts =
         [x] -> [fixPart noSemi x]
         (x:xs) -> fixPart semi x : fixSwitchParts xs
   where
-    fixPart s (JSCase _ e _ ss) = JSCase emptyAnnot (fixCase e) emptyAnnot (map (fixStmtE s) ss)
-    fixPart s (JSDefault _ _ ss) = JSDefault emptyAnnot emptyAnnot (map (fixStmtE s) ss)
+    fixPart s (JSCase _ e _ ss) = JSCase emptyAnnot (fixCase e) emptyAnnot (fixStatementList s ss)
+    fixPart s (JSDefault _ _ ss) = JSDefault emptyAnnot emptyAnnot (fixStatementList s ss)
 
 fixCase :: JSExpression -> JSExpression
 fixCase (JSStringLiteral _ s) = JSStringLiteral emptyAnnot s
@@ -268,7 +268,7 @@ fixCase e = fix spaceAnnot e
 
 
 instance MinifyJS JSBlock where
-    fix _ (JSBlock _ ss _) = JSBlock emptyAnnot (fixStatementList ss) emptyAnnot
+    fix _ (JSBlock _ ss _) = JSBlock emptyAnnot (fixStatementList noSemi ss) emptyAnnot
 
 
 instance MinifyJS JSObjectProperty where
