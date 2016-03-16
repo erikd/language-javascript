@@ -192,7 +192,7 @@ parserSuite = testGroup "Parser"
     , testCase "IfElse3" (testStmt " if (1);else break"   "Right (JSIf (JSExpression [JSDecimal \"1\"]) ([JSLiteral \";\"]) ([JSLiteral \"else\",JSBreak [] JSLiteral \"\"]))")
 
     , testCase "DoWhile1" (testStmt "do {x=1} while (true);"  "Right (JSDoWhile (JSBlock ([JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSDecimal \"1\"]])) (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
-    , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);" "Right (JSDoWhile (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSExpressionBinary \"+\" [JSIdentifier \"x\"] [JSDecimal \"1\"]]) (JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"4\"]]) (JSLiteral \";\"))")
+    , testCase "DoWhile2" (testStmt "do x=x+1;while(x<4);"  "Right (JSDoWhile (JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSExpressionBinary \"+\" [JSIdentifier \"x\"] [JSDecimal \"1\"],JSLiteral \";\"]) (JSExpression [JSExpressionBinary \"<\" [JSIdentifier \"x\"] [JSDecimal \"4\"]]) (JSLiteral \";\"))")
 
     , testCase "While1"   (testStmt "while(true);"             "Right (JSWhile (JSExpression [JSLiteral \"true\"]) (JSLiteral \";\"))")
 
@@ -569,6 +569,8 @@ commentPrintSuite = testGroup "Comments"
     , testCase "IfElse2" (testRoundTrip "if (1) x=1; else {}")
 
     , testCase "DoWhile1" (testRoundTrip "do {x=1} while (true);")
+    , testCase "DoWhile2" (testRoundTrip "do x=x+1;while(x<4);")
+
     , testCase "While1"   (testRoundTrip "while(true);")
 
     , testCase "For1"   (testRoundTrip "for(;;);")

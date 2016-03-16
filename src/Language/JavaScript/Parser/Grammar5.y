@@ -955,7 +955,7 @@ IterationStatement :: { AST.JSNode }
 IterationStatement : Do Statement While LParen Expression RParen MaybeSemi
                      { fp (AST.NN (AST.JSDoWhile $1 $2 $3 $4 $5 $6 $7)) }
                    | Do Expression MaybeSemi While LParen Expression RParen MaybeSemi
-                     { fp (AST.NN (AST.JSDoWhile $1 $2 $4 $5 $6 $7 $8)) }
+                     { fp (AST.NN (AST.JSDoWhile $1 (combineExpressionSemi $2 $3) $4 $5 $6 $7 $8)) }
                    | While LParen Expression RParen Statement
                      { fp (AST.NN (AST.JSWhile $1 $2 $3 $4 $5)) }
                    | For LParen ExpressionNoInOpt Semi ExpressionOpt Semi ExpressionOpt RParen Statement
@@ -1147,6 +1147,9 @@ combineSourceElementsTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (
 combineTop :: AST.JSNode -> AST.JSNode -> AST.JSNode
 combineTop (AST.NN (AST.JSSourceElementsTop xs)) x1 = fp (AST.NN (AST.JSSourceElementsTop (xs++[x1])))
 
+combineExpressionSemi :: AST.JSNode -> AST.JSNode -> AST.JSNode
+combineExpressionSemi (AST.NN (AST.JSExpression xs)) s@(AST.NT (AST.JSLiteral ";") tp c) = AST.NN (AST.JSExpression (xs ++ [s]))
+combineExpressionSemi a _ = a
 
 parseError :: Token -> Alex a
 parseError tok = alexError (show tok)
