@@ -61,6 +61,36 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "/*a*/x /*b*/instance of /*c*/y"
         testRT "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"
 
+    it "statement" $ do
+        testRT "if (1) {}"
+        testRT "if (1) {} else {}"
+        testRT "if (1) x=1; else {}"
+        testRT "do {x=1} while (true);"
+        testRT "do x=x+1;while(x<4);"
+        testRT "while(true);"
+        testRT "for(;;);"
+        testRT "for(x=1;x<10;x++);"
+        testRT "for(var x;;);"
+        testRT "for(var x=1;;);"
+        testRT "for(var x;y;z){}"
+        testRT "for(x in 5){}"
+        testRT "for(var x in 5){}"
+        testRT "var x=1;"
+        testRT "const x=1,y=2;"
+        testRT "continue;"
+        testRT "continue x;"
+        testRT "break;"
+        testRT "break x;"
+        testRT "return;"
+        testRT "return x;"
+        testRT "with (x) {};"
+        testRT "abc:x=1"
+        testRT "switch (x) {}"
+        testRT "switch (x) {case 1:break;}"
+        testRT "switch (x) {case 0:\ncase 1:break;}"
+        testRT "switch (x) {default:break;}"
+        testRT "switch (x) {default:\ncase 1:break;}"
+
 
 testRT :: String -> Expectation
 testRT str = str `shouldBe` renderToString (readJs str)
