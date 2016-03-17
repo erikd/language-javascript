@@ -37,7 +37,9 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "2+3*4+5"  `shouldBe` "Right (JSAstExpression (JSExpressionBinary ('+',JSExpressionBinary ('+',JSDecimal '2',JSExpressionBinary ('*',JSDecimal '3',JSDecimal '4')),JSDecimal '5')))"
     it "parentheses" $
         testExpr "(56)"     `shouldBe` "Right (JSAstExpression (JSExpressionParen (JSDecimal '56')))"
-
+    it "string concatenation" $ do
+        testExpr "'ab' + 'bc'"  `shouldBe` "Right (JSAstExpression (JSExpressionBinary ('+',JSStringLiteral 'ab',JSStringLiteral 'bc')))"
+        testExpr "'bc' + \"cd\""  `shouldBe` "Right (JSAstExpression (JSExpressionBinary ('+',JSStringLiteral 'bc',JSStringLiteral \"cd\")))"
     it "object literal" $ do
         testExpr "{}"           `shouldBe` "Right (JSAstExpression (JSObjectLiteral []))"
         testExpr "{x:1}"        `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1']]))"
