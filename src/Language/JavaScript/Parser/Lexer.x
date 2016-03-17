@@ -262,59 +262,58 @@ tokens :-
 
 -- / or /= only allowed in state 1
 <divide> {
-    "/="    { adapt (symbolToken DivideAssignToken)}
-    "/"     { adapt (symbolToken DivToken)}
-    }
-
-<reg,divide> {
-     ";"    { adapt (symbolToken  SemiColonToken)}
-     ","    { adapt (symbolToken  CommaToken)}
-     "?"    { adapt (symbolToken  HookToken)}
-     ":"    { adapt (symbolToken  ColonToken)}
-     "||"   { adapt (symbolToken  OrToken)}
-     "&&"   { adapt (symbolToken  AndToken)}
-     "|"    { adapt (symbolToken  BitwiseOrToken)}
-     "^"    { adapt (symbolToken  BitwiseXorToken)}
-     "&"    { adapt (symbolToken  BitwiseAndToken)}
-     "==="  { adapt (symbolToken  StrictEqToken)}
-     "=="   { adapt (symbolToken  EqToken)}
-     "*="   { adapt (symbolToken  TimesAssignToken)}
-     "%="   { adapt (symbolToken  ModAssignToken)}
-     "+="   { adapt (symbolToken  PlusAssignToken)}
-     "-="   { adapt (symbolToken  MinusAssignToken)}
-     "<<="  { adapt (symbolToken  LshAssignToken)}
-     ">>="  { adapt (symbolToken  RshAssignToken)}
-     ">>>=" { adapt (symbolToken  UrshAssignToken)}
-     "&="   { adapt (symbolToken  AndAssignToken)}
-     "^="   { adapt (symbolToken  XorAssignToken)}
-     "|="   { adapt (symbolToken  OrAssignToken)}
-     "="    { adapt (symbolToken  SimpleAssignToken)}
-     "!=="  { adapt (symbolToken  StrictNeToken)}
-     "!="   { adapt (symbolToken  NeToken)}
-     "<<"   { adapt (symbolToken  LshToken)}
-     "<="   { adapt (symbolToken  LeToken)}
-     "<"    { adapt (symbolToken  LtToken)}
-     ">>>"  { adapt (symbolToken  UrshToken)}
-     ">>"   { adapt (symbolToken  RshToken)}
-     ">="   { adapt (symbolToken  GeToken)}
-     ">"    { adapt (symbolToken  GtToken)}
-     "++"   { adapt (symbolToken  IncrementToken)}
-     "--"   { adapt (symbolToken  DecrementToken)}
-     "+"    { adapt (symbolToken  PlusToken)}
-     "-"    { adapt (symbolToken  MinusToken)}
-     "*"    { adapt (symbolToken  MulToken)}
-     "%"    { adapt (symbolToken  ModToken)}
-     "!"    { adapt (symbolToken  NotToken)}
-     "~"    { adapt (symbolToken  BitwiseNotToken)}
-     "."    { adapt (symbolToken  DotToken)}
-     "["    { adapt (symbolToken  LeftBracketToken)}
-     "]"    { adapt (symbolToken  RightBracketToken)}
-     "{"    { adapt (symbolToken  LeftCurlyToken)}
-     "}"    { adapt (symbolToken  RightCurlyToken)}
-     "("    { adapt (symbolToken  LeftParenToken)}
-     ")"    { adapt (symbolToken  RightParenToken)}
+    "/="    { adapt (symbolToken DivideAssignToken) }
+    "/"     { adapt (symbolToken DivToken) }
 }
 
+<reg,divide> {
+    ";"     { adapt (symbolToken  SemiColonToken) }
+    ","     { adapt (symbolToken  CommaToken) }
+    "?"     { adapt (symbolToken  HookToken) }
+    ":"     { adapt (symbolToken  ColonToken) }
+    "||"    { adapt (symbolToken  OrToken) }
+    "&&"    { adapt (symbolToken  AndToken) }
+    "|"     { adapt (symbolToken  BitwiseOrToken) }
+    "^"     { adapt (symbolToken  BitwiseXorToken) }
+    "&"     { adapt (symbolToken  BitwiseAndToken) }
+    "==="   { adapt (symbolToken  StrictEqToken) }
+    "=="    { adapt (symbolToken  EqToken) }
+    "*="    { adapt (symbolToken  TimesAssignToken) }
+    "%="    { adapt (symbolToken  ModAssignToken) }
+    "+="    { adapt (symbolToken  PlusAssignToken) }
+    "-="    { adapt (symbolToken  MinusAssignToken) }
+    "<<="   { adapt (symbolToken  LshAssignToken) }
+    ">>="   { adapt (symbolToken  RshAssignToken) }
+    ">>>="  { adapt (symbolToken  UrshAssignToken) }
+    "&="    { adapt (symbolToken  AndAssignToken) }
+    "^="    { adapt (symbolToken  XorAssignToken) }
+    "|="    { adapt (symbolToken  OrAssignToken) }
+    "="     { adapt (symbolToken  SimpleAssignToken) }
+    "!=="   { adapt (symbolToken  StrictNeToken) }
+    "!="    { adapt (symbolToken  NeToken) }
+    "<<"    { adapt (symbolToken  LshToken) }
+    "<="    { adapt (symbolToken  LeToken) }
+    "<"     { adapt (symbolToken  LtToken) }
+    ">>>"   { adapt (symbolToken  UrshToken) }
+    ">>"    { adapt (symbolToken  RshToken) }
+    ">="    { adapt (symbolToken  GeToken) }
+    ">"     { adapt (symbolToken  GtToken) }
+    "++"    { adapt (symbolToken  IncrementToken) }
+    "--"    { adapt (symbolToken  DecrementToken) }
+    "+"     { adapt (symbolToken  PlusToken) }
+    "-"     { adapt (symbolToken  MinusToken) }
+    "*"     { adapt (symbolToken  MulToken) }
+    "%"     { adapt (symbolToken  ModToken) }
+    "!"     { adapt (symbolToken  NotToken) }
+    "~"     { adapt (symbolToken  BitwiseNotToken) }
+    "."     { adapt (symbolToken  DotToken) }
+    "["     { adapt (symbolToken  LeftBracketToken) }
+    "]"     { adapt (symbolToken  RightBracketToken) }
+    "{"     { adapt (symbolToken  LeftCurlyToken) }
+    "}"     { adapt (symbolToken  RightCurlyToken) }
+    "("     { adapt (symbolToken  LeftParenToken) }
+    ")"     { adapt (symbolToken  RightParenToken) }
+}
 
 {
 
@@ -323,8 +322,8 @@ tokens :-
 -- secion 7 of ECMAScript Language Specification, Edition 3, 24 March 2000.
 
 The method is inspired by the lexer in http://jint.codeplex.com/
-
 -}
+
 classifyToken :: Token -> Int
 classifyToken aToken =
     case aToken of
@@ -384,7 +383,7 @@ alexTestTokeniser input =
 
 -- This is called by the Happy parser.
 lexCont :: (Token -> Alex a) -> Alex a
-lexCont cont = do
+lexCont cont =
     lexLoop
   where
     lexLoop = do
@@ -418,7 +417,6 @@ lexCont cont = do
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
 toCommentAnnotation [] = [NoComment]
-
 toCommentAnnotation xs =
     reverse $ map go xs
   where
