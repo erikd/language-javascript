@@ -65,7 +65,7 @@ fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot 
 fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE noSemi st) s
 
 fixIfElseBlock :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
-fixIfElseBlock _ _ (JSStatementBlock _ [] _ _) = (JSEmptyStatement emptyAnnot)
+fixIfElseBlock _ _ (JSStatementBlock _ [] _ _) = JSEmptyStatement emptyAnnot
 fixIfElseBlock a s st = fixStmt a s st
 
 fixStmtE :: JSSemi -> JSStatement -> JSStatement

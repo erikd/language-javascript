@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE DeriveDataTypeable, FlexibleInstances #-}
 
 module Language.JavaScript.Parser.AST
     ( JSExpression (..)
