@@ -11,27 +11,23 @@
 -----------------------------------------------------------------------------
 
 module Language.JavaScript.Parser.ParserMonad
-       (
-         AlexUserState(..)
-       , alexInitUserState
-       ) where
+    ( AlexUserState(..)
+    , alexInitUserState
+    ) where
 
 import Language.JavaScript.Parser.Token
 import Language.JavaScript.Parser.SrcLocation
 
 data AlexUserState = AlexUserState
-  {
-    previousToken :: !Token  -- ^the previous token
-  , comment :: [Token]       -- ^the previous comment, if any
-  }
+    { previousToken :: !Token   -- ^the previous token
+    , comment :: [Token]        -- ^the previous comment, if any
+    }
 
 alexInitUserState :: AlexUserState
 alexInitUserState = AlexUserState
-   {
-     previousToken = initToken
-   , comment = []
-   }
+    { previousToken = initToken
+    , comment = []
+    }
 
 initToken :: Token
 initToken = CommentToken tokenPosnEmpty "" []
-
