@@ -10,24 +10,19 @@
 -- Various utilities to support the JavaScript lexer.
 -----------------------------------------------------------------------------
 
-module Language.JavaScript.Parser.LexerUtils (
-  StartCode
-  -- , AlexInput
-  -- , alexGetChar
-  -- , alexInputPrevChar
-  , symbolToken
-  , mkString
-  , commentToken
-  , wsToken
-  , regExToken
-  , decimalToken
-  , hexIntegerToken
-  , octalToken
-  , stringToken
-  --, lexicalError
-  ) where
+module Language.JavaScript.Parser.LexerUtils
+    ( StartCode
+    , symbolToken
+    , mkString
+    , commentToken
+    , wsToken
+    , regExToken
+    , decimalToken
+    , hexIntegerToken
+    , octalToken
+    , stringToken
+    ) where
 
---import Control.Monad.Error.Class (throwError)
 import Language.JavaScript.Parser.Token as Token
 import Language.JavaScript.Parser.SrcLocation
 import Prelude hiding (span)
@@ -62,15 +57,3 @@ commentToken loc str = CommentToken loc str []
 
 wsToken :: TokenPosn -> String -> Token
 wsToken loc str = WsToken loc str []
-
--- -----------------------------------------------------------------------------
--- Functionality required by Alex
-{-
-lexicalError :: P a
-lexicalError = do
-  location <- getLocation
-  c <- liftM head getInput
-  -- (_,c,_,_) <- getInput
-  throwError $ UnexpectedChar c location
--}
--- EOF
