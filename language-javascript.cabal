@@ -77,6 +77,8 @@ Test-Suite testsuite
                  -- need our own library for tests
                  , language-javascript >= 0.5.5
   Other-modules:    Tests.ExpressionParser
+                    Tests.Lexer
+                    Tests.LiteralParser
                     Tests.ProgramParser
                     Tests.StatementParser
   ghc-options:   -Wall -fwarn-tabs
