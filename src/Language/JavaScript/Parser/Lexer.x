@@ -1,8 +1,7 @@
 {
-
+{-# OPTIONS_GHC -funbox-strict-fields #-}
 module Language.JavaScript.Parser.Lexer
-    ( Token(..)
-    , AlexPosn(..)
+    ( Token (..)
     , Alex
     , lexCont
     , alexError
