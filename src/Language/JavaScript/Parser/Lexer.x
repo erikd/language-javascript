@@ -84,8 +84,13 @@ $low_unprintable = [\x00-\x1f]
 -- $RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
 -- $NonTerminator = $StringCharsDoubleQuote # [$cr $lf]
-$NonTerminator = [$printable] # [$cr $lf]
--- {Non Zero Digits}={Digit}-[0]
+$regNonTerminator = [$printable] # [$cr $lf \[]
+
+
+$reg_char_class_chars = [^ $cr $lf \[ \] ]
+@reg_char_class_escapes = \\ ( \[ | \] )
+@regCharClass = \[ ($reg_char_class_chars | @reg_char_class_escapes)* \]
+
 
 -- ~ (LineTerminator | MUL | BSLASH | DIV)
 $RegExpFirstChar = [$printable] # [ $cr $lf \* \\ \/]
@@ -221,10 +226,10 @@ tokens :-
 <reg,divide> ("0") $oct_digit+ { adapt (mkString octalToken) }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
--- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
--- Based on the Jint version
-<reg> "/" ($RegExpFirstChar | "\" $NonTerminator)  ($RegExpChars | "\" $NonTerminator)* "/" ("g"|"i"|"m")* { adapt (mkString regExToken) }
+<reg> "/"
+		("\" $regNonTerminator | @regCharClass | $RegExpFirstChar)
+		("\" $regNonTerminator | @regCharClass | $RegExpChars)* "/" ("g"|"i"|"m")* { adapt (mkString regExToken) }
 
 
 
