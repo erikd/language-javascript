@@ -28,7 +28,8 @@ $cr = \r  -- carriage return
 $ht = \t  -- horizontal tab
 $sq = '   -- single quote
 $dq = \"  -- double quote
-$digit = 0-9            -- digits
+$digit = 0-9     	   	-- digits
+$hex_digit = [0-9a-zA-Z]
 $alpha = [a-zA-Z]       -- alphabetic characters
 $digit    = 0-9
 $non_zero_digit = 1-9
@@ -58,8 +59,18 @@ $not_eol_char = ~$eol_char -- anything but an end of line character
 
 -- {String Chars1} = {Printable} + {HT} - ["\]
 -- {String Chars2} = {Printable} + {HT} - [\'']
-$StringCharsDoubleQuote = [$printable $ht] # [$dq \\]
-$StringCharsSingleQuote = [$printable $ht] # [$sq \\]
+-- $StringCharsDoubleQuote = [$printable $ht] # [$dq \\]
+-- $StringCharsSingleQuote = [$printable $ht] # [$sq \\]
+
+$string_chars = [^ \n \r ' \" \\]
+
+@sq_escapes = \\ ( \\ | ' | r | n | x )
+@dq_escapes = \\ ( \\ | \" | r | n | x )
+
+@string_parts = $string_chars | \\ $digit | $ls | $ps
+
+@stringCharsSingleQuote = @string_parts | @sq_escapes | $dq
+@stringCharsDoubleQuote = @string_parts | @dq_escapes | $sq
 
 -- Character values < 0x20.
 $low_unprintable = [\x00-\x1f]
@@ -67,8 +78,6 @@ $low_unprintable = [\x00-\x1f]
 -- LineContinuation :: \ LineTerminatorSequence
 @LineContinuation = [\\] @LineTerminatorSequence
 
-
-$short_str_char = [^ \n \r ' \" \\]
 
 -- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
 @HexDigit = $digit | [a-fA-F]
@@ -206,8 +215,8 @@ tokens :-
 -- ECMA-262 : Section 7.8.4 String Literals
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"'
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
-<reg,divide>  $dq ( $StringCharsDoubleQuote | \\ $printable | $low_unprintable | @LineContinuation )* $dq
-            | $sq ( $StringCharsSingleQuote | \\ $printable | $low_unprintable | @LineContinuation )* $sq { adapt (mkString stringToken) }
+<reg,divide>  $dq (@stringCharsDoubleQuote *) $dq
+            | $sq (@stringCharsSingleQuote *) $sq		{ adapt (mkString stringToken) }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
 <reg,divide> ("0x"|"0X") @HexDigit+ { adapt (mkString hexIntegerToken) }
