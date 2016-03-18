@@ -90,8 +90,13 @@ $short_str_char = [^ \n \r ' \" \\]
 -- $RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
 -- $NonTerminator = $StringCharsDoubleQuote # [$cr $lf]
-$NonTerminator = [$printable] # [$cr $lf]
--- {Non Zero Digits}={Digit}-[0]
+$regNonTerminator = [$printable] # [$cr $lf \[]
+
+
+$reg_char_class_chars = [^ $cr $lf \[ \] ]
+@reg_char_class_escapes = \\ ( \[ | \] )
+@regCharClass = \[ ($reg_char_class_chars | @reg_char_class_escapes)* \]
+
 
 -- ~ (LineTerminator | MUL | BSLASH | DIV)
 $RegExpFirstChar = [$printable] # [ $cr $lf \* \\ \/]
@@ -219,7 +224,7 @@ tokens :-
 -- StringLiteral = '"' ( {String Chars1} | '\' {Printable} )* '"'
 --                | '' ( {String Chars2} | '\' {Printable} )* ''
 <reg,divide>  $dq (@stringCharsDoubleQuote *) $dq
-            | $sq (@stringCharsSingleQuote *) $sq		{ adapt (mkString stringToken) }
+            | $sq (@stringCharsSingleQuote *) $sq        { adapt (mkString stringToken) }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
 <reg,divide> ("0x"|"0X") @HexDigit+ { adapt (mkString hexIntegerToken) }
@@ -230,8 +235,10 @@ tokens :-
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
 -- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }
 
--- Based on the Jint version
-<reg> "/" ($RegExpFirstChar | "\" $NonTerminator)  ($RegExpChars | "\" $NonTerminator)* "/" ("g"|"i"|"m")* { adapt (mkString regExToken) }
+<reg> "/"
+            ("\" $regNonTerminator | @regCharClass | $RegExpFirstChar)
+            ("\" $regNonTerminator | @regCharClass | $RegExpChars)* "/" ("g"|"i"|"m")* { adapt (mkString regExToken) }
+
 
 
 
