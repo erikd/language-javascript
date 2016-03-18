@@ -5,7 +5,7 @@ module Tests.LiteralParser
 import Test.Hspec
 
 import Control.Monad (forM_)
-import Data.Char (chr)
+import Data.Char (chr, isPrint)
 
 import Language.JavaScript.Parser
 import Language.JavaScript.Parser.Grammar5
@@ -45,21 +45,51 @@ testLiteralParser = describe "Parse literals:" $ do
         testLiteral "\"cat\""  `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"cat\"))"
         testLiteral "\"hello\\nworld\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"hello\\nworld\"))"
         testLiteral "'hello\\nworld'"   `shouldBe` "Right (JSAstLiteral (JSStringLiteral 'hello\\nworld'))"
+        testLiteral "\"\\r\\n\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\r\\n\"))"
 
-        forM_ (filter (/= '"') asciiTestString) $ \ ch -> do
-            let str = "char " ++ [ch]
-            testLiteral ("\"" ++ str ++ "\"")   `shouldBe` ("Right (JSAstLiteral (JSStringLiteral \"" ++ str ++ "\"))")
-        forM_ (filter (/= '\'') asciiTestString) $ \ ch -> do
-            let str = "char " ++ [ch]
-            testLiteral ("'" ++ str ++ "'")     `shouldBe` ("Right (JSAstLiteral (JSStringLiteral '" ++ str ++ "'))")
+        testLiteral "'char \n'" `shouldBe` "Left (\"lexical error @ line 1 and column 7\")"
 
-        testLiteral "\"\r\n\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\r\n\"))"
+        forM_ (mkTestStrings SingleQuote) $ \ str ->
+            testLiteral str `shouldBe` ("Right (JSAstLiteral (JSStringLiteral " ++ str ++ "))")
+
+        forM_ (mkTestStrings DoubleQuote) $ \ str ->
+            testLiteral str `shouldBe` ("Right (JSAstLiteral (JSStringLiteral " ++ str ++ "))")
+
+    it "strings with escaped quotes" $ do
+        testLiteral "'\"'"      `shouldBe` "Right (JSAstLiteral (JSStringLiteral '\"'))"
+        testLiteral "\"\\\"\""  `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\\"\"))"
 
 
--- 8 bit ASCII, minus the backslash escape character.
-asciiTestString :: String
-asciiTestString = filter (/= '\\') $ map chr [0 .. 255]
+data Quote
+    = SingleQuote
+    | DoubleQuote
+    deriving Eq
+
+
+mkTestStrings :: Quote -> [String]
+mkTestStrings quote =
+    map mkString [0 .. 255]
+  where
+    mkString :: Int -> String
+    mkString i =
+        quoteString $ "char #" ++ show i ++ " " ++ showCh i
+
+    showCh :: Int -> String
+    showCh ch
+        | ch == 34 = if quote == DoubleQuote then "\\\"" else "\""
+        | ch == 39 = if quote == SingleQuote then "\\\'" else "'"
+        | ch == 92 = "\\\\"
+        | ch < 127 && isPrint (chr ch) = [chr ch]
+        | otherwise =
+            let str = "000" ++ show ch
+                slen = length str
+            in "\\" ++ drop (slen - 3) str
+
+    quoteString s =
+        if quote == SingleQuote
+            then '\'' : (s ++ "'")
+            else '"' : (s ++ ['"'])
 
 
 testLiteral :: String -> String
-testLiteral str = showStrippedMaybe (parseUsing parseLiteral str "src")
+testLiteral str = showStrippedMaybe $ parseUsing parseLiteral str "src"
