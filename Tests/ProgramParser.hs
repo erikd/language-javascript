@@ -55,12 +55,12 @@ testProgramParser = describe "Program parser:" $ do
 
     it "strings" $ do
         -- Working in ECMASCRIPT 5.1 changes
-        testProg "x='abc\\\ndef';"       `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral 'abc\\\ndef'),JSSemicolon])"
-        testProg "x=\"abc\\\ndef\";"     `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\\ndef\"),JSSemicolon])"
-        testProg "x=\"abc\\\rdef\";"     `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\\rdef\"),JSSemicolon])"
-        testProg "x=\"abc\\\r\ndef\";"   `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\\r\ndef\"),JSSemicolon])"
-        testProg "x=\"abc\\\x2028 def\";"    `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\\8232 def\"),JSSemicolon])"
-        testProg "x=\"abc\\\x2029 def\";"    `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\\8233 def\"),JSSemicolon])"
+        testProg "x='abc\\ndef';"       `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral 'abc\\ndef'),JSSemicolon])"
+        testProg "x=\"abc\\ndef\";"     `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\ndef\"),JSSemicolon])"
+        testProg "x=\"abc\\rdef\";"     `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\rdef\"),JSSemicolon])"
+        testProg "x=\"abc\\r\\ndef\";"   `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\r\\ndef\"),JSSemicolon])"
+        testProg "x=\"abc\\x2028 def\";"    `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\x2028 def\"),JSSemicolon])"
+        testProg "x=\"abc\\x2029 def\";"    `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSStringLiteral \"abc\\x2029 def\"),JSSemicolon])"
 
     it "object literal" $ do
         testProg "x = { y: 1e8 }"   `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '1e8']])])"
