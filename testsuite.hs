@@ -646,6 +646,8 @@ commentPrintSuite = testGroup "Comments"
 
     , testCase "122_jsexec" (testRoundTrip "v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));")
 
+    , testCase "regex_cc_slash" (testRoundTrip "x = /[/]/;")
+
     , testCase "bug1a" (testRoundTrip "/* */\nfunction f() {\n/*  */\n}")
     , testCase "bug1b" (testRoundTrip "/* **/\nfunction f() {\n/*  */\n}")
 
