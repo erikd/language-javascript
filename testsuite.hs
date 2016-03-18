@@ -310,13 +310,12 @@ parserSuite = testGroup "Parser"
     , testCase "issue2" (testProg "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"img\") [JSLiteral \"=\",JSMemberDot [JSIdentifier \"document\"] (JSIdentifier \"createElement\"),JSArguments [JSStringLiteral '\\'' \"img\"]]],JSExpression [JSMemberDot [JSIdentifier \"img\"] (JSIdentifier \"src\"),JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"mylogo.jpg\"],JSLiteral \";\",JSExpression [JSIdentifier \"$\",JSArguments [JSIdentifier \"img\"],JSCallExpression \".\" [JSIdentifier \"click\"],JSCallExpression \"()\" [JSArguments [JSFunctionExpression [] [] (JSBlock ([JSExpression [JSIdentifier \"alert\",JSArguments [JSStringLiteral '\\'' \"clicked!\"]],JSLiteral \";\"]))]]],JSLiteral \";\",JSLiteral \"\"])")
 
    -- Working in ECMASCRIPT 5.1 changes
-    , testCase "lineTerminatorInString1" (testProg "x='abc\\\ndef';"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\\'' \"abc\\\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
-    , testCase "lineTerminatorInString2" (testProg "x=\"abc\\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
-    , testCase "lineTerminatorInString3" (testProg "x=\"abc\\\rdef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\rdef\"],JSLiteral \";\",JSLiteral \"\"])")
-    , testCase "lineTerminatorInString4" (testProg "x=\"abc\\\x2028 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\8232 def\"],JSLiteral \";\",JSLiteral \"\"])")
-    , testCase "lineTerminatorInString5" (testProg "x=\"abc\\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\8233 def\"],JSLiteral \";\",JSLiteral \"\"])")
-    , testCase "lineTerminatorInString6" (testProg "x=\"abc\\\r\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\\\r\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
-
+    , testCase "lineTerminatorInString1" (testProg "x='abc\\ndef';"   "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\\'' \"abc\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "lineTerminatorInString2" (testProg "x=\"abc\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "lineTerminatorInString3" (testProg "x=\"abc\\rdef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\rdef\"],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "lineTerminatorInString4" (testProg "x=\"abc\\x2028 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\x2028 def\"],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "lineTerminatorInString5" (testProg "x=\"abc\\x2029 def\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\x2029 def\"],JSLiteral \";\",JSLiteral \"\"])")
+    , testCase "lineTerminatorInString6" (testProg "x=\"abc\\r\\ndef\";" "Right (JSSourceElementsTop [JSExpression [JSIdentifier \"x\",JSOperator JSLiteral \"=\",JSStringLiteral '\"' \"abc\\\\r\\\\ndef\"],JSLiteral \";\",JSLiteral \"\"])")
 
      -- https://github.com/alanz/language-javascript/issues/4
     , testCase "issue4ok"   (testProg "var k = {\ny: somename\n}" "Right (JSSourceElementsTop [JSVariables JSLiteral \"var\" [JSVarDecl (JSIdentifier \"k\") [JSLiteral \"=\",JSObjectLiteral [JSPropertyNameandValue (JSIdentifier \"y\") [JSIdentifier \"somename\"]]]],JSLiteral \"\"])")
@@ -685,12 +684,12 @@ commentPrintSuite = testGroup "Comments"
     , testCase "issue2" (testRoundTrip "var img = document.createElement('img');\nimg.src = \"mylogo.jpg\";\n$(img).click(function() {\n   alert('clicked!');\n});")
 
     -- Working in ECMASCRIPT 5.1 changes
-    , testCase "lineTerminatorInString1" (testRoundTrip "x='abc\\\ndef';")
-    , testCase "lineTerminatorInString2" (testRoundTrip "x=\"abc\\\ndef\";")
-    , testCase "lineTerminatorInString3" (testRoundTrip "x=\"abc\\\rdef\";")
-    , testCase "lineTerminatorInString4" (testRoundTrip "x=\"abc\\\x2028 def\";")
-    , testCase "lineTerminatorInString5" (testRoundTrip "x=\"abc\\\x2029 def\";")
-    , testCase "lineTerminatorInString6" (testRoundTrip "x=\"abc\\\r\ndef\";")
+    , testCase "lineTerminatorInString1" (testRoundTrip "x='abc\\ndef';")
+    , testCase "lineTerminatorInString2" (testRoundTrip "x=\"abc\\ndef\";")
+    , testCase "lineTerminatorInString3" (testRoundTrip "x=\"abc\\rdef\";")
+    , testCase "lineTerminatorInString4" (testRoundTrip "x=\"abc\\x2028 def\";")
+    , testCase "lineTerminatorInString5" (testRoundTrip "x=\"abc\\x2029 def\";")
+    , testCase "lineTerminatorInString6" (testRoundTrip "x=\"abc\\r\\ndef\";")
 
     -- https://github.com/alanz/language-javascript/issues/4
     , testCase "issue4ok"   (testRoundTrip "var k = {\ny: somename\n}")
