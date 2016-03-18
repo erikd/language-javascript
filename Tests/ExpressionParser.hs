@@ -18,6 +18,11 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "/blah/"   `shouldBe` "Right (JSAstExpression (JSRegEx '/blah/'))"
         testExpr "/$/g"     `shouldBe` "Right (JSAstExpression (JSRegEx '/$/g'))"
         testExpr "/\\n/g"   `shouldBe` "Right (JSAstExpression (JSRegEx '/\\n/g'))"
+        testExpr "/(\\/)/"  `shouldBe` "Right (JSAstExpression (JSRegEx '/(\\/)/'))"
+        testExpr "/a[/]b/"  `shouldBe` "Right (JSAstExpression (JSRegEx '/a[/]b/'))"
+        testExpr "/[/\\]/"  `shouldBe` "Right (JSAstExpression (JSRegEx '/[/\\]/'))"
+        testExpr "/(\\/|\\)/"  `shouldBe` "Right (JSAstExpression (JSRegEx '/(\\/|\\)/'))"
+        testExpr "/[(){}\\[\\]]/g" `shouldBe` "Right (JSAstExpression (JSRegEx '/[(){}\\[\\]]/g'))"
         testExpr "/^\"(?:\\.|[^\"])*\"|^'(?:[^']|\\.)*'/" `shouldBe` "Right (JSAstExpression (JSRegEx '/^\"(?:\\.|[^\"])*\"|^'(?:[^']|\\.)*'/'))"
     it "identifier" $ do
         testExpr "_$"       `shouldBe` "Right (JSAstExpression (JSIdentifier '_$'))"
