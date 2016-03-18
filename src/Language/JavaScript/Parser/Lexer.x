@@ -29,9 +29,9 @@ $ht = \t  -- horizontal tab
 $sq = '   -- single quote
 $dq = \"  -- double quote
 $digit = 0-9     	   	-- digits
-$hex_digit = [0-9a-zA-Z]
+$oct_digit = [0-7]
+$hex_digit = [0-9a-fA-F]
 $alpha = [a-zA-Z]       -- alphabetic characters
-$digit    = 0-9
 $non_zero_digit = 1-9
 $ident_letter = [a-zA-Z_]
 @eol_pattern = $lf | $cr $lf | $cr $lf
@@ -79,10 +79,6 @@ $low_unprintable = [\x00-\x1f]
 @LineContinuation = [\\] @LineTerminatorSequence
 
 
--- {Hex Digit}    = {Digit} + [ABCDEF] + [abcdef]
-@HexDigit = $digit | [a-fA-F]
--- {Oct Digit}    = {Digit} + [01234567]
-@OctDigit = $digit | [0-7]
 -- {RegExp Chars} = {Letter}+{Digit}+['^']+['$']+['*']+['+']+['?']+['{']+['}']+['|']+['-']+['.']+[',']+['#']+['[']+[']']+['_']+['<']+['>']
 -- $RegExpChars = [$alpha $digit \^\$\*\+\?\{\}\|\-\.\,\#\[\]\_\<\>]
 -- $RegExpChars = [$printable] # [\\]
@@ -219,10 +215,10 @@ tokens :-
             | $sq (@stringCharsSingleQuote *) $sq		{ adapt (mkString stringToken) }
 
 -- HexIntegerLiteral = '0x' {Hex Digit}+
-<reg,divide> ("0x"|"0X") @HexDigit+ { adapt (mkString hexIntegerToken) }
+<reg,divide> ("0x"|"0X") $hex_digit+ { adapt (mkString hexIntegerToken) }
 
 -- OctalLiteral = '0' {Octal Digit}+
-<reg,divide> ("0") @OctDigit+ { adapt (mkString octalToken) }
+<reg,divide> ("0") $oct_digit+ { adapt (mkString octalToken) }
 
 -- RegExp         = '/' ({RegExp Chars} | '\' {Non Terminator})+ '/' ( 'g' | 'i' | 'm' )*
 -- <reg> "/" ($RegExpChars | "\" $NonTerminator)+ "/" ("g"|"i"|"m")* { mkString regExToken }

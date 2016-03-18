@@ -11,6 +11,16 @@ import Language.JavaScript.Parser.Lexer
 
 testLexer :: Spec
 testLexer = describe "Lexer:" $ do
+    it "numbers" $ do
+        testLex "123"       `shouldBe` "[DecimalToken 123]"
+        testLex "037"       `shouldBe` "[OctalToken 037]"
+        testLex "0xab"      `shouldBe` "[HexIntegerToken 0xab]"
+        testLex "0xCD"      `shouldBe` "[HexIntegerToken 0xCD]"
+
+    it "invalid numbers" $ do
+        testLex "089"       `shouldBe` "[DecimalToken 0,DecimalToken 89]"
+        testLex "0xGh"      `shouldBe` "[DecimalToken 0,IdentifierToken 'xGx']"
+
     it "string" $ do
         testLex "'cat'"     `shouldBe` "[StringToken 'cat']"
         testLex "\"dog\""   `shouldBe` "[StringToken \"dog\"]"
@@ -29,13 +39,13 @@ testLexer = describe "Lexer:" $ do
         testLex "'\\\''"    `shouldBe` "[StringToken '\\\\'']"
 
     it "assignment" $ do
-        testLex "x=1"       `shouldBe` "[IdentifierToken 'x',SimpleAssignToken,DecimalToken]"
-        testLex "x=1\ny=2"  `shouldBe` "[IdentifierToken 'x',SimpleAssignToken,DecimalToken,WsToken,IdentifierToken 'y',SimpleAssignToken,DecimalToken]"
+        testLex "x=1"       `shouldBe` "[IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
+        testLex "x=1\ny=2"  `shouldBe` "[IdentifierToken 'x',SimpleAssignToken,DecimalToken 1,WsToken,IdentifierToken 'y',SimpleAssignToken,DecimalToken 2]"
 
     it "break/continue/return" $ do
-        testLex "break\nx=1"     `shouldBe` "[BreakToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken]"
-        testLex "continue\nx=1"  `shouldBe` "[ContinueToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken]"
-        testLex "return\nx=1"    `shouldBe` "[ReturnToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken]"
+        testLex "break\nx=1"     `shouldBe` "[BreakToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
+        testLex "continue\nx=1"  `shouldBe` "[ContinueToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
+        testLex "return\nx=1"    `shouldBe` "[ReturnToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
 
 
 testLex :: String -> String
@@ -47,6 +57,9 @@ testLex str =
     showToken :: Token -> String
     showToken (StringToken _ lit _) = "StringToken " ++ stringEscape lit
     showToken (IdentifierToken _ lit _) = "IdentifierToken '" ++ stringEscape lit ++ "'"
+    showToken (DecimalToken _ lit _) = "DecimalToken " ++ lit
+    showToken (OctalToken _ lit _) = "OctalToken " ++ lit
+    showToken (HexIntegerToken _ lit _) = "HexIntegerToken " ++ lit
     showToken token = takeWhile (/= ' ') $ show token
 
     stringEscape [] = []

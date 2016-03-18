@@ -38,8 +38,9 @@ testLiteralParser = describe "Parse literals:" $ do
         testLiteral "1e+18"     `shouldBe` "Right (JSAstLiteral (JSDecimal '1e+18'))"
         testLiteral "1e-18"     `shouldBe` "Right (JSAstLiteral (JSDecimal '1e-18'))"
         testLiteral "1E-01"     `shouldBe` "Right (JSAstLiteral (JSDecimal '1E-01'))"
-    it "octal numbers" $
-        testLiteral "010"       `shouldBe` "Right (JSAstLiteral (JSOctal '010'))"
+    it "octal numbers" $ do
+        testLiteral "070"       `shouldBe` "Right (JSAstLiteral (JSOctal '070'))"
+        testLiteral "010234567" `shouldBe` "Right (JSAstLiteral (JSOctal '010234567'))"
     it "strings" $ do
         testLiteral "'cat'"    `shouldBe` "Right (JSAstLiteral (JSStringLiteral 'cat'))"
         testLiteral "\"cat\""  `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"cat\"))"
