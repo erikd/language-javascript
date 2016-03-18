@@ -5,6 +5,21 @@ Parser for JavaScript
 
 Based (loosely) on language-python
 
+Two Versions
+------------
+
+There are currently two versions:
+
+* 0.5 series : Is a continuation of the 0.5.X.Y series, from the [master]
+(https://github.com/erikd/language-javascript/tree/master) branch of this
+github repository.
+
+* 0.6 series : This has a vastly different and improved AST which makes if far
+more difficult to build an non-sensical Javascript AST. This code is in the
+[new-ast](https://github.com/erikd/language-javascript/tree/new-ast) branch of
+this github repository.
+
+
 How to build
 ------------
 
