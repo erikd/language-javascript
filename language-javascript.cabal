@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.5.14.2
+Version:             0.6.0.0
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -21,7 +21,6 @@ Extra-source-files:  README.md
                      test/Unicode.js
                      test/k.js
                      test/unicode.txt
-                     -- runalex.sh
                      src/Language/JavaScript/Parser/Lexer.x
 
 -- Version requirement upped for test support in later Cabal
@@ -33,7 +32,6 @@ Library
                    , array            >= 0.3
                    , mtl              >= 1.1
                    , containers       >= 0.2
-                   -- For the round trip output
                    , blaze-builder    >= 0.2
                    , bytestring       >= 0.9.1
                    , text             >= 1.2
@@ -75,7 +73,7 @@ Test-Suite testsuite
                  , bytestring       >= 0.9.1
                  , blaze-builder    >= 0.2
                  -- need our own library for tests
-                 , language-javascript >= 0.5.5
+                 , language-javascript >= 0.6
   Other-modules:    Tests.ExpressionParser
                     Tests.Lexer
                     Tests.LiteralParser
