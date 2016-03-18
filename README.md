@@ -45,6 +45,8 @@ Changes
 -------
 
 ```
+0.5.14.5 Fix parsing of escaped quote characters
+
 0.5.14.4 Remove upper bound on HUnit dependency
 
 0.5.14.3 Fix https://github.com/erikd/language-javascript/issues/45
