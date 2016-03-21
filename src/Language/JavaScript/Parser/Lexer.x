@@ -84,7 +84,7 @@ $low_unprintable = [\x00-\x1f]
 -- $RegExpChars = [$printable] # [\\]
 -- {Non Terminator} = {String Chars1} - {CR} - {LF}
 -- $NonTerminator = $StringCharsDoubleQuote # [$cr $lf]
-$regNonTerminator = [$printable] # [$cr $lf \[]
+$regNonTerminator = [$printable] # [$cr $lf]
 
 
 $reg_char_class_chars = [^ $cr $lf \[ \] ]
