@@ -67,10 +67,12 @@ $string_chars = [^ \n \r ' \" \\]
 @sq_escapes = \\ ( \\ | ' | r | n | x )
 @dq_escapes = \\ ( \\ | \" | r | n | x )
 
+@unicode_escape = \\ u $hex_digit{4}
+
 @string_parts = $string_chars | \\ $digit | $ls | $ps
 
-@stringCharsSingleQuote = @string_parts | @sq_escapes | $dq
-@stringCharsDoubleQuote = @string_parts | @dq_escapes | $sq
+@stringCharsSingleQuote = @string_parts | @sq_escapes | @unicode_escape | $dq
+@stringCharsDoubleQuote = @string_parts | @dq_escapes | @unicode_escape | $sq
 
 -- Character values < 0x20.
 $low_unprintable = [\x00-\x1f]

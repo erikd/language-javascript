@@ -44,9 +44,11 @@ testLiteralParser = describe "Parse literals:" $ do
     it "strings" $ do
         testLiteral "'cat'"    `shouldBe` "Right (JSAstLiteral (JSStringLiteral 'cat'))"
         testLiteral "\"cat\""  `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"cat\"))"
+        testLiteral "'\\u1234'"     `shouldBe` "Right (JSAstLiteral (JSStringLiteral '\\u1234'))"
+        testLiteral "'\\uabcd'"     `shouldBe` "Right (JSAstLiteral (JSStringLiteral '\\uabcd'))"
+        testLiteral "\"\\r\\n\""    `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\r\\n\"))"
         testLiteral "\"hello\\nworld\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"hello\\nworld\"))"
         testLiteral "'hello\\nworld'"   `shouldBe` "Right (JSAstLiteral (JSStringLiteral 'hello\\nworld'))"
-        testLiteral "\"\\r\\n\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\r\\n\"))"
 
         testLiteral "'char \n'" `shouldBe` "Left (\"lexical error @ line 1 and column 7\")"
 
