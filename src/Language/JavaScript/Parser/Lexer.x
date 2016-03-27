@@ -32,6 +32,7 @@ $dq = \"  -- double quote
 $digit = 0-9            -- digits
 $alpha = [a-zA-Z]       -- alphabetic characters
 $digit    = 0-9
+$hex_digit = [0-9a-fA-F]
 $non_zero_digit = 1-9
 $ident_letter = [a-zA-Z_]
 @eol_pattern = $lf | $cr $lf | $cr $lf
@@ -64,13 +65,15 @@ $not_eol_char = ~$eol_char -- anything but an end of line character
 
 $string_chars = [^ \n \r ' \" \\]
 
-@sq_escapes = \\ ( \\ | ' | r | n | x )
-@dq_escapes = \\ ( \\ | \" | r | n | x )
+@sq_escapes = \\ ( \\ | ' | a | b | f | n | r | t | v | 0 | x )
+@dq_escapes = \\ ( \\ | \" | a | b | f | n | r | t | v | 0 | x )
+
+@unicode_escape = \\ u $hex_digit{4}
 
 @string_parts = $string_chars | \\ $digit | $ls | $ps
 
-@stringCharsSingleQuote = @string_parts | @sq_escapes | $dq
-@stringCharsDoubleQuote = @string_parts | @dq_escapes | $sq
+@stringCharsSingleQuote = @string_parts | @sq_escapes | @unicode_escape | $dq
+@stringCharsDoubleQuote = @string_parts | @dq_escapes | @unicode_escape | $sq
 
 -- Character values < 0x20.
 $low_unprintable = [\x00-\x1f]
