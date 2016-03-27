@@ -47,6 +47,11 @@ testLiteralParser = describe "Parse literals:" $ do
         testLiteral "'\\u1234'"     `shouldBe` "Right (JSAstLiteral (JSStringLiteral '\\u1234'))"
         testLiteral "'\\uabcd'"     `shouldBe` "Right (JSAstLiteral (JSStringLiteral '\\uabcd'))"
         testLiteral "\"\\r\\n\""    `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\r\\n\"))"
+        testLiteral "\"\\b\""           `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\b\"))"
+        testLiteral "\"\\f\""           `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\f\"))"
+        testLiteral "\"\\t\""           `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\t\"))"
+        testLiteral "\"\\v\""           `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\v\"))"
+        testLiteral "\"\\0\""           `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"\\0\"))"
         testLiteral "\"hello\\nworld\"" `shouldBe` "Right (JSAstLiteral (JSStringLiteral \"hello\\nworld\"))"
         testLiteral "'hello\\nworld'"   `shouldBe` "Right (JSAstLiteral (JSStringLiteral 'hello\\nworld'))"
 
