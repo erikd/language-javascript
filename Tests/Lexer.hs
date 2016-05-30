@@ -37,6 +37,8 @@ testLexer = describe "Lexer:" $ do
         testLex "'\"'"      `shouldBe` "[StringToken '\"']"
         testLex "\"\\\"\""  `shouldBe` "[StringToken \"\\\\\"\"]"
         testLex "'\\\''"    `shouldBe` "[StringToken '\\\\'']"
+        testLex "'\"'"      `shouldBe` "[StringToken '\"']"
+        testLex "\"\\'\""      `shouldBe` "[StringToken \"\\'\"]"
 
     it "assignment" $ do
         testLex "x=1"       `shouldBe` "[IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
