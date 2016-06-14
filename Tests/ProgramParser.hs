@@ -26,9 +26,9 @@ testProgramParser = describe "Program parser:" $ do
         testProg "if(x);x=1"        `shouldBe` "Right (JSAstProgram [JSIf (JSIdentifier 'x') (JSEmptyStatement),JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')])"
         testProg "if(a)x=1;y=2"     `shouldBe` "Right (JSAstProgram [JSIf (JSIdentifier 'a') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2')])"
         testProg "if(a)x=a()y=2"    `shouldBe` "Right (JSAstProgram [JSIf (JSIdentifier 'a') (JSOpAssign ('=',JSIdentifier 'x',JSMemberExpression (JSIdentifier 'a',JSArguments ()))),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2')])"
-        testProg "if(true)break \nfoo();"       `shouldBe` "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])"
-        testProg "if(true)continue \nfoo();"    `shouldBe` "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSContinue),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])"
-        testProg "if(true)break \nfoo();"       `shouldBe` "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSBreak),JSMemberExpression (JSIdentifier 'foo',JSArguments ()),JSSemicolon])"
+        testProg "if(true)break \nfoo();"       `shouldBe` "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSBreak),JSMethodCall (JSIdentifier 'foo',JSArguments ()),JSSemicolon])"
+        testProg "if(true)continue \nfoo();"    `shouldBe` "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSContinue),JSMethodCall (JSIdentifier 'foo',JSArguments ()),JSSemicolon])"
+        testProg "if(true)break \nfoo();"       `shouldBe` "Right (JSAstProgram [JSIf (JSLiteral 'true') (JSBreak),JSMethodCall (JSIdentifier 'foo',JSArguments ()),JSSemicolon])"
 
     it "assign" $
         testProg "x = 1\n  y=2;"    `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2'),JSSemicolon])"
@@ -74,7 +74,7 @@ testProgramParser = describe "Program parser:" $ do
     it "programs" $ do
         testProg "newlines=spaces.match(/\\n/g)" `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'newlines',JSMemberExpression (JSMemberDot (JSIdentifier 'spaces',JSIdentifier 'match'),JSArguments (JSRegEx '/\\n/g')))])"
         testProg "Animal=function(){return this.name};" `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'Animal',JSFunctionExpression '' () (JSBlock [JSReturn JSMemberDot (JSLiteral 'this',JSIdentifier 'name') ]))),JSSemicolon])"
-        testProg "$(img).click(function(){alert('clicked!')});" `shouldBe` "Right (JSAstProgram [JSCallExpression (JSCallExpressionDot (JSMemberExpression (JSIdentifier '$',JSArguments (JSIdentifier 'img')),JSIdentifier 'click'),JSArguments (JSFunctionExpression '' () (JSBlock [JSMemberExpression (JSIdentifier 'alert',JSArguments (JSStringLiteral 'clicked!'))])))),JSSemicolon])"
+        testProg "$(img).click(function(){alert('clicked!')});" `shouldBe` "Right (JSAstProgram [JSCallExpression (JSCallExpressionDot (JSMemberExpression (JSIdentifier '$',JSArguments (JSIdentifier 'img')),JSIdentifier 'click'),JSArguments (JSFunctionExpression '' () (JSBlock [JSMethodCall (JSIdentifier 'alert',JSArguments (JSStringLiteral 'clicked!'))])))),JSSemicolon])"
         testProg "function() {\nz = function z(o) {\nreturn r;\n};}" `shouldBe` "Right (JSAstProgram [JSFunctionExpression '' () (JSBlock [JSOpAssign ('=',JSIdentifier 'z',JSFunctionExpression 'z' (JSIdentifier 'o') (JSBlock [JSReturn JSIdentifier 'r' JSSemicolon]))),JSSemicolon]))])"
         testProg "function() {\nz = function /*z*/(o) {\nreturn r;\n};}" `shouldBe` "Right (JSAstProgram [JSFunctionExpression '' () (JSBlock [JSOpAssign ('=',JSIdentifier 'z',JSFunctionExpression '' (JSIdentifier 'o') (JSBlock [JSReturn JSIdentifier 'r' JSSemicolon]))),JSSemicolon]))])"
         testProg "{zero}\nget;two\n{three\nfour;set;\n{\nsix;{seven;}\n}\n}" `shouldBe` "Right (JSAstProgram [JSStatementBlock [JSIdentifier 'zero'],JSIdentifier 'get',JSSemicolon,JSIdentifier 'two',JSStatementBlock [JSIdentifier 'three',JSIdentifier 'four',JSSemicolon,JSIdentifier 'set',JSSemicolon,JSStatementBlock [JSIdentifier 'six',JSSemicolon,JSStatementBlock [JSIdentifier 'seven',JSSemicolon]]]])"
