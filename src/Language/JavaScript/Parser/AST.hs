@@ -261,7 +261,7 @@ instance ShowStripped JSStatement where
     ss (JSEmptyStatement _) = "JSEmptyStatement"
     ss (JSExpressionStatement l s) = ss l ++ (let x = ss s in if not (null x) then ',':x else "")
     ss (JSAssignStatement lhs op rhs s) ="JSOpAssign (" ++ ss op ++ "," ++ ss lhs ++ "," ++ ss rhs ++ (let x = ss s in if not (null x) then "),"++x else ")")
-    ss (JSMethodCall e _ a _ s) = "JSMemberExpression (" ++ ss e ++ ",JSArguments " ++ ss a ++ (let x = ss s in if not (null x) then "),"++x else ")")
+    ss (JSMethodCall e _ a _ s) = "JSMethodCall (" ++ ss e ++ ",JSArguments " ++ ss a ++ (let x = ss s in if not (null x) then "),"++x else ")")
     ss (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ ss s
     ss (JSReturn _ Nothing s) = "JSReturn " ++ ss s
     ss (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
