@@ -32,6 +32,8 @@ testLexer = describe "Lexer:" $ do
         testLex "'\\\\'"    `shouldBe` "[StringToken '\\\\']"
         testLex "'\\0'"     `shouldBe` "[StringToken '\\0']"
         testLex "'\\12'"    `shouldBe` "[StringToken '\\12']"
+        testLex "'\\s'"      `shouldBe` "[StringToken '\\s']"
+        testLex "'\\-'"      `shouldBe` "[StringToken '\\-']"
 
     it "strings with escaped quotes" $ do
         testLex "'\"'"      `shouldBe` "[StringToken '\"']"
