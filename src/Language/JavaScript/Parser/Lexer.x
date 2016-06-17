@@ -65,8 +65,8 @@ $not_eol_char = ~$eol_char -- anything but an end of line character
 $string_chars = [^ \n \r ' \" \\]
 
 -- See e.g. http://es5.github.io/x7.html#x7.8.4 (Table 4)
-@sq_escapes = \\ ( \\ | ' | \" | b | f | n | r | t | v | 0 | x )
-@dq_escapes = \\ ( \\ | ' | \" | b | f | n | r | t | v | 0 | x )
+@sq_escapes = \\ ( \\ | ' | \" | \s | \- | b | f | n | r | t | v | 0 | x )
+@dq_escapes = \\ ( \\ | ' | \" | \s | \- | b | f | n | r | t | v | 0 | x )
 
 @unicode_escape = \\ u $hex_digit{4}
 
