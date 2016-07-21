@@ -11,6 +11,10 @@ import Language.JavaScript.Parser.Lexer
 
 testLexer :: Spec
 testLexer = describe "Lexer:" $ do
+    it "comments" $ do
+        testLex "// 𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡 "    `shouldBe` "[CommentToken]"
+        testLex "/* 𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡 */"  `shouldBe` "[CommentToken]"
+
     it "numbers" $ do
         testLex "123"       `shouldBe` "[DecimalToken 123]"
         testLex "037"       `shouldBe` "[OctalToken 037]"

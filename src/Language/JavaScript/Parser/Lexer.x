@@ -42,7 +42,7 @@ $ps = \x2029
 
 
 $any_char = [\x00-\xff]
-$any_unicode_char = [\x00-\xffff]
+$any_unicode_char = [\x00-\x10ffff]
 
 
 $eol_char = [\x000A\x000D\x2028\x2029] -- any end of line character
