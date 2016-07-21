@@ -5,11 +5,8 @@
 env:
  - GHCVER=7.6.3
  - GHCVER=7.8.4
- - GHCVER=7.10.2
-
-matrix:
-  allow_failures:
-   - env: GHCVER=7.10.1
+ - GHCVER=7.10.3
+ - GHCVER=8.0.1
 
 before_install:
  - sudo add-apt-repository -y ppa:hvr/ghc
@@ -18,15 +15,15 @@ before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:$PATH
 
 install:
- - cabal-1.22 update
- - cabal-1.22 install happy
- - cabal-1.22 install alex
- - cabal-1.22 install --only-dependencies --enable-tests;
+ - cabal-1.24 update
+ - cabal-1.24 install happy
+ - cabal-1.24 install alex
+ - cabal-1.24 install --only-dependencies --enable-tests;
 
 script:
- - cabal-1.22 configure --enable-tests
- - cabal-1.22 build
+ - cabal-1.24 configure --enable-tests
+ - cabal-1.24 build
  - dist/build/testsuite/testsuite
- - cabal-1.22 check
- - cabal-1.22 haddock
- - cabal-1.22 sdist
+ - cabal-1.24 check
+ - cabal-1.24 haddock
+ - cabal-1.24 sdist
