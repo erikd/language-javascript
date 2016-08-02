@@ -13,8 +13,8 @@ Maintainer:          Erik de Castro Lopo <erikd@mega-nerd.com>
 Copyright:           (c) 2010-2015 Alan Zimmerman, 2015 Erik de Castro Lopo
 Category:            Language
 Build-type:          Simple
-homepage:            http://github.com/erikd/language-javascript
-bug-reports:         http://github.com/erikd/language-javascript/issues
+homepage:            https://github.com/erikd/language-javascript
+bug-reports:         https://github.com/erikd/language-javascript/issues
 Extra-source-files:  README.md
                      .ghci
                      buildall.sh
