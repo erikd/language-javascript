@@ -420,7 +420,7 @@ lexCont cont =
 
     -- If the token is a WsToken and it contains a newline, convert it to an
     -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
-    maybeAutoSemi ws@(WsToken sp tl cmt) =
+    maybeAutoSemi (WsToken sp tl cmt) =
         if any (== '\n') tl
             then cont $ AutoSemiToken sp tl cmt
             else lexLoop
