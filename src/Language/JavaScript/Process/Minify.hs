@@ -319,7 +319,7 @@ spaceAnnot :: JSAnnot
 spaceAnnot = JSAnnot tokenPosnEmpty [WhiteSpace tokenPosnEmpty " "]
 
 emptyAnnot :: JSAnnot
-emptyAnnot = JSAnnot tokenPosnEmpty []
+emptyAnnot = JSNoAnnot
 
 newlineAnnot :: JSAnnot
 newlineAnnot = JSAnnot tokenPosnEmpty [WhiteSpace tokenPosnEmpty "\n"]
