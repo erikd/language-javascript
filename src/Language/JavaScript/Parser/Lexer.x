@@ -428,7 +428,7 @@ lexCont cont =
 
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
-toCommentAnnotation [] = [NoComment]
+toCommentAnnotation [] = []
 toCommentAnnotation xs =
     reverse $ map go xs
   where
