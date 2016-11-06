@@ -23,6 +23,7 @@ module Language.JavaScript.Parser.AST
     , JSCommaList (..)
     , JSCommaTrailingList (..)
 
+    , binOpEq
     , showStripped
     ) where
 
@@ -35,6 +36,7 @@ import Language.JavaScript.Parser.Token
 
 data JSAnnot
     = JSAnnot !TokenPosn ![CommentAnnotation] -- ^Annotation: position and comment/whitespace information
+    | JSAnnotSpace -- ^A single space character
     | JSNoAnnot -- ^No annotation
     deriving (Data, Eq, Show, Typeable)
 
@@ -425,3 +427,32 @@ ssid JSIdentNone = "''"
 commaIf :: String -> String
 commaIf "" = ""
 commaIf xs = ',' : xs
+
+
+deAnnot :: JSBinOp -> JSBinOp
+deAnnot (JSBinOpAnd _) = JSBinOpAnd JSNoAnnot
+deAnnot (JSBinOpBitAnd _) = JSBinOpBitAnd JSNoAnnot
+deAnnot (JSBinOpBitOr _) = JSBinOpBitOr JSNoAnnot
+deAnnot (JSBinOpBitXor _) = JSBinOpBitXor JSNoAnnot
+deAnnot (JSBinOpDivide _) = JSBinOpDivide JSNoAnnot
+deAnnot (JSBinOpEq _) = JSBinOpEq JSNoAnnot
+deAnnot (JSBinOpGe _) = JSBinOpGe JSNoAnnot
+deAnnot (JSBinOpGt _) = JSBinOpGt JSNoAnnot
+deAnnot (JSBinOpIn _) = JSBinOpIn JSNoAnnot
+deAnnot (JSBinOpInstanceOf _) = JSBinOpInstanceOf JSNoAnnot
+deAnnot (JSBinOpLe _) = JSBinOpLe JSNoAnnot
+deAnnot (JSBinOpLsh _) = JSBinOpLsh JSNoAnnot
+deAnnot (JSBinOpLt _) = JSBinOpLt JSNoAnnot
+deAnnot (JSBinOpMinus _) = JSBinOpMinus JSNoAnnot
+deAnnot (JSBinOpMod _) = JSBinOpMod JSNoAnnot
+deAnnot (JSBinOpNeq _) = JSBinOpNeq JSNoAnnot
+deAnnot (JSBinOpOr _) = JSBinOpOr JSNoAnnot
+deAnnot (JSBinOpPlus _) = JSBinOpPlus JSNoAnnot
+deAnnot (JSBinOpRsh _) = JSBinOpRsh JSNoAnnot
+deAnnot (JSBinOpStrictEq _) = JSBinOpStrictEq JSNoAnnot
+deAnnot (JSBinOpStrictNeq _) = JSBinOpStrictNeq JSNoAnnot
+deAnnot (JSBinOpTimes _) = JSBinOpTimes JSNoAnnot
+deAnnot (JSBinOpUrsh _) = JSBinOpUrsh JSNoAnnot
+
+binOpEq :: JSBinOp -> JSBinOp -> Bool
+binOpEq a b = deAnnot a == deAnnot b
