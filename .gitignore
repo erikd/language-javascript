@@ -1,4 +1,6 @@
 *.exe
+*.hi
+*.o
 *~
 /dist/*
 /parse.txt
