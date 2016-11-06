@@ -145,7 +145,7 @@ instance MinifyJS JSExpression where
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
     fix a (JSCallExpressionSquare ex _ xs _)          = JSCallExpressionSquare (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCommaExpression      le _ re)            = JSCommaExpression (fix a le) emptyAnnot (fixEmpty re)
-    fix a (JSExpressionBinary     lhs op rhs)         = fixBalanceBinOpExpr a lhs op rhs
+    fix a (JSExpressionBinary     lhs op rhs)         = fixBinOpExpression a op lhs rhs
     fix _ (JSExpressionParen      _ e _)              = JSExpressionParen emptyAnnot (fixEmpty e) emptyAnnot
     fix a (JSExpressionPostfix    e op)               = JSExpressionPostfix (fix a e) (fixEmpty op)
     fix a (JSExpressionTernary    cond _ v1 _ v2)     = JSExpressionTernary (fix a cond) emptyAnnot (fixEmpty v1) emptyAnnot (fixEmpty v2)
@@ -164,37 +164,17 @@ fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
 fixVarList (JSLOne a) = JSLOne (fixSpace a)
 fixVarList JSLNil = JSLNil
 
--- --------------------------------
--- By default, the parser generates binary expression tree which for long strings of
--- the same operator are unbalanced. This can cause terrible performance problems in
--- (for instance) the minifier (eg 4^n). Therefore, as we build the AST, we rebalance
--- the JSExpressionBinary parts of the tree on the fly.
-
-fixBalanceBinOpExpr :: JSAnnot -> JSExpression -> JSBinOp -> JSExpression -> JSExpression
-fixBalanceBinOpExpr ann left binop right =
-    let JSExpressionBinary l _ r = rebalance binop $ flatten binop left ++ flatten binop right
-    in fixBinOpExpression ann binop (fixEmpty l) (fixEmpty r)
-  where
-    -- Flatten the expression tree into a list.
-    flatten op expr@(JSExpressionBinary l opx r)
-        | binOpEq op opx = flatten op l ++ flatten op r
-        | otherwise = [expr]
-    flatten _ expr = [expr]
-
-    -- Create a balance tree from a list.
-    rebalance _ [] = error "fixBalanceBinOpExpr"
-    rebalance _ [x] = x
-    -- rebalance op [l, r] = JSExpressionBinary l op r
-    rebalance op xs = JSExpressionBinary (rebalance op l) op (rebalance op r)
-        where (l, r) = splitAt (length xs `div` 2) xs
-
-
-
 fixBinOpExpression :: JSAnnot -> JSBinOp -> JSExpression -> JSExpression -> JSExpression
-fixBinOpExpression _ (JSBinOpPlus _) (JSStringLiteral _ s1) (JSStringLiteral _ s2) = stringLitConcat (normalizeToSQ s1) (normalizeToSQ s2)
+fixBinOpExpression a (JSBinOpPlus _) lhs rhs = fixBinOpPlus a lhs rhs
 fixBinOpExpression a (JSBinOpIn _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpIn spaceAnnot) (fix spaceAnnot rhs)
 fixBinOpExpression a (JSBinOpInstanceOf _) lhs rhs = JSExpressionBinary (fix a lhs) (JSBinOpInstanceOf spaceAnnot) (fix spaceAnnot rhs)
 fixBinOpExpression a op lhs rhs = JSExpressionBinary (fix a lhs) (fixEmpty op) (fixEmpty rhs)
+
+fixBinOpPlus :: JSAnnot -> JSExpression -> JSExpression -> JSExpression
+fixBinOpPlus a lhs rhs =
+    case (fix a lhs, fixEmpty rhs) of
+        (JSStringLiteral _ s1, JSStringLiteral _ s2) -> stringLitConcat (normalizeToSQ s1) (normalizeToSQ s2)
+        (nlhs, nrhs) -> JSExpressionBinary nlhs (JSBinOpPlus emptyAnnot) nrhs
 
 -- Concatenate two JSStringLiterals. Since the strings will include the string
 -- terminators (either single or double quotes) we use whatever terminator is
