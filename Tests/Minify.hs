@@ -115,11 +115,14 @@ testMinifyExpr = describe "Minify expressions:" $ do
 
     it "string concatenation" $ do
         minifyExpr " 'ab' + \"cd\" " `shouldBe` "'abcd'"
-        minifyExpr " \"bc\" + 'de' " `shouldBe` "\"bcde\""
-        minifyExpr " \"cd\" + 'ef' + 'gh' " `shouldBe` "\"cdefgh\""
-        -- TODO: Correct, but can we do better?
-        minifyExpr " 'de' + \"'fg'\" + 'hi' " `shouldBe` "'de'+\"'fg'\"+'hi'"
+        minifyExpr " \"bc\" + 'de' " `shouldBe` "'bcde'"
+        minifyExpr " \"cd\" + 'ef' + 'gh' " `shouldBe` "'cdefgh'"
 
+        minifyExpr " 'de' + '\"fg\"' + 'hi' " `shouldBe` "'de\"fg\"hi'"
+        minifyExpr " 'ef' + \"'gh'\" + 'ij' " `shouldBe` "'ef\\'gh\\'ij'"
+
+--        minifyExpr " 'de' + '\"fg\"' + 'hi' " `shouldBe` "'de\"fg\"hi'"
+--        minifyExpr " 'ef' + \"'gh'\" + 'ij' " `shouldBe` "'ef'gh'ij'"
 
 testMinifyStmt :: Spec
 testMinifyStmt = describe "Minify statements:" $ do
@@ -205,7 +208,7 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " var d = 1, x = 2 ; " `shouldBe` "var d=1,x=2"
 
     it "string concatenation" $
-        minifyStmt " f (\"ab\"+\"cd\") " `shouldBe` "f(\"abcd\")"
+        minifyStmt " f (\"ab\"+\"cd\") " `shouldBe` "f('abcd')"
 
 
 testMinifyProg :: Spec
