@@ -10,7 +10,10 @@
 -- Error values for the lexer and parser.
 -----------------------------------------------------------------------------
 
-module Language.JavaScript.Parser.ParseError ( ParseError (..) ) where
+module Language.JavaScript.Parser.ParseError
+    ( Error (..)
+    , ParseError (..)
+    ) where
 
 --import Language.JavaScript.Parser.Pretty
 -- import Control.Monad.Error.Class -- Control.Monad.Trans.Except

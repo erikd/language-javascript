@@ -100,7 +100,7 @@ instance RenderJS JSExpression where
 instance RenderJS JSAnnot where
     (|>) pacc (JSAnnot p cs) = pacc |> cs |> p
     (|>) pacc JSNoAnnot = pacc
-
+    (|>) pacc JSAnnotSpace = pacc |> " "
 
 instance RenderJS String where
     (|>) (PosAccum (r,c) bb) s = PosAccum (r',c') (bb <> str s)
