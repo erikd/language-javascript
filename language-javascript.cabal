@@ -55,7 +55,6 @@ Library
   Other-modules:       Language.JavaScript.Parser.LexerUtils
                        Language.JavaScript.Parser.ParseError
                        Language.JavaScript.Parser.ParserMonad
-                       Language.JavaScript.Parser.StringEscape
                        Language.JavaScript.Parser.Token
   ghc-options:         -Wall -fwarn-tabs
 
