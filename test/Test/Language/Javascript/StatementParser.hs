@@ -1,4 +1,4 @@
-module Tests.StatementParser
+module Test.Language.Javascript.StatementParser
     ( testStatementParser
     ) where
 

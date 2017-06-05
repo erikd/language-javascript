@@ -5,13 +5,13 @@ import Test.Hspec
 import Test.Hspec.Runner
 
 
-import Tests.Lexer
-import Tests.LiteralParser
-import Tests.ExpressionParser
-import Tests.Minify
-import Tests.ProgramParser
-import Tests.RoundTrip
-import Tests.StatementParser
+import Test.Language.Javascript.Lexer
+import Test.Language.Javascript.LiteralParser
+import Test.Language.Javascript.ExpressionParser
+import Test.Language.Javascript.Minify
+import Test.Language.Javascript.ProgramParser
+import Test.Language.Javascript.RoundTrip
+import Test.Language.Javascript.StatementParser
 
 
 main :: IO ()

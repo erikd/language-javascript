@@ -61,6 +61,8 @@ Library
 Test-Suite testsuite
   Type: exitcode-stdio-1.0
   Main-is: testsuite.hs
+  hs-source-dirs: test
+  ghc-options:   -Wall -fwarn-tabs
   build-depends: base, Cabal >= 1.9.2
                  , QuickCheck >= 2
                  , hspec
@@ -73,14 +75,14 @@ Test-Suite testsuite
                  , blaze-builder    >= 0.2
                  -- need our own library for tests
                  , language-javascript >= 0.6
-  Other-modules:    Tests.ExpressionParser
-                    Tests.Lexer
-                    Tests.LiteralParser
-                    Tests.Minify
-                    Tests.ProgramParser
-                    Tests.RoundTrip
-                    Tests.StatementParser
-  ghc-options:   -Wall -fwarn-tabs
+
+  Other-modules:    Test.Language.Javascript.ExpressionParser
+                    Test.Language.Javascript.Lexer
+                    Test.Language.Javascript.LiteralParser
+                    Test.Language.Javascript.Minify
+                    Test.Language.Javascript.ProgramParser
+                    Test.Language.Javascript.RoundTrip
+                    Test.Language.Javascript.StatementParser
 
 source-repository head
   type:     git

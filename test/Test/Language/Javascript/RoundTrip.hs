@@ -1,4 +1,4 @@
-module Tests.RoundTrip
+module Test.Language.Javascript.RoundTrip
     ( testRoundTrip
     ) where
 

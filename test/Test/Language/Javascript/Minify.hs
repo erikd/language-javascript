@@ -1,4 +1,4 @@
-module Tests.Minify
+module Test.Language.Javascript.Minify
     ( testMinifyExpr
     , testMinifyStmt
     , testMinifyProg

@@ -1,7 +1,6 @@
-module Tests.ExpressionParser
+module Test.Language.Javascript.ExpressionParser
     ( testExpressionParser
     ) where
-
 
 import Test.Hspec
 

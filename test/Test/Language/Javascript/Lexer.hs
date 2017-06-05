@@ -1,4 +1,4 @@
-module Tests.Lexer
+module Test.Language.Javascript.Lexer
     ( testLexer
     ) where
 

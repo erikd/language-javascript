@@ -1,4 +1,4 @@
-module Tests.LiteralParser
+module Test.Language.Javascript.LiteralParser
     ( testLiteralParser
     ) where
 

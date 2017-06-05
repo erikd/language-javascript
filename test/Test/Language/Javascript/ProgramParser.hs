@@ -1,4 +1,4 @@
-module Tests.ProgramParser
+module Test.Language.Javascript.ProgramParser
     ( testProgramParser
     ) where
 
