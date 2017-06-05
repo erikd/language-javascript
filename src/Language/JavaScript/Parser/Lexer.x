@@ -72,8 +72,10 @@ $string_chars = [^ \n \r ' \" \\]
 
 @string_parts = $string_chars | \\ $digit | $ls | $ps
 
-@stringCharsSingleQuote = @string_parts | @sq_escapes | @unicode_escape | $dq
-@stringCharsDoubleQuote = @string_parts | @dq_escapes | @unicode_escape | $sq
+@non_escape_char = \\ [^ \n \\ ]
+
+@stringCharsSingleQuote = @string_parts | @sq_escapes | @unicode_escape | $dq | @non_escape_char
+@stringCharsDoubleQuote = @string_parts | @dq_escapes | @unicode_escape | $sq | @non_escape_char
 
 -- Character values < 0x20.
 $low_unprintable = [\x00-\x1f]
