@@ -33,7 +33,7 @@ data CommentAnnotation
     deriving (Eq, Show, Typeable, Data, Read)
 
 -- | Lexical tokens.
--- Each may be annotated with any comment occuring between the prior token and this one
+-- Each may be annotated with any comment occurring between the prior token and this one
 data Token
     -- Comment
     = CommentToken { tokenSpan :: !TokenPosn, tokenLiteral :: !String, tokenComment :: ![CommentAnnotation] } -- ^ Single line comment.
