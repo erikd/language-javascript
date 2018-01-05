@@ -6,7 +6,7 @@ module Test.Language.Javascript.StatementParser
 import Test.Hspec
 
 import Language.JavaScript.Parser
-import Language.JavaScript.Parser.Grammar5
+import Language.JavaScript.Parser.Grammar7
 import Language.JavaScript.Parser.Parser
 
 
@@ -25,6 +25,17 @@ testStatementParser = describe "Parse statements:" $ do
 
     it "if" $
         testStmt "if (1) {}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [])))"
+
+    it "import" $ do
+        testStmt "import 'a';"           `shouldBe` "Right (JSAstStatement (JSImport (JSStringLiteral 'a')))"
+        testStmt "import a from 'test';" `shouldBe` "Right (JSAstStatement (JSImport (JSIdentifier 'a') (JSStringLiteral 'test')))"
+
+    it "export" $ do
+        testStmt "export a;"                 `shouldBe` "Right (JSAstStatement (JSExport (JSIdentifier 'a',JSSemicolon)))"
+        testStmt "export var a = 1;"         `shouldBe` "Right (JSAstStatement (JSExport (JSVariable (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1']))))"
+        testStmt "export function () {};"    `shouldBe` "Right (JSAstStatement (JSExport (JSFunctionExpression '' () (JSBlock [])),JSSemicolon)))"
+        testStmt "export {};"                `shouldBe` "Right (JSAstStatement (JSExport (JSStatementBlock [])))"
+        testStmt "export default var a = 1;" `shouldBe` "Right (JSAstStatement (JSExport Default (JSVariable (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1']))))"
 
     it "if/else" $ do
         testStmt "if (1) {} else {}"    `shouldBe` "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])))"
@@ -100,4 +111,3 @@ testStatementParser = describe "Parse statements:" $ do
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
-

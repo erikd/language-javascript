@@ -73,6 +73,8 @@ data JSStatement
     | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
+    | JSImport !JSAnnot !(Maybe JSStatement) !JSAnnot JSExpression !JSSemi -- ^import
+    | JSExport !JSAnnot !(Maybe JSAnnot) !JSStatement !JSSemi -- ^export
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
@@ -272,6 +274,12 @@ instance ShowStripped JSStatement where
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs
     ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSWith _ _lb x1 _rb x _) = "JSWith (" ++ ss x1 ++ ") (" ++ ss x ++ ")"
+    ss (JSImport _ Nothing _ x1 _) = "JSImport (" ++ ss x1 ++ ")"
+    ss (JSImport _ (Just f) _ x1 _) = "JSImport (" ++ ss f ++ ") (" ++ ss x1 ++ ")"
+    ss (JSExport _ df x1 _) = "JSExport " ++ (exportDefault df) ++ "(" ++ ss x1 ++ ")"
+      where
+        exportDefault (Just _) = "Default "
+        exportDefault Nothing = ""
 
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
