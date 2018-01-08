@@ -83,6 +83,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'break'      { BreakToken {} }
      'case'       { CaseToken {} }
      'catch'      { CatchToken {} }
+     'let'        { LetToken {} }
      'const'      { ConstToken {} }
      'continue'   { ContinueToken {} }
      'debugger'   { DebuggerToken {} }
@@ -298,6 +299,9 @@ OpAssign : '*='     { AST.JSTimesAssign  (mkJSAnnot $1) }
 Var :: { AST.JSAnnot }
 Var : 'var' { mkJSAnnot $1 }
 
+Let :: { AST.JSAnnot }
+Let : 'let' { mkJSAnnot $1 }
+
 Const :: { AST.JSAnnot }
 Const : 'const' { mkJSAnnot $1 }
 
@@ -457,6 +461,7 @@ IdentifierName : Identifier {$1}
              | 'try'        { AST.JSIdentifier (mkJSAnnot $1) "try" }
              | 'typeof'     { AST.JSIdentifier (mkJSAnnot $1) "typeof" }
              | 'var'        { AST.JSIdentifier (mkJSAnnot $1) "var" }
+             | 'let'        { AST.JSIdentifier (mkJSAnnot $1) "let" }
              | 'void'       { AST.JSIdentifier (mkJSAnnot $1) "void" }
              | 'while'      { AST.JSIdentifier (mkJSAnnot $1) "while" }
              | 'with'       { AST.JSIdentifier (mkJSAnnot $1) "with" }
@@ -910,6 +915,7 @@ StatementList : Statement               { [$1]       {- 'StatementList1' -} }
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSStatement }
 VariableStatement : Var   VariableDeclarationList MaybeSemi { AST.JSVariable $1 $2 $3 {- 'VariableStatement1' -} }
+                  | Let   VariableDeclarationList MaybeSemi { AST.JSLet      $1 $2 $3 {- 'VariableStatement2' -} }
                   | Const VariableDeclarationList MaybeSemi { AST.JSConstant $1 $2 $3 {- 'VariableStatement2' -} }
 
 -- VariableDeclarationList :                                      See 12.2

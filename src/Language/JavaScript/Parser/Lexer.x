@@ -563,7 +563,7 @@ keywordNames =
     -- Strict mode FutureReservedWords
     , ( "implements",  FutureToken )
     , ( "interface",   FutureToken )
-    , ( "let",         FutureToken )
+    , ( "let",         LetToken )
     -- ( "mode",       FutureToken )  **** not any more
     -- ( "of",         FutureToken )  **** not any more
     -- ( "one",        FutureToken )  **** not any more
