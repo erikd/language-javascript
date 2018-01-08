@@ -69,6 +69,8 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "!y"       `shouldBe` "Right (JSAstExpression (JSUnaryExpression ('!',JSIdentifier 'y')))"
         testExpr "y++"      `shouldBe` "Right (JSAstExpression (JSExpressionPostfix ('++',JSIdentifier 'y')))"
         testExpr "y--"      `shouldBe` "Right (JSAstExpression (JSExpressionPostfix ('--',JSIdentifier 'y')))"
+        testExpr "...y"     `shouldBe` "Right (JSAstExpression (JSSpreadExpression (JSIdentifier 'y')))"
+
 
     it "new expression" $ do
         testExpr "new x()"  `shouldBe` "Right (JSAstExpression (JSMemberNew (JSIdentifier 'x',JSArguments ())))"

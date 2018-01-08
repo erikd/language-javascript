@@ -71,6 +71,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      '%'    { ModToken {} }
      '!'    { NotToken {} }
      '~'    { BitwiseNotToken {} }
+     '...'  { SpreadToken {} }
      '.'    { DotToken {} }
      '['    { LeftBracketToken {} }
      ']'    { RightBracketToken {} }
@@ -175,6 +176,9 @@ Colon : ':' { mkJSAnnot $1 }
 
 Semi :: { AST.JSAnnot }
 Semi : ';' { mkJSAnnot $1 }
+
+Spread :: { AST.JSAnnot }
+Spread : '...' { mkJSAnnot $1 }
 
 Dot :: { AST.JSAnnot }
 Dot : '.' { mkJSAnnot $1 }
@@ -402,6 +406,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
                   | Literal                  { $1 {- 'PrimaryExpression2' -} }
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
                   | ObjectLiteral            { $1 {- 'PrimaryExpression4' -} }
+                  | SpreadExpression         { $1 }
                   | LParen Expression RParen { AST.JSExpressionParen $1 $2 $3 }
 
 -- Identifier ::                                                            See 7.6
@@ -454,6 +459,8 @@ IdentifierName : Identifier {$1}
              | 'future'     { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
 
 
+SpreadExpression :: { AST.JSExpression }
+SpreadExpression : Spread Expression  { AST.JSSpreadExpression $1 $2 {- 'SpreadExpression' -} }
 
 -- ArrayLiteral :                                                        See 11.1.4
 --        [ Elisionopt ]
