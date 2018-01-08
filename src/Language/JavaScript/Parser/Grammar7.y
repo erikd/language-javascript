@@ -99,6 +99,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'if'         { IfToken {} }
      'in'         { InToken {} }
      'instanceof' { InstanceofToken {} }
+     'let'        { LetToken {} }
      'new'        { NewToken {} }
      'null'       { NullToken {} }
      'return'     { ReturnToken {} }
@@ -290,6 +291,9 @@ OpAssign : '*='     { AST.JSTimesAssign  (mkJSAnnot $1) }
 Var :: { AST.JSAnnot }
 Var : 'var' { mkJSAnnot $1 }
 
+Let :: { AST.JSAnnot }
+Let : 'let' { mkJSAnnot $1 }
+
 Const :: { AST.JSAnnot }
 Const : 'const' { mkJSAnnot $1 }
 
@@ -432,6 +436,7 @@ IdentifierName : Identifier {$1}
              | 'if'         { AST.JSIdentifier (mkJSAnnot $1) "if" }
              | 'in'         { AST.JSIdentifier (mkJSAnnot $1) "in" }
              | 'instanceof' { AST.JSIdentifier (mkJSAnnot $1) "instanceof" }
+             | 'let'        { AST.JSIdentifier (mkJSAnnot $1) "let" }
              | 'new'        { AST.JSIdentifier (mkJSAnnot $1) "new" }
              | 'null'       { AST.JSIdentifier (mkJSAnnot $1) "null" }
              | 'return'     { AST.JSIdentifier (mkJSAnnot $1) "return" }
@@ -894,7 +899,8 @@ StatementList : Statement               { [$1]       {- 'StatementList1' -} }
 --         var VariableDeclarationList ;
 VariableStatement :: { AST.JSStatement }
 VariableStatement : Var   VariableDeclarationList MaybeSemi { AST.JSVariable $1 $2 $3 {- 'VariableStatement1' -} }
-                  | Const VariableDeclarationList MaybeSemi { AST.JSConstant $1 $2 $3 {- 'VariableStatement2' -} }
+                  | Let   VariableDeclarationList MaybeSemi { AST.JSLet      $1 $2 $3 {- 'VariableStatement2' -} }
+                  | Const VariableDeclarationList MaybeSemi { AST.JSConstant $1 $2 $3 {- 'VariableStatement3' -} }
 
 -- VariableDeclarationList :                                      See 12.2
 --         VariableDeclaration

@@ -519,6 +519,7 @@ keywordNames =
     , ( "if", IfToken )
     , ( "in", InToken )
     , ( "instanceof", InstanceofToken )
+    , ( "let", LetToken )
     , ( "new", NewToken )
 
     , ( "null", NullToken ) -- null literal
@@ -565,7 +566,6 @@ keywordNames =
     -- Strict mode FutureReservedWords
     , ( "implements",  FutureToken )
     , ( "interface",   FutureToken )
-    , ( "let",         FutureToken )
     -- ( "mode",       FutureToken )  **** not any more
     -- ( "of",         FutureToken )  **** not any more
     -- ( "one",        FutureToken )  **** not any more
