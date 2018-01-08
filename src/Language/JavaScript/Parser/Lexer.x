@@ -320,6 +320,7 @@ tokens :-
     "%"     { adapt (symbolToken  ModToken) }
     "!"     { adapt (symbolToken  NotToken) }
     "~"     { adapt (symbolToken  BitwiseNotToken) }
+    "..."   { adapt (symbolToken  SpreadToken) }
     "."     { adapt (symbolToken  DotToken) }
     "["     { adapt (symbolToken  LeftBracketToken) }
     "]"     { adapt (symbolToken  RightBracketToken) }

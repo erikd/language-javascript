@@ -108,6 +108,7 @@ data JSExpression
     | JSObjectLiteral !JSAnnot !JSObjectPropertyList !JSAnnot -- ^lbrace contents rbrace
     | JSUnaryExpression !JSUnaryOp !JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
+    | JSSpreadExpression !JSAnnot !JSExpression
     deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
@@ -311,6 +312,7 @@ instance ShowStripped JSExpression where
     ss (JSStringLiteral _ s) = "JSStringLiteral " ++ s
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
+    ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
 
 instance ShowStripped JSTryCatch where
     ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"
