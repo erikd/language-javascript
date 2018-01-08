@@ -50,9 +50,10 @@ testStatementParser = describe "Parse statements:" $ do
 
         testStmt "for(var x in 5){}"    `shouldBe` "Right (JSAstStatement (JSForVarIn (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
 
-    it "variable/constant declaration" $ do
+    it "variable/constant/let declaration" $ do
         testStmt "var x=1;"         `shouldBe` "Right (JSAstStatement (JSVariable (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'])))"
         testStmt "const x=1,y=2;"   `shouldBe` "Right (JSAstStatement (JSConstant (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'],JSVarInitExpression (JSIdentifier 'y') [JSDecimal '2'])))"
+        testStmt "let x=1,y=2;"     `shouldBe` "Right (JSAstStatement (JSLet (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'],JSVarInitExpression (JSIdentifier 'y') [JSDecimal '2'])))"
 
     it "break" $ do
         testStmt "break;"       `shouldBe` "Right (JSAstStatement (JSBreak,JSSemicolon))"

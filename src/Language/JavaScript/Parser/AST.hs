@@ -51,6 +51,7 @@ data JSAST
 data JSStatement
     = JSStatementBlock !JSAnnot ![JSStatement] !JSAnnot !JSSemi     -- ^lbrace, stmts, rbrace, autosemi
     | JSBreak !JSAnnot !JSIdent !JSSemi        -- ^break,optional identifier, autosemi
+    | JSLet   !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
     | JSConstant !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
     | JSContinue !JSAnnot !JSIdent !JSSemi     -- ^continue, optional identifier,autosemi
     | JSDoWhile !JSAnnot !JSStatement !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
@@ -251,6 +252,7 @@ instance ShowStripped JSStatement where
     ss (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (ss s)
     ss (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ singleQuote n ++ commaIf (ss s)
     ss (JSConstant _ xs _as) = "JSConstant " ++ ss xs
+    ss (JSLet _ xs _as) = "JSLet " ++ ss xs
     ss (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ ss x1s ++ " " ++ ss x2s ++ " " ++ ss x3s ++ " (" ++ ss x4 ++ ")"
     ss (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
