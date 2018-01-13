@@ -39,6 +39,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      '|'    { BitwiseOrToken {} }
      '^'    { BitwiseXorToken {} }
      '&'    { BitwiseAndToken {} }
+     '=>'   { ArrowToken {} }
      '==='  { StrictEqToken {} }
      '=='   { EqToken {} }
      '*='   { TimesAssignToken {} }
@@ -176,6 +177,9 @@ Colon : ':' { mkJSAnnot $1 }
 
 Semi :: { AST.JSAnnot }
 Semi : ';' { mkJSAnnot $1 }
+
+Arrow :: { AST.JSAnnot }
+Arrow : '=>' { mkJSAnnot $1 }
 
 Spread :: { AST.JSAnnot }
 Spread : '...' { mkJSAnnot $1 }
@@ -1090,8 +1094,15 @@ FunctionDeclaration : NamedFunctionExpression MaybeSemi  {  expressionToStatemen
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
 FunctionExpression :: { AST.JSExpression }
-FunctionExpression : LambdaExpression           { $1     {- 'FunctionExpression1' -} }
-                   | NamedFunctionExpression     { $1     {- 'FunctionExpression2' -} }
+FunctionExpression : ArrowFunctionExpression     { $1 {- 'ArrowFunctionExpression' -} }
+                   | LambdaExpression            { $1 {- 'FunctionExpression1' -} }
+                   | NamedFunctionExpression     { $1 {- 'FunctionExpression2' -} }
+
+ArrowFunctionExpression :: { AST.JSExpression }
+ArrowFunctionExpression : LParen FormalParameterList RParen Arrow Expression
+                           { AST.JSArrowExpression $1 $2 $3 $4 (Left $5) }
+                        | LParen FormalParameterList RParen Arrow FunctionBody
+                           { AST.JSArrowExpression $1 $2 $3 $4 (Right $5) }
 
 NamedFunctionExpression :: { AST.JSExpression }
 NamedFunctionExpression : Function Identifier LParen RParen FunctionBody

@@ -138,6 +138,7 @@ data Token
     | ModToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | NotToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | BitwiseNotToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
+    | ArrowToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | SpreadToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | DotToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
     | LeftBracketToken { tokenSpan :: !TokenPosn, tokenComment :: ![CommentAnnotation]  }
