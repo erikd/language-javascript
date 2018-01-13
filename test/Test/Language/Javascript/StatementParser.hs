@@ -23,8 +23,10 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "{{}}"         `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSStatementBlock []]))"
         testStmt "{{{}}}"       `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSStatementBlock [JSStatementBlock []]]))"
 
-    it "if" $
+    it "if" $ do
         testStmt "if (1) {}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [])))"
+        -- fix: fix ambiguity with block and object literal on if block position
+        -- testStmt "if (1) {x}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [JSIdentifier 'x'])))"
 
     it "import" $ do
         testStmt "import 'a';"           `shouldBe` "Right (JSAstStatement (JSImport (JSStringLiteral 'a')))"

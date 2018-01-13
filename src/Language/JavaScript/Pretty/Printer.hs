@@ -247,6 +247,7 @@ instance RenderJS JSBlock where
 
 instance RenderJS JSObjectProperty where
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
+    (|>) pacc (JSPropertyNameOnly     s)                      = pacc |> s
     (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
 
 instance RenderJS JSPropertyName where

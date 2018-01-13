@@ -534,6 +534,7 @@ PropertyNameandValueList : PropertyAssignment                                { A
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSObjectProperty }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
+                   |  PropertyName { AST.JSPropertyNameOnly $1 }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
                        { AST.JSPropertyAccessor (AST.JSAccessorGet (mkJSAnnot $1)) $2 $3 [] $4 $5 }
@@ -546,7 +547,7 @@ PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNam
 --        StringLiteral
 --        NumericLiteral
 PropertyName :: { AST.JSPropertyName }
-PropertyName : IdentifierName { propName $1 {- 'PropertyName1' -} }
+PropertyName : Identifier     { propName $1 {- 'PropertyName1' -} }
              | StringLiteral  { propName $1 {- 'PropertyName2' -} }
              | NumericLiteral { propName $1 {- 'PropertyName3' -} }
 

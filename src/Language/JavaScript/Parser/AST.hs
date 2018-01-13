@@ -196,6 +196,7 @@ data JSVarInitializer
 
 data JSObjectProperty
     = JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot ![JSExpression] !JSAnnot !JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameOnly !JSPropertyName -- ^name
     | JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
     deriving (Data, Eq, Show, Typeable)
 
@@ -331,6 +332,7 @@ instance ShowStripped JSIdent where
 
 instance ShowStripped JSObjectProperty where
     ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
+    ss (JSPropertyNameOnly x1) = "JSPropertyNameOnly (" ++ ss x1 ++ ")"
     ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
 
 instance ShowStripped JSPropertyName where
