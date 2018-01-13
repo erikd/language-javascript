@@ -290,6 +290,7 @@ tokens :-
     "|"     { adapt (symbolToken  BitwiseOrToken) }
     "^"     { adapt (symbolToken  BitwiseXorToken) }
     "&"     { adapt (symbolToken  BitwiseAndToken) }
+    "=>"    { adapt (symbolToken  ArrowToken) }
     "==="   { adapt (symbolToken  StrictEqToken) }
     "=="    { adapt (symbolToken  EqToken) }
     "*="    { adapt (symbolToken  TimesAssignToken) }
