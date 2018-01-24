@@ -10,7 +10,8 @@ module Language.JavaScript.Pretty.Printer
 
 import Blaze.ByteString.Builder (Builder, toLazyByteString)
 import Data.List
-import Data.Monoid (mappend, mempty)
+import Data.Monoid (mempty)
+import Data.Semigroup ((<>))
 import Data.Text.Lazy (Text)
 import Language.JavaScript.Parser.AST
 import Language.JavaScript.Parser.SrcLocation
@@ -26,9 +27,6 @@ data PosAccum = PosAccum (Int, Int) Builder
 
 -- ---------------------------------------------------------------------
 -- Pretty printer stuff via blaze-builder
-
-(<>) :: Builder -> Builder -> Builder
-(<>) = mappend
 
 str :: String -> Builder
 str = BS.fromString

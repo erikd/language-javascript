@@ -36,6 +36,9 @@ Library
                    , bytestring       >= 0.9.1
                    , text             >= 1.2
                    , utf8-string      >= 0.3.7 && < 2
+  if !impl(ghc>=8.0)
+    build-depends:   semigroups       >= 0.16.1
+
   if impl(ghc >= 7.10)
     build-tools:       happy >= 1.19, alex >= 3.1.4
   else
