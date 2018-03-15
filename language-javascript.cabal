@@ -76,8 +76,7 @@ Test-Suite testsuite
                  , utf8-string      >= 0.3.7 && < 2
                  , bytestring       >= 0.9.1
                  , blaze-builder    >= 0.2
-                 -- need our own library for tests
-                 , language-javascript >= 0.6
+                 , language-javascript
 
   Other-modules:    Test.Language.Javascript.ExpressionParser
                     Test.Language.Javascript.Lexer
