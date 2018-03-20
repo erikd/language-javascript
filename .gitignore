@@ -1,5 +1,6 @@
 *~
 /dist/*
+/dist-newstyle
 /parse.txt
 /src/Language/JavaScript/Parser/Lexer.info
 /unicode/uc-ll.htm
@@ -14,3 +15,4 @@
 /unicode/uc-nl.htm
 /unicode/uc-pc.htm
 cabal.sandbox.config
+.ghc.environment.*
