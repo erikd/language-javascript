@@ -4,6 +4,7 @@ module Language.JavaScript.Pretty.Printer
     , renderToString
     ) where
 
+import Prelude hiding ((<>))
 import Data.Char
 import Data.List
 import Data.Monoid (Monoid, mappend, mempty)
