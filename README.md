@@ -60,6 +60,8 @@ Changes
 -------
 
 ```
+0.5.14.8 Fix build with ghc 8.4.1.
+
 0.5.14.7 Unicode and other string fixes backported from `new-ast` branch.
 
 0.5.14.6 Fix https://github.com/erikd/language-javascript/issues/44

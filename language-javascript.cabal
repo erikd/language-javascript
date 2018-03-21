@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.5.14.7
+Version:             0.5.14.8
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -70,7 +70,7 @@ Test-Suite testsuite
                  , containers               >= 0.2
                  , QuickCheck               >= 2
                  , HUnit                    >= 1.2
-                 , language-javascript      >= 0.5.14
+                 , language-javascript
                  , mtl                      >= 1.1
                  , test-framework-hunit
                  , test-framework
