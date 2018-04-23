@@ -6,7 +6,7 @@ module Test.Language.Javascript.StatementParser
 import Test.Hspec
 
 import Language.JavaScript.Parser
-import Language.JavaScript.Parser.Grammar5
+import Language.JavaScript.Parser.Grammar7
 import Language.JavaScript.Parser.Parser
 
 
@@ -23,8 +23,21 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "{{}}"         `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSStatementBlock []]))"
         testStmt "{{{}}}"       `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSStatementBlock [JSStatementBlock []]]))"
 
-    it "if" $
+    it "if" $ do
         testStmt "if (1) {}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [])))"
+        -- fix: fix ambiguity with block and object literal on if block position
+        -- testStmt "if (1) {x}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [JSIdentifier 'x'])))"
+
+    it "import" $ do
+        testStmt "import 'a';"           `shouldBe` "Right (JSAstStatement (JSImport (JSStringLiteral 'a')))"
+        testStmt "import a from 'test';" `shouldBe` "Right (JSAstStatement (JSImport (JSIdentifier 'a') (JSStringLiteral 'test')))"
+
+    it "export" $ do
+        testStmt "export a;"                 `shouldBe` "Right (JSAstStatement (JSExport (JSIdentifier 'a',JSSemicolon)))"
+        testStmt "export var a = 1;"         `shouldBe` "Right (JSAstStatement (JSExport (JSVariable (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1']))))"
+        testStmt "export function () {};"    `shouldBe` "Right (JSAstStatement (JSExport (JSFunctionExpression '' () (JSBlock [])),JSSemicolon)))"
+        testStmt "export {};"                `shouldBe` "Right (JSAstStatement (JSExport (JSStatementBlock [])))"
+        testStmt "export default var a = 1;" `shouldBe` "Right (JSAstStatement (JSExport Default (JSVariable (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1']))))"
 
     it "if/else" $ do
         testStmt "if (1) {} else {}"    `shouldBe` "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])))"
@@ -50,9 +63,10 @@ testStatementParser = describe "Parse statements:" $ do
 
         testStmt "for(var x in 5){}"    `shouldBe` "Right (JSAstStatement (JSForVarIn (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
 
-    it "variable/constant declaration" $ do
+    it "variable/constant/let declaration" $ do
         testStmt "var x=1;"         `shouldBe` "Right (JSAstStatement (JSVariable (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'])))"
         testStmt "const x=1,y=2;"   `shouldBe` "Right (JSAstStatement (JSConstant (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'],JSVarInitExpression (JSIdentifier 'y') [JSDecimal '2'])))"
+        testStmt "let x=1,y=2;"   `shouldBe` "Right (JSAstStatement (JSLet (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'],JSVarInitExpression (JSIdentifier 'y') [JSDecimal '2'])))"
 
     it "break" $ do
         testStmt "break;"       `shouldBe` "Right (JSAstStatement (JSBreak,JSSemicolon))"
@@ -100,4 +114,3 @@ testStatementParser = describe "Parse statements:" $ do
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
-

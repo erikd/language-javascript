@@ -290,6 +290,7 @@ tokens :-
     "|"     { adapt (symbolToken  BitwiseOrToken) }
     "^"     { adapt (symbolToken  BitwiseXorToken) }
     "&"     { adapt (symbolToken  BitwiseAndToken) }
+    "=>"    { adapt (symbolToken  ArrowToken) }
     "==="   { adapt (symbolToken  StrictEqToken) }
     "=="    { adapt (symbolToken  EqToken) }
     "*="    { adapt (symbolToken  TimesAssignToken) }
@@ -320,6 +321,7 @@ tokens :-
     "%"     { adapt (symbolToken  ModToken) }
     "!"     { adapt (symbolToken  NotToken) }
     "~"     { adapt (symbolToken  BitwiseNotToken) }
+    "..."   { adapt (symbolToken  SpreadToken) }
     "."     { adapt (symbolToken  DotToken) }
     "["     { adapt (symbolToken  LeftBracketToken) }
     "]"     { adapt (symbolToken  RightBracketToken) }
@@ -552,17 +554,18 @@ keywordNames =
     -- ( "code",    FutureToken ) **** not any more
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
-    , ( "export",   FutureToken )
+    , ( "export",   ExportToken )
     , ( "extends",  FutureToken )
 
-    , ( "import",   FutureToken )
+    , ( "import",   ImportToken )
+    , ( "from",     FromToken )
     , ( "super",    FutureToken )
 
 
     -- Strict mode FutureReservedWords
     , ( "implements",  FutureToken )
     , ( "interface",   FutureToken )
-    , ( "let",         FutureToken )
+    , ( "let",         LetToken )
     -- ( "mode",       FutureToken )  **** not any more
     -- ( "of",         FutureToken )  **** not any more
     -- ( "one",        FutureToken )  **** not any more

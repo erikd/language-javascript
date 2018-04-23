@@ -51,6 +51,7 @@ data JSAST
 data JSStatement
     = JSStatementBlock !JSAnnot ![JSStatement] !JSAnnot !JSSemi     -- ^lbrace, stmts, rbrace, autosemi
     | JSBreak !JSAnnot !JSIdent !JSSemi        -- ^break,optional identifier, autosemi
+    | JSLet   !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
     | JSConstant !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
     | JSContinue !JSAnnot !JSIdent !JSSemi     -- ^continue, optional identifier,autosemi
     | JSDoWhile !JSAnnot !JSStatement !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
@@ -73,6 +74,8 @@ data JSStatement
     | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
+    | JSImport !JSAnnot !(Maybe JSStatement) !JSAnnot JSExpression !JSSemi -- ^import
+    | JSExport !JSAnnot !(Maybe JSAnnot) !JSStatement !JSSemi -- ^export
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
@@ -96,6 +99,7 @@ data JSExpression
     | JSExpressionParen !JSAnnot !JSExpression !JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix !JSExpression !JSUnaryOp -- ^expression, operator
     | JSExpressionTernary !JSExpression !JSAnnot !JSExpression !JSAnnot !JSExpression -- ^cond, ?, trueval, :, falseval
+    | JSArrowExpression !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSAnnot !(Either JSExpression JSBlock) -- ^parameter list,arrow,block`
     | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, name
     | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
@@ -105,6 +109,7 @@ data JSExpression
     | JSObjectLiteral !JSAnnot !JSObjectPropertyList !JSAnnot -- ^lbrace contents rbrace
     | JSUnaryExpression !JSUnaryOp !JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
+    | JSSpreadExpression !JSAnnot !JSExpression
     deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
@@ -191,6 +196,7 @@ data JSVarInitializer
 
 data JSObjectProperty
     = JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot ![JSExpression] !JSAnnot !JSBlock -- ^(get|set), name, lb, params, rb, block
+    | JSPropertyNameOnly !JSPropertyName -- ^name
     | JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
     deriving (Data, Eq, Show, Typeable)
 
@@ -251,6 +257,7 @@ instance ShowStripped JSStatement where
     ss (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (ss s)
     ss (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ singleQuote n ++ commaIf (ss s)
     ss (JSConstant _ xs _as) = "JSConstant " ++ ss xs
+    ss (JSLet _ xs _as) = "JSLet " ++ ss xs
     ss (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ ss x1s ++ " " ++ ss x2s ++ " " ++ ss x3s ++ " (" ++ ss x4 ++ ")"
     ss (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
@@ -272,6 +279,12 @@ instance ShowStripped JSStatement where
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs
     ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSWith _ _lb x1 _rb x _) = "JSWith (" ++ ss x1 ++ ") (" ++ ss x ++ ")"
+    ss (JSImport _ Nothing _ x1 _) = "JSImport (" ++ ss x1 ++ ")"
+    ss (JSImport _ (Just f) _ x1 _) = "JSImport (" ++ ss f ++ ") (" ++ ss x1 ++ ")"
+    ss (JSExport _ df x1 _) = "JSExport " ++ (exportDefault df) ++ "(" ++ ss x1 ++ ")"
+      where
+        exportDefault (Just _) = "Default "
+        exportDefault Nothing = ""
 
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
@@ -285,6 +298,8 @@ instance ShowStripped JSExpression where
     ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
     ss (JSExpressionPostfix xs op) = "JSExpressionPostfix (" ++ ss op ++ "," ++ ss xs ++ ")"
     ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary (" ++ ss x1 ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
+    ss (JSArrowExpression _ n _ _ (Right bd)) = "JSArrowExpression (" ++ ss n ++ ") => " ++ ss bd
+    ss (JSArrowExpression _ n _ _ (Left bd)) = "JSArrowExpression (" ++ ss n ++ ") => " ++ ss bd
     ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ "))"
     ss (JSHexInteger _ s) = "JSHexInteger " ++ singleQuote s
     ss (JSOctal _ s) = "JSOctal " ++ singleQuote s
@@ -301,6 +316,7 @@ instance ShowStripped JSExpression where
     ss (JSStringLiteral _ s) = "JSStringLiteral " ++ s
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
+    ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
 
 instance ShowStripped JSTryCatch where
     ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"
@@ -316,6 +332,7 @@ instance ShowStripped JSIdent where
 
 instance ShowStripped JSObjectProperty where
     ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
+    ss (JSPropertyNameOnly x1) = "JSPropertyNameOnly (" ++ ss x1 ++ ")"
     ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
 
 instance ShowStripped JSPropertyName where
