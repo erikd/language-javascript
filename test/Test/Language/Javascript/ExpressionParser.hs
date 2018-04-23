@@ -126,8 +126,12 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "function(){}"     `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' () (JSBlock []))))"
         testExpr "function(a){}"    `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' (JSIdentifier 'a') (JSBlock []))))"
         testExpr "function(a,b){}"  `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock []))))"
-        testExpr "(a,b) => {}"  `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSBlock []))"
-        testExpr "(a,b) => a + b"  `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
+        testExpr "(a,b) => {}"      `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSBlock []))"
+        testExpr "(a) => {}"        `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a')) => JSBlock []))"
+        testExpr "a => {}"          `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a')) => JSBlock []))"
+        testExpr "() => {}"         `shouldBe` "Right (JSAstExpression (JSArrowExpression (()) => JSBlock []))"
+        testExpr "a => b"           `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a')) => JSIdentifier 'b'))"
+        testExpr "(a,b) => a + b"   `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
 
     it "member expression" $ do
         testExpr "x[y]"         `shouldBe` "Right (JSAstExpression (JSMemberSquare (JSIdentifier 'x',JSIdentifier 'y')))"
