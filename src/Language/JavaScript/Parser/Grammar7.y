@@ -1115,11 +1115,20 @@ FunctionExpression : ArrowFunctionExpression     { $1 {- 'ArrowFunctionExpressio
                    | LambdaExpression            { $1 {- 'FunctionExpression1' -} }
                    | NamedFunctionExpression     { $1 {- 'FunctionExpression2' -} }
 
+
 ArrowFunctionExpression :: { AST.JSExpression }
-ArrowFunctionExpression : LParen FormalParameterList RParen Arrow Expression
+ArrowFunctionExpression : SingleFormalParamter Arrow Expression
+                           { AST.JSArrowExpression AST.JSNoAnnot $1 AST.JSNoAnnot AST.JSNoAnnot (Left $3) }
+                        | SingleFormalParamter Arrow FunctionBody
+                           { AST.JSArrowExpression AST.JSNoAnnot $1 AST.JSNoAnnot AST.JSNoAnnot (Right $3) }
+                        | LParen FormalParameterList RParen Arrow Expression
                            { AST.JSArrowExpression $1 $2 $3 $4 (Left $5) }
                         | LParen FormalParameterList RParen Arrow FunctionBody
                            { AST.JSArrowExpression $1 $2 $3 $4 (Right $5) }
+
+SingleFormalParamter :: { AST.JSCommaList AST.JSIdent }
+SingleFormalParamter : Identifier                            { AST.JSLOne (identName $1) }
+                     | LParen RParen                         { AST.JSLNil }
 
 NamedFunctionExpression :: { AST.JSExpression }
 NamedFunctionExpression : Function Identifier LParen RParen FunctionBody
@@ -1136,6 +1145,7 @@ LambdaExpression : Function LParen RParen FunctionBody
 IdentifierOpt :: { AST.JSIdent }
 IdentifierOpt : Identifier { identName $1     {- 'IdentifierOpt1' -} }
               |            { AST.JSIdentNone  {- 'IdentifierOpt2' -} }
+
 
 -- FormalParameterList :                                                      See clause 13
 --        Identifier
