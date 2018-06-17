@@ -105,9 +105,9 @@ data JSExpression
     | JSMemberSquare !JSExpression !JSAnnot !JSExpression !JSAnnot -- ^firstpart, lb, expr, rb
     | JSNewExpression !JSAnnot !JSExpression -- ^new, expr
     | JSObjectLiteral !JSAnnot !JSObjectPropertyList !JSAnnot -- ^lbrace contents rbrace
+    | JSSpreadExpression !JSAnnot !JSExpression
     | JSUnaryExpression !JSUnaryOp !JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
-    | JSSpreadExpression !JSAnnot !JSExpression
     deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
@@ -254,7 +254,6 @@ instance ShowStripped JSStatement where
     ss (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (ss s)
     ss (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ singleQuote n ++ commaIf (ss s)
     ss (JSConstant _ xs _as) = "JSConstant " ++ ss xs
-    ss (JSLet _ xs _as) = "JSLet " ++ ss xs
     ss (JSDoWhile _d x1 _w _lb x2 _rb x3) = "JSDoWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSFor _ _lb x1s _s1 x2s _s2 x3s _rb x4) = "JSFor " ++ ss x1s ++ " " ++ ss x2s ++ " " ++ ss x3s ++ " (" ++ ss x4 ++ ")"
     ss (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
@@ -264,6 +263,7 @@ instance ShowStripped JSStatement where
     ss (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
+    ss (JSLet _ xs _as) = "JSLet " ++ ss xs
     ss (JSEmptyStatement _) = "JSEmptyStatement"
     ss (JSExpressionStatement l s) = ss l ++ (let x = ss s in if not (null x) then ',':x else "")
     ss (JSAssignStatement lhs op rhs s) ="JSOpAssign (" ++ ss op ++ "," ++ ss lhs ++ "," ++ ss rhs ++ (let x = ss s in if not (null x) then "),"++x else ")")

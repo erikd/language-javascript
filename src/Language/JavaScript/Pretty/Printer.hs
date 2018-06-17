@@ -71,6 +71,7 @@ instance RenderJS JSExpression where
 
     -- Non-Terminals
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
+    (|>) pacc (JSArrowExpression      lp xs rp a x)           = pacc |> lp |> "(" |> xs |> rp |> ")" |> a |> "=>" |> x
     (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
@@ -90,7 +91,6 @@ instance RenderJS JSExpression where
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
     (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
     (|>) pacc (JSSpreadExpression     a e)                    = pacc |> a |> "..." |> e
-    (|>) pacc (JSArrowExpression      lp xs rp a x)           = pacc |> lp |> "(" |> xs |> rp |> ")" |> a |> "=>" |> x
 
 -- -----------------------------------------------------------------------------
 -- Need an instance of RenderJS for every component of every JSExpression or JSAnnot
@@ -218,6 +218,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSContinue annot mi s)                      = pacc |> annot |> "continue" |> mi |> s
     (|>) pacc (JSConstant annot xs s)                      = pacc |> annot |> "const" |> xs |> s
     (|>) pacc (JSDoWhile ad x1 aw alb x2 arb x3)           = pacc |> ad |> "do" |> x1 |> aw |> "while" |> alb |> "(" |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
     (|>) pacc (JSFor af alb x1s s1 x2s s2 x3s arb x4)      = pacc |> af |> "for" |> alb |> "(" |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
     (|>) pacc (JSForIn af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForVar af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
@@ -226,7 +227,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s
     (|>) pacc (JSIfElse annot alb x1 arb x2s ea x3s)       = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> ea |> "else" |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
-    (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
+    (|>) pacc (JSLet annot xs s)                           = pacc |> annot |> "let" |> xs |> s
     (|>) pacc (JSExpressionStatement l s)                  = pacc |> l |> s
     (|>) pacc (JSAssignStatement lhs op rhs s)             = pacc |> lhs |> op |> rhs |> s
     (|>) pacc (JSMethodCall e lp a rp s)                   = pacc |> e |> lp |> "(" |> a |> rp |> ")" |> s
@@ -237,9 +238,6 @@ instance RenderJS JSStatement where
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
-
-    (|>) pacc (JSLet annot xs s)                           = pacc |> annot |> "let" |> xs |> s
-
 
 instance RenderJS [JSStatement] where
     (|>) = foldl' (|>)
