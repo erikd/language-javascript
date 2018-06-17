@@ -64,6 +64,8 @@ fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
 fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot (fixStmt a s st)
 fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE noSemi st) s
 
+fixStmt a s (JSLet _ xs _) = JSLet a (fixVarList xs) s
+
 fixIfElseBlock :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
 fixIfElseBlock _ _ (JSStatementBlock _ [] _ _) = JSEmptyStatement emptyAnnot
 fixIfElseBlock a s st = fixStmt a s st

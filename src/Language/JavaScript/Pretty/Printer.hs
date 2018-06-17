@@ -236,6 +236,8 @@ instance RenderJS JSStatement where
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
 
+    (|>) pacc (JSLet annot xs s)                           = pacc |> annot |> "let" |> xs |> s
+
 
 instance RenderJS [JSStatement] where
     (|>) = foldl' (|>)

@@ -206,6 +206,8 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " var b ; " `shouldBe` "var b"
         minifyStmt " var c = 1 ; " `shouldBe` "var c=1"
         minifyStmt " var d = 1, x = 2 ; " `shouldBe` "var d=1,x=2"
+        minifyStmt " let c = 1 ; " `shouldBe` "let c=1"
+        minifyStmt " let d = 1, x = 2 ; " `shouldBe` "let d=1,x=2"
 
     it "string concatenation" $
         minifyStmt " f (\"ab\"+\"cd\") " `shouldBe` "f('abcd')"
