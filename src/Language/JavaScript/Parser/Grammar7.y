@@ -1099,10 +1099,15 @@ FunctionExpression : ArrowFunctionExpression     { $1 {- 'ArrowFunctionExpressio
                    | NamedFunctionExpression     { $1 {- 'FunctionExpression2' -} }
 
 ArrowFunctionExpression :: { AST.JSExpression }
-ArrowFunctionExpression : LParen FormalParameterList RParen Arrow Expression
-                           { AST.JSArrowExpression $1 $2 $3 $4 (Left $5) }
-                        | LParen FormalParameterList RParen Arrow FunctionBody
-                           { AST.JSArrowExpression $1 $2 $3 $4 (Right $5) }
+ArrowFunctionExpression : LParen RParen Arrow StatementOrBlock
+                           { AST.JSArrowExpression $1 AST.JSLNil $2 $3 $4		{- 'ArrowFunctionExpression1' -} }
+                        | LParen FormalParameterList RParen Arrow StatementOrBlock
+                           { AST.JSArrowExpression $1 $2 $3 $4 $5               {- 'ArrowFunctionExpression3' -} }
+
+StatementOrBlock :: { AST.JSStatement }
+StatementOrBlock : Block MaybeSemi		{ blockToStatement $1 $2 }
+                 | Expression MaybeSemi { expressionToStatement $1 $2 }
+
 
 NamedFunctionExpression :: { AST.JSExpression }
 NamedFunctionExpression : Function Identifier LParen RParen FunctionBody

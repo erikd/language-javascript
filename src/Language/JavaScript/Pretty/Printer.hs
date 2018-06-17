@@ -90,6 +90,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
     (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
     (|>) pacc (JSSpreadExpression     a e)                    = pacc |> a |> "..." |> e
+    (|>) pacc (JSArrowExpression      lp xs rp a x)           = pacc |> lp |> "(" |> xs |> rp |> ")" |> a |> "=>" |> x
 
 -- -----------------------------------------------------------------------------
 -- Need an instance of RenderJS for every component of every JSExpression or JSAnnot

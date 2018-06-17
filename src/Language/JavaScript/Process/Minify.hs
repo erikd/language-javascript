@@ -162,6 +162,8 @@ instance MinifyJS JSExpression where
     fix a (JSVarInitExpression    x1 x2)              = JSVarInitExpression (fix a x1) (fixEmpty x2)
     fix a (JSSpreadExpression     _ e)                = JSSpreadExpression a (fixEmpty e)
 
+    fix _ (JSArrowExpression _ ps _ _ ss)             = JSArrowExpression emptyAnnot (fixEmpty ps) emptyAnnot emptyAnnot (fixStmt emptyAnnot noSemi ss)
+
 fixVarList :: JSCommaList JSExpression -> JSCommaList JSExpression
 fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
 fixVarList (JSLOne a) = JSLOne (fixSpace a)

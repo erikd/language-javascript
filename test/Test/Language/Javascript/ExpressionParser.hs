@@ -123,8 +123,10 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "function(){}"     `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' () (JSBlock []))))"
         testExpr "function(a){}"    `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' (JSIdentifier 'a') (JSBlock []))))"
         testExpr "function(a,b){}"  `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock []))))"
-        testExpr "(a,b) => {}"  `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSBlock []))"
-        testExpr "(a,b) => a + b"  `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
+        testExpr "(a) => { a + 2 }" `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a')) => JSStatementBlock [JSExpressionBinary ('+',JSIdentifier 'a',JSDecimal '2')]))"
+        testExpr "(a, b) => {}"     `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSStatementBlock []))"
+        testExpr "(a, b) => a + b"  `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
+        testExpr "() => { 42 }"     `shouldBe` "Right (JSAstExpression (JSArrowExpression (()) => JSStatementBlock [JSDecimal '42']))"
 
     it "member expression" $ do
         testExpr "x[y]"         `shouldBe` "Right (JSAstExpression (JSMemberSquare (JSIdentifier 'x',JSIdentifier 'y')))"
@@ -142,6 +144,7 @@ testExpressionParser = describe "Parse expressions:" $ do
 
     it "spread expression" $
         testExpr "... x"        `shouldBe` "Right (JSAstExpression (JSSpreadExpression (JSIdentifier 'x')))"
+
 
 testExpr :: String -> String
 testExpr str = showStrippedMaybe (parseUsing parseExpression str "src")
