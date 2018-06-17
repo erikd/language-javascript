@@ -7,7 +7,7 @@ import Control.Applicative ((<$>))
 import Test.Hspec
 
 import Language.JavaScript.Parser
-import Language.JavaScript.Parser.Grammar5
+import Language.JavaScript.Parser.Grammar7
 import Language.JavaScript.Parser.Parser
 
 

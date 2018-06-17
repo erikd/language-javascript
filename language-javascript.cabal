@@ -49,7 +49,7 @@ Library
   hs-source-dirs: src
   Exposed-modules:     Language.JavaScript.Parser
                        Language.JavaScript.Parser.AST
-                       Language.JavaScript.Parser.Grammar5
+                       Language.JavaScript.Parser.Grammar7
                        Language.JavaScript.Parser.Lexer
                        Language.JavaScript.Parser.Parser
                        Language.JavaScript.Parser.SrcLocation
