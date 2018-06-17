@@ -1,5 +1,8 @@
 {
 {-# OPTIONS_GHC -funbox-strict-fields #-}
+-- Alex generates code with these warnings so we'll just ignore them.
+{-# OPTIONS_GHC -Wno-unused-matches #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 module Language.JavaScript.Parser.Lexer
     ( Token (..)
     , Alex
