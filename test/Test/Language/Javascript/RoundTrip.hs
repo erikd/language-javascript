@@ -90,6 +90,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "switch (x) {case 0:\ncase 1:break;}"
         testRT "switch (x) {default:break;}"
         testRT "switch (x) {default:\ncase 1:break;}"
+        testRT "var x=1;let y=2;"
 
 
 testRT :: String -> Expectation
