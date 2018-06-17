@@ -406,7 +406,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
                   | Literal                  { $1 {- 'PrimaryExpression2' -} }
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
                   | ObjectLiteral            { $1 {- 'PrimaryExpression4' -} }
-                  | SpreadExpression         { $1 }
+                  | SpreadExpression         { $1 {- 'PrimaryExpression5' -} }
                   | LParen Expression RParen { AST.JSExpressionParen $1 $2 $3 }
 
 -- Identifier ::                                                            See 7.6

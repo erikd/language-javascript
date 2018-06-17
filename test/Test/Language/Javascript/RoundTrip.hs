@@ -60,6 +60,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "/*a*/x/*b*/>=/*c*/y"
         testRT "/*a*/x /*b*/instance of /*c*/y"
         testRT "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"
+        testRT "... /*a*/ x"
 
     it "statement" $ do
         testRT "if (1) {}"

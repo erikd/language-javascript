@@ -121,8 +121,12 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " 'de' + '\"fg\"' + 'hi' " `shouldBe` "'de\"fg\"hi'"
         minifyExpr " 'ef' + \"'gh'\" + 'ij' " `shouldBe` "'ef\\'gh\\'ij'"
 
---        minifyExpr " 'de' + '\"fg\"' + 'hi' " `shouldBe` "'de\"fg\"hi'"
---        minifyExpr " 'ef' + \"'gh'\" + 'ij' " `shouldBe` "'ef'gh'ij'"
+        -- minifyExpr " 'de' + '\"fg\"' + 'hi' " `shouldBe` "'de\"fg\"hi'"
+        -- minifyExpr " 'ef' + \"'gh'\" + 'ij' " `shouldBe` "'ef'gh'ij'"
+
+    it "spread exporession" $
+        minifyExpr " ... x " `shouldBe` "...x"
+
 
 testMinifyStmt :: Spec
 testMinifyStmt = describe "Minify statements:" $ do

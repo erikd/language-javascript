@@ -160,6 +160,7 @@ instance MinifyJS JSExpression where
     fix _ (JSObjectLiteral        _ xs _)             = JSObjectLiteral emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSUnaryExpression      op x)               = let (ta, fop) = fixUnaryOp a op in JSUnaryExpression fop (fix ta x)
     fix a (JSVarInitExpression    x1 x2)              = JSVarInitExpression (fix a x1) (fixEmpty x2)
+    fix a (JSSpreadExpression     _ e)                = JSSpreadExpression a (fixEmpty e)
 
 fixVarList :: JSCommaList JSExpression -> JSCommaList JSExpression
 fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
