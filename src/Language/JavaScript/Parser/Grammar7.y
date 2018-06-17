@@ -1,6 +1,6 @@
 {
 {-# LANGUAGE BangPatterns #-}
-module Language.JavaScript.Parser.Grammar5
+module Language.JavaScript.Parser.Grammar7
 	( parseProgram
 	, parseStatement
 	, parseExpression

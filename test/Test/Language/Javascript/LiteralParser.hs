@@ -8,7 +8,7 @@ import Control.Monad (forM_)
 import Data.Char (chr, isPrint)
 
 import Language.JavaScript.Parser
-import Language.JavaScript.Parser.Grammar5
+import Language.JavaScript.Parser.Grammar7
 import Language.JavaScript.Parser.Parser
 
 
