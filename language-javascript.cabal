@@ -5,7 +5,6 @@ Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Init
                      .
                      Note: Version 0.5.0 breaks compatibility with prior versions, the AST has been reworked to allow
                      round trip processing of JavaScript.
-Homepage:            https://github.com/erikd/language-javascript
 License:             BSD3
 License-file:        LICENSE
 Author:              Alan Zimmerman
