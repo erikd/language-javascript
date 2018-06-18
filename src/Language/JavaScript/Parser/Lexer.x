@@ -1,8 +1,13 @@
 {
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
+
+#if __GLASGOW_HASKELL__ >= 800
 -- Alex generates code with these warnings so we'll just ignore them.
 {-# OPTIONS_GHC -Wno-unused-matches #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
+#endif
+
 module Language.JavaScript.Parser.Lexer
     ( Token (..)
     , Alex
