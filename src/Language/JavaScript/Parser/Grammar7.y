@@ -101,8 +101,10 @@ import qualified Language.JavaScript.Parser.AST as AST
      'finally'    { FinallyToken {} }
      'for'        { ForToken {} }
      'function'   { FunctionToken {} }
+     'from'       { FromToken {} }
      'get'        { GetToken {} }
      'if'         { IfToken {} }
+     'import'     { ImportToken {} }
      'in'         { InToken {} }
      'instanceof' { InstanceofToken {} }
      'let'        { LetToken {} }
@@ -312,6 +314,12 @@ Let : 'let' { mkJSAnnot $1 }
 Const :: { AST.JSAnnot }
 Const : 'const' { mkJSAnnot $1 }
 
+Import :: { AST.JSAnnot }
+Import : 'import' { mkJSAnnot $1 }
+
+From :: { AST.JSAnnot }
+From : 'from' { mkJSAnnot $1 }
+
 Export :: { AST.JSAnnot }
 Export : 'export' { mkJSAnnot $1 }
 
@@ -432,6 +440,7 @@ Identifier :: { AST.JSExpression }
 Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
            | 'get'   { AST.JSIdentifier (mkJSAnnot $1) "get" }
            | 'set'   { AST.JSIdentifier (mkJSAnnot $1) "set" }
+           | 'from'  { AST.JSIdentifier (mkJSAnnot $1) "from" }
 
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSExpression }
@@ -453,6 +462,7 @@ IdentifierName : Identifier {$1}
              | 'finally'    { AST.JSIdentifier (mkJSAnnot $1) "finally" }
              | 'for'        { AST.JSIdentifier (mkJSAnnot $1) "for" }
              | 'function'   { AST.JSIdentifier (mkJSAnnot $1) "function" }
+             | 'from'       { AST.JSIdentifier (mkJSAnnot $1) "from" }
              | 'get'        { AST.JSIdentifier (mkJSAnnot $1) "get" }
              | 'if'         { AST.JSIdentifier (mkJSAnnot $1) "if" }
              | 'in'         { AST.JSIdentifier (mkJSAnnot $1) "in" }
@@ -1183,10 +1193,52 @@ ModuleItemList : ModuleItem                  { [$1]         {- 'ModuleItemList1'
 --        ExportDeclaration
 --        StatementListItem
 ModuleItem :: { AST.JSModuleItem }
-ModuleItem : Export ExportDeclaration
+ModuleItem : Import ImportDeclaration
+                    { AST.JSModuleImportDeclaration $1 $2   {- 'ModuleItem1' -} }
+           | Export ExportDeclaration
                     { AST.JSModuleExportDeclaration $1 $2   {- 'ModuleItem1' -} }
            | StatementListItem
                     { AST.JSModuleStatementListItem $1      {- 'ModuleItem2' -} }
+
+ImportDeclaration :: { AST.JSImportDeclaration }
+ImportDeclaration : ImportClause FromClause AutoSemi
+                          { AST.JSImportDeclaration $1 $2 $3 }
+
+ImportClause :: { AST.JSImportClause }
+ImportClause : IdentifierName
+                     { AST.JSImportClauseDefault (identName $1) }
+             | NameSpaceImport
+                     { AST.JSImportClauseNameSpace $1 }
+             | NamedImports
+                     { AST.JSImportClauseNamed $1 }
+             | IdentifierName ',' NameSpaceImport
+                     { AST.JSImportClauseDefaultNameSpace (identName $1) (mkJSAnnot $2) $3 }
+             | IdentifierName ',' NamedImports
+                     { AST.JSImportClauseDefaultNamed (identName $1) (mkJSAnnot $2) $3 }
+
+FromClause :: { AST.JSFromClause }
+FromClause : From 'string'
+                  { AST.JSFromClause $1 (mkJSAnnot $2) (tokenLiteral $2) }
+
+NameSpaceImport :: { AST.JSImportNameSpace }
+NameSpaceImport : Mul As IdentifierName
+                        { AST.JSImportNameSpace $1 $2 (identName $3) }
+
+NamedImports :: { AST.JSImportsNamed }
+NamedImports : LBrace ImportsList RBrace
+                      { AST.JSImportsNamed $1 $2 $3 }
+
+ImportsList :: { AST.JSCommaList AST.JSImportSpecifier }
+ImportsList : ImportSpecifier
+                    { AST.JSLOne $1 }
+            | ImportsList Comma ImportSpecifier
+                    { AST.JSLCons $1 $2 $3 }
+
+ImportSpecifier :: { AST.JSImportSpecifier }
+ImportSpecifier : IdentifierName
+                    { AST.JSImportSpecifier (identName $1) }
+                | IdentifierName As IdentifierName
+                    { AST.JSImportSpecifierAs (identName $1) $2 (identName $3) }
 
 -- ExportDeclaration :                                                        See 15.2.3
 -- [ ]    export * FromClause ;

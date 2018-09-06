@@ -255,7 +255,14 @@ testMinifyProg = describe "Minify programs:" $ do
         minifyProg " try { } catch (a) {} finally {} ; try { } catch ( b ) { } ; " `shouldBe` "try{}catch(a){}finally{}try{}catch(b){}"
 
 testMinifyModule :: Spec
-testMinifyModule = describe "Minify modules:" $
+testMinifyModule = describe "Minify modules:" $ do
+    it "import" $ do
+        minifyModule "import  def  from 'mod' ; " `shouldBe` "import def from'mod'"
+        minifyModule "import   *  as  foo  from   \"mod\"  ; " `shouldBe` "import * as foo from\"mod\""
+        minifyModule "import  def, * as foo  from   \"mod\"  ; " `shouldBe` "import def,* as foo from\"mod\""
+        minifyModule "import  { baz,  bar as   foo }  from   \"mod\"  ; " `shouldBe` "import{baz,bar as foo}from\"mod\""
+        minifyModule "import  def, { baz,  bar as   foo }  from   \"mod\"  ; " `shouldBe` "import def,{baz,bar as foo}from\"mod\""
+
     it "export" $ do
         minifyModule " export { } ; " `shouldBe` "export{}"
         minifyModule " export { a } ; " `shouldBe` "export{a}"
