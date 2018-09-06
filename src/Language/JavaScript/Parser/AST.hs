@@ -25,6 +25,12 @@ module Language.JavaScript.Parser.AST
 
     -- Modules
     , JSModuleItem (..)
+    , JSImportDeclaration (..)
+    , JSImportClause (..)
+    , JSFromClause (..)
+    , JSImportNameSpace (..)
+    , JSImportsNamed (..)
+    , JSImportSpecifier (..)
     , JSExportDeclaration (..)
     , JSExportLocalSpecifier (..)
 
@@ -57,9 +63,44 @@ data JSAST
 -- Shift AST
 -- https://github.com/shapesecurity/shift-spec/blob/83498b92c436180cc0e2115b225a68c08f43c53e/spec.idl#L229-L234
 data JSModuleItem
-    -- = JSImportDeclaration
-    = JSModuleExportDeclaration !JSAnnot !JSExportDeclaration -- ^export,decl
+    = JSModuleImportDeclaration !JSAnnot !JSImportDeclaration -- ^import,decl
+    | JSModuleExportDeclaration !JSAnnot !JSExportDeclaration -- ^export,decl
     | JSModuleStatementListItem !JSStatement
+    deriving (Data, Eq, Show, Typeable)
+
+data JSImportDeclaration
+    = JSImportDeclaration !JSImportClause !JSFromClause !JSSemi -- ^imports, module, semi
+    -- | JSImportDeclarationBare -- ^ module, semi
+    deriving (Data, Eq, Show, Typeable)
+
+data JSImportClause
+    = JSImportClauseDefault !JSIdent -- ^default
+    | JSImportClauseNameSpace !JSImportNameSpace -- ^namespace
+    | JSImportClauseNamed !JSImportsNamed -- ^named imports
+    | JSImportClauseDefaultNameSpace !JSIdent !JSAnnot !JSImportNameSpace -- ^default, comma, namespace
+    | JSImportClauseDefaultNamed !JSIdent !JSAnnot !JSImportsNamed -- ^default, comma, named imports
+    deriving (Data, Eq, Show, Typeable)
+
+data JSFromClause
+    = JSFromClause !JSAnnot !JSAnnot !String -- ^ from, string literal, string literal contents
+    deriving (Data, Eq, Show, Typeable)
+
+-- | Import namespace, e.g. '* as whatever'
+data JSImportNameSpace
+    = JSImportNameSpace !JSBinOp !JSBinOp !JSIdent -- ^ *, as, ident
+    deriving (Data, Eq, Show, Typeable)
+
+-- | Named imports, e.g. '{ foo, bar, baz as quux }'
+data JSImportsNamed
+    = JSImportsNamed !JSAnnot !(JSCommaList JSImportSpecifier) !JSAnnot -- ^lb, specifiers, rb
+    deriving (Data, Eq, Show, Typeable)
+
+-- |
+-- Note that this data type is separate from ExportSpecifier because the
+-- grammar is slightly different (e.g. in handling of reserved words).
+data JSImportSpecifier
+    = JSImportSpecifier !JSIdent -- ^ident
+    | JSImportSpecifierAs !JSIdent !JSBinOp !JSIdent -- ^ident, as, ident
     deriving (Data, Eq, Show, Typeable)
 
 data JSExportDeclaration
@@ -338,7 +379,31 @@ instance ShowStripped JSExpression where
 
 instance ShowStripped JSModuleItem where
     ss (JSModuleExportDeclaration _ x1) = "JSModuleExportDeclaration (" ++ ss x1 ++ ")"
+    ss (JSModuleImportDeclaration _ x1) = "JSModuleImportDeclaration (" ++ ss x1 ++ ")"
     ss (JSModuleStatementListItem x1) = "JSModuleStatementListItem (" ++ ss x1 ++ ")"
+
+instance ShowStripped JSImportDeclaration where
+    ss (JSImportDeclaration imp from _) = "JSImportDeclaration (" ++ ss imp ++ "," ++ ss from ++ ")"
+
+instance ShowStripped JSImportClause where
+    ss (JSImportClauseDefault x) = "JSImportClauseDefault (" ++ ss x ++ ")"
+    ss (JSImportClauseNameSpace x) = "JSImportClauseNameSpace (" ++ ss x ++ ")"
+    ss (JSImportClauseNamed x) = "JSImportClauseNameSpace (" ++ ss x ++ ")"
+    ss (JSImportClauseDefaultNameSpace x1 _ x2) = "JSImportClauseDefaultNameSpace (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
+    ss (JSImportClauseDefaultNamed x1 _ x2) = "JSImportClauseDefaultNamed (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
+
+instance ShowStripped JSFromClause where
+    ss (JSFromClause _ _ m) = "JSFromClause " ++ singleQuote m
+
+instance ShowStripped JSImportNameSpace where
+    ss (JSImportNameSpace _ _ x) = "JSImportNameSpace (" ++ ss x ++ ")"
+
+instance ShowStripped JSImportsNamed where
+    ss (JSImportsNamed _ xs _) = "JSImportsNamed (" ++ ss xs ++ ")"
+
+instance ShowStripped JSImportSpecifier where
+    ss (JSImportSpecifier x1) = "JSImportSpecifier (" ++ ss x1 ++ ")"
+    ss (JSImportSpecifierAs x1 _ x2) = "JSImportSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
 
 instance ShowStripped JSExportDeclaration where
     ss (JSExportLocals _ xs _ _) = "JSExportLocals (" ++ ss xs ++ ")"

@@ -525,7 +525,9 @@ keywordNames =
     , ( "finally", FinallyToken )
     , ( "for", ForToken )
     , ( "function", FunctionToken )
+    , ( "from", FromToken )
     , ( "if", IfToken )
+    , ( "import", ImportToken )
     , ( "in", InToken )
     , ( "instanceof", InstanceofToken )
     , ( "let", LetToken )
@@ -566,8 +568,6 @@ keywordNames =
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
     , ( "extends",  FutureToken )
-
-    , ( "import",   FutureToken )
     , ( "super",    FutureToken )
 
 

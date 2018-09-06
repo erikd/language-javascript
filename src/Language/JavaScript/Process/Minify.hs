@@ -268,8 +268,39 @@ instance MinifyJS JSAssignOp where
     fix a (JSBwOrAssign   _) = JSBwOrAssign a
 
 instance MinifyJS JSModuleItem where
+    fix _ (JSModuleImportDeclaration _ x1) = JSModuleImportDeclaration emptyAnnot (fixEmpty x1)
     fix _ (JSModuleExportDeclaration _ x1) = JSModuleExportDeclaration emptyAnnot (fixEmpty x1)
     fix a (JSModuleStatementListItem s) = JSModuleStatementListItem (fixStmt a noSemi s)
+
+instance MinifyJS JSImportDeclaration where
+    fix _ (JSImportDeclaration imps from _) = JSImportDeclaration (fixEmpty imps) (fix annot from) noSemi
+        where
+        annot = case imps of
+                    JSImportClauseDefault {} -> spaceAnnot
+                    JSImportClauseNameSpace {} -> spaceAnnot
+                    JSImportClauseNamed {} -> emptyAnnot
+                    JSImportClauseDefaultNameSpace {} -> spaceAnnot
+                    JSImportClauseDefaultNamed {} -> emptyAnnot
+
+instance MinifyJS JSImportClause where
+    fix _ (JSImportClauseDefault n) = JSImportClauseDefault (fixSpace n)
+    fix _ (JSImportClauseNameSpace ns) = JSImportClauseNameSpace (fixSpace ns)
+    fix _ (JSImportClauseNamed named) = JSImportClauseNamed (fixEmpty named)
+    fix _ (JSImportClauseDefaultNameSpace def _ ns) = JSImportClauseDefaultNameSpace (fixSpace def) emptyAnnot (fixEmpty ns)
+    fix _ (JSImportClauseDefaultNamed def _ ns) = JSImportClauseDefaultNamed (fixSpace def) emptyAnnot (fixEmpty ns)
+
+instance MinifyJS JSFromClause where
+    fix a (JSFromClause _ _ m) = JSFromClause a emptyAnnot m
+
+instance MinifyJS JSImportNameSpace where
+    fix a (JSImportNameSpace _ _ ident) = JSImportNameSpace (JSBinOpTimes a) (JSBinOpAs spaceAnnot) (fixSpace ident)
+
+instance MinifyJS JSImportsNamed where
+    fix _ (JSImportsNamed _ imps _) = JSImportsNamed emptyAnnot (fixEmpty imps) emptyAnnot 
+
+instance MinifyJS JSImportSpecifier where
+    fix _ (JSImportSpecifier x1) = JSImportSpecifier (fixEmpty x1)
+    fix _ (JSImportSpecifierAs x1 as x2) = JSImportSpecifierAs (fixEmpty x1) (fixSpace as) (fixSpace x2)
 
 instance MinifyJS JSExportDeclaration where
     fix _ (JSExportLocals _ x1 _ _) = JSExportLocals emptyAnnot (fixEmpty x1) emptyAnnot noSemi

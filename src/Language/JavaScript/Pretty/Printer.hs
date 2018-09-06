@@ -248,6 +248,7 @@ instance RenderJS [JSModuleItem] where
     (|>) = foldl' (|>)
 
 instance RenderJS JSModuleItem where
+    (|>) pacc (JSModuleImportDeclaration annot decl) = pacc |> annot |> "import" |> decl
     (|>) pacc (JSModuleExportDeclaration annot decl) = pacc |> annot |> "export" |> decl
     (|>) pacc (JSModuleStatementListItem s) = pacc |> s
 
@@ -273,6 +274,29 @@ instance RenderJS JSArrayElement where
 
 instance RenderJS [JSArrayElement] where
     (|>) = foldl' (|>)
+
+instance RenderJS JSImportDeclaration where
+    (|>) pacc (JSImportDeclaration imp from annot) = pacc |> imp |> from |> annot
+
+instance RenderJS JSImportClause where
+    (|>) pacc (JSImportClauseDefault x) = pacc |> x
+    (|>) pacc (JSImportClauseNameSpace x) = pacc |> x
+    (|>) pacc (JSImportClauseNamed x) = pacc |> x
+    (|>) pacc (JSImportClauseDefaultNameSpace x1 annot x2) = pacc |> x1 |> annot |> "," |> x2
+    (|>) pacc (JSImportClauseDefaultNamed x1 annot x2) = pacc |> x1 |> annot |> "," |> x2
+
+instance RenderJS JSFromClause where
+    (|>) pacc (JSFromClause from annot m) = pacc |> from |> "from" |> annot |> m
+
+instance RenderJS JSImportNameSpace where
+    (|>) pacc (JSImportNameSpace star as x) = pacc |> star |> as |> x
+
+instance RenderJS JSImportsNamed where
+    (|>) pacc (JSImportsNamed lb xs rb) = pacc |> lb |> "{" |> xs |> rb |> "}"
+
+instance RenderJS JSImportSpecifier where
+    (|>) pacc (JSImportSpecifier x1) = pacc |> x1
+    (|>) pacc (JSImportSpecifierAs x1 as x2) = pacc |> x1 |> as |> x2
 
 instance RenderJS JSExportDeclaration where
     (|>) pacc (JSExport x1 s) = pacc |> " " |> x1 |> s

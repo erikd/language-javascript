@@ -101,6 +101,13 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "var x=1;let y=2;"
 
     it "module" $ do
+        testRTModule "import  def  from 'mod'"
+        testRTModule "import  def  from   \"mod\";"
+        testRTModule "import   * as foo  from   \"mod\"  ; "
+        testRTModule "import  def, * as foo  from   \"mod\"  ; "
+        testRTModule "import  { baz,  bar as   foo }  from   \"mod\"  ; "
+        testRTModule "import  def, { baz,  bar as   foo }  from   \"mod\"  ; "
+
         testRTModule "export   {};"
         testRTModule "  export {}   ;  "
         testRTModule "export {  a  ,  b  ,  c  };"
