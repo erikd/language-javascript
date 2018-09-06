@@ -73,6 +73,7 @@ data JSStatement
     | JSTry !JSAnnot !JSBlock ![JSTryCatch] !JSTryFinally -- ^try,block,catches,finally
     | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
+    | JSImport !JSAnnot !(Maybe JSStatement) !JSAnnot JSExpression !JSSemi -- ^import
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
     deriving (Data, Eq, Show, Typeable)
 
@@ -271,6 +272,8 @@ instance ShowStripped JSStatement where
     ss (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ ss s
     ss (JSReturn _ Nothing s) = "JSReturn " ++ ss s
     ss (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
+    ss (JSImport _ Nothing _ x1 _) = "JSImport (" ++ ss x1 ++ ")"
+    ss (JSImport _ (Just f) _ x1 _) = "JSImport (" ++ ss f ++ ") (" ++ ss x1 ++ ")"
     ss (JSThrow _ x _) = "JSThrow (" ++ ss x ++ ")"
     ss (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ss xt1 ++ "," ++ ss xtc ++ "," ++ ss xtf ++ ")"
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs

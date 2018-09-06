@@ -26,6 +26,10 @@ testStatementParser = describe "Parse statements:" $ do
     it "if" $
         testStmt "if (1) {}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [])))"
 
+    it "import" $ do
+        testStmt "import 'a';"           `shouldBe` "Right (JSAstStatement (JSImport (JSStringLiteral 'a')))"
+        testStmt "import a from 'test';" `shouldBe` "Right (JSAstStatement (JSImport (JSIdentifier 'a') (JSStringLiteral 'test')))"
+
     it "if/else" $ do
         testStmt "if (1) {} else {}"    `shouldBe` "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])))"
         testStmt "if (1) x=1; else {}"  `shouldBe` "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon) (JSStatementBlock [])))"
@@ -101,4 +105,3 @@ testStatementParser = describe "Parse statements:" $ do
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
-
