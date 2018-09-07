@@ -102,6 +102,10 @@ instance RenderJS JSAnnot where
     (|>) pacc JSNoAnnot = pacc
     (|>) pacc JSAnnotSpace = pacc |> " "
 
+instance RenderJS (Maybe JSAnnot) where
+    (|>) pacc (Just e) = pacc |> e
+    (|>) pacc Nothing  = pacc
+
 instance RenderJS String where
     (|>) (PosAccum (r,c) bb) s = PosAccum (r',c') (bb <> str s)
       where
@@ -233,6 +237,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSMethodCall e lp a rp s)                   = pacc |> e |> lp |> "(" |> a |> rp |> ")" |> s
     (|>) pacc (JSReturn annot me s)                        = pacc |> annot |> "return" |> me |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb s)      = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}" |> s
+    (|>) pacc (JSExport annot df x1 s)                     = pacc |> annot |> "export" |> df |> "{" |> x1 |> "}" |> s
     (|>) pacc (JSThrow annot x s)                          = pacc |> annot |> "throw" |> x |> s
     (|>) pacc (JSTry annot tb tcs tf)                      = pacc |> annot |> "try" |> tb |> tcs |> tf
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
@@ -287,4 +292,3 @@ instance RenderJS JSVarInitializer where
     (|>) pacc JSVarInitNone   = pacc
 
 -- EOF
-

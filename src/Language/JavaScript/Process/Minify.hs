@@ -60,6 +60,7 @@ fixStmt a s (JSMethodCall e _ args _ _) = JSMethodCall (fix a e) emptyAnnot (fix
 fixStmt a s (JSReturn _ me _) = JSReturn a (fixSpace me) s
 fixStmt a s (JSSwitch _ _ e _ _ sps _ _) = JSSwitch a emptyAnnot (fixEmpty e) emptyAnnot emptyAnnot (fixSwitchParts sps) emptyAnnot s
 fixStmt a s (JSThrow _ e _) = JSThrow a (fixSpace e) s
+fixStmt a s (JSExport _ df x1 _) = JSExport a (fixSpace df) (fixEmpty x1) s -- unsure what I'm doing here
 fixStmt a _ (JSTry _ b tc tf) = JSTry a (fixEmpty b) (map fixEmpty tc) (fixEmpty tf)
 fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
 fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot (fixStmt a s st)
