@@ -566,6 +566,7 @@ keywordNames =
     , ( "export",   FutureToken )
     , ( "extends",  FutureToken )
 
+    , ( "export",   ExportToken )
     , ( "import",   FutureToken )
     , ( "super",    FutureToken )
 

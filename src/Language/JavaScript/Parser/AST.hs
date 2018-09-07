@@ -74,6 +74,7 @@ data JSStatement
     | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
+    | JSExport !JSAnnot !(Maybe JSAnnot) !JSStatement !JSSemi -- ^export
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
@@ -271,6 +272,10 @@ instance ShowStripped JSStatement where
     ss (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ ss s
     ss (JSReturn _ Nothing s) = "JSReturn " ++ ss s
     ss (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
+    ss (JSExport _ df x1 _) = "JSExport " ++ exportDefault df ++ "(" ++ ss x1 ++ ")"
+      where
+        exportDefault (Just _) = "default "
+        exportDefault Nothing = ""
     ss (JSThrow _ x _) = "JSThrow (" ++ ss x ++ ")"
     ss (JSTry _ xt1 xtc xtf) = "JSTry (" ++ ss xt1 ++ "," ++ ss xtc ++ "," ++ ss xtf ++ ")"
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs

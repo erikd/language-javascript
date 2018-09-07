@@ -26,6 +26,27 @@ testStatementParser = describe "Parse statements:" $ do
     it "if" $
         testStmt "if (1) {}"    `shouldBe` "Right (JSAstStatement (JSIf (JSDecimal '1') (JSStatementBlock [])))"
 
+    it "export" $ do
+        testStmt "export a;"                      `shouldBe` "Right (JSAstStatement (JSExport (JSIdentifier 'a',JSSemicolon)))"
+        testStmt "export var a = 1;"              `shouldBe` "Right (JSAstStatement (JSExport (JSVariable (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1']))))"
+        testStmt "export function () {};"         `shouldBe` "Right (JSAstStatement (JSExport (JSFunctionExpression '' () (JSBlock [])),JSSemicolon)))"
+        testStmt "export {};"                     `shouldBe` "Right (JSAstStatement (JSExport (JSStatementBlock [])))"
+        testStmt "export default function () {};" `shouldBe` "Right (JSAstStatement (JSExport Default (JSFunctionExpression '' () (JSBlock [])),JSSemicolon)))"
+        testStmt "export default var a = 1;"      `shouldBe` "Right (JSAstStatement (JSExport Default (JSVariable (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1']))))"
+        -- Unsure about handling all these cases taken from the specs
+        -- export { variable1 as name1, variable2 as name2, …, nameN };
+        -- export let name1, name2, …, nameN; // also var, const
+        -- export let name1 = …, name2 = …, …, nameN; // also var, const
+        -- export class ClassName {...}
+        -- export default expression;
+        -- export default function name1(…) { … } // also class, function*
+        -- export { name1 as default, … };
+
+        -- export * from …;
+        -- export { name1, name2, …, nameN } from …;
+        -- export { import1 as name1, import2 as name2, …, nameN } from …;
+        -- export { default } from …;
+
     it "if/else" $ do
         testStmt "if (1) {} else {}"    `shouldBe` "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSStatementBlock []) (JSStatementBlock [])))"
         testStmt "if (1) x=1; else {}"  `shouldBe` "Right (JSAstStatement (JSIfElse (JSDecimal '1') (JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon) (JSStatementBlock [])))"
@@ -101,4 +122,3 @@ testStatementParser = describe "Parse statements:" $ do
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
-
