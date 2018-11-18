@@ -1166,30 +1166,38 @@ Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
 -- [ ]    export default ClassDeclaration[Default]
 -- [ ]    export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
 ExportDeclaration :: { AST.JSStatement }
-ExportDeclaration : Export ExportClause AutoSemi      { AST.JSExport $1 $2 $3                            {- 'ExportDeclaration1' -} }
-                  | Export VariableStatement AutoSemi { AST.JSExport $1 (AST.JSExportStatement $2) $3    {- 'ExportDeclaration2' -} }
+ExportDeclaration : Export ExportClause AutoSemi
+                         { AST.JSExport $1 $2 $3                           {- 'ExportDeclaration1' -} }
+                  | Export VariableStatement AutoSemi
+                         { AST.JSExport $1 (AST.JSExportStatement $2) $3   {- 'ExportDeclaration2' -} }
 
 -- ExportClause :
 --           { }
 --           { ExportsList }
 --           { ExportsList , }
 ExportClause :: { AST.JSExportBody }
-ExportClause : LBrace RBrace                 { AST.JSExportClause $1 Nothing $2      {- 'ExportClause1' -} }
-             | LBrace ExportsList RBrace     { AST.JSExportClause $1 (Just $2) $3    {- 'ExportClause2' -} }
+ExportClause : LBrace RBrace
+                    { AST.JSExportClause $1 Nothing $2      {- 'ExportClause1' -} }
+             | LBrace ExportsList RBrace
+                    { AST.JSExportClause $1 (Just $2) $3    {- 'ExportClause2' -} }
 
 -- ExportsList :
 --           ExportSpecifier
 --           ExportsList , ExportSpecifier
 ExportsList :: { AST.JSCommaList AST.JSExportSpecifier }
-ExportsList : ExportSpecifier                     { AST.JSLOne $1          {- 'ExportsList1' -} }
-            | ExportsList Comma ExportSpecifier   { AST.JSLCons $1 $2 $3   {- 'ExportsList2' -} }
+ExportsList : ExportSpecifier
+                    { AST.JSLOne $1          {- 'ExportsList1' -} }
+            | ExportsList Comma ExportSpecifier
+                    { AST.JSLCons $1 $2 $3   {- 'ExportsList2' -} }
 
 -- ExportSpecifier :
 --           IdentifierName
 --           IdentifierName as IdentifierName
 ExportSpecifier :: { AST.JSExportSpecifier }
-ExportSpecifier : IdentifierName                       { AST.JSExportSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
-                | IdentifierName As IdentifierName     { AST.JSExportSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
+ExportSpecifier : IdentifierName
+                    { AST.JSExportSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
+                | IdentifierName As IdentifierName
+                    { AST.JSExportSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
