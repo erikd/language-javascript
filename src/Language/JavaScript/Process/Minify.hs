@@ -64,6 +64,7 @@ fixStmt a _ (JSTry _ b tc tf) = JSTry a (fixEmpty b) (map fixEmpty tc) (fixEmpty
 fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
 fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot (fixStmt a s st)
 fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE noSemi st) s
+fixStmt a s (JSExport _ b _) = JSExport a (fixEmpty b) s
 
 
 fixIfElseBlock :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
@@ -209,6 +210,7 @@ normalizeToSQ str =
 
 instance MinifyJS JSBinOp where
     fix _ (JSBinOpAnd        _) = JSBinOpAnd emptyAnnot
+    fix a (JSBinOpAs         _) = JSBinOpAs a
     fix _ (JSBinOpBitAnd     _) = JSBinOpBitAnd emptyAnnot
     fix _ (JSBinOpBitOr      _) = JSBinOpBitOr emptyAnnot
     fix _ (JSBinOpBitXor     _) = JSBinOpBitXor emptyAnnot
@@ -265,6 +267,13 @@ instance MinifyJS JSAssignOp where
     fix a (JSBwXorAssign  _) = JSBwXorAssign a
     fix a (JSBwOrAssign   _) = JSBwOrAssign a
 
+instance MinifyJS JSExportBody where
+    fix a (JSExportStatement s) = JSExportStatement (fixStmt a noSemi s)
+    fix _ (JSExportClause _ x1 _) = JSExportClause emptyAnnot (fixEmpty <$> x1) emptyAnnot
+
+instance MinifyJS JSExportSpecifier where
+    fix _ (JSExportSpecifier x1) = JSExportSpecifier (fixEmpty x1)
+    fix _ (JSExportSpecifierAs x1 as x2) = JSExportSpecifierAs (fixEmpty x1) (fixSpace as) (fixSpace x2)
 
 instance MinifyJS JSTryCatch where
     fix a (JSCatch _ _ x1 _ x3) = JSCatch a emptyAnnot (fixEmpty x1) emptyAnnot (fixEmpty x3)

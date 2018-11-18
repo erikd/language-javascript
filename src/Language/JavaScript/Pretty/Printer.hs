@@ -138,6 +138,7 @@ instance RenderJS [JSExpression] where
 
 instance RenderJS JSBinOp where
     (|>) pacc (JSBinOpAnd        annot)  = pacc |> annot |> "&&"
+    (|>) pacc (JSBinOpAs         annot)  = pacc |> annot |> "as"
     (|>) pacc (JSBinOpBitAnd     annot)  = pacc |> annot |> "&"
     (|>) pacc (JSBinOpBitOr      annot)  = pacc |> annot |> "|"
     (|>) pacc (JSBinOpBitXor     annot)  = pacc |> annot |> "^"
@@ -238,6 +239,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
+    (|>) pacc (JSExport annot b s)                         = pacc |> annot |> "export" |> b |> s
 
 instance RenderJS [JSStatement] where
     (|>) = foldl' (|>)
@@ -265,6 +267,15 @@ instance RenderJS JSArrayElement where
 instance RenderJS [JSArrayElement] where
     (|>) = foldl' (|>)
 
+instance RenderJS JSExportBody where
+    (|>) pacc (JSExportStatement s) = pacc |> " " |> s
+    (|>) pacc (JSExportClause alb Nothing arb) = pacc |> alb |> "{}" |> arb
+    (|>) pacc (JSExportClause alb (Just s) arb) = pacc |> alb |> "{" |> s |> "}" |> arb
+
+instance RenderJS JSExportSpecifier where
+    (|>) pacc (JSExportSpecifier i) = pacc |> i
+    (|>) pacc (JSExportSpecifierAs x1 as x2) = pacc |> x1 |> as |> x2
+
 instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i
     (|>) pacc (JSLOne i)       = pacc |> i
@@ -287,4 +298,3 @@ instance RenderJS JSVarInitializer where
     (|>) pacc JSVarInitNone   = pacc
 
 -- EOF
-

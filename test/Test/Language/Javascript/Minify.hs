@@ -148,6 +148,13 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " { ; e = 1 } " `shouldBe` "e=1"
         minifyStmt " { { } ; f = 1 ; { } ; } ; " `shouldBe` "f=1"
 
+    it "export" $ do
+        minifyStmt " export { } ; " `shouldBe` "export{}"
+        minifyStmt " export { a } ; " `shouldBe` "export{a}"
+        minifyStmt " export { a, b } ; " `shouldBe` "export{a,b}"
+        minifyStmt " export { a, b as c , d } ; " `shouldBe` "export{a,b as c,d}"
+        minifyStmt " export const a = 1 ; " `shouldBe` "export const a=1"
+
     it "if" $ do
         minifyStmt " if ( 1 ) return ; " `shouldBe` "if(1)return"
         minifyStmt " if ( 1 ) ; " `shouldBe` "if(1);"
