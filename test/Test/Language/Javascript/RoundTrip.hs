@@ -98,8 +98,10 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "switch (x) {default:break;}"
         testRT "switch (x) {default:\ncase 1:break;}"
         testRT "var x=1;let y=2;"
+        -- modules
+        testRT "export   {};"
+        testRT "export {  a, X   as B,   c}"
 
 
 testRT :: String -> Expectation
-testRT str = str `shouldBe` renderToString (readJs str)
-
+testRT str = renderToString (readJs str) `shouldBe` str

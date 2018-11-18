@@ -16,6 +16,14 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "x"        `shouldBe` "Right (JSAstStatement (JSIdentifier 'x'))"
         testStmt "null"     `shouldBe` "Right (JSAstStatement (JSLiteral 'null'))"
         testStmt "true?1:2" `shouldBe` "Right (JSAstStatement (JSExpressionTernary (JSLiteral 'true',JSDecimal '1',JSDecimal '2')))"
+
+    it "export" $ do
+        testStmt "export {}"                   `shouldBe` "Right (JSAstStatement (JSExport (JSExportClause ())))"
+        testStmt "export {};"                  `shouldBe` "Right (JSAstStatement (JSExport (JSExportClause ())))"
+        testStmt "export const a = 1;"         `shouldBe` "Right (JSAstStatement (JSExport (JSExportStatement (JSConstant (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1'])))))"
+        testStmt "export { a };"               `shouldBe` "Right (JSAstStatement (JSExport (JSExportClause ((JSExportSpecifier (JSIdentifier 'a'))))))"
+        testStmt "export { X as Y };"          `shouldBe` "Right (JSAstStatement (JSExport (JSExportClause ((JSExportSpecifierAs (JSIdentifier 'X',JSIdentifier 'Y'))))))"
+
     it "block" $ do
         testStmt "{}"           `shouldBe` "Right (JSAstStatement (JSStatementBlock []))"
         testStmt "{x=1}"        `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')]))"
@@ -101,4 +109,3 @@ testStatementParser = describe "Parse statements:" $ do
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
-

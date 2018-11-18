@@ -19,7 +19,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- The name of the generated function to be exported from the module
 %name parseProgram           Program
 %name parseLiteral           LiteralMain
-%name parseExpression		 ExpressionMain
+%name parseExpression        ExpressionMain
 %name parseStatement         StatementMain
 
 %tokentype { Token }
@@ -81,6 +81,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      '('    { LeftParenToken {} }
      ')'    { RightParenToken {} }
 
+     'as'         { AsToken {} }
      'autosemi'   { AutoSemiToken {} }
      'break'      { BreakToken {} }
      'case'       { CaseToken {} }
@@ -93,6 +94,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'do'         { DoToken {} }
      'else'       { ElseToken {} }
      'enum'       { EnumToken {} }
+     'export'     { ExportToken {} }
      'false'      { FalseToken {} }
      'finally'    { FinallyToken {} }
      'for'        { ForToken {} }
@@ -244,6 +246,9 @@ Ge : '>=' { AST.JSBinOpGe (mkJSAnnot $1) }
 Gt :: { AST.JSBinOp }
 Gt : '>' { AST.JSBinOpGt (mkJSAnnot $1) }
 
+As :: { AST.JSBinOp }
+As : 'as' { AST.JSBinOpAs (mkJSAnnot $1) }
+
 In :: { AST.JSBinOp }
 In : 'in' { AST.JSBinOpIn (mkJSAnnot $1) }
 
@@ -304,6 +309,9 @@ Let : 'let' { mkJSAnnot $1 }
 
 Const :: { AST.JSAnnot }
 Const : 'const' { mkJSAnnot $1 }
+
+Export :: { AST.JSAnnot }
+Export : 'export' { mkJSAnnot $1 }
 
 If :: { AST.JSAnnot }
 If : 'if' { mkJSAnnot $1 }
@@ -426,6 +434,7 @@ Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSExpression }
 IdentifierName : Identifier {$1}
+             | 'as'         { AST.JSIdentifier (mkJSAnnot $1) "as" }
              | 'break'      { AST.JSIdentifier (mkJSAnnot $1) "break" }
              | 'case'       { AST.JSIdentifier (mkJSAnnot $1) "case" }
              | 'catch'      { AST.JSIdentifier (mkJSAnnot $1) "catch" }
@@ -437,6 +446,7 @@ IdentifierName : Identifier {$1}
              | 'do'         { AST.JSIdentifier (mkJSAnnot $1) "do" }
              | 'else'       { AST.JSIdentifier (mkJSAnnot $1) "else" }
              | 'enum'       { AST.JSIdentifier (mkJSAnnot $1) "enum" }
+             | 'export'     { AST.JSIdentifier (mkJSAnnot $1) "export" }
              | 'false'      { AST.JSIdentifier (mkJSAnnot $1) "false" }
              | 'finally'    { AST.JSIdentifier (mkJSAnnot $1) "finally" }
              | 'for'        { AST.JSIdentifier (mkJSAnnot $1) "for" }
@@ -498,9 +508,9 @@ Elision : Comma             { [AST.JSArrayComma $1]     {- 'Elision1' -} }
 --        { PropertyNameAndValueList }
 --        { PropertyNameAndValueList , }
 ObjectLiteral :: { AST.JSExpression }
-ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiteral $1 (AST.JSCTLNone AST.JSLNil) $2     {- 'ObjectLiteal1' -} }
-              | LBrace PropertyNameandValueList RBrace       { AST.JSObjectLiteral $1 (AST.JSCTLNone $2) $3             {- 'ObjectLiteal2' -} }
-              | LBrace PropertyNameandValueList Comma RBrace { AST.JSObjectLiteral $1 (AST.JSCTLComma $2 $3) $4         {- 'ObjectLiteal3' -} }
+ObjectLiteral : LBrace RBrace                                { AST.JSObjectLiteral $1 (AST.JSCTLNone AST.JSLNil) $2     {- 'ObjectLiteral1' -} }
+              | LBrace PropertyNameandValueList RBrace       { AST.JSObjectLiteral $1 (AST.JSCTLNone $2) $3             {- 'ObjectLiteral2' -} }
+              | LBrace PropertyNameandValueList Comma RBrace { AST.JSObjectLiteral $1 (AST.JSCTLComma $2 $3) $4         {- 'ObjectLiteral3' -} }
 
 -- <Property Name and Value List> ::= <Property Name> ':' <Assignment Expression>
 --                                  | <Property Name and Value List> ',' <Property Name> ':' <Assignment Expression>
@@ -887,6 +897,7 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
                  | ThrowStatement      { $1 {- 'StatementNoEmpty13' -} }
                  | TryStatement        { $1 {- 'StatementNoEmpty14' -} }
                  | DebuggerStatement   { $1 {- 'StatementNoEmpty15' -} }
+                 | ExportDeclaration   { $1 {- 'StatementNoEmpty16' -} }
 
 
 StatementBlock :: { AST.JSStatement }
@@ -1145,6 +1156,49 @@ Program :: { AST.JSAST }
 Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
         | Eof                   	{ AST.JSAstProgram [] $1 	{- 'Program2' -} }
 
+-- ExportDeclaration :                                                        See 15.2.3
+-- [ ]    export * FromClause ;
+-- [ ]    export ExportClause FromClause ;
+-- [x]    export ExportClause ;
+-- [x]    export VariableStatement
+-- [ ]    export Declaration
+-- [ ]    export default HoistableDeclaration[Default]
+-- [ ]    export default ClassDeclaration[Default]
+-- [ ]    export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
+ExportDeclaration :: { AST.JSStatement }
+ExportDeclaration : Export ExportClause AutoSemi
+                         { AST.JSExport $1 $2 $3                           {- 'ExportDeclaration1' -} }
+                  | Export VariableStatement AutoSemi
+                         { AST.JSExport $1 (AST.JSExportStatement $2) $3   {- 'ExportDeclaration2' -} }
+
+-- ExportClause :
+--           { }
+--           { ExportsList }
+--           { ExportsList , }
+ExportClause :: { AST.JSExportBody }
+ExportClause : LBrace RBrace
+                    { AST.JSExportClause $1 Nothing $2      {- 'ExportClause1' -} }
+             | LBrace ExportsList RBrace
+                    { AST.JSExportClause $1 (Just $2) $3    {- 'ExportClause2' -} }
+
+-- ExportsList :
+--           ExportSpecifier
+--           ExportsList , ExportSpecifier
+ExportsList :: { AST.JSCommaList AST.JSExportSpecifier }
+ExportsList : ExportSpecifier
+                    { AST.JSLOne $1          {- 'ExportsList1' -} }
+            | ExportsList Comma ExportSpecifier
+                    { AST.JSLCons $1 $2 $3   {- 'ExportsList2' -} }
+
+-- ExportSpecifier :
+--           IdentifierName
+--           IdentifierName as IdentifierName
+ExportSpecifier :: { AST.JSExportSpecifier }
+ExportSpecifier : IdentifierName
+                    { AST.JSExportSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
+                | IdentifierName As IdentifierName
+                    { AST.JSExportSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
+
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
 LiteralMain : Literal Eof			{ AST.JSAstLiteral $1 $2	{- 'LiteralMain' -} }
@@ -1154,7 +1208,6 @@ ExpressionMain : Expression Eof					{ AST.JSAstExpression $1 $2 {- 'ExpressionMa
 
 StatementMain :: { AST.JSAST }
 StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'StatementMain' -} }
-
 
 {
 

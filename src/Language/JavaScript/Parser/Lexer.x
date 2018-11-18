@@ -503,7 +503,8 @@ keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
-    [ ( "break", BreakToken )
+    [ ( "as", AsToken )
+    , ( "break", BreakToken )
     , ( "case", CaseToken )
     , ( "catch", CatchToken )
 
@@ -517,6 +518,7 @@ keywordNames =
     , ( "else", ElseToken )
 
     , ( "enum", EnumToken )  -- not a keyword,  nominally a future reserved word, but actually in use
+    , ( "export", ExportToken )
 
     , ( "false", FalseToken ) -- boolean literal
 
@@ -563,7 +565,6 @@ keywordNames =
     -- ( "code",    FutureToken ) **** not any more
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
-    , ( "export",   FutureToken )
     , ( "extends",  FutureToken )
 
     , ( "import",   FutureToken )

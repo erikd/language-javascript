@@ -10,6 +10,8 @@ module Language.JavaScript.Parser.AST
     , JSTryCatch (..)
     , JSTryFinally (..)
     , JSStatement (..)
+    , JSExportBody (..)
+    , JSExportSpecifier (..)
     , JSBlock (..)
     , JSSwitchParts (..)
     , JSAST (..)
@@ -71,9 +73,10 @@ data JSStatement
     | JSSwitch !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSAnnot ![JSSwitchParts] !JSAnnot !JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
     | JSThrow !JSAnnot !JSExpression !JSSemi -- ^throw val autosemi
     | JSTry !JSAnnot !JSBlock ![JSTryCatch] !JSTryFinally -- ^try,block,catches,finally
-    | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
+    | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
+    | JSExport !JSAnnot !JSExportBody !JSSemi -- ^export, body, autosemi
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
@@ -112,6 +115,7 @@ data JSExpression
 
 data JSBinOp
     = JSBinOpAnd !JSAnnot
+    | JSBinOpAs !JSAnnot
     | JSBinOpBitAnd !JSAnnot
     | JSBinOpBitOr !JSAnnot
     | JSBinOpBitXor !JSAnnot
@@ -166,6 +170,16 @@ data JSAssignOp
     | JSBwAndAssign !JSAnnot
     | JSBwXorAssign !JSAnnot
     | JSBwOrAssign !JSAnnot
+    deriving (Data, Eq, Show, Typeable)
+
+data JSExportBody
+    = JSExportStatement !JSStatement
+    | JSExportClause !JSAnnot !(Maybe (JSCommaList JSExportSpecifier)) !JSAnnot -- ^lb,body,rb
+    deriving (Data, Eq, Show, Typeable)
+
+data JSExportSpecifier
+    = JSExportSpecifier !JSIdent
+    | JSExportSpecifierAs !JSIdent !JSBinOp !JSIdent
     deriving (Data, Eq, Show, Typeable)
 
 data JSTryCatch
@@ -233,7 +247,7 @@ data JSCommaTrailingList a
     deriving (Data, Eq, Show, Typeable)
 
 -- -----------------------------------------------------------------------------
--- | Show the AST elements stipped of their JSAnnot data.
+-- | Show the AST elements stripped of their JSAnnot data.
 
 -- Strip out the location info
 showStripped :: JSAST -> String
@@ -245,7 +259,6 @@ showStripped (JSAstLiteral s _)  = "JSAstLiteral (" ++ ss s ++ ")"
 
 class ShowStripped a where
     ss :: a -> String
-
 
 instance ShowStripped JSStatement where
     ss (JSStatementBlock _ xs _ _) = "JSStatementBlock " ++ ss xs
@@ -276,6 +289,7 @@ instance ShowStripped JSStatement where
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs
     ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSWith _ _lb x1 _rb x _) = "JSWith (" ++ ss x1 ++ ") (" ++ ss x ++ ")"
+    ss (JSExport _ b _) = "JSExport (" ++ ss b ++ ")"
 
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
@@ -307,6 +321,15 @@ instance ShowStripped JSExpression where
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
     ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
+
+instance ShowStripped JSExportBody where
+    ss (JSExportStatement x1) = "JSExportStatement (" ++ ss x1 ++ ")"
+    ss (JSExportClause _ Nothing _) = "JSExportClause ()"
+    ss (JSExportClause _ (Just x1) _) = "JSExportClause (" ++ ss x1 ++ ")"
+
+instance ShowStripped JSExportSpecifier where
+    ss (JSExportSpecifier x1) = "JSExportSpecifier (" ++ ss x1 ++ ")"
+    ss (JSExportSpecifierAs x1 _ x2) = "JSExportSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
 
 instance ShowStripped JSTryCatch where
     ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"
@@ -342,6 +365,7 @@ instance ShowStripped JSSwitchParts where
 
 instance ShowStripped JSBinOp where
     ss (JSBinOpAnd _) = "'&&'"
+    ss (JSBinOpAs _) = "'as'"
     ss (JSBinOpBitAnd _) = "'&'"
     ss (JSBinOpBitOr _) = "'|'"
     ss (JSBinOpBitXor _) = "'^'"
@@ -437,6 +461,7 @@ commaIf xs = ',' : xs
 
 deAnnot :: JSBinOp -> JSBinOp
 deAnnot (JSBinOpAnd _) = JSBinOpAnd JSNoAnnot
+deAnnot (JSBinOpAs _) = JSBinOpAs JSNoAnnot
 deAnnot (JSBinOpBitAnd _) = JSBinOpBitAnd JSNoAnnot
 deAnnot (JSBinOpBitOr _) = JSBinOpBitOr JSNoAnnot
 deAnnot (JSBinOpBitXor _) = JSBinOpBitXor JSNoAnnot
