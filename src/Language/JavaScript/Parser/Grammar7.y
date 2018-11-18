@@ -3,6 +3,7 @@
 module Language.JavaScript.Parser.Grammar7
 	( parseProgram
 	, parseStatement
+	, parseDeclaration
 	, parseExpression
 	, parseLiteral
 	) where
@@ -21,6 +22,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 %name parseLiteral           LiteralMain
 %name parseExpression        ExpressionMain
 %name parseStatement         StatementMain
+%name parseDeclaration       DeclarationMain
 
 %tokentype { Token }
 %error { parseError }
@@ -93,6 +95,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'do'         { DoToken {} }
      'else'       { ElseToken {} }
      'enum'       { EnumToken {} }
+     'export'     { ExportToken {} }
      'false'      { FalseToken {} }
      'finally'    { FinallyToken {} }
      'for'        { ForToken {} }
@@ -305,6 +308,9 @@ Let : 'let' { mkJSAnnot $1 }
 Const :: { AST.JSAnnot }
 Const : 'const' { mkJSAnnot $1 }
 
+Export :: { AST.JSAnnot }
+Export : 'export' { mkJSAnnot $1 }
+
 If :: { AST.JSAnnot }
 If : 'if' { mkJSAnnot $1 }
 
@@ -437,6 +443,7 @@ IdentifierName : Identifier {$1}
              | 'do'         { AST.JSIdentifier (mkJSAnnot $1) "do" }
              | 'else'       { AST.JSIdentifier (mkJSAnnot $1) "else" }
              | 'enum'       { AST.JSIdentifier (mkJSAnnot $1) "enum" }
+             | 'export'     { AST.JSIdentifier (mkJSAnnot $1) "export" }
              | 'false'      { AST.JSIdentifier (mkJSAnnot $1) "false" }
              | 'finally'    { AST.JSIdentifier (mkJSAnnot $1) "finally" }
              | 'for'        { AST.JSIdentifier (mkJSAnnot $1) "for" }
@@ -1145,6 +1152,36 @@ Program :: { AST.JSAST }
 Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
         | Eof                   	{ AST.JSAstProgram [] $1 	{- 'Program2' -} }
 
+
+Declaration :: { AST.JSDeclaration }
+Declaration : ExportDeclaration   { $1 {- 'Declaration1' -} }
+
+-- ExportDeclaration :                                                        See 15.2.3
+--        export * FromClause ;
+--        export ExportClause FromClause ;
+--        export ExportClause ;
+--        export VariableStatement
+--        export Declaration
+--        export default HoistableDeclaration[Default]
+--        export default ClassDeclaration[Default]
+--        export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
+ExportDeclaration :: { AST.JSDeclaration }
+ExportDeclaration : Export ExportClause AutoSemi { AST.JSExport $1 $2 $3 {- 'ExportDeclaration' -} }
+
+-- ExportClause :
+--           { }
+--           { ExportsList }
+--           { ExportsList , }
+ExportClause :: { Maybe AST.JSExpression }
+ExportClause : LBrace RBrace       { Nothing      {- 'ExportClause1' -} }
+
+-- ExportsList :
+--           ExportSpecifier
+--           ExportsList , ExportSpecifier
+-- ExportSpecifier :
+--           IdentifierName
+--           IdentifierName as IdentifierName
+
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
 LiteralMain : Literal Eof			{ AST.JSAstLiteral $1 $2	{- 'LiteralMain' -} }
@@ -1155,6 +1192,8 @@ ExpressionMain : Expression Eof					{ AST.JSAstExpression $1 $2 {- 'ExpressionMa
 StatementMain :: { AST.JSAST }
 StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'StatementMain' -} }
 
+DeclarationMain :: { AST.JSAST }
+DeclarationMain : Declaration Eof	     { AST.JSAstDeclaration $1 $2  {- 'DeclarationMain' -} }
 
 {
 

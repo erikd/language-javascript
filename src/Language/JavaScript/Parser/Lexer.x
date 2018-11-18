@@ -563,7 +563,7 @@ keywordNames =
     -- ( "code",    FutureToken ) **** not any more
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
-    , ( "export",   FutureToken )
+    , ( "export",   ExportToken )
     , ( "extends",  FutureToken )
 
     , ( "import",   FutureToken )

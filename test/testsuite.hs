@@ -5,9 +5,10 @@ import Test.Hspec
 import Test.Hspec.Runner
 
 
+import Test.Language.Javascript.DeclarationParser
+import Test.Language.Javascript.ExpressionParser
 import Test.Language.Javascript.Lexer
 import Test.Language.Javascript.LiteralParser
-import Test.Language.Javascript.ExpressionParser
 import Test.Language.Javascript.Minify
 import Test.Language.Javascript.ProgramParser
 import Test.Language.Javascript.RoundTrip
@@ -28,9 +29,9 @@ testAll = do
     testLiteralParser
     testExpressionParser
     testStatementParser
+    testDeclarationParser
     testProgramParser
     testRoundTrip
     testMinifyExpr
     testMinifyStmt
     testMinifyProg
-
