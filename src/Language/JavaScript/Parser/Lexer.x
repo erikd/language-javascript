@@ -517,6 +517,7 @@ keywordNames =
     , ( "else", ElseToken )
 
     , ( "enum", EnumToken )  -- not a keyword,  nominally a future reserved word, but actually in use
+    , ( "export", ExportToken )
 
     , ( "false", FalseToken ) -- boolean literal
 
@@ -563,7 +564,6 @@ keywordNames =
     -- ( "code",    FutureToken ) **** not any more
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
-    , ( "export",   ExportToken )
     , ( "extends",  FutureToken )
 
     , ( "import",   FutureToken )

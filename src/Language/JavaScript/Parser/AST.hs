@@ -10,7 +10,6 @@ module Language.JavaScript.Parser.AST
     , JSTryCatch (..)
     , JSTryFinally (..)
     , JSStatement (..)
-    , JSDeclaration (..)
     , JSBlock (..)
     , JSSwitchParts (..)
     , JSAST (..)
@@ -45,7 +44,6 @@ data JSAnnot
 data JSAST
     = JSAstProgram ![JSStatement] !JSAnnot -- ^source elements, tailing whitespace
     | JSAstStatement !JSStatement !JSAnnot
-    | JSAstDeclaration !JSDeclaration !JSAnnot
     | JSAstExpression !JSExpression !JSAnnot
     | JSAstLiteral !JSExpression !JSAnnot
     deriving (Data, Eq, Show, Typeable)
@@ -73,13 +71,10 @@ data JSStatement
     | JSSwitch !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSAnnot ![JSSwitchParts] !JSAnnot !JSSemi -- ^switch,lb,expr,rb,caseblock,autosemi
     | JSThrow !JSAnnot !JSExpression !JSSemi -- ^throw val autosemi
     | JSTry !JSAnnot !JSBlock ![JSTryCatch] !JSTryFinally -- ^try,block,catches,finally
-    | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var|const, decl, autosemi
+    | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
-    deriving (Data, Eq, Show, Typeable)
-
-data JSDeclaration
-    = JSExport !JSAnnot !(Maybe JSExpression) !JSSemi -- ^export,expr
+    | JSExport !JSAnnot !(Maybe JSExpression) !JSSemi -- ^export,expr
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
@@ -245,7 +240,6 @@ data JSCommaTrailingList a
 showStripped :: JSAST -> String
 showStripped (JSAstProgram xs _) = "JSAstProgram " ++ ss xs
 showStripped (JSAstStatement s _) = "JSAstStatement (" ++ ss s ++ ")"
-showStripped (JSAstDeclaration s _) = "JSAstDeclaration (" ++ ss s ++ ")"
 showStripped (JSAstExpression e _) = "JSAstExpression (" ++ ss e ++ ")"
 showStripped (JSAstLiteral s _)  = "JSAstLiteral (" ++ ss s ++ ")"
 
@@ -283,6 +277,8 @@ instance ShowStripped JSStatement where
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs
     ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSWith _ _lb x1 _rb x _) = "JSWith (" ++ ss x1 ++ ") (" ++ ss x ++ ")"
+    ss (JSExport _ Nothing _) = "JSExport"
+    ss (JSExport _ (Just x1) _) = "JSExport (" ++ (ss x1) ++ ")"
 
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
@@ -314,10 +310,6 @@ instance ShowStripped JSExpression where
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
     ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
-
-instance ShowStripped JSDeclaration where
-    ss (JSExport _ Nothing _) = "JSExport"
-    ss (JSExport _ (Just x1) _) = "JSExport (" ++ (ss x1) ++ ")"
 
 instance ShowStripped JSTryCatch where
     ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"

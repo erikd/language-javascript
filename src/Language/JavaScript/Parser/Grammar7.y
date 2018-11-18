@@ -3,7 +3,6 @@
 module Language.JavaScript.Parser.Grammar7
 	( parseProgram
 	, parseStatement
-	, parseDeclaration
 	, parseExpression
 	, parseLiteral
 	) where
@@ -22,7 +21,6 @@ import qualified Language.JavaScript.Parser.AST as AST
 %name parseLiteral           LiteralMain
 %name parseExpression        ExpressionMain
 %name parseStatement         StatementMain
-%name parseDeclaration       DeclarationMain
 
 %tokentype { Token }
 %error { parseError }
@@ -894,6 +892,7 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
                  | ThrowStatement      { $1 {- 'StatementNoEmpty13' -} }
                  | TryStatement        { $1 {- 'StatementNoEmpty14' -} }
                  | DebuggerStatement   { $1 {- 'StatementNoEmpty15' -} }
+                 | ExportDeclaration   { $1 {- 'StatementNoEmpty16' -} }
 
 
 StatementBlock :: { AST.JSStatement }
@@ -1152,10 +1151,6 @@ Program :: { AST.JSAST }
 Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
         | Eof                   	{ AST.JSAstProgram [] $1 	{- 'Program2' -} }
 
-
-Declaration :: { AST.JSDeclaration }
-Declaration : ExportDeclaration   { $1 {- 'Declaration1' -} }
-
 -- ExportDeclaration :                                                        See 15.2.3
 --        export * FromClause ;
 --        export ExportClause FromClause ;
@@ -1165,7 +1160,7 @@ Declaration : ExportDeclaration   { $1 {- 'Declaration1' -} }
 --        export default HoistableDeclaration[Default]
 --        export default ClassDeclaration[Default]
 --        export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
-ExportDeclaration :: { AST.JSDeclaration }
+ExportDeclaration :: { AST.JSStatement }
 ExportDeclaration : Export ExportClause AutoSemi { AST.JSExport $1 $2 $3 {- 'ExportDeclaration' -} }
 
 -- ExportClause :
@@ -1191,9 +1186,6 @@ ExpressionMain : Expression Eof					{ AST.JSAstExpression $1 $2 {- 'ExpressionMa
 
 StatementMain :: { AST.JSAST }
 StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'StatementMain' -} }
-
-DeclarationMain :: { AST.JSAST }
-DeclarationMain : Declaration Eof	     { AST.JSAstDeclaration $1 $2  {- 'DeclarationMain' -} }
 
 {
 

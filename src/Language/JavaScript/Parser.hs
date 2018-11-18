@@ -17,7 +17,6 @@ module Language.JavaScript.Parser
        , JSTryCatch (..)
        , JSTryFinally (..)
        , JSStatement (..)
-       , JSDeclaration (..)
        , JSSwitchParts (..)
        , JSAST(..)
 
