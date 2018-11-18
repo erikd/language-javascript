@@ -1,7 +1,9 @@
 module Language.JavaScript.Parser
        (
          PA.parse
+       , PA.parseModule
        , PA.readJs
+       , PA.readJsModule
        , PA.parseFile
        , PA.parseFileUtf8
        , PA.showStripped

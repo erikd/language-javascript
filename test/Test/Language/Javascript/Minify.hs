@@ -2,15 +2,18 @@ module Test.Language.Javascript.Minify
     ( testMinifyExpr
     , testMinifyStmt
     , testMinifyProg
+    , testMinifyModule
     ) where
 
 import Control.Monad (forM_)
 import Test.Hspec
 
-import Language.JavaScript.Parser
+import Language.JavaScript.Parser hiding (parseModule)
 import Language.JavaScript.Parser.Grammar7
-import Language.JavaScript.Parser.Parser
+import Language.JavaScript.Parser.Lexer (Alex)
+import Language.JavaScript.Parser.Parser hiding (parseModule)
 import Language.JavaScript.Process.Minify
+import qualified Language.JavaScript.Parser.AST as AST
 
 
 testMinifyExpr :: Spec
@@ -148,13 +151,6 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " { ; e = 1 } " `shouldBe` "e=1"
         minifyStmt " { { } ; f = 1 ; { } ; } ; " `shouldBe` "f=1"
 
-    it "export" $ do
-        minifyStmt " export { } ; " `shouldBe` "export{}"
-        minifyStmt " export { a } ; " `shouldBe` "export{a}"
-        minifyStmt " export { a, b } ; " `shouldBe` "export{a,b}"
-        minifyStmt " export { a, b as c , d } ; " `shouldBe` "export{a,b as c,d}"
-        minifyStmt " export const a = 1 ; " `shouldBe` "export const a=1"
-
     it "if" $ do
         minifyStmt " if ( 1 ) return ; " `shouldBe` "if(1)return"
         minifyStmt " if ( 1 ) ; " `shouldBe` "if(1);"
@@ -258,14 +254,29 @@ testMinifyProg = describe "Minify programs:" $ do
     it "try/catch/finally" $
         minifyProg " try { } catch (a) {} finally {} ; try { } catch ( b ) { } ; " `shouldBe` "try{}catch(a){}finally{}try{}catch(b){}"
 
+testMinifyModule :: Spec
+testMinifyModule = describe "Minify modules:" $
+    it "export" $ do
+        minifyModule " export { } ; " `shouldBe` "export{}"
+        minifyModule " export { a } ; " `shouldBe` "export{a}"
+        minifyModule " export { a, b } ; " `shouldBe` "export{a,b}"
+        minifyModule " export { a, b as c , d } ; " `shouldBe` "export{a,b as c,d}"
+        minifyModule " export const a = 1 ; " `shouldBe` "export const a=1"
+
 -- -----------------------------------------------------------------------------
 -- Minify test helpers.
 
 minifyExpr :: String -> String
-minifyExpr str = either id (renderToString . minifyJS) (parseUsing parseExpression str "src")
+minifyExpr = minifyWith parseExpression
 
 minifyStmt :: String -> String
-minifyStmt str = either id (renderToString . minifyJS) (parseUsing parseStatement str "src")
+minifyStmt = minifyWith parseStatement
 
 minifyProg :: String -> String
-minifyProg str = either id (renderToString . minifyJS) (parseUsing parseProgram str "src")
+minifyProg = minifyWith parseProgram
+
+minifyModule :: String -> String
+minifyModule = minifyWith parseModule
+
+minifyWith :: (Alex AST.JSAST) -> String -> String
+minifyWith p str = either id (renderToString . minifyJS) (parseUsing p str "src")

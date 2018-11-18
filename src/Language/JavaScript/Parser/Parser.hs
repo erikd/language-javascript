@@ -1,7 +1,9 @@
 module Language.JavaScript.Parser.Parser (
    -- * Parsing
      parse
+   , parseModule
    , readJs
+   , readJsModule
    -- , readJsKeepComments
    , parseFile
    , parseFileUtf8
@@ -12,27 +14,43 @@ module Language.JavaScript.Parser.Parser (
    , showStrippedMaybe
    ) where
 
-import Language.JavaScript.Parser.Grammar7
+import qualified Language.JavaScript.Parser.Grammar7 as P
 import Language.JavaScript.Parser.Lexer
 import qualified Language.JavaScript.Parser.AST as AST
 import System.IO
 
--- | Parse one compound statement, or a sequence of simple statements.
+-- | Parse JavaScript Program (Script)
+-- Parse one compound statement, or a sequence of simple statements.
 -- Generally used for interactive input, such as from the command line of an interpreter.
 -- Return comments in addition to the parsed statements.
 parse :: String -- ^ The input stream (Javascript source code).
       -> String -- ^ The name of the Javascript source (filename or input device).
-      -> Either String  AST.JSAST
+      -> Either String AST.JSAST
          -- ^ An error or maybe the abstract syntax tree (AST) of zero
          -- or more Javascript statements, plus comments.
-parse input _srcName = runAlex input parseProgram
+parse = parseUsing P.parseProgram
 
+-- | Parse JavaScript module
+parseModule :: String -- ^ The input stream (JavaScript source code).
+            -> String -- ^ The name of the JavaScript source (filename or input device).
+            -> Either String AST.JSAST
+            -- ^ An error or maybe the abstract syntax tree (AST) of zero
+            -- or more JavaScript statements, plus comments.
+parseModule = parseUsing P.parseModule
 
-readJs :: String -> AST.JSAST
-readJs input =
-  case parse input "src" of
+readJsWith :: (String -> String -> Either String AST.JSAST)
+           -> String
+           -> AST.JSAST
+readJsWith f input =
+  case f input "src" of
     Left msg -> error (show msg)
     Right p -> p
+
+readJs :: String -> AST.JSAST
+readJs = readJsWith parse
+
+readJsModule :: String -> AST.JSAST
+readJsModule = readJsWith parseModule
 
 -- | Parse the given file.
 -- For UTF-8 support, make sure your locale is set such that
@@ -74,4 +92,3 @@ parseUsing ::
          -- or more Javascript statements, plus comments.
 
 parseUsing p input _srcName = runAlex input p
-

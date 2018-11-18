@@ -55,6 +55,7 @@ class RenderJS a where
 
 instance RenderJS JSAST where
     (|>) pacc (JSAstProgram xs a)   = pacc |> xs |> a
+    (|>) pacc (JSAstModule xs a)    = pacc |> xs |> a
     (|>) pacc (JSAstStatement s a)  = pacc |> s |> a
     (|>) pacc (JSAstExpression e a) = pacc |> e |> a
     (|>) pacc (JSAstLiteral x a)    = pacc |> x |> a
@@ -239,10 +240,16 @@ instance RenderJS JSStatement where
     (|>) pacc (JSVariable annot xs s)                      = pacc |> annot |> "var" |> xs |> s
     (|>) pacc (JSWhile annot alp x1 arp x2)                = pacc |> annot |> "while" |> alp |> "(" |> x1 |> arp |> ")" |> x2
     (|>) pacc (JSWith annot alp x1 arp x s)                = pacc |> annot |> "with" |> alp |> "(" |> x1 |> arp |> ")" |> x |> s
-    (|>) pacc (JSExport annot b s)                         = pacc |> annot |> "export" |> b |> s
 
 instance RenderJS [JSStatement] where
     (|>) = foldl' (|>)
+
+instance RenderJS [JSModuleItem] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSModuleItem where
+    (|>) pacc (JSModuleExportDeclaration annot decl) = pacc |> annot |> "export" |> decl
+    (|>) pacc (JSModuleStatementListItem s) = pacc |> s
 
 instance RenderJS JSBlock where
     (|>) pacc (JSBlock alb ss arb) = pacc |> alb |> "{" |> ss |> arb |> "}"
@@ -267,14 +274,14 @@ instance RenderJS JSArrayElement where
 instance RenderJS [JSArrayElement] where
     (|>) = foldl' (|>)
 
-instance RenderJS JSExportBody where
-    (|>) pacc (JSExportStatement s) = pacc |> " " |> s
-    (|>) pacc (JSExportClause alb Nothing arb) = pacc |> alb |> "{}" |> arb
-    (|>) pacc (JSExportClause alb (Just s) arb) = pacc |> alb |> "{" |> s |> "}" |> arb
+instance RenderJS JSExportDeclaration where
+    (|>) pacc (JSExport x1 s) = pacc |> " " |> x1 |> s
+    (|>) pacc (JSExportLocals alb JSLNil arb semi) = pacc |> alb |> "{" |> arb |> "}" |> semi
+    (|>) pacc (JSExportLocals alb s arb semi) = pacc |> alb |> "{" |> s |> arb |> "}" |> semi
 
-instance RenderJS JSExportSpecifier where
-    (|>) pacc (JSExportSpecifier i) = pacc |> i
-    (|>) pacc (JSExportSpecifierAs x1 as x2) = pacc |> x1 |> as |> x2
+instance RenderJS JSExportLocalSpecifier where
+    (|>) pacc (JSExportLocalSpecifier i) = pacc |> i
+    (|>) pacc (JSExportLocalSpecifierAs x1 as x2) = pacc |> x1 |> as |> x2
 
 instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i

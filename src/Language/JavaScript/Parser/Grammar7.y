@@ -1,11 +1,12 @@
 {
 {-# LANGUAGE BangPatterns #-}
 module Language.JavaScript.Parser.Grammar7
-	( parseProgram
-	, parseStatement
-	, parseExpression
-	, parseLiteral
-	) where
+    ( parseProgram
+    , parseModule
+    , parseStatement
+    , parseExpression
+    , parseLiteral
+    ) where
 
 import Data.Char
 import Language.JavaScript.Parser.Lexer
@@ -18,6 +19,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 
 -- The name of the generated function to be exported from the module
 %name parseProgram           Program
+%name parseModule            Module
 %name parseLiteral           LiteralMain
 %name parseExpression        ExpressionMain
 %name parseStatement         StatementMain
@@ -897,7 +899,6 @@ StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
                  | ThrowStatement      { $1 {- 'StatementNoEmpty13' -} }
                  | TryStatement        { $1 {- 'StatementNoEmpty14' -} }
                  | DebuggerStatement   { $1 {- 'StatementNoEmpty15' -} }
-                 | ExportDeclaration   { $1 {- 'StatementNoEmpty16' -} }
 
 
 StatementBlock :: { AST.JSStatement }
@@ -1119,6 +1120,11 @@ StatementOrBlock :: { AST.JSStatement }
 StatementOrBlock : Block MaybeSemi		{ blockToStatement $1 $2 }
                  | Expression MaybeSemi { expressionToStatement $1 $2 }
 
+-- StatementListItem :
+--        Statement
+--        Declaration
+StatementListItem :: { AST.JSStatement }
+StatementListItem : Statement           { $1 }
 
 NamedFunctionExpression :: { AST.JSExpression }
 NamedFunctionExpression : Function Identifier LParen RParen FunctionBody
@@ -1156,6 +1162,32 @@ Program :: { AST.JSAST }
 Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
         | Eof                   	{ AST.JSAstProgram [] $1 	{- 'Program2' -} }
 
+-- Module :                                                                   See 15.2
+--        ModuleBody[opt]
+--
+-- ModuleBody :
+--        ModuleItemList
+Module :: { AST.JSAST }
+Module : ModuleItemList Eof     	{ AST.JSAstModule $1 $2   	{- 'Module1' -} }
+        | Eof                   	{ AST.JSAstModule [] $1 	{- 'Module2' -} }
+
+-- ModuleItemList :
+--         ModuleItem
+--         ModuleItemList ModuleItem
+ModuleItemList :: { [AST.JSModuleItem] }
+ModuleItemList : ModuleItem                  { [$1]         {- 'ModuleItemList1' -} }
+               | ModuleItemList ModuleItem   { ($1++[$2])   {- 'ModuleItemList2' -} }
+
+-- ModuleItem :
+--        ImportDeclaration
+--        ExportDeclaration
+--        StatementListItem
+ModuleItem :: { AST.JSModuleItem }
+ModuleItem : Export ExportDeclaration
+                    { AST.JSModuleExportDeclaration $1 $2   {- 'ModuleItem1' -} }
+           | StatementListItem
+                    { AST.JSModuleStatementListItem $1      {- 'ModuleItem2' -} }
+
 -- ExportDeclaration :                                                        See 15.2.3
 -- [ ]    export * FromClause ;
 -- [ ]    export ExportClause FromClause ;
@@ -1165,26 +1197,26 @@ Program : StatementList Eof     	{ AST.JSAstProgram $1 $2   	{- 'Program1' -} }
 -- [ ]    export default HoistableDeclaration[Default]
 -- [ ]    export default ClassDeclaration[Default]
 -- [ ]    export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
-ExportDeclaration :: { AST.JSStatement }
-ExportDeclaration : Export ExportClause AutoSemi
-                         { AST.JSExport $1 $2 $3                           {- 'ExportDeclaration1' -} }
-                  | Export VariableStatement AutoSemi
-                         { AST.JSExport $1 (AST.JSExportStatement $2) $3   {- 'ExportDeclaration2' -} }
+ExportDeclaration :: { AST.JSExportDeclaration }
+ExportDeclaration : ExportClause AutoSemi
+                         { $1                    {- 'ExportDeclaration1' -} }
+                  | VariableStatement AutoSemi
+                         { AST.JSExport $1 $2    {- 'ExportDeclaration2' -} }
 
 -- ExportClause :
 --           { }
 --           { ExportsList }
 --           { ExportsList , }
-ExportClause :: { AST.JSExportBody }
-ExportClause : LBrace RBrace
-                    { AST.JSExportClause $1 Nothing $2      {- 'ExportClause1' -} }
-             | LBrace ExportsList RBrace
-                    { AST.JSExportClause $1 (Just $2) $3    {- 'ExportClause2' -} }
+ExportClause :: { AST.JSExportDeclaration }
+ExportClause : LBrace RBrace AutoSemi
+                    { AST.JSExportLocals $1 AST.JSLNil $2 $3     {- 'ExportClause1' -} }
+             | LBrace ExportsList RBrace AutoSemi
+                    { AST.JSExportLocals $1 $2 $3 $4             {- 'ExportClause2' -} }
 
 -- ExportsList :
 --           ExportSpecifier
 --           ExportsList , ExportSpecifier
-ExportsList :: { AST.JSCommaList AST.JSExportSpecifier }
+ExportsList :: { AST.JSCommaList AST.JSExportLocalSpecifier }
 ExportsList : ExportSpecifier
                     { AST.JSLOne $1          {- 'ExportsList1' -} }
             | ExportsList Comma ExportSpecifier
@@ -1193,11 +1225,11 @@ ExportsList : ExportSpecifier
 -- ExportSpecifier :
 --           IdentifierName
 --           IdentifierName as IdentifierName
-ExportSpecifier :: { AST.JSExportSpecifier }
+ExportSpecifier :: { AST.JSExportLocalSpecifier }
 ExportSpecifier : IdentifierName
-                    { AST.JSExportSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
+                    { AST.JSExportLocalSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
                 | IdentifierName As IdentifierName
-                    { AST.JSExportSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
+                    { AST.JSExportLocalSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }
