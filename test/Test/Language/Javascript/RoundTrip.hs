@@ -5,6 +5,7 @@ module Test.Language.Javascript.RoundTrip
 import Test.Hspec
 
 import Language.JavaScript.Parser
+import qualified Language.JavaScript.Parser.AST as AST
 
 
 testRoundTrip :: Spec
@@ -98,10 +99,19 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "switch (x) {default:break;}"
         testRT "switch (x) {default:\ncase 1:break;}"
         testRT "var x=1;let y=2;"
-        -- modules
-        testRT "export   {};"
-        testRT "export {  a, X   as B,   c}"
+
+    it "module" $ do
+        testRTModule "export   {};"
+        testRTModule "  export {}   ;  "
+        testRTModule "export {  a  ,  b  ,  c  };"
+        testRTModule "export {  a, X   as B,   c }"
 
 
 testRT :: String -> Expectation
-testRT str = renderToString (readJs str) `shouldBe` str
+testRT = testRTWith readJs
+
+testRTModule :: String -> Expectation
+testRTModule = testRTWith readJsModule
+
+testRTWith :: (String -> AST.JSAST) -> String -> Expectation
+testRTWith f str = renderToString (f str) `shouldBe` str

@@ -10,8 +10,6 @@ module Language.JavaScript.Parser.AST
     , JSTryCatch (..)
     , JSTryFinally (..)
     , JSStatement (..)
-    , JSExportBody (..)
-    , JSExportSpecifier (..)
     , JSBlock (..)
     , JSSwitchParts (..)
     , JSAST (..)
@@ -24,6 +22,11 @@ module Language.JavaScript.Parser.AST
     , JSArrayElement (..)
     , JSCommaList (..)
     , JSCommaTrailingList (..)
+
+    -- Modules
+    , JSModuleItem (..)
+    , JSExportDeclaration (..)
+    , JSExportLocalSpecifier (..)
 
     , binOpEq
     , showStripped
@@ -44,10 +47,32 @@ data JSAnnot
 
 
 data JSAST
-    = JSAstProgram ![JSStatement] !JSAnnot -- ^source elements, tailing whitespace
+    = JSAstProgram ![JSStatement] !JSAnnot -- ^source elements, trailing whitespace
+    | JSAstModule ![JSModuleItem] !JSAnnot
     | JSAstStatement !JSStatement !JSAnnot
     | JSAstExpression !JSExpression !JSAnnot
     | JSAstLiteral !JSExpression !JSAnnot
+    deriving (Data, Eq, Show, Typeable)
+
+-- Shift AST
+-- https://github.com/shapesecurity/shift-spec/blob/83498b92c436180cc0e2115b225a68c08f43c53e/spec.idl#L229-L234
+data JSModuleItem
+    -- = JSImportDeclaration
+    = JSModuleExportDeclaration !JSAnnot !JSExportDeclaration -- ^export,decl
+    | JSModuleStatementListItem !JSStatement
+    deriving (Data, Eq, Show, Typeable)
+
+data JSExportDeclaration
+    -- = JSExportAllFrom
+    -- | JSExportFrom
+    = JSExportLocals !JSAnnot !(JSCommaList JSExportLocalSpecifier) !JSAnnot !JSSemi -- ^lb, specifiers, rb, autosemi
+    | JSExport !JSStatement !JSSemi -- ^body, autosemi
+    -- | JSExportDefault
+    deriving (Data, Eq, Show, Typeable)
+
+data JSExportLocalSpecifier
+    = JSExportLocalSpecifier !JSIdent -- ^ident
+    | JSExportLocalSpecifierAs !JSIdent !JSBinOp !JSIdent -- ^ident1, as, ident2
     deriving (Data, Eq, Show, Typeable)
 
 data JSStatement
@@ -76,7 +101,6 @@ data JSStatement
     | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
-    | JSExport !JSAnnot !JSExportBody !JSSemi -- ^export, body, autosemi
     deriving (Data, Eq, Show, Typeable)
 
 data JSExpression
@@ -172,16 +196,6 @@ data JSAssignOp
     | JSBwOrAssign !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
-data JSExportBody
-    = JSExportStatement !JSStatement
-    | JSExportClause !JSAnnot !(Maybe (JSCommaList JSExportSpecifier)) !JSAnnot -- ^lb,body,rb
-    deriving (Data, Eq, Show, Typeable)
-
-data JSExportSpecifier
-    = JSExportSpecifier !JSIdent
-    | JSExportSpecifierAs !JSIdent !JSBinOp !JSIdent
-    deriving (Data, Eq, Show, Typeable)
-
 data JSTryCatch
     = JSCatch !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSBlock -- ^catch,lb,ident,rb,block
     | JSCatchIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSExpression !JSAnnot !JSBlock -- ^catch,lb,ident,if,expr,rb,block
@@ -252,6 +266,7 @@ data JSCommaTrailingList a
 -- Strip out the location info
 showStripped :: JSAST -> String
 showStripped (JSAstProgram xs _) = "JSAstProgram " ++ ss xs
+showStripped (JSAstModule xs _) = "JSAstModule " ++ ss xs
 showStripped (JSAstStatement s _) = "JSAstStatement (" ++ ss s ++ ")"
 showStripped (JSAstExpression e _) = "JSAstExpression (" ++ ss e ++ ")"
 showStripped (JSAstLiteral s _)  = "JSAstLiteral (" ++ ss s ++ ")"
@@ -289,7 +304,6 @@ instance ShowStripped JSStatement where
     ss (JSVariable _ xs _as) = "JSVariable " ++ ss xs
     ss (JSWhile _ _lb x1 _rb x2) = "JSWhile (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSWith _ _lb x1 _rb x _) = "JSWith (" ++ ss x1 ++ ") (" ++ ss x ++ ")"
-    ss (JSExport _ b _) = "JSExport (" ++ ss b ++ ")"
 
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
@@ -322,14 +336,17 @@ instance ShowStripped JSExpression where
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
     ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
 
-instance ShowStripped JSExportBody where
-    ss (JSExportStatement x1) = "JSExportStatement (" ++ ss x1 ++ ")"
-    ss (JSExportClause _ Nothing _) = "JSExportClause ()"
-    ss (JSExportClause _ (Just x1) _) = "JSExportClause (" ++ ss x1 ++ ")"
+instance ShowStripped JSModuleItem where
+    ss (JSModuleExportDeclaration _ x1) = "JSModuleExportDeclaration (" ++ ss x1 ++ ")"
+    ss (JSModuleStatementListItem x1) = "JSModuleStatementListItem (" ++ ss x1 ++ ")"
 
-instance ShowStripped JSExportSpecifier where
-    ss (JSExportSpecifier x1) = "JSExportSpecifier (" ++ ss x1 ++ ")"
-    ss (JSExportSpecifierAs x1 _ x2) = "JSExportSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
+instance ShowStripped JSExportDeclaration where
+    ss (JSExportLocals _ xs _ _) = "JSExportLocals (" ++ ss xs ++ ")"
+    ss (JSExport x1 _) = "JSExport (" ++ ss x1 ++ ")"
+
+instance ShowStripped JSExportLocalSpecifier where
+    ss (JSExportLocalSpecifier x1) = "JSExportLocalSpecifier (" ++ ss x1 ++ ")"
+    ss (JSExportLocalSpecifierAs x1 _ x2) = "JSExportLocalSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
 
 instance ShowStripped JSTryCatch where
     ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"

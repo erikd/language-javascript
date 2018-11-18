@@ -15,6 +15,7 @@ import Language.JavaScript.Parser.Token
 
 minifyJS :: JSAST -> JSAST
 minifyJS (JSAstProgram xs _) = JSAstProgram (fixStatementList noSemi xs) emptyAnnot
+minifyJS (JSAstModule xs _) = JSAstModule (map (fix emptyAnnot) xs) emptyAnnot
 minifyJS (JSAstStatement (JSStatementBlock _ [s] _ _) _) = JSAstStatement (fixStmtE noSemi s) emptyAnnot
 minifyJS (JSAstStatement s _) = JSAstStatement (fixStmtE noSemi s) emptyAnnot
 minifyJS (JSAstExpression e _) =  JSAstExpression (fixEmpty e) emptyAnnot
@@ -64,7 +65,6 @@ fixStmt a _ (JSTry _ b tc tf) = JSTry a (fixEmpty b) (map fixEmpty tc) (fixEmpty
 fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
 fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot (fixStmt a s st)
 fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE noSemi st) s
-fixStmt a s (JSExport _ b _) = JSExport a (fixEmpty b) s
 
 
 fixIfElseBlock :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
@@ -267,13 +267,17 @@ instance MinifyJS JSAssignOp where
     fix a (JSBwXorAssign  _) = JSBwXorAssign a
     fix a (JSBwOrAssign   _) = JSBwOrAssign a
 
-instance MinifyJS JSExportBody where
-    fix a (JSExportStatement s) = JSExportStatement (fixStmt a noSemi s)
-    fix _ (JSExportClause _ x1 _) = JSExportClause emptyAnnot (fixEmpty <$> x1) emptyAnnot
+instance MinifyJS JSModuleItem where
+    fix _ (JSModuleExportDeclaration _ x1) = JSModuleExportDeclaration emptyAnnot (fixEmpty x1)
+    fix a (JSModuleStatementListItem s) = JSModuleStatementListItem (fixStmt a noSemi s)
 
-instance MinifyJS JSExportSpecifier where
-    fix _ (JSExportSpecifier x1) = JSExportSpecifier (fixEmpty x1)
-    fix _ (JSExportSpecifierAs x1 as x2) = JSExportSpecifierAs (fixEmpty x1) (fixSpace as) (fixSpace x2)
+instance MinifyJS JSExportDeclaration where
+    fix _ (JSExportLocals _ x1 _ _) = JSExportLocals emptyAnnot (fixEmpty x1) emptyAnnot noSemi
+    fix _ (JSExport x1 _) = JSExport (fixStmt emptyAnnot noSemi x1) noSemi
+
+instance MinifyJS JSExportLocalSpecifier where
+    fix _ (JSExportLocalSpecifier x1) = JSExportLocalSpecifier (fixEmpty x1)
+    fix _ (JSExportLocalSpecifierAs x1 as x2) = JSExportLocalSpecifierAs (fixEmpty x1) (fixSpace as) (fixSpace x2)
 
 instance MinifyJS JSTryCatch where
     fix a (JSCatch _ _ x1 _ x3) = JSCatch a emptyAnnot (fixEmpty x1) emptyAnnot (fixEmpty x3)

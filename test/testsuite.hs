@@ -9,6 +9,7 @@ import Test.Language.Javascript.ExpressionParser
 import Test.Language.Javascript.Lexer
 import Test.Language.Javascript.LiteralParser
 import Test.Language.Javascript.Minify
+import Test.Language.Javascript.ModuleParser
 import Test.Language.Javascript.ProgramParser
 import Test.Language.Javascript.RoundTrip
 import Test.Language.Javascript.StatementParser
@@ -29,7 +30,9 @@ testAll = do
     testExpressionParser
     testStatementParser
     testProgramParser
+    testModuleParser
     testRoundTrip
     testMinifyExpr
     testMinifyStmt
     testMinifyProg
+    testMinifyModule
