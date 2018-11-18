@@ -101,5 +101,4 @@ testRoundTrip = describe "Roundtrip:" $ do
 
 
 testRT :: String -> Expectation
-testRT str = str `shouldBe` renderToString (readJs str)
-
+testRT str = renderToString (readJs str) `shouldBe` str
