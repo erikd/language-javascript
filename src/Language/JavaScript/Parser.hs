@@ -40,5 +40,3 @@ import Language.JavaScript.Parser.SrcLocation
 import Language.JavaScript.Pretty.Printer
 
 -- EOF
-
-

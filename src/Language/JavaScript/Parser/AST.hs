@@ -233,7 +233,7 @@ data JSCommaTrailingList a
     deriving (Data, Eq, Show, Typeable)
 
 -- -----------------------------------------------------------------------------
--- | Show the AST elements stipped of their JSAnnot data.
+-- | Show the AST elements stripped of their JSAnnot data.
 
 -- Strip out the location info
 showStripped :: JSAST -> String

@@ -101,4 +101,3 @@ testStatementParser = describe "Parse statements:" $ do
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
-
