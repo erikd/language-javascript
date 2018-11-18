@@ -19,7 +19,7 @@ import qualified Language.JavaScript.Parser.AST as AST
 -- The name of the generated function to be exported from the module
 %name parseProgram           Program
 %name parseLiteral           LiteralMain
-%name parseExpression		 ExpressionMain
+%name parseExpression        ExpressionMain
 %name parseStatement         StatementMain
 
 %tokentype { Token }
