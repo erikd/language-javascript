@@ -3,9 +3,11 @@
 # See http://www.reddit.com/r/haskell/comments/1os3f6/how_to_use_travisci_with_multiple_ghc_versions/
 
 env:
+ - GHCVER=7.10.3
  - GHCVER=8.0.2
  - GHCVER=8.2.2
- - GHCVER=8.4.3
+ - GHCVER=8.4.4
+ - GHCVER=8.6.2
 
 before_install:
  - sudo add-apt-repository -y ppa:hvr/ghc
