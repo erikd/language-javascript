@@ -1,6 +1,8 @@
-# language: haskell
+sudo: required
+language: c
 
-# See http://www.reddit.com/r/haskell/comments/1os3f6/how_to_use_travisci_with_multiple_ghc_versions/
+os: linux
+dist: xenial
 
 env:
  - GHCVER=7.10.3
