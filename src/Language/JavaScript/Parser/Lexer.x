@@ -535,6 +535,7 @@ keywordNames =
 
     , ( "null", NullToken ) -- null literal
 
+    , ( "of", OfToken )
     , ( "return", ReturnToken )
     , ( "switch", SwitchToken )
     , ( "this", ThisToken )

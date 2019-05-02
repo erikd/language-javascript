@@ -110,6 +110,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'let'        { LetToken {} }
      'new'        { NewToken {} }
      'null'       { NullToken {} }
+     'of'         { OfToken {} }
      'return'     { ReturnToken {} }
      'set'        { SetToken {} }
      'switch'     { SwitchToken {} }
@@ -270,6 +271,9 @@ StrictNe : '!==' { AST.JSBinOpStrictNeq (mkJSAnnot $1) }
 
 Ne :: { AST.JSBinOp }
 Ne : '!=' { AST.JSBinOpNeq (mkJSAnnot $1)}
+
+Of :: { AST.JSBinOp }
+Of : 'of' { AST.JSBinOpOf (mkJSAnnot $1) }
 
 Or :: { AST.JSBinOp }
 Or : '||' { AST.JSBinOpOr (mkJSAnnot $1) }
@@ -470,6 +474,7 @@ IdentifierName : Identifier {$1}
              | 'let'        { AST.JSIdentifier (mkJSAnnot $1) "let" }
              | 'new'        { AST.JSIdentifier (mkJSAnnot $1) "new" }
              | 'null'       { AST.JSIdentifier (mkJSAnnot $1) "null" }
+             | 'of'         { AST.JSIdentifier (mkJSAnnot $1) "of" }
              | 'return'     { AST.JSIdentifier (mkJSAnnot $1) "return" }
              | 'set'        { AST.JSIdentifier (mkJSAnnot $1) "set" }
              | 'switch'     { AST.JSIdentifier (mkJSAnnot $1) "switch" }
@@ -1005,9 +1010,19 @@ IterationStatement : Do StatementNoEmpty While LParen Expression RParen MaybeSem
                    | For LParen Var VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement
                      { AST.JSForVar $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 {- 'IterationStatement4' -} }
                    | For LParen LeftHandSideExpression In Expression RParen Statement
-                     { AST.JSForIn $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement 5-} }
+                     { AST.JSForIn $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement 5' -} }
                    | For LParen Var VariableDeclarationNoIn In Expression RParen Statement
                      { AST.JSForVarIn $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement6' -} }
+                   | For LParen Let VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement
+                     { AST.JSForLet $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 {- 'IterationStatement 7' -} }
+                   | For LParen Let VariableDeclarationNoIn In Expression RParen Statement
+                     { AST.JSForLetIn $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement 8' -} }
+                   | For LParen Let VariableDeclarationNoIn Of Expression RParen Statement
+                     { AST.JSForLetOf $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement 9' -} }
+                   | For LParen LeftHandSideExpression Of Expression RParen Statement
+                     { AST.JSForOf $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement 10'-} }
+                   | For LParen Var VariableDeclarationNoIn Of Expression RParen Statement
+                     { AST.JSForVarOf $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement 11' -} }
 
 -- ContinueStatement :                                                                      See 12.7
 --         continue [no LineTerminator here] Identifieropt ;

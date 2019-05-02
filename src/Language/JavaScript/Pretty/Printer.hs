@@ -155,6 +155,7 @@ instance RenderJS JSBinOp where
     (|>) pacc (JSBinOpMinus      annot)  = pacc |> annot |> "-"
     (|>) pacc (JSBinOpMod        annot)  = pacc |> annot |> "%"
     (|>) pacc (JSBinOpNeq        annot)  = pacc |> annot |> "!="
+    (|>) pacc (JSBinOpOf         annot)  = pacc |> annot |> "of"
     (|>) pacc (JSBinOpOr         annot)  = pacc |> annot |> "||"
     (|>) pacc (JSBinOpPlus       annot)  = pacc |> annot |> "+"
     (|>) pacc (JSBinOpRsh        annot)  = pacc |> annot |> ">>"
@@ -225,6 +226,11 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForIn af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForVar af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
     (|>) pacc (JSForVarIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForLet af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "let" |> v |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
+    (|>) pacc (JSForLetIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "let" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForLetOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "let" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForOf af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForVarOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFunction af n alb x2s arb x3 s)           = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s
     (|>) pacc (JSIfElse annot alb x1 arb x2s ea x3s)       = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> ea |> "else" |> x3s

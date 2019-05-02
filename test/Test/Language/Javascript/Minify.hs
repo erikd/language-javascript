@@ -180,7 +180,11 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " for (var x ; y ; z) { } " `shouldBe` "for(var x;y;z){}"
         minifyStmt " for ( x in 5 ) foo (x) ;" `shouldBe` "for(x in 5)foo(x)"
         minifyStmt " for ( var x in 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(var x in 5){foo(x++);y++}"
-
+        minifyStmt " for (let x ; y ; z) { } " `shouldBe` "for(let x;y;z){}"
+        minifyStmt " for ( let x in 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(let x in 5){foo(x++);y++}"
+        minifyStmt " for ( let x of 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(let x of 5){foo(x++);y++}"
+        minifyStmt " for ( x of 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(x of 5){foo(x++);y++}"
+        minifyStmt " for ( var x of 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(var x of 5){foo(x++);y++}"
     it "labelled" $ do
         minifyStmt " start : while ( true ) { if ( i ++ < 3 ) continue start ; break ; } ; " `shouldBe` "start:while(true){if(i++<3)continue start;break}"
         minifyStmt " { k ++ ; start : while ( true ) { if ( i ++ < 3 ) continue start ; break ; } ; } ; " `shouldBe` "{k++;start:while(true){if(i++<3)continue start;break}}"
