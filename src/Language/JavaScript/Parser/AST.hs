@@ -127,6 +127,11 @@ data JSStatement
     | JSForIn !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVar !JSAnnot !JSAnnot !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
     | JSForVarIn !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSForLet !JSAnnot !JSAnnot !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSStatement -- ^for,lb,var,vardecl,semi,expr,semi,expr,rb,stmt
+    | JSForLetIn !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSForLetOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSForOf !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,expr,in,expr,rb,stmt
+    | JSForVarOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^if,(,expr,),stmt
     | JSIfElse !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSAnnot !JSStatement -- ^if,(,expr,),stmt,else,rest
@@ -196,6 +201,7 @@ data JSBinOp
     | JSBinOpMinus !JSAnnot
     | JSBinOpMod !JSAnnot
     | JSBinOpNeq !JSAnnot
+    | JSBinOpOf !JSAnnot
     | JSBinOpOr !JSAnnot
     | JSBinOpPlus !JSAnnot
     | JSBinOpRsh !JSAnnot
@@ -328,6 +334,11 @@ instance ShowStripped JSStatement where
     ss (JSForIn _ _lb x1s _i x2 _rb x3) = "JSForIn " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSForVar _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForVar " ++ ss x1s ++ " " ++ ss x2s ++ " " ++ ss x3s ++ " (" ++ ss x4 ++ ")"
     ss (JSForVarIn _ _lb _v x1 _i x2 _rb x3) = "JSForVarIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+    ss (JSForLet _ _lb _v x1s _s1 x2s _s2 x3s _rb x4) = "JSForLet " ++ ss x1s ++ " " ++ ss x2s ++ " " ++ ss x3s ++ " (" ++ ss x4 ++ ")"
+    ss (JSForLetIn _ _lb _v x1 _i x2 _rb x3) = "JSForLetIn (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+    ss (JSForLetOf _ _lb _v x1 _i x2 _rb x3) = "JSForLetOf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+    ss (JSForOf _ _lb x1s _i x2 _rb x3) = "JSForOf " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
+    ss (JSForVarOf _ _lb _v x1 _i x2 _rb x3) = "JSForVarOf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSFunction _ n _lb pl _rb x3 _) = "JSFunction " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
     ss (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
@@ -463,6 +474,7 @@ instance ShowStripped JSBinOp where
     ss (JSBinOpMinus _) = "'-'"
     ss (JSBinOpMod _) = "'%'"
     ss (JSBinOpNeq _) = "'!='"
+    ss (JSBinOpOf _) = "'of'"
     ss (JSBinOpOr _) = "'||'"
     ss (JSBinOpPlus _) = "'+'"
     ss (JSBinOpRsh _) = "'>>'"
@@ -559,6 +571,7 @@ deAnnot (JSBinOpLt _) = JSBinOpLt JSNoAnnot
 deAnnot (JSBinOpMinus _) = JSBinOpMinus JSNoAnnot
 deAnnot (JSBinOpMod _) = JSBinOpMod JSNoAnnot
 deAnnot (JSBinOpNeq _) = JSBinOpNeq JSNoAnnot
+deAnnot (JSBinOpOf _) = JSBinOpOf JSNoAnnot
 deAnnot (JSBinOpOr _) = JSBinOpOr JSNoAnnot
 deAnnot (JSBinOpPlus _) = JSBinOpPlus JSNoAnnot
 deAnnot (JSBinOpRsh _) = JSBinOpRsh JSNoAnnot

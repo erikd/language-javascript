@@ -61,6 +61,14 @@ testLexer = describe "Lexer:" $ do
         testLex "continue\nx=1"  `shouldBe` "[ContinueToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
         testLex "return\nx=1"    `shouldBe` "[ReturnToken,WsToken,IdentifierToken 'x',SimpleAssignToken,DecimalToken 1]"
 
+    it "var/let" $ do
+        testLex "var\n"     `shouldBe` "[VarToken,WsToken]"
+        testLex "let\n"     `shouldBe` "[LetToken,WsToken]"
+
+    it "in/of" $ do
+        testLex "in\n"     `shouldBe` "[InToken,WsToken]"
+        testLex "of\n"     `shouldBe` "[OfToken,WsToken]"
+
 
 testLex :: String -> String
 testLex str =
