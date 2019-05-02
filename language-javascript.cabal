@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.6.0.11
+Version:             0.6.0.12
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -17,6 +17,7 @@ Build-type:          Simple
 homepage:            https://github.com/erikd/language-javascript
 bug-reports:         https://github.com/erikd/language-javascript/issues
 Extra-source-files:  README.md
+                     ChangeLog.md
                      .ghci
                      buildall.sh
                      test/Unicode.js
