@@ -1261,6 +1261,15 @@ ImportSpecifier : IdentifierName
 -- [x]    export ExportClause ;
 -- [x]    export VariableStatement
 -- [ ]    export Declaration
+-- [ ]    Declaration :
+-- [ ]       HoistableDeclaration
+-- [ ]       ClassDeclaration
+-- [x]       LexicalDeclaration
+-- [ ]    HoistableDeclaration :
+-- [x]       FunctionDeclaration
+-- [ ]       GeneratorDeclaration
+-- [ ]       AsyncFunctionDeclaration
+-- [ ]       AsyncGeneratorDeclaration
 -- [ ]    export default HoistableDeclaration[Default]
 -- [ ]    export default ClassDeclaration[Default]
 -- [ ]    export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
@@ -1268,6 +1277,8 @@ ExportDeclaration :: { AST.JSExportDeclaration }
 ExportDeclaration : ExportClause AutoSemi
                          { $1                    {- 'ExportDeclaration1' -} }
                   | VariableStatement AutoSemi
+                         { AST.JSExport $1 $2    {- 'ExportDeclaration2' -} }
+                  | FunctionDeclaration AutoSemi
                          { AST.JSExport $1 $2    {- 'ExportDeclaration2' -} }
 
 -- ExportClause :
