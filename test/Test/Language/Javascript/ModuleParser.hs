@@ -47,6 +47,9 @@ testModuleParser = describe "Parse modules:" $ do
         test "export const a = 1;"
             `shouldBe`
             "Right (JSAstModule [JSModuleExportDeclaration (JSExport (JSConstant (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1'])))])"
+        test "export function f() {};"
+            `shouldBe`
+            "Right (JSAstModule [JSModuleExportDeclaration (JSExport (JSFunction 'f' () (JSBlock [])))])"
         test "export { a };"
             `shouldBe`
             "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals ((JSExportLocalSpecifier (JSIdentifier 'a'))))])"
