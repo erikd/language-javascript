@@ -87,7 +87,7 @@ data JSFromClause
 
 -- | Import namespace, e.g. '* as whatever'
 data JSImportNameSpace
-    = JSImportNameSpace !JSBinOp !JSBinOp !JSIdent -- ^ *, as, ident
+    = JSImportNameSpace !JSBinOp !JSAnnot !JSIdent -- ^ *, as, ident
     deriving (Data, Eq, Show, Typeable)
 
 -- | Named imports, e.g. '{ foo, bar, baz as quux }'
@@ -100,7 +100,7 @@ data JSImportsNamed
 -- grammar is slightly different (e.g. in handling of reserved words).
 data JSImportSpecifier
     = JSImportSpecifier !JSIdent -- ^ident
-    | JSImportSpecifierAs !JSIdent !JSBinOp !JSIdent -- ^ident, as, ident
+    | JSImportSpecifierAs !JSIdent !JSAnnot !JSIdent -- ^ident, as, ident
     deriving (Data, Eq, Show, Typeable)
 
 data JSExportDeclaration
@@ -113,7 +113,7 @@ data JSExportDeclaration
 
 data JSExportLocalSpecifier
     = JSExportLocalSpecifier !JSIdent -- ^ident
-    | JSExportLocalSpecifierAs !JSIdent !JSBinOp !JSIdent -- ^ident1, as, ident2
+    | JSExportLocalSpecifierAs !JSIdent !JSAnnot !JSIdent -- ^ident1, as, ident2
     deriving (Data, Eq, Show, Typeable)
 
 data JSStatement
@@ -185,7 +185,6 @@ data JSExpression
 
 data JSBinOp
     = JSBinOpAnd !JSAnnot
-    | JSBinOpAs !JSAnnot
     | JSBinOpBitAnd !JSAnnot
     | JSBinOpBitOr !JSAnnot
     | JSBinOpBitXor !JSAnnot
@@ -458,7 +457,6 @@ instance ShowStripped JSSwitchParts where
 
 instance ShowStripped JSBinOp where
     ss (JSBinOpAnd _) = "'&&'"
-    ss (JSBinOpAs _) = "'as'"
     ss (JSBinOpBitAnd _) = "'&'"
     ss (JSBinOpBitOr _) = "'|'"
     ss (JSBinOpBitXor _) = "'^'"
@@ -555,7 +553,6 @@ commaIf xs = ',' : xs
 
 deAnnot :: JSBinOp -> JSBinOp
 deAnnot (JSBinOpAnd _) = JSBinOpAnd JSNoAnnot
-deAnnot (JSBinOpAs _) = JSBinOpAs JSNoAnnot
 deAnnot (JSBinOpBitAnd _) = JSBinOpBitAnd JSNoAnnot
 deAnnot (JSBinOpBitOr _) = JSBinOpBitOr JSNoAnnot
 deAnnot (JSBinOpBitXor _) = JSBinOpBitXor JSNoAnnot

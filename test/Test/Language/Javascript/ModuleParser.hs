@@ -9,6 +9,11 @@ import Language.JavaScript.Parser
 
 testModuleParser :: Spec
 testModuleParser = describe "Parse modules:" $ do
+    it "as" $
+        test "as"
+            `shouldBe`
+            "Right (JSAstModule [JSModuleStatementListItem (JSIdentifier 'as')])"
+
     it "import" $ do
         -- Not yet supported
         -- test "import 'a';"            `shouldBe` ""

@@ -503,8 +503,7 @@ keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
-    [ ( "as", AsToken )
-    , ( "break", BreakToken )
+    [ ( "break", BreakToken )
     , ( "case", CaseToken )
     , ( "catch", CatchToken )
 
@@ -549,6 +548,7 @@ keywordNames =
     , ( "with", WithToken )
     -- TODO: no idea if these are reserved or not, but they are needed
     --       handled in parser, in the Identifier rule
+    , ( "as", AsToken ) -- not reserved
     , ( "get", GetToken )
     , ( "set", SetToken )
     {- Come from Table 6 of ECMASCRIPT 5.1, Attributes of a Named Accessor Property
