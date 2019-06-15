@@ -194,6 +194,9 @@ Spread : '...' { mkJSAnnot $1 }
 Dot :: { AST.JSAnnot }
 Dot : '.' { mkJSAnnot $1 }
 
+As :: { AST.JSAnnot }
+As : 'as' { mkJSAnnot $1 }
+
 Increment :: { AST.JSUnaryOp }
 Increment : '++' { AST.JSUnaryOpIncr (mkJSAnnot $1) }
 
@@ -250,9 +253,6 @@ Ge : '>=' { AST.JSBinOpGe (mkJSAnnot $1) }
 
 Gt :: { AST.JSBinOp }
 Gt : '>' { AST.JSBinOpGt (mkJSAnnot $1) }
-
-As :: { AST.JSBinOp }
-As : 'as' { AST.JSBinOpAs (mkJSAnnot $1) }
 
 In :: { AST.JSBinOp }
 In : 'in' { AST.JSBinOpIn (mkJSAnnot $1) }
@@ -442,6 +442,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
 --         IdentifierName IdentifierPart
 Identifier :: { AST.JSExpression }
 Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
+           | 'as'    { AST.JSIdentifier (mkJSAnnot $1) "as" }
            | 'get'   { AST.JSIdentifier (mkJSAnnot $1) "get" }
            | 'set'   { AST.JSIdentifier (mkJSAnnot $1) "set" }
            | 'from'  { AST.JSIdentifier (mkJSAnnot $1) "from" }

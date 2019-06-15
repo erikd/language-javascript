@@ -139,7 +139,6 @@ instance RenderJS [JSExpression] where
 
 instance RenderJS JSBinOp where
     (|>) pacc (JSBinOpAnd        annot)  = pacc |> annot |> "&&"
-    (|>) pacc (JSBinOpAs         annot)  = pacc |> annot |> "as"
     (|>) pacc (JSBinOpBitAnd     annot)  = pacc |> annot |> "&"
     (|>) pacc (JSBinOpBitOr      annot)  = pacc |> annot |> "|"
     (|>) pacc (JSBinOpBitXor     annot)  = pacc |> annot |> "^"
@@ -295,14 +294,14 @@ instance RenderJS JSFromClause where
     (|>) pacc (JSFromClause from annot m) = pacc |> from |> "from" |> annot |> m
 
 instance RenderJS JSImportNameSpace where
-    (|>) pacc (JSImportNameSpace star as x) = pacc |> star |> as |> x
+    (|>) pacc (JSImportNameSpace star annot x) = pacc |> star |> annot |> "as" |> x
 
 instance RenderJS JSImportsNamed where
     (|>) pacc (JSImportsNamed lb xs rb) = pacc |> lb |> "{" |> xs |> rb |> "}"
 
 instance RenderJS JSImportSpecifier where
     (|>) pacc (JSImportSpecifier x1) = pacc |> x1
-    (|>) pacc (JSImportSpecifierAs x1 as x2) = pacc |> x1 |> as |> x2
+    (|>) pacc (JSImportSpecifierAs x1 annot x2) = pacc |> x1 |> annot |> "as" |> x2
 
 instance RenderJS JSExportDeclaration where
     (|>) pacc (JSExport x1 s) = pacc |> " " |> x1 |> s
@@ -311,7 +310,7 @@ instance RenderJS JSExportDeclaration where
 
 instance RenderJS JSExportLocalSpecifier where
     (|>) pacc (JSExportLocalSpecifier i) = pacc |> i
-    (|>) pacc (JSExportLocalSpecifierAs x1 as x2) = pacc |> x1 |> as |> x2
+    (|>) pacc (JSExportLocalSpecifierAs x1 annot x2) = pacc |> x1 |> annot |> "as" |> x2
 
 instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i

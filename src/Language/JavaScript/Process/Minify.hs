@@ -215,7 +215,6 @@ normalizeToSQ str =
 
 instance MinifyJS JSBinOp where
     fix _ (JSBinOpAnd        _) = JSBinOpAnd emptyAnnot
-    fix a (JSBinOpAs         _) = JSBinOpAs a
     fix _ (JSBinOpBitAnd     _) = JSBinOpBitAnd emptyAnnot
     fix _ (JSBinOpBitOr      _) = JSBinOpBitOr emptyAnnot
     fix _ (JSBinOpBitXor     _) = JSBinOpBitXor emptyAnnot
@@ -299,14 +298,14 @@ instance MinifyJS JSFromClause where
     fix a (JSFromClause _ _ m) = JSFromClause a emptyAnnot m
 
 instance MinifyJS JSImportNameSpace where
-    fix a (JSImportNameSpace _ _ ident) = JSImportNameSpace (JSBinOpTimes a) (JSBinOpAs spaceAnnot) (fixSpace ident)
+    fix a (JSImportNameSpace _ _ ident) = JSImportNameSpace (JSBinOpTimes a) spaceAnnot (fixSpace ident)
 
 instance MinifyJS JSImportsNamed where
-    fix _ (JSImportsNamed _ imps _) = JSImportsNamed emptyAnnot (fixEmpty imps) emptyAnnot 
+    fix _ (JSImportsNamed _ imps _) = JSImportsNamed emptyAnnot (fixEmpty imps) emptyAnnot
 
 instance MinifyJS JSImportSpecifier where
     fix _ (JSImportSpecifier x1) = JSImportSpecifier (fixEmpty x1)
-    fix _ (JSImportSpecifierAs x1 as x2) = JSImportSpecifierAs (fixEmpty x1) (fixSpace as) (fixSpace x2)
+    fix _ (JSImportSpecifierAs x1 _ x2) = JSImportSpecifierAs (fixEmpty x1) spaceAnnot (fixSpace x2)
 
 instance MinifyJS JSExportDeclaration where
     fix _ (JSExportLocals _ x1 _ _) = JSExportLocals emptyAnnot (fixEmpty x1) emptyAnnot noSemi
@@ -314,7 +313,7 @@ instance MinifyJS JSExportDeclaration where
 
 instance MinifyJS JSExportLocalSpecifier where
     fix _ (JSExportLocalSpecifier x1) = JSExportLocalSpecifier (fixEmpty x1)
-    fix _ (JSExportLocalSpecifierAs x1 as x2) = JSExportLocalSpecifierAs (fixEmpty x1) (fixSpace as) (fixSpace x2)
+    fix _ (JSExportLocalSpecifierAs x1 _ x2) = JSExportLocalSpecifierAs (fixEmpty x1) spaceAnnot (fixSpace x2)
 
 instance MinifyJS JSTryCatch where
     fix a (JSCatch _ _ x1 _ x3) = JSCatch a emptyAnnot (fixEmpty x1) emptyAnnot (fixEmpty x3)
