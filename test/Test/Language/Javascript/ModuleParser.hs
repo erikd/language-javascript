@@ -40,10 +40,10 @@ testModuleParser = describe "Parse modules:" $ do
     it "export" $ do
         test "export {}"
             `shouldBe`
-            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals (()))])"
+            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals (JSExportClause (())))])"
         test "export {};"
             `shouldBe`
-            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals (()))])"
+            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals (JSExportClause (())))])"
         test "export const a = 1;"
             `shouldBe`
             "Right (JSAstModule [JSModuleExportDeclaration (JSExport (JSConstant (JSVarInitExpression (JSIdentifier 'a') [JSDecimal '1'])))])"
@@ -52,10 +52,13 @@ testModuleParser = describe "Parse modules:" $ do
             "Right (JSAstModule [JSModuleExportDeclaration (JSExport (JSFunction 'f' () (JSBlock [])))])"
         test "export { a };"
             `shouldBe`
-            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals ((JSExportLocalSpecifier (JSIdentifier 'a'))))])"
+            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals (JSExportClause ((JSExportSpecifier (JSIdentifier 'a')))))])"
         test "export { a as b };"
             `shouldBe`
-            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals ((JSExportLocalSpecifierAs (JSIdentifier 'a',JSIdentifier 'b'))))])"
+            "Right (JSAstModule [JSModuleExportDeclaration (JSExportLocals (JSExportClause ((JSExportSpecifierAs (JSIdentifier 'a',JSIdentifier 'b')))))])"
+        test "export {} from 'mod'"
+            `shouldBe`
+            "Right (JSAstModule [JSModuleExportDeclaration (JSExportFrom (JSExportClause (()),JSFromClause ''mod''))])"
 
 
 test :: String -> String

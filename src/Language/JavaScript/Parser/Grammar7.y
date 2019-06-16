@@ -1258,7 +1258,7 @@ ImportSpecifier : IdentifierName
 
 -- ExportDeclaration :                                                        See 15.2.3
 -- [ ]    export * FromClause ;
--- [ ]    export ExportClause FromClause ;
+-- [x]    export ExportClause FromClause ;
 -- [x]    export ExportClause ;
 -- [x]    export VariableStatement
 -- [ ]    export Declaration
@@ -1275,27 +1275,29 @@ ImportSpecifier : IdentifierName
 -- [ ]    export default ClassDeclaration[Default]
 -- [ ]    export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
 ExportDeclaration :: { AST.JSExportDeclaration }
-ExportDeclaration : ExportClause AutoSemi
-                         { $1                    {- 'ExportDeclaration1' -} }
+ExportDeclaration : ExportClause FromClause AutoSemi
+                         { AST.JSExportFrom $1 $2 $3  {- 'ExportDeclaration1' -} }
+                  | ExportClause AutoSemi
+                         { AST.JSExportLocals $1 $2   {- 'ExportDeclaration2' -} }
                   | VariableStatement AutoSemi
-                         { AST.JSExport $1 $2    {- 'ExportDeclaration2' -} }
+                         { AST.JSExport $1 $2         {- 'ExportDeclaration3' -} }
                   | FunctionDeclaration AutoSemi
-                         { AST.JSExport $1 $2    {- 'ExportDeclaration2' -} }
+                         { AST.JSExport $1 $2         {- 'ExportDeclaration4' -} }
 
 -- ExportClause :
 --           { }
 --           { ExportsList }
 --           { ExportsList , }
-ExportClause :: { AST.JSExportDeclaration }
-ExportClause : LBrace RBrace AutoSemi
-                    { AST.JSExportLocals $1 AST.JSLNil $2 $3     {- 'ExportClause1' -} }
-             | LBrace ExportsList RBrace AutoSemi
-                    { AST.JSExportLocals $1 $2 $3 $4             {- 'ExportClause2' -} }
+ExportClause :: { AST.JSExportClause }
+ExportClause : LBrace RBrace
+                    { AST.JSExportClause $1 AST.JSLNil $2     {- 'ExportClause1' -} }
+             | LBrace ExportsList RBrace
+                    { AST.JSExportClause $1 $2 $3             {- 'ExportClause2' -} }
 
 -- ExportsList :
 --           ExportSpecifier
 --           ExportsList , ExportSpecifier
-ExportsList :: { AST.JSCommaList AST.JSExportLocalSpecifier }
+ExportsList :: { AST.JSCommaList AST.JSExportSpecifier }
 ExportsList : ExportSpecifier
                     { AST.JSLOne $1          {- 'ExportsList1' -} }
             | ExportsList Comma ExportSpecifier
@@ -1304,11 +1306,11 @@ ExportsList : ExportSpecifier
 -- ExportSpecifier :
 --           IdentifierName
 --           IdentifierName as IdentifierName
-ExportSpecifier :: { AST.JSExportLocalSpecifier }
+ExportSpecifier :: { AST.JSExportSpecifier }
 ExportSpecifier : IdentifierName
-                    { AST.JSExportLocalSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
+                    { AST.JSExportSpecifier (identName $1)                      {- 'ExportSpecifier1' -} }
                 | IdentifierName As IdentifierName
-                    { AST.JSExportLocalSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
+                    { AST.JSExportSpecifierAs (identName $1) $2 (identName $3)  {- 'ExportSpecifier2' -} }
 
 -- For debugging/other entry points
 LiteralMain :: { AST.JSAST }

@@ -117,6 +117,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRTModule "  export {}   ;  "
         testRTModule "export {  a  ,  b  ,  c  };"
         testRTModule "export {  a, X   as B,   c }"
+        testRTModule "export   {}  from \"mod\";"
 
 
 testRT :: String -> Expectation

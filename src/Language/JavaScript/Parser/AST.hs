@@ -32,7 +32,8 @@ module Language.JavaScript.Parser.AST
     , JSImportsNamed (..)
     , JSImportSpecifier (..)
     , JSExportDeclaration (..)
-    , JSExportLocalSpecifier (..)
+    , JSExportClause (..)
+    , JSExportSpecifier (..)
 
     , binOpEq
     , showStripped
@@ -105,15 +106,19 @@ data JSImportSpecifier
 
 data JSExportDeclaration
     -- = JSExportAllFrom
-    -- | JSExportFrom
-    = JSExportLocals !JSAnnot !(JSCommaList JSExportLocalSpecifier) !JSAnnot !JSSemi -- ^lb, specifiers, rb, autosemi
+    = JSExportFrom JSExportClause JSFromClause !JSSemi -- ^exports, module, semi
+    | JSExportLocals JSExportClause !JSSemi -- ^exports, autosemi
     | JSExport !JSStatement !JSSemi -- ^body, autosemi
     -- | JSExportDefault
     deriving (Data, Eq, Show, Typeable)
 
-data JSExportLocalSpecifier
-    = JSExportLocalSpecifier !JSIdent -- ^ident
-    | JSExportLocalSpecifierAs !JSIdent !JSAnnot !JSIdent -- ^ident1, as, ident2
+data JSExportClause
+    = JSExportClause !JSAnnot !(JSCommaList JSExportSpecifier) !JSAnnot -- ^lb, specifiers, rb
+    deriving (Data, Eq, Show, Typeable)
+
+data JSExportSpecifier
+    = JSExportSpecifier !JSIdent -- ^ident
+    | JSExportSpecifierAs !JSIdent !JSAnnot !JSIdent -- ^ident1, as, ident2
     deriving (Data, Eq, Show, Typeable)
 
 data JSStatement
@@ -416,12 +421,16 @@ instance ShowStripped JSImportSpecifier where
     ss (JSImportSpecifierAs x1 _ x2) = "JSImportSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
 
 instance ShowStripped JSExportDeclaration where
-    ss (JSExportLocals _ xs _ _) = "JSExportLocals (" ++ ss xs ++ ")"
+    ss (JSExportFrom xs from _) = "JSExportFrom (" ++ ss xs ++ "," ++ ss from ++ ")"
+    ss (JSExportLocals xs _) = "JSExportLocals (" ++ ss xs ++ ")"
     ss (JSExport x1 _) = "JSExport (" ++ ss x1 ++ ")"
 
-instance ShowStripped JSExportLocalSpecifier where
-    ss (JSExportLocalSpecifier x1) = "JSExportLocalSpecifier (" ++ ss x1 ++ ")"
-    ss (JSExportLocalSpecifierAs x1 _ x2) = "JSExportLocalSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
+instance ShowStripped JSExportClause where
+    ss (JSExportClause _ xs _) = "JSExportClause (" ++ ss xs ++ ")"
+
+instance ShowStripped JSExportSpecifier where
+    ss (JSExportSpecifier x1) = "JSExportSpecifier (" ++ ss x1 ++ ")"
+    ss (JSExportSpecifierAs x1 _ x2) = "JSExportSpecifierAs (" ++ ss x1 ++ "," ++ ss x2 ++ ")"
 
 instance ShowStripped JSTryCatch where
     ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"
