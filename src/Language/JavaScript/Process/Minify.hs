@@ -148,7 +148,7 @@ instance MinifyJS JSExpression where
 
     -- Non-Terminals
     fix _ (JSArrayLiteral         _ xs _)             = JSArrayLiteral emptyAnnot (map fixEmpty xs) emptyAnnot
-    fix _ (JSArrowExpression _ ps _ _ ss)             = JSArrowExpression emptyAnnot (fixEmpty ps) emptyAnnot emptyAnnot (fixStmt emptyAnnot noSemi ss)
+    fix a (JSArrowExpression ps _ ss)                 = JSArrowExpression (fix a ps) emptyAnnot (fixStmt emptyAnnot noSemi ss)
     fix a (JSAssignExpression     lhs op rhs)         = JSAssignExpression (fix a lhs) (fixEmpty op) (fixEmpty rhs)
     fix a (JSCallExpression       ex _ xs _)          = JSCallExpression (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
@@ -169,6 +169,9 @@ instance MinifyJS JSExpression where
     fix a (JSVarInitExpression    x1 x2)              = JSVarInitExpression (fix a x1) (fixEmpty x2)
     fix a (JSSpreadExpression     _ e)                = JSSpreadExpression a (fixEmpty e)
 
+instance MinifyJS JSArrowParameterList where
+    fix _ (JSUnparenthesizedArrowParameter p)         = JSUnparenthesizedArrowParameter (fixEmpty p)
+    fix _ (JSParenthesizedArrowParameterList _ ps _)  = JSParenthesizedArrowParameterList emptyAnnot (fixEmpty ps) emptyAnnot
 
 fixVarList :: JSCommaList JSExpression -> JSCommaList JSExpression
 fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
@@ -302,7 +305,7 @@ instance MinifyJS JSImportNameSpace where
     fix a (JSImportNameSpace _ _ ident) = JSImportNameSpace (JSBinOpTimes a) (JSBinOpAs spaceAnnot) (fixSpace ident)
 
 instance MinifyJS JSImportsNamed where
-    fix _ (JSImportsNamed _ imps _) = JSImportsNamed emptyAnnot (fixEmpty imps) emptyAnnot 
+    fix _ (JSImportsNamed _ imps _) = JSImportsNamed emptyAnnot (fixEmpty imps) emptyAnnot
 
 instance MinifyJS JSImportSpecifier where
     fix _ (JSImportSpecifier x1) = JSImportSpecifier (fixEmpty x1)

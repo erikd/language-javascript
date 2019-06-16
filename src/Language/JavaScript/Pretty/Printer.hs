@@ -72,7 +72,7 @@ instance RenderJS JSExpression where
 
     -- Non-Terminals
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
-    (|>) pacc (JSArrowExpression      lp xs rp a x)           = pacc |> lp |> "(" |> xs |> rp |> ")" |> a |> "=>" |> x
+    (|>) pacc (JSArrowExpression      xs a x)                 = pacc |> xs |> a |> "=>" |> x
     (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
@@ -93,6 +93,9 @@ instance RenderJS JSExpression where
     (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
     (|>) pacc (JSSpreadExpression     a e)                    = pacc |> a |> "..." |> e
 
+instance RenderJS JSArrowParameterList where
+    (|>) pacc (JSUnparenthesizedArrowParameter p)             = pacc |> p
+    (|>) pacc (JSParenthesizedArrowParameterList lb ps rb)    = pacc |> lb |> "(" |> ps |> ")" |> rb
 -- -----------------------------------------------------------------------------
 -- Need an instance of RenderJS for every component of every JSExpression or JSAnnot
 -- constuctor.
