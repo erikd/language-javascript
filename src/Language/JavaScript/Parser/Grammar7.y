@@ -1137,10 +1137,16 @@ FunctionExpression : ArrowFunctionExpression     { $1 {- 'ArrowFunctionExpressio
                    | NamedFunctionExpression     { $1 {- 'FunctionExpression2' -} }
 
 ArrowFunctionExpression :: { AST.JSExpression }
-ArrowFunctionExpression : LParen RParen Arrow StatementOrBlock
-                           { AST.JSArrowExpression $1 AST.JSLNil $2 $3 $4		{- 'ArrowFunctionExpression1' -} }
-                        | LParen FormalParameterList RParen Arrow StatementOrBlock
-                           { AST.JSArrowExpression $1 $2 $3 $4 $5               {- 'ArrowFunctionExpression3' -} }
+ArrowFunctionExpression : ArrowParameterList Arrow StatementOrBlock
+                           { AST.JSArrowExpression $1 $2 $3 }
+
+ArrowParameterList :: { AST.JSArrowParameterList }
+ArrowParameterList : Identifier
+                      { AST.JSUnparenthesizedArrowParameter (identName $1)     }
+                   | LParen RParen
+                      { AST.JSParenthesizedArrowParameterList $1 AST.JSLNil $2 }
+                   | LParen FormalParameterList RParen
+                      { AST.JSParenthesizedArrowParameterList $1 $2 $3         }
 
 StatementOrBlock :: { AST.JSStatement }
 StatementOrBlock : Block MaybeSemi		{ blockToStatement $1 $2 }

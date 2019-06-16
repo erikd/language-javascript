@@ -123,6 +123,7 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "function(){}"     `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' () (JSBlock []))))"
         testExpr "function(a){}"    `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' (JSIdentifier 'a') (JSBlock []))))"
         testExpr "function(a,b){}"  `shouldBe` "Right (JSAstExpression (JSFunctionExpression '' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock []))))"
+        testExpr "a => {}"          `shouldBe` "Right (JSAstExpression (JSArrowExpression (JSIdentifier 'a') => JSStatementBlock []))"
         testExpr "(a) => { a + 2 }" `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a')) => JSStatementBlock [JSExpressionBinary ('+',JSIdentifier 'a',JSDecimal '2')]))"
         testExpr "(a, b) => {}"     `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSStatementBlock []))"
         testExpr "(a, b) => a + b"  `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSIdentifier 'b')) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"

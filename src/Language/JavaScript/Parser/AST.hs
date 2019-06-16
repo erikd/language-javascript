@@ -22,6 +22,7 @@ module Language.JavaScript.Parser.AST
     , JSArrayElement (..)
     , JSCommaList (..)
     , JSCommaTrailingList (..)
+    , JSArrowParameterList (..)
 
     -- Modules
     , JSModuleItem (..)
@@ -175,7 +176,7 @@ data JSExpression
     | JSExpressionParen !JSAnnot !JSExpression !JSAnnot -- ^lb,expression,rb
     | JSExpressionPostfix !JSExpression !JSUnaryOp -- ^expression, operator
     | JSExpressionTernary !JSExpression !JSAnnot !JSExpression !JSAnnot !JSExpression -- ^cond, ?, trueval, :, falseval
-    | JSArrowExpression !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSAnnot !JSStatement -- ^parameter list,arrow,block`
+    | JSArrowExpression !JSArrowParameterList !JSAnnot !JSStatement -- ^parameter list,arrow,block`
     | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, name
     | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
@@ -186,6 +187,11 @@ data JSExpression
     | JSSpreadExpression !JSAnnot !JSExpression
     | JSUnaryExpression !JSUnaryOp !JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
+    deriving (Data, Eq, Show, Typeable)
+
+data JSArrowParameterList
+    = JSUnparenthesizedArrowParameter !JSIdent
+    | JSParenthesizedArrowParameterList !JSAnnot !(JSCommaList JSIdent) !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
@@ -373,7 +379,7 @@ instance ShowStripped JSExpression where
     ss (JSExpressionParen _lp x _rp) = "JSExpressionParen (" ++ ss x ++ ")"
     ss (JSExpressionPostfix xs op) = "JSExpressionPostfix (" ++ ss op ++ "," ++ ss xs ++ ")"
     ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary (" ++ ss x1 ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
-    ss (JSArrowExpression _ n _ _ e) = "JSArrowExpression (" ++ ss n ++ ") => " ++ ss e
+    ss (JSArrowExpression ps _ e) = "JSArrowExpression (" ++ ss ps ++ ") => " ++ ss e
     ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ "))"
     ss (JSHexInteger _ s) = "JSHexInteger " ++ singleQuote s
     ss (JSOctal _ s) = "JSOctal " ++ singleQuote s
@@ -391,6 +397,10 @@ instance ShowStripped JSExpression where
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
     ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
+
+instance ShowStripped JSArrowParameterList where
+    ss (JSUnparenthesizedArrowParameter x) = ss x
+    ss (JSParenthesizedArrowParameterList _ xs _) = ss xs
 
 instance ShowStripped JSModuleItem where
     ss (JSModuleExportDeclaration _ x1) = "JSModuleExportDeclaration (" ++ ss x1 ++ ")"

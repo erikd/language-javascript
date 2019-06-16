@@ -63,6 +63,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"
         testRT "... /*a*/ x"
 
+        testRT "a => {}"
         testRT "(a) => { a + 2 }"
         testRT "(a, b) => {}"
         testRT "(a, b) => a + b"

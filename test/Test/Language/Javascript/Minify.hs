@@ -106,6 +106,7 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " function ( a ) { } " `shouldBe` "function(a){}"
         minifyExpr " function ( a , b ) { return a + b ; } " `shouldBe` "function(a,b){return a+b}"
 
+        minifyExpr "a => {}" `shouldBe` "a=>{}"
         minifyExpr "(a) => {}" `shouldBe` "(a)=>{}"
         minifyExpr "( a ) => { a + 2 }" `shouldBe` "(a)=>a+2"
         minifyExpr "(a, b) => a + b" `shouldBe` "(a,b)=>a+b"
