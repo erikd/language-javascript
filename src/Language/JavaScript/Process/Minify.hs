@@ -310,7 +310,7 @@ instance MinifyJS JSImportSpecifier where
 instance MinifyJS JSExportDeclaration where
     fix a (JSExportFrom x1 from _) = JSExportFrom (fix a x1) (fix a from) noSemi
     fix _ (JSExportLocals x1 _) = JSExportLocals (fix emptyAnnot x1) noSemi
-    fix _ (JSExport x1 _) = JSExport (fixStmt emptyAnnot noSemi x1) noSemi
+    fix _ (JSExport x1 _) = JSExport (fixStmt spaceAnnot noSemi x1) noSemi
 
 instance MinifyJS JSExportClause where
     fix a (JSExportClause _ x1 _) = JSExportClause emptyAnnot (fixEmpty x1) a
