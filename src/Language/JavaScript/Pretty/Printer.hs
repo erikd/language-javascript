@@ -305,12 +305,16 @@ instance RenderJS JSImportSpecifier where
 
 instance RenderJS JSExportDeclaration where
     (|>) pacc (JSExport x1 s) = pacc |> " " |> x1 |> s
-    (|>) pacc (JSExportLocals alb JSLNil arb semi) = pacc |> alb |> "{" |> arb |> "}" |> semi
-    (|>) pacc (JSExportLocals alb s arb semi) = pacc |> alb |> "{" |> s |> arb |> "}" |> semi
+    (|>) pacc (JSExportLocals xs semi) = pacc |> xs |> semi
+    (|>) pacc (JSExportFrom xs from semi) = pacc |> xs |> from |> semi
 
-instance RenderJS JSExportLocalSpecifier where
-    (|>) pacc (JSExportLocalSpecifier i) = pacc |> i
-    (|>) pacc (JSExportLocalSpecifierAs x1 annot x2) = pacc |> x1 |> annot |> "as" |> x2
+instance RenderJS JSExportClause where
+    (|>) pacc (JSExportClause alb JSLNil arb) = pacc |> alb |> "{" |> arb |> "}"
+    (|>) pacc (JSExportClause alb s arb) = pacc |> alb |> "{" |> s |> arb |> "}"
+
+instance RenderJS JSExportSpecifier where
+    (|>) pacc (JSExportSpecifier i) = pacc |> i
+    (|>) pacc (JSExportSpecifierAs x1 annot x2) = pacc |> x1 |> annot |> "as" |> x2
 
 instance RenderJS a => RenderJS (JSCommaList a) where
     (|>) pacc (JSLCons pl a i) = pacc |> pl |> a |> "," |> i

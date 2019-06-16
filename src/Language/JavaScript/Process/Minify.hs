@@ -308,12 +308,16 @@ instance MinifyJS JSImportSpecifier where
     fix _ (JSImportSpecifierAs x1 _ x2) = JSImportSpecifierAs (fixEmpty x1) spaceAnnot (fixSpace x2)
 
 instance MinifyJS JSExportDeclaration where
-    fix _ (JSExportLocals _ x1 _ _) = JSExportLocals emptyAnnot (fixEmpty x1) emptyAnnot noSemi
+    fix a (JSExportFrom x1 from _) = JSExportFrom (fix a x1) (fix a from) noSemi
+    fix _ (JSExportLocals x1 _) = JSExportLocals (fix emptyAnnot x1) noSemi
     fix _ (JSExport x1 _) = JSExport (fixStmt emptyAnnot noSemi x1) noSemi
 
-instance MinifyJS JSExportLocalSpecifier where
-    fix _ (JSExportLocalSpecifier x1) = JSExportLocalSpecifier (fixEmpty x1)
-    fix _ (JSExportLocalSpecifierAs x1 _ x2) = JSExportLocalSpecifierAs (fixEmpty x1) spaceAnnot (fixSpace x2)
+instance MinifyJS JSExportClause where
+    fix a (JSExportClause _ x1 _) = JSExportClause emptyAnnot (fixEmpty x1) a
+
+instance MinifyJS JSExportSpecifier where
+    fix _ (JSExportSpecifier x1) = JSExportSpecifier (fixEmpty x1)
+    fix _ (JSExportSpecifierAs x1 _ x2) = JSExportSpecifierAs (fixEmpty x1) spaceAnnot (fixSpace x2)
 
 instance MinifyJS JSTryCatch where
     fix a (JSCatch _ _ x1 _ x3) = JSCatch a emptyAnnot (fixEmpty x1) emptyAnnot (fixEmpty x3)
