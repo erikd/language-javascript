@@ -1,5 +1,5 @@
 Name:                language-javascript
-Version:             0.6.0.12
+Version:             0.6.0.13
 Synopsis:            Parser for JavaScript
 Description:         Parses Javascript into an Abstract Syntax Tree (AST).  Initially intended as frontend to hjsmin.
                      .
@@ -10,7 +10,7 @@ License-file:        LICENSE
 Author:              Alan Zimmerman
 Maintainer:          Erik de Castro Lopo <erikd@mega-nerd.com>
 Copyright:           (c) 2010-2015 Alan Zimmerman
-                     (c) 2015-2018 Erik de Castro Lopo
+                     (c) 2015-2019 Erik de Castro Lopo
                      (c) 2018      Daniel Gasienica
 Category:            Language
 Build-type:          Simple
