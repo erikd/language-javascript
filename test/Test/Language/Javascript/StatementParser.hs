@@ -54,6 +54,9 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "for(let x;y;z){}"     `shouldBe` "Right (JSAstStatement (JSForLet (JSVarInitExpression (JSIdentifier 'x') ) (JSIdentifier 'y') (JSIdentifier 'z') (JSStatementBlock [])))"
         testStmt "for(let x in 5){}"    `shouldBe` "Right (JSAstStatement (JSForLetIn (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
         testStmt "for(let x of 5){}"    `shouldBe` "Right (JSAstStatement (JSForLetOf (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
+        testStmt "for(const x;y;z){}"   `shouldBe` "Right (JSAstStatement (JSForConst (JSVarInitExpression (JSIdentifier 'x') ) (JSIdentifier 'y') (JSIdentifier 'z') (JSStatementBlock [])))"
+        testStmt "for(const x in 5){}"  `shouldBe` "Right (JSAstStatement (JSForConstIn (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
+        testStmt "for(const x of 5){}"  `shouldBe` "Right (JSAstStatement (JSForConstOf (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
         testStmt "for(x of 5){}"        `shouldBe` "Right (JSAstStatement (JSForOf JSIdentifier 'x' (JSDecimal '5') (JSStatementBlock [])))"
         testStmt "for(var x of 5){}"    `shouldBe` "Right (JSAstStatement (JSForVarOf (JSVarInitExpression (JSIdentifier 'x') ) (JSDecimal '5') (JSStatementBlock [])))"
 

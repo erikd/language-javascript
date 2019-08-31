@@ -1024,6 +1024,12 @@ IterationStatement : Do StatementNoEmpty While LParen Expression RParen MaybeSem
                      { AST.JSForOf $1 $2 $3 $4 $5 $6 $7 {- 'IterationStatement 10'-} }
                    | For LParen Var VariableDeclarationNoIn Of Expression RParen Statement
                      { AST.JSForVarOf $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement 11' -} }
+                   | For LParen Const VariableDeclarationListNoIn Semi ExpressionOpt Semi ExpressionOpt RParen Statement
+                     { AST.JSForConst $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 {- 'IterationStatement 12' -} }
+                   | For LParen Const VariableDeclarationNoIn In Expression RParen Statement
+                     { AST.JSForConstIn $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement 13' -} }
+                   | For LParen Const VariableDeclarationNoIn Of Expression RParen Statement
+                     { AST.JSForConstOf $1 $2 $3 $4 $5 $6 $7 $8 {- 'IterationStatement 14' -} }
 
 -- ContinueStatement :                                                                      See 12.7
 --         continue [no LineTerminator here] Identifieropt ;

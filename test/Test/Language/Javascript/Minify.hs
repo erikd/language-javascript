@@ -184,6 +184,9 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " for (let x ; y ; z) { } " `shouldBe` "for(let x;y;z){}"
         minifyStmt " for ( let x in 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(let x in 5){foo(x++);y++}"
         minifyStmt " for ( let x of 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(let x of 5){foo(x++);y++}"
+        minifyStmt " for (const x ; y ; z) { } " `shouldBe` "for(const x;y;z){}"
+        minifyStmt " for ( const x in 5 ) { foo ( x ); y ++ ; } ;" `shouldBe` "for(const x in 5){foo(x);y++}"
+        minifyStmt " for ( const x of 5 ) { foo ( x ); y ++ ; } ;" `shouldBe` "for(const x of 5){foo(x);y++}"
         minifyStmt " for ( x of 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(x of 5){foo(x++);y++}"
         minifyStmt " for ( var x of 5 ) { foo ( x++ ); y ++ ; } ;" `shouldBe` "for(var x of 5){foo(x++);y++}"
     it "labelled" $ do

@@ -231,6 +231,9 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForLet af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "let" |> v |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
     (|>) pacc (JSForLetIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "let" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForLetOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "let" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForConst af alb v x1s s1 x2s s2 x3s arb x4) = pacc |> af |> "for" |> alb |> "(" |> "const" |> v |> x1s |> s1 |> ";" |> x2s |> s2 |> ";" |> x3s |> arb |> ")" |> x4
+    (|>) pacc (JSForConstIn af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "const" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSForConstOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "const" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForOf af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForVarOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFunction af n alb x2s arb x3 s)           = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
