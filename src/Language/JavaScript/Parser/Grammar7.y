@@ -958,14 +958,14 @@ VariableDeclarationListNoIn : VariableDeclarationNoIn                           
 -- VariableDeclaration :                                          See 12.2
 --         Identifier Initialiseropt
 VariableDeclaration :: { AST.JSExpression }
-VariableDeclaration : Identifier SimpleAssign AssignmentExpression { AST.JSVarInitExpression $1 (AST.JSVarInit $2 $3) {- 'JSVarInitExpression1' -} }
-                    | Identifier                                   { AST.JSVarInitExpression $1 AST.JSVarInitNone     {- 'JSVarInitExpression2' -} }
+VariableDeclaration : PrimaryExpression SimpleAssign AssignmentExpression { AST.JSVarInitExpression $1 (AST.JSVarInit $2 $3) {- 'JSVarInitExpression1' -} }
+                    | Identifier                                          { AST.JSVarInitExpression $1 AST.JSVarInitNone     {- 'JSVarInitExpression2' -} }
 
 -- VariableDeclarationNoIn :                                      See 12.2
 --         Identifier InitialiserNoInopt
 VariableDeclarationNoIn :: { AST.JSExpression }
-VariableDeclarationNoIn : Identifier SimpleAssign AssignmentExpression { AST.JSVarInitExpression $1 (AST.JSVarInit $2 $3) {- 'JSVarInitExpressionInit2' -} }
-                        | Identifier                                   { AST.JSVarInitExpression $1 AST.JSVarInitNone     {- 'JSVarInitExpression2' -} }
+VariableDeclarationNoIn : PrimaryExpression SimpleAssign AssignmentExpression { AST.JSVarInitExpression $1 (AST.JSVarInit $2 $3) {- 'JSVarInitExpressionInit2' -} }
+                        | Identifier                                          { AST.JSVarInitExpression $1 AST.JSVarInitNone     {- 'JSVarInitExpression2' -} }
 
 -- EmptyStatement :                                                                         See 12.3
 --         ;
