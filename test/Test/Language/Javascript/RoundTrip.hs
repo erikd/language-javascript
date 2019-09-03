@@ -71,6 +71,10 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "(a, b) => a + b"
         testRT "() => { 42 }"
 
+        testRT "/*a*/`<${/*b*/x/*c*/}>`/*d*/"
+        testRT "`\\${}`"
+        testRT "`\n\n`"
+
 
     it "statement" $ do
         testRT "if (1) {}"

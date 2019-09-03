@@ -89,6 +89,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSNewExpression        n e)                    = pacc |> n |> "new" |> e
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
+    (|>) pacc (JSTemplateLiteral      t a h ps)               = pacc |> t |> a |> h |> ps
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
     (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
     (|>) pacc (JSSpreadExpression     a e)                    = pacc |> a |> "..." |> e
@@ -343,5 +344,11 @@ instance RenderJS (Maybe JSExpression) where
 instance RenderJS JSVarInitializer where
     (|>) pacc (JSVarInit a x) = pacc |> a |> "=" |> x
     (|>) pacc JSVarInitNone   = pacc
+
+instance RenderJS [JSTemplatePart] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSTemplatePart where
+    (|>) pacc (JSTemplatePart e a s) = pacc |> e |> a |> s
 
 -- EOF

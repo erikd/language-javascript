@@ -131,6 +131,10 @@ import qualified Language.JavaScript.Parser.AST as AST
      'octal'      { OctalToken {} }
      'string'     { StringToken {} }
      'regex'      { RegExToken {} }
+     'tmplnosub'  { NoSubstitutionTemplateToken {} }
+     'tmplhead'   { TemplateHeadToken {} }
+     'tmplmiddle' { TemplateMiddleToken {} }
+     'tmpltail'   { TemplateTailToken {} }
 
      'future'     { FutureToken {} }
 
@@ -481,6 +485,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
                   | ObjectLiteral            { $1 {- 'PrimaryExpression4' -} }
                   | SpreadExpression         { $1 {- 'PrimaryExpression5' -} }
+                  | TemplateLiteral          { mkJSTemplateLiteral Nothing $1 {- 'PrimaryExpression6' -} }
                   | LParen Expression RParen { AST.JSExpressionParen $1 $2 $3 }
 
 -- Identifier ::                                                            See 7.6
@@ -495,6 +500,14 @@ Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
 
 SpreadExpression :: { AST.JSExpression }
 SpreadExpression : Spread Expression  { AST.JSSpreadExpression $1 $2 {- 'SpreadExpression' -} }
+
+TemplateLiteral :: { JSUntaggedTemplate }
+TemplateLiteral : 'tmplnosub'              { JSUntaggedTemplate (mkJSAnnot $1) (tokenLiteral $1) [] }
+                | 'tmplhead' TemplateParts { JSUntaggedTemplate (mkJSAnnot $1) (tokenLiteral $1) $2 }
+
+TemplateParts :: { [AST.JSTemplatePart] }
+TemplateParts : Expression 'tmplmiddle' TemplateParts { AST.JSTemplatePart $1 (mkJSAnnot $2) (tokenLiteral $2) : $3 }
+              | Expression 'tmpltail'                 { AST.JSTemplatePart $1 (mkJSAnnot $2) (tokenLiteral $2) : [] }
 
 -- ArrayLiteral :                                                        See 11.1.4
 --        [ Elisionopt ]
@@ -583,6 +596,7 @@ MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression1' -} }
                  | FunctionExpression  { $1 {- 'MemberExpression2' -} }
                  | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 {- 'MemberExpression3' -} }
                  | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3       {- 'MemberExpression4' -} }
+                 | MemberExpression TemplateLiteral            { mkJSTemplateLiteral (Just $1) $2 }
                  | New MemberExpression Arguments              { mkJSMemberNew $1 $2 $3         {- 'MemberExpression5' -} }
 
 -- NewExpression :                                              See 11.2
@@ -606,6 +620,8 @@ CallExpression : MemberExpression Arguments
                     { AST.JSCallExpressionSquare $1 $2 $3 $4 {- 'CallExpression3' -} }
                | CallExpression Dot IdentifierName
                     { AST.JSCallExpressionDot $1 $2 $3 {- 'CallExpression4' -} }
+               | CallExpression TemplateLiteral
+                    { mkJSTemplateLiteral (Just $1) $2 {- 'CallExpression5' -} }
 
 -- Arguments :                                                  See 11.2
 --        ()
@@ -1341,7 +1357,7 @@ StatementMain : StatementNoEmpty Eof	{ AST.JSAstStatement $1 $2   	{- 'Statement
 
 -- Need this type while build the AST, but is not actually part of the AST.
 data JSArguments = JSArguments AST.JSAnnot (AST.JSCommaList AST.JSExpression) AST.JSAnnot    -- ^lb, args, rb
-
+data JSUntaggedTemplate = JSUntaggedTemplate !AST.JSAnnot !String ![AST.JSTemplatePart] -- lquot, head, parts
 
 blockToStatement :: AST.JSBlock -> AST.JSSemi -> AST.JSStatement
 blockToStatement (AST.JSBlock a b c) s = AST.JSStatementBlock a b c s
@@ -1367,6 +1383,9 @@ parseError = alexError . show
 
 mkJSAnnot :: Token -> AST.JSAnnot
 mkJSAnnot a = AST.JSAnnot (tokenSpan a) (tokenComment a)
+
+mkJSTemplateLiteral :: Maybe AST.JSExpression -> JSUntaggedTemplate -> AST.JSExpression
+mkJSTemplateLiteral tag (JSUntaggedTemplate a h ps) = AST.JSTemplateLiteral tag a h ps
 
 -- ---------------------------------------------------------------------
 -- | mkUnary : The parser detects '+' and '-' as the binary version of these

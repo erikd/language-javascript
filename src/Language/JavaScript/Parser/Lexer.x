@@ -187,6 +187,14 @@ $ZWJ  = [\x200d]
 @IdentifierPart = @IdentifierStart | $UnicodeCombiningMark | $UnicodeDigit | UnicodeConnectorPunctuation
         [\\] @UnicodeEscapeSequence | $ZWNJ | $ZWJ
 
+-- TemplateCharacter ::
+--         $ [lookahead ≠ { ]
+--         \ EscapeSequence
+--         LineContinuation
+--         LineTerminatorSequence
+--         SourceCharacter but not one of ` or \ or $ or LineTerminator
+@TemplateCharacters = (\$* ($any_unicode_char # [\$\\`\{] | \\ $any_unicode_char) | \\ $any_unicode_char | \{)* \$*
+
 -- ! ------------------------------------------------- Terminals
 tokens :-
 
@@ -243,6 +251,13 @@ tokens :-
 <reg> "/"
 		("\" $regNonTerminator | @regCharClass | $RegExpFirstChar)
 		("\" $regNonTerminator | @regCharClass | $RegExpChars)* "/" ("g"|"i"|"m")* { adapt (mkString regExToken) }
+
+
+
+<reg,divide> "`" @TemplateCharacters "`" { adapt (mkString' NoSubstitutionTemplateToken) }
+<reg,divide> "`" @TemplateCharacters "${" { adapt (mkString' TemplateHeadToken) }
+<reg,divide> "}" @TemplateCharacters "${" { adapt (mkString' TemplateMiddleToken) }
+<reg,divide> "}" @TemplateCharacters "`" { adapt (mkString' TemplateTailToken) }
 
 
 

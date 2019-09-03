@@ -137,6 +137,10 @@ testMinifyExpr = describe "Minify expressions:" $ do
     it "spread exporession" $
         minifyExpr " ... x " `shouldBe` "...x"
 
+    it "template literal" $ do
+        minifyExpr " ` a + b + ${ c + d } + ... ` " `shouldBe` "` a + b + ${c+d} + ... `"
+        minifyExpr " tagger () ` a + b ` " `shouldBe` "tagger()` a + b `"
+
 
 testMinifyStmt :: Spec
 testMinifyStmt = describe "Minify statements:" $ do
