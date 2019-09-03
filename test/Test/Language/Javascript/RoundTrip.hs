@@ -105,6 +105,8 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "switch (x) {default:break;}"
         testRT "switch (x) {default:\ncase 1:break;}"
         testRT "var x=1;let y=2;"
+        testRT "var [x, y]=z;"
+        testRT "let {x: [y]}=z;"
 
     it "module" $ do
         testRTModule "import  def  from 'mod'"

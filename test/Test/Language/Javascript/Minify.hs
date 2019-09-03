@@ -225,6 +225,7 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " var d = 1, x = 2 ; " `shouldBe` "var d=1,x=2"
         minifyStmt " let c = 1 ; " `shouldBe` "let c=1"
         minifyStmt " let d = 1, x = 2 ; " `shouldBe` "let d=1,x=2"
+        minifyStmt " const { a : [ b , c ] } = d; " `shouldBe` "const{a:[b,c]}=d"
 
     it "string concatenation" $
         minifyStmt " f (\"ab\"+\"cd\") " `shouldBe` "f('abcd')"
