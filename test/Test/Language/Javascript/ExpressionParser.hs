@@ -146,6 +146,18 @@ testExpressionParser = describe "Parse expressions:" $ do
     it "spread expression" $
         testExpr "... x"        `shouldBe` "Right (JSAstExpression (JSSpreadExpression (JSIdentifier 'x')))"
 
+    it "template literal" $ do
+        testExpr "``"            `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'``',[])))"
+        testExpr "`$`"           `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`$`',[])))"
+        testExpr "`$\\n`"        `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`$\\n`',[])))"
+        testExpr "`\\${x}`"      `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`\\${x}`',[])))"
+        testExpr "`$ {x}`"       `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`$ {x}`',[])))"
+        testExpr "`\n\n`"        `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`\n\n`',[])))"
+        testExpr "`${x+y} ${z}`" `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`${',[(JSExpressionBinary ('+',JSIdentifier 'x',JSIdentifier 'y'),'} ${'),(JSIdentifier 'z','}`')])))"
+        testExpr "`<${x} ${y}>`" `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`<${',[(JSIdentifier 'x','} ${'),(JSIdentifier 'y','}>`')])))"
+        testExpr "tag `xyz`"     `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((JSIdentifier 'tag'),'`xyz`',[])))"
+        testExpr "tag()`xyz`"    `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((JSMemberExpression (JSIdentifier 'tag',JSArguments ())),'`xyz`',[])))"
+
 
 testExpr :: String -> String
 testExpr str = showStrippedMaybe (parseUsing parseExpression str "src")

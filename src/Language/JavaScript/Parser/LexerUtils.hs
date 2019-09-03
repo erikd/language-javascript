@@ -14,6 +14,7 @@ module Language.JavaScript.Parser.LexerUtils
     ( StartCode
     , symbolToken
     , mkString
+    , mkString'
     , commentToken
     , wsToken
     , regExToken
@@ -36,6 +37,9 @@ symbolToken mkToken location _ _ = return (mkToken location [])
 
 mkString :: (Monad m) => (TokenPosn -> String -> Token) -> TokenPosn -> Int -> String -> m Token
 mkString toToken loc len str = return (toToken loc (take len str))
+
+mkString' :: (Monad m) => (TokenPosn -> String -> [CommentAnnotation] -> Token) -> TokenPosn -> Int -> String -> m Token
+mkString' toToken loc len str = return (toToken loc (take len str) [])
 
 decimalToken :: TokenPosn -> String -> Token
 decimalToken loc str = DecimalToken loc str []

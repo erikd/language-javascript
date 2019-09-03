@@ -165,6 +165,7 @@ instance MinifyJS JSExpression where
     fix a (JSMemberSquare         xs _ e _)           = JSMemberSquare (fix a xs) emptyAnnot (fixEmpty e) emptyAnnot
     fix a (JSNewExpression        _ e)                = JSNewExpression a (fixSpace e)
     fix _ (JSObjectLiteral        _ xs _)             = JSObjectLiteral emptyAnnot (fixEmpty xs) emptyAnnot
+    fix a (JSTemplateLiteral      t _ s ps)           = JSTemplateLiteral (fmap (fix a) t) emptyAnnot s (map fixEmpty ps)
     fix a (JSUnaryExpression      op x)               = let (ta, fop) = fixUnaryOp a op in JSUnaryExpression fop (fix ta x)
     fix a (JSVarInitExpression    x1 x2)              = JSVarInitExpression (fix a x1) (fixEmpty x2)
     fix a (JSSpreadExpression     _ e)                = JSSpreadExpression a (fixEmpty e)
@@ -393,6 +394,10 @@ instance MinifyJS (Maybe JSExpression) where
 instance MinifyJS JSVarInitializer where
     fix a (JSVarInit _ x) = JSVarInit a (fix emptyAnnot x)
     fix _ JSVarInitNone = JSVarInitNone
+
+
+instance MinifyJS JSTemplatePart where
+    fix _ (JSTemplatePart e _ s) = JSTemplatePart (fixEmpty e) emptyAnnot s
 
 
 spaceAnnot :: JSAnnot

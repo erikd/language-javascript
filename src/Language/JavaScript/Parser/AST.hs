@@ -23,6 +23,7 @@ module Language.JavaScript.Parser.AST
     , JSCommaList (..)
     , JSCommaTrailingList (..)
     , JSArrowParameterList (..)
+    , JSTemplatePart (..)
 
     -- Modules
     , JSModuleItem (..)
@@ -185,6 +186,7 @@ data JSExpression
     | JSNewExpression !JSAnnot !JSExpression -- ^new, expr
     | JSObjectLiteral !JSAnnot !JSObjectPropertyList !JSAnnot -- ^lbrace contents rbrace
     | JSSpreadExpression !JSAnnot !JSExpression
+    | JSTemplateLiteral !(Maybe JSExpression) !JSAnnot !String ![JSTemplatePart] -- ^optional tag, lquot, head, parts
     | JSUnaryExpression !JSUnaryOp !JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
     deriving (Data, Eq, Show, Typeable)
@@ -317,6 +319,10 @@ data JSCommaTrailingList a
     | JSCTLNone !(JSCommaList a) -- ^list
     deriving (Data, Eq, Show, Typeable)
 
+data JSTemplatePart
+    = JSTemplatePart !JSExpression !JSAnnot !String -- ^expr, rb, suffix
+    deriving (Data, Eq, Show, Typeable)
+
 -- -----------------------------------------------------------------------------
 -- | Show the AST elements stripped of their JSAnnot data.
 
@@ -397,6 +403,8 @@ instance ShowStripped JSExpression where
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
     ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
+    ss (JSTemplateLiteral Nothing _ s ps) = "JSTemplateLiteral (()," ++ singleQuote s ++ "," ++ ss ps ++ ")"
+    ss (JSTemplateLiteral (Just t) _ s ps) = "JSTemplateLiteral ((" ++ ss t ++ ")," ++ singleQuote s ++ "," ++ ss ps ++ ")"
 
 instance ShowStripped JSArrowParameterList where
     ss (JSUnparenthesizedArrowParameter x) = ss x
@@ -536,6 +544,9 @@ instance ShowStripped JSSemi where
 instance ShowStripped JSArrayElement where
     ss (JSArrayElement e) = ss e
     ss (JSArrayComma _) = "JSComma"
+
+instance ShowStripped JSTemplatePart where
+    ss (JSTemplatePart e _ s) = "(" ++ ss e ++ "," ++ singleQuote s ++ ")"
 
 instance ShowStripped a => ShowStripped (JSCommaList a) where
     ss xs = "(" ++ commaJoin (map ss $ fromCommaList xs) ++ ")"
