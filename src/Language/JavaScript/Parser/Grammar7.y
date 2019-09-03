@@ -309,6 +309,54 @@ OpAssign : '*='     { AST.JSTimesAssign  (mkJSAnnot $1) }
          | '^='     { AST.JSBwXorAssign  (mkJSAnnot $1) }
          | '|='     { AST.JSBwOrAssign   (mkJSAnnot $1) }
 
+-- IdentifierName ::                                                        See 7.6
+--         IdentifierStart
+--         IdentifierName IdentifierPart
+-- Note: This production needs to precede the productions for all keyword
+-- statements and PrimaryExpression. Contra the Happy documentation, in the
+-- case of a reduce/reduce conflict, the *later* rule takes precedence, and
+-- the ambiguity of, for example, `{break}` needs to resolve in favor of
+-- `break` as a keyword and not as an identifier in property shorthand
+-- syntax.
+-- TODO: make this include any reserved word too, including future ones
+IdentifierName :: { AST.JSExpression }
+IdentifierName : Identifier {$1}
+             | 'break'      { AST.JSIdentifier (mkJSAnnot $1) "break" }
+             | 'case'       { AST.JSIdentifier (mkJSAnnot $1) "case" }
+             | 'catch'      { AST.JSIdentifier (mkJSAnnot $1) "catch" }
+             | 'const'      { AST.JSIdentifier (mkJSAnnot $1) "const" }
+             | 'continue'   { AST.JSIdentifier (mkJSAnnot $1) "continue" }
+             | 'debugger'   { AST.JSIdentifier (mkJSAnnot $1) "debugger" }
+             | 'default'    { AST.JSIdentifier (mkJSAnnot $1) "default" }
+             | 'delete'     { AST.JSIdentifier (mkJSAnnot $1) "delete" }
+             | 'do'         { AST.JSIdentifier (mkJSAnnot $1) "do" }
+             | 'else'       { AST.JSIdentifier (mkJSAnnot $1) "else" }
+             | 'enum'       { AST.JSIdentifier (mkJSAnnot $1) "enum" }
+             | 'export'     { AST.JSIdentifier (mkJSAnnot $1) "export" }
+             | 'false'      { AST.JSIdentifier (mkJSAnnot $1) "false" }
+             | 'finally'    { AST.JSIdentifier (mkJSAnnot $1) "finally" }
+             | 'for'        { AST.JSIdentifier (mkJSAnnot $1) "for" }
+             | 'function'   { AST.JSIdentifier (mkJSAnnot $1) "function" }
+             | 'if'         { AST.JSIdentifier (mkJSAnnot $1) "if" }
+             | 'in'         { AST.JSIdentifier (mkJSAnnot $1) "in" }
+             | 'instanceof' { AST.JSIdentifier (mkJSAnnot $1) "instanceof" }
+             | 'let'        { AST.JSIdentifier (mkJSAnnot $1) "let" }
+             | 'new'        { AST.JSIdentifier (mkJSAnnot $1) "new" }
+             | 'null'       { AST.JSIdentifier (mkJSAnnot $1) "null" }
+             | 'of'         { AST.JSIdentifier (mkJSAnnot $1) "of" }
+             | 'return'     { AST.JSIdentifier (mkJSAnnot $1) "return" }
+             | 'switch'     { AST.JSIdentifier (mkJSAnnot $1) "switch" }
+             | 'this'       { AST.JSIdentifier (mkJSAnnot $1) "this" }
+             | 'throw'      { AST.JSIdentifier (mkJSAnnot $1) "throw" }
+             | 'true'       { AST.JSIdentifier (mkJSAnnot $1) "true" }
+             | 'try'        { AST.JSIdentifier (mkJSAnnot $1) "try" }
+             | 'typeof'     { AST.JSIdentifier (mkJSAnnot $1) "typeof" }
+             | 'var'        { AST.JSIdentifier (mkJSAnnot $1) "var" }
+             | 'void'       { AST.JSIdentifier (mkJSAnnot $1) "void" }
+             | 'while'      { AST.JSIdentifier (mkJSAnnot $1) "while" }
+             | 'with'       { AST.JSIdentifier (mkJSAnnot $1) "with" }
+             | 'future'     { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
+
 Var :: { AST.JSAnnot }
 Var : 'var' { mkJSAnnot $1 }
 
@@ -437,58 +485,12 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
 
 -- Identifier ::                                                            See 7.6
 --         IdentifierName but not ReservedWord
--- IdentifierName ::                                                        See 7.6
---         IdentifierStart
---         IdentifierName IdentifierPart
 Identifier :: { AST.JSExpression }
 Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
            | 'as'    { AST.JSIdentifier (mkJSAnnot $1) "as" }
            | 'get'   { AST.JSIdentifier (mkJSAnnot $1) "get" }
            | 'set'   { AST.JSIdentifier (mkJSAnnot $1) "set" }
            | 'from'  { AST.JSIdentifier (mkJSAnnot $1) "from" }
-
--- TODO: make this include any reserved word too, including future ones
-IdentifierName :: { AST.JSExpression }
-IdentifierName : Identifier {$1}
-             | 'as'         { AST.JSIdentifier (mkJSAnnot $1) "as" }
-             | 'break'      { AST.JSIdentifier (mkJSAnnot $1) "break" }
-             | 'case'       { AST.JSIdentifier (mkJSAnnot $1) "case" }
-             | 'catch'      { AST.JSIdentifier (mkJSAnnot $1) "catch" }
-             | 'const'      { AST.JSIdentifier (mkJSAnnot $1) "const" }
-             | 'continue'   { AST.JSIdentifier (mkJSAnnot $1) "continue" }
-             | 'debugger'   { AST.JSIdentifier (mkJSAnnot $1) "debugger" }
-             | 'default'    { AST.JSIdentifier (mkJSAnnot $1) "default" }
-             | 'delete'     { AST.JSIdentifier (mkJSAnnot $1) "delete" }
-             | 'do'         { AST.JSIdentifier (mkJSAnnot $1) "do" }
-             | 'else'       { AST.JSIdentifier (mkJSAnnot $1) "else" }
-             | 'enum'       { AST.JSIdentifier (mkJSAnnot $1) "enum" }
-             | 'export'     { AST.JSIdentifier (mkJSAnnot $1) "export" }
-             | 'false'      { AST.JSIdentifier (mkJSAnnot $1) "false" }
-             | 'finally'    { AST.JSIdentifier (mkJSAnnot $1) "finally" }
-             | 'for'        { AST.JSIdentifier (mkJSAnnot $1) "for" }
-             | 'function'   { AST.JSIdentifier (mkJSAnnot $1) "function" }
-             | 'from'       { AST.JSIdentifier (mkJSAnnot $1) "from" }
-             | 'get'        { AST.JSIdentifier (mkJSAnnot $1) "get" }
-             | 'if'         { AST.JSIdentifier (mkJSAnnot $1) "if" }
-             | 'in'         { AST.JSIdentifier (mkJSAnnot $1) "in" }
-             | 'instanceof' { AST.JSIdentifier (mkJSAnnot $1) "instanceof" }
-             | 'let'        { AST.JSIdentifier (mkJSAnnot $1) "let" }
-             | 'new'        { AST.JSIdentifier (mkJSAnnot $1) "new" }
-             | 'null'       { AST.JSIdentifier (mkJSAnnot $1) "null" }
-             | 'of'         { AST.JSIdentifier (mkJSAnnot $1) "of" }
-             | 'return'     { AST.JSIdentifier (mkJSAnnot $1) "return" }
-             | 'set'        { AST.JSIdentifier (mkJSAnnot $1) "set" }
-             | 'switch'     { AST.JSIdentifier (mkJSAnnot $1) "switch" }
-             | 'this'       { AST.JSIdentifier (mkJSAnnot $1) "this" }
-             | 'throw'      { AST.JSIdentifier (mkJSAnnot $1) "throw" }
-             | 'true'       { AST.JSIdentifier (mkJSAnnot $1) "true" }
-             | 'try'        { AST.JSIdentifier (mkJSAnnot $1) "try" }
-             | 'typeof'     { AST.JSIdentifier (mkJSAnnot $1) "typeof" }
-             | 'var'        { AST.JSIdentifier (mkJSAnnot $1) "var" }
-             | 'void'       { AST.JSIdentifier (mkJSAnnot $1) "void" }
-             | 'while'      { AST.JSIdentifier (mkJSAnnot $1) "while" }
-             | 'with'       { AST.JSIdentifier (mkJSAnnot $1) "with" }
-             | 'future'     { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
 
 
 SpreadExpression :: { AST.JSExpression }
@@ -548,6 +550,7 @@ PropertyNameandValueList : PropertyAssignment                                { A
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSObjectProperty }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
+                   | IdentifierName { identifierToProperty $1 }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
                        { AST.JSPropertyAccessor (AST.JSAccessorGet (mkJSAnnot $1)) $2 $3 [] $4 $5 }
@@ -1380,5 +1383,9 @@ propName (AST.JSHexInteger a s) = AST.JSPropertyNumber a s
 propName (AST.JSOctal a s) = AST.JSPropertyNumber a s
 propName (AST.JSStringLiteral a s) = AST.JSPropertyString a s
 propName x = error $ "Cannot convert '" ++ show x ++ "' to a JSPropertyName."
+
+identifierToProperty :: AST.JSExpression -> AST.JSObjectProperty
+identifierToProperty (AST.JSIdentifier a s) = AST.JSPropertyIdentRef a s
+identifierToProperty x = error $ "Cannot convert '" ++ show x ++ "' to a JSObjectProperty."
 
 }
