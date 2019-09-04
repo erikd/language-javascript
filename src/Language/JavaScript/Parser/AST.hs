@@ -286,6 +286,7 @@ data JSObjectProperty
     = JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot ![JSExpression] !JSAnnot !JSBlock -- ^(get|set), name, lb, params, rb, block
     | JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
     | JSPropertyIdentRef !JSAnnot !String
+    | JSPropertySpread !JSAnnot !JSExpression
     deriving (Data, Eq, Show, Typeable)
 
 data JSPropertyName
@@ -473,6 +474,7 @@ instance ShowStripped JSObjectProperty where
     ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
     ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
     ss (JSPropertyIdentRef _ s) = "JSPropertyIdentRef " ++ singleQuote s
+    ss (JSPropertySpread _ x) = "JSPropertySpread (" ++ ss x ++ ")"
 
 instance ShowStripped JSPropertyName where
     ss (JSPropertyIdent _ s) = "JSIdentifier " ++ singleQuote s

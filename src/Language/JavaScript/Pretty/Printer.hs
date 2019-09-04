@@ -271,6 +271,7 @@ instance RenderJS JSObjectProperty where
     (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
     (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
     (|>) pacc (JSPropertyIdentRef     a s)                    = pacc |> a |> s
+    (|>) pacc (JSPropertySpread       a x)                    = pacc |> a |> "..." |> x
 
 instance RenderJS JSPropertyName where
     (|>) pacc (JSPropertyIdent a s)  = pacc |> a |> s

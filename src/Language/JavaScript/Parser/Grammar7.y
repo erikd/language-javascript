@@ -564,6 +564,7 @@ PropertyNameandValueList : PropertyAssignment                                { A
 PropertyAssignment :: { AST.JSObjectProperty }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
                    | IdentifierName { identifierToProperty $1 }
+                   | Spread AssignmentExpression { AST.JSPropertySpread $1 $2 }
                    -- Should be "get" in next, but is not a Token
                    | 'get' PropertyName LParen RParen FunctionBody
                        { AST.JSPropertyAccessor (AST.JSAccessorGet (mkJSAnnot $1)) $2 $3 [] $4 $5 }

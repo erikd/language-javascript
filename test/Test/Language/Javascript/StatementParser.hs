@@ -66,6 +66,7 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "let x=1,y=2;"     `shouldBe` "Right (JSAstStatement (JSLet (JSVarInitExpression (JSIdentifier 'x') [JSDecimal '1'],JSVarInitExpression (JSIdentifier 'y') [JSDecimal '2'])))"
         testStmt "var [a,b]=x"      `shouldBe` "Right (JSAstStatement (JSVariable (JSVarInitExpression (JSArrayLiteral [JSIdentifier 'a',JSComma,JSIdentifier 'b']) [JSIdentifier 'x'])))"
         testStmt "const {a:b}=x"    `shouldBe` "Right (JSAstStatement (JSConstant (JSVarInitExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'a') [JSIdentifier 'b']]) [JSIdentifier 'x'])))"
+        testStmt "let {a,...b}=x"   `shouldBe` "Right (JSAstStatement (JSLet (JSVarInitExpression (JSObjectLiteral [JSPropertyIdentRef 'a',JSPropertySpread (JSIdentifier 'b')]) [JSIdentifier 'x'])))"
 
     it "break" $ do
         testStmt "break;"       `shouldBe` "Right (JSAstStatement (JSBreak,JSSemicolon))"

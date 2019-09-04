@@ -41,6 +41,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "/*a*/{/*b*/x/*c*/:/*d*/1/*e*/}"
         testRT "/*a*/{/*b*/x/*c*/}"
         testRT "/*a*/{/*b*/of/*c*/}"
+        testRT "/*a*/{/*b*/.../*c*/x/*d*/}"
         testRT "x=/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/}"
         testRT "x=/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/y/*g*/:/*h*/2/*i*/,/*j*/z/*k*/:/*l*/3/*m*/}"
         testRT "a=/*a*/{/*b*/x/*c*/:/*d*/1/*e*/,/*f*/}"
