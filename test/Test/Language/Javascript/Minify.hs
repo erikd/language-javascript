@@ -107,12 +107,20 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " function ( ) { } " `shouldBe` "function(){}"
         minifyExpr " function ( a ) { } " `shouldBe` "function(a){}"
         minifyExpr " function ( a , b ) { return a + b ; } " `shouldBe` "function(a,b){return a+b}"
+        minifyExpr " function ( a , ...b ) { return b ; } " `shouldBe` "function(a,...b){return b}"
+        minifyExpr " function ( a = 1 , b = 2 ) { return a + b ; } " `shouldBe` "function(a=1,b=2){return a+b}"
+        minifyExpr " function ( [ a , b ] ) { return b ; } " `shouldBe` "function([a,b]){return b}"
+        minifyExpr " function ( { a , b , } ) { return a + b ; } " `shouldBe` "function({a,b}){return a+b}"
 
         minifyExpr "a => {}" `shouldBe` "a=>{}"
         minifyExpr "(a) => {}" `shouldBe` "(a)=>{}"
         minifyExpr "( a ) => { a + 2 }" `shouldBe` "(a)=>a+2"
         minifyExpr "(a, b) => a + b" `shouldBe` "(a,b)=>a+b"
         minifyExpr "() => { 42 }" `shouldBe` "()=>42"
+        minifyExpr "(a, ...b) => b" `shouldBe` "(a,...b)=>b"
+        minifyExpr "(a = 1, b = 2) => a + b" `shouldBe` "(a=1,b=2)=>a+b"
+        minifyExpr "( [ a , b ] ) => a + b" `shouldBe` "([a,b])=>a+b"
+        minifyExpr "( { a , b , } ) => a + b" `shouldBe` "({a,b})=>a+b"
 
     it "calls" $ do
         minifyExpr " a ( ) " `shouldBe` "a()"
@@ -123,6 +131,7 @@ testMinifyExpr = describe "Minify expressions:" $ do
     it "property accessor" $ do
         minifyExpr " { get foo ( ) { return x } } " `shouldBe` "{get foo(){return x}}"
         minifyExpr " { set foo ( a ) { x = a } } " `shouldBe` "{set foo(a){x=a}}"
+        minifyExpr " { set foo ( [ a , b ] ) { x = a } } " `shouldBe` "{set foo([a,b]){x=a}}"
 
     it "string concatenation" $ do
         minifyExpr " 'ab' + \"cd\" " `shouldBe` "'abcd'"
@@ -203,6 +212,10 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " function f ( ) { } ; " `shouldBe` "function f(){}"
         minifyStmt " function f ( a ) { } ; " `shouldBe` "function f(a){}"
         minifyStmt " function f ( a , b ) { return a + b ; } ; " `shouldBe` "function f(a,b){return a+b}"
+        minifyStmt " function f ( a , ... b ) { return b ; } ; " `shouldBe` "function f(a,...b){return b}"
+        minifyStmt " function f ( a = 1 , b = 2 ) { return a + b ; } ; " `shouldBe` "function f(a=1,b=2){return a+b}"
+        minifyStmt " function f ( [ a , b ] ) { return a + b ; } ; " `shouldBe` "function f([a,b]){return a+b}"
+        minifyStmt " function f ( { a , b , } ) { return a + b ; } ; " `shouldBe` "function f({a,b}){return a+b}"
 
     it "with" $ do
         minifyStmt " with ( x ) { } ; " `shouldBe` "with(x){}"

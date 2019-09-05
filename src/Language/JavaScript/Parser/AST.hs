@@ -142,7 +142,7 @@ data JSStatement
     | JSForConstOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSForOf !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVarOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
-    | JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
+    | JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^if,(,expr,),stmt
     | JSIfElse !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSAnnot !JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled !JSIdent !JSAnnot !JSStatement -- ^identifier,colon,stmt
@@ -181,7 +181,7 @@ data JSExpression
     | JSExpressionPostfix !JSExpression !JSUnaryOp -- ^expression, operator
     | JSExpressionTernary !JSExpression !JSAnnot !JSExpression !JSAnnot !JSExpression -- ^cond, ?, trueval, :, falseval
     | JSArrowExpression !JSArrowParameterList !JSAnnot !JSStatement -- ^parameter list,arrow,block`
-    | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSIdent) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
+    | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSMemberDot !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, name
     | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
     | JSMemberNew !JSAnnot !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- ^new, name, lb, args, rb
@@ -196,7 +196,7 @@ data JSExpression
 
 data JSArrowParameterList
     = JSUnparenthesizedArrowParameter !JSIdent
-    | JSParenthesizedArrowParameterList !JSAnnot !(JSCommaList JSIdent) !JSAnnot
+    | JSParenthesizedArrowParameterList !JSAnnot !(JSCommaList JSExpression) !JSAnnot
     deriving (Data, Eq, Show, Typeable)
 
 data JSBinOp
