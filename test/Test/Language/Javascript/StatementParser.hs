@@ -110,6 +110,15 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "try{}catch(a){}catch(b){}"            `shouldBe` "Right (JSAstStatement (JSTry (JSBlock [],[JSCatch (JSIdentifier 'a',JSBlock []),JSCatch (JSIdentifier 'b',JSBlock [])],JSFinally ())))"
         testStmt "try{}catch(a if true){}catch(b){}"    `shouldBe` "Right (JSAstStatement (JSTry (JSBlock [],[JSCatch (JSIdentifier 'a') if JSLiteral 'true' (JSBlock []),JSCatch (JSIdentifier 'b',JSBlock [])],JSFinally ())))"
 
+    it "function" $ do
+        testStmt "function x(){}"     `shouldBe` "Right (JSAstStatement (JSFunction 'x' () (JSBlock [])))"
+        testStmt "function x(a){}"    `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSIdentifier 'a') (JSBlock [])))"
+        testStmt "function x(a,b){}"  `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock [])))"
+        testStmt "function x(...a){}" `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSSpreadExpression (JSIdentifier 'a')) (JSBlock [])))"
+        testStmt "function x(a=1){}"  `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSOpAssign ('=',JSIdentifier 'a',JSDecimal '1')) (JSBlock [])))"
+        testStmt "function x([a]){}"  `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSArrayLiteral [JSIdentifier 'a']) (JSBlock [])))"
+        testStmt "function x({a}){}"  `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSObjectLiteral [JSPropertyIdentRef 'a']) (JSBlock [])))"
+
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")

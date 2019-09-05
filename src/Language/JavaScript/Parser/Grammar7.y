@@ -484,7 +484,6 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
                   | Literal                  { $1 {- 'PrimaryExpression2' -} }
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
                   | ObjectLiteral            { $1 {- 'PrimaryExpression4' -} }
-                  | SpreadExpression         { $1 {- 'PrimaryExpression5' -} }
                   | TemplateLiteral          { mkJSTemplateLiteral Nothing $1 {- 'PrimaryExpression6' -} }
                   | LParen Expression RParen { AST.JSExpressionParen $1 $2 $3 }
 
@@ -499,7 +498,7 @@ Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
 
 
 SpreadExpression :: { AST.JSExpression }
-SpreadExpression : Spread Expression  { AST.JSSpreadExpression $1 $2 {- 'SpreadExpression' -} }
+SpreadExpression : Spread AssignmentExpression  { AST.JSSpreadExpression $1 $2 {- 'SpreadExpression' -} }
 
 TemplateLiteral :: { JSUntaggedTemplate }
 TemplateLiteral : 'tmplnosub'              { JSUntaggedTemplate (mkJSAnnot $1) (tokenLiteral $1) [] }
@@ -584,7 +583,7 @@ PropertyName : IdentifierName { propName $1 {- 'PropertyName1' -} }
 -- PropertySetParameterList :                                            See 11.1.5
 --        Identifier
 PropertySetParameterList :: { AST.JSExpression }
-PropertySetParameterList : Identifier { $1 {- 'PropertySetParameterList' -} }
+PropertySetParameterList : AssignmentExpression { $1 {- 'PropertySetParameterList' -} }
 
 -- MemberExpression :                                           See 11.2
 --        PrimaryExpression
@@ -861,6 +860,7 @@ AssignmentExpression :: { AST.JSExpression }
 AssignmentExpression : ConditionalExpression { $1 {- 'AssignmentExpression1' -} }
                      | LeftHandSideExpression AssignmentOperator AssignmentExpression
                        { AST.JSAssignExpression $1 $2 $3 {- 'AssignmentExpression2' -} }
+                     | SpreadExpression { $1 }
 
 -- AssignmentExpressionNoIn :                                                            See 11.13
 --        ConditionalExpressionNoIn
@@ -1167,12 +1167,9 @@ ArrowFunctionExpression : ArrowParameterList Arrow StatementOrBlock
                            { AST.JSArrowExpression $1 $2 $3 }
 
 ArrowParameterList :: { AST.JSArrowParameterList }
-ArrowParameterList : Identifier
-                      { AST.JSUnparenthesizedArrowParameter (identName $1)     }
+ArrowParameterList : PrimaryExpression {%^ toArrowParameterList $1 }
                    | LParen RParen
                       { AST.JSParenthesizedArrowParameterList $1 AST.JSLNil $2 }
-                   | LParen FormalParameterList RParen
-                      { AST.JSParenthesizedArrowParameterList $1 $2 $3         }
 
 StatementOrBlock :: { AST.JSStatement }
 StatementOrBlock : Block MaybeSemi		{ blockToStatement $1 $2 }
@@ -1204,9 +1201,9 @@ IdentifierOpt : Identifier { identName $1     {- 'IdentifierOpt1' -} }
 -- FormalParameterList :                                                      See clause 13
 --        Identifier
 --        FormalParameterList , Identifier
-FormalParameterList :: { AST.JSCommaList AST.JSIdent }
-FormalParameterList : Identifier                            { AST.JSLOne (identName $1)         {- 'FormalParameterList1' -} }
-                    | FormalParameterList Comma Identifier  { AST.JSLCons $1 $2 (identName $3)  {- 'FormalParameterList2' -} }
+FormalParameterList :: { AST.JSCommaList AST.JSExpression }
+FormalParameterList : AssignmentExpression                           { AST.JSLOne $1         {- 'FormalParameterList1' -} }
+                    | FormalParameterList Comma AssignmentExpression { AST.JSLCons $1 $2 $3  {- 'FormalParameterList2' -} }
 
 -- FunctionBody :                                                             See clause 13
 --        SourceElementsopt
@@ -1415,5 +1412,14 @@ propName x = error $ "Cannot convert '" ++ show x ++ "' to a JSPropertyName."
 identifierToProperty :: AST.JSExpression -> AST.JSObjectProperty
 identifierToProperty (AST.JSIdentifier a s) = AST.JSPropertyIdentRef a s
 identifierToProperty x = error $ "Cannot convert '" ++ show x ++ "' to a JSObjectProperty."
+
+toArrowParameterList :: AST.JSExpression -> Token -> Alex AST.JSArrowParameterList
+toArrowParameterList (AST.JSIdentifier a s)          = const . return $ AST.JSUnparenthesizedArrowParameter (AST.JSIdentName a s)
+toArrowParameterList (AST.JSExpressionParen lb x rb) = const . return $ AST.JSParenthesizedArrowParameterList lb (commasToCommaList x) rb
+toArrowParameterList _                               = parseError
+
+commasToCommaList :: AST.JSExpression -> AST.JSCommaList AST.JSExpression
+commasToCommaList (AST.JSCommaExpression l c r) = AST.JSLCons (commasToCommaList l) c r
+commasToCommaList x = AST.JSLOne x
 
 }

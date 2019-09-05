@@ -64,6 +64,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "/*a*/x/*b*/>=/*c*/y"
         testRT "/*a*/x /*b*/instanceof /*c*/y"
         testRT "/*a*/x/*b*/=/*c*/{/*d*/get/*e*/ foo/*f*/(/*g*/)/*h*/ {/*i*/return/*j*/ 1/*k*/}/*l*/,/*m*/set/*n*/ foo/*o*/(/*p*/a/*q*/) /*r*/{/*s*/x/*t*/=/*u*/a/*v*/}/*w*/}"
+        testRT "x = { set foo(/*a*/[/*b*/a/*c*/,/*d*/b/*e*/]/*f*/=/*g*/y/*h*/) {} }"
         testRT "... /*a*/ x"
 
         testRT "a => {}"
@@ -71,6 +72,15 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "(a, b) => {}"
         testRT "(a, b) => a + b"
         testRT "() => { 42 }"
+        testRT "(...a) => a"
+        testRT "(a=1, b=2) => a + b"
+        testRT "([a, b]) => a + b"
+        testRT "({a, b}) => a + b"
+
+        testRT "function (...a) {}"
+        testRT "function (a=1, b=2) {}"
+        testRT "function ([a, ...b]) {}"
+        testRT "function ({a, b: c}) {}"
 
         testRT "/*a*/`<${/*b*/x/*c*/}>`/*d*/"
         testRT "`\\${}`"
