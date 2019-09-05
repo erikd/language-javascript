@@ -293,6 +293,7 @@ data JSPropertyName
     = JSPropertyIdent !JSAnnot !String
     | JSPropertyString !JSAnnot !String
     | JSPropertyNumber !JSAnnot !String
+    | JSPropertyComputed !JSAnnot !JSExpression !JSAnnot -- ^lb, expr, rb
     deriving (Data, Eq, Show, Typeable)
 
 type JSObjectPropertyList = JSCommaTrailingList JSObjectProperty
@@ -480,6 +481,7 @@ instance ShowStripped JSPropertyName where
     ss (JSPropertyIdent _ s) = "JSIdentifier " ++ singleQuote s
     ss (JSPropertyString _ s) = "JSIdentifier " ++ singleQuote s
     ss (JSPropertyNumber _ s) = "JSIdentifier " ++ singleQuote s
+    ss (JSPropertyComputed _ x _) = "JSPropertyComputed (" ++ ss x ++ ")"
 
 instance ShowStripped JSAccessor where
     ss (JSAccessorGet _) = "JSAccessorGet"

@@ -365,6 +365,7 @@ instance MinifyJS JSPropertyName where
     fix a (JSPropertyIdent _ s)  = JSPropertyIdent a s
     fix a (JSPropertyString _ s) = JSPropertyString a s
     fix a (JSPropertyNumber _ s) = JSPropertyNumber a s
+    fix _ (JSPropertyComputed _ x _) = JSPropertyComputed emptyAnnot (fixEmpty x) emptyAnnot
 
 instance MinifyJS JSAccessor where
     fix a (JSAccessorGet _) = JSAccessorGet a

@@ -277,6 +277,7 @@ instance RenderJS JSPropertyName where
     (|>) pacc (JSPropertyIdent a s)  = pacc |> a |> s
     (|>) pacc (JSPropertyString a s) = pacc |> a |> s
     (|>) pacc (JSPropertyNumber a s) = pacc |> a |> s
+    (|>) pacc (JSPropertyComputed lb x rb) = pacc |> lb |> "[" |> x |> rb |> "]"
 
 instance RenderJS JSAccessor where
     (|>) pacc (JSAccessorGet annot) = pacc |> annot |> "get"

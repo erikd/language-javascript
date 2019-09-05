@@ -580,6 +580,7 @@ PropertyName :: { AST.JSPropertyName }
 PropertyName : IdentifierName { propName $1 {- 'PropertyName1' -} }
              | StringLiteral  { propName $1 {- 'PropertyName2' -} }
              | NumericLiteral { propName $1 {- 'PropertyName3' -} }
+             | LSquare AssignmentExpression RSquare { AST.JSPropertyComputed $1 $2 $3 {- 'PropertyName4' -} }
 
 -- PropertySetParameterList :                                            See 11.1.5
 --        Identifier
