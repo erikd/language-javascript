@@ -277,6 +277,7 @@ testMinifyModule = describe "Minify modules:" $ do
         minifyModule "import  def, * as foo  from   \"mod\"  ; " `shouldBe` "import def,* as foo from\"mod\""
         minifyModule "import  { baz,  bar as   foo }  from   \"mod\"  ; " `shouldBe` "import{baz,bar as foo}from\"mod\""
         minifyModule "import  def, { baz,  bar as   foo }  from   \"mod\"  ; " `shouldBe` "import def,{baz,bar as foo}from\"mod\""
+        minifyModule "import     \"mod\"  ; " `shouldBe` "import\"mod\""
 
     it "export" $ do
         minifyModule " export { } ; " `shouldBe` "export{}"

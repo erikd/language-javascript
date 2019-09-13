@@ -73,7 +73,7 @@ data JSModuleItem
 
 data JSImportDeclaration
     = JSImportDeclaration !JSImportClause !JSFromClause !JSSemi -- ^imports, module, semi
-    -- | JSImportDeclarationBare -- ^ module, semi
+    | JSImportDeclarationBare !JSAnnot !String !JSSemi -- ^module, module, semi
     deriving (Data, Eq, Show, Typeable)
 
 data JSImportClause
@@ -425,6 +425,7 @@ instance ShowStripped JSModuleItem where
 
 instance ShowStripped JSImportDeclaration where
     ss (JSImportDeclaration imp from _) = "JSImportDeclaration (" ++ ss imp ++ "," ++ ss from ++ ")"
+    ss (JSImportDeclarationBare _ m _) = "JSImportDeclarationBare (" ++ singleQuote m ++ ")"
 
 instance ShowStripped JSImportClause where
     ss (JSImportClauseDefault x) = "JSImportClauseDefault (" ++ ss x ++ ")"
