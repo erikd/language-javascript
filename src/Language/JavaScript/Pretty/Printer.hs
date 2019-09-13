@@ -291,6 +291,7 @@ instance RenderJS [JSArrayElement] where
 
 instance RenderJS JSImportDeclaration where
     (|>) pacc (JSImportDeclaration imp from annot) = pacc |> imp |> from |> annot
+    (|>) pacc (JSImportDeclarationBare annot m s) = pacc |> annot |> m |> s
 
 instance RenderJS JSImportClause where
     (|>) pacc (JSImportClauseDefault x) = pacc |> x

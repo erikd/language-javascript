@@ -1251,6 +1251,8 @@ ModuleItem : Import ImportDeclaration
 ImportDeclaration :: { AST.JSImportDeclaration }
 ImportDeclaration : ImportClause FromClause AutoSemi
                           { AST.JSImportDeclaration $1 $2 $3 }
+                  | 'string' AutoSemi
+                          { AST.JSImportDeclarationBare (mkJSAnnot $1) (tokenLiteral $1) $2 }
 
 ImportClause :: { AST.JSImportClause }
 ImportClause : IdentifierName

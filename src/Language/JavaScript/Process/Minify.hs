@@ -293,6 +293,7 @@ instance MinifyJS JSImportDeclaration where
                     JSImportClauseNamed {} -> emptyAnnot
                     JSImportClauseDefaultNameSpace {} -> spaceAnnot
                     JSImportClauseDefaultNamed {} -> emptyAnnot
+    fix a (JSImportDeclarationBare _ m _) = JSImportDeclarationBare a m noSemi
 
 instance MinifyJS JSImportClause where
     fix _ (JSImportClauseDefault n) = JSImportClauseDefault (fixSpace n)
