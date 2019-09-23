@@ -51,6 +51,7 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "{x:1}"        `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1']]))"
         testExpr "{x:1,y:2}"    `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '2']]))"
         testExpr "{x:1,}"       `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'x') [JSDecimal '1'],JSComma]))"
+        testExpr "{yield:1}"    `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'yield') [JSDecimal '1']]))"
         testExpr "{x}"          `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyIdentRef 'x']))"
         testExpr "{x,}"         `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyIdentRef 'x',JSComma]))"
         testExpr "{set x([a,b]=y) {this.a=a;this.b=b}}" `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyAccessor JSAccessorSet (JSIdentifier 'x') [JSOpAssign ('=',JSArrayLiteral [JSIdentifier 'a',JSComma,JSIdentifier 'b'],JSIdentifier 'y')] (JSBlock [JSOpAssign ('=',JSMemberDot (JSLiteral 'this',JSIdentifier 'a'),JSIdentifier 'a'),JSSemicolon,JSOpAssign ('=',JSMemberDot (JSLiteral 'this',JSIdentifier 'b'),JSIdentifier 'b')])]))"
@@ -141,6 +142,16 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "(a,b=1) => a + b" `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSOpAssign ('=',JSIdentifier 'b',JSDecimal '1'))) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
         testExpr "([a,b]) => a + b" `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSArrayLiteral [JSIdentifier 'a',JSComma,JSIdentifier 'b'])) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
 
+    it "generator expression" $ do
+        testExpr "function*(){}"        `shouldBe` "Right (JSAstExpression (JSGeneratorExpression '' () (JSBlock [])))"
+        testExpr "function*(a){}"       `shouldBe` "Right (JSAstExpression (JSGeneratorExpression '' (JSIdentifier 'a') (JSBlock [])))"
+        testExpr "function*(a,b){}"     `shouldBe` "Right (JSAstExpression (JSGeneratorExpression '' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock [])))"
+        testExpr "function*(a,...b){}"  `shouldBe` "Right (JSAstExpression (JSGeneratorExpression '' (JSIdentifier 'a',JSSpreadExpression (JSIdentifier 'b')) (JSBlock [])))"
+        testExpr "function*f(){}"       `shouldBe` "Right (JSAstExpression (JSGeneratorExpression 'f' () (JSBlock [])))"
+        testExpr "function*f(a){}"      `shouldBe` "Right (JSAstExpression (JSGeneratorExpression 'f' (JSIdentifier 'a') (JSBlock [])))"
+        testExpr "function*f(a,b){}"    `shouldBe` "Right (JSAstExpression (JSGeneratorExpression 'f' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock [])))"
+        testExpr "function*f(a,...b){}" `shouldBe` "Right (JSAstExpression (JSGeneratorExpression 'f' (JSIdentifier 'a',JSSpreadExpression (JSIdentifier 'b')) (JSBlock [])))"
+
     it "member expression" $ do
         testExpr "x[y]"         `shouldBe` "Right (JSAstExpression (JSMemberSquare (JSIdentifier 'x',JSIdentifier 'y')))"
         testExpr "x[y][z]"      `shouldBe` "Right (JSAstExpression (JSMemberSquare (JSMemberSquare (JSIdentifier 'x',JSIdentifier 'y'),JSIdentifier 'z')))"
@@ -169,6 +180,11 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "`<${x} ${y}>`" `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((),'`<${',[(JSIdentifier 'x','} ${'),(JSIdentifier 'y','}>`')])))"
         testExpr "tag `xyz`"     `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((JSIdentifier 'tag'),'`xyz`',[])))"
         testExpr "tag()`xyz`"    `shouldBe` "Right (JSAstExpression (JSTemplateLiteral ((JSMemberExpression (JSIdentifier 'tag',JSArguments ())),'`xyz`',[])))"
+
+    it "yield" $ do
+        testExpr "yield"       `shouldBe` "Right (JSAstExpression (JSYieldExpression ()))"
+        testExpr "yield a + b" `shouldBe` "Right (JSAstExpression (JSYieldExpression (JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b'))))"
+        testExpr "yield* g()"  `shouldBe` "Right (JSAstExpression (JSYieldFromExpression (JSMemberExpression (JSIdentifier 'g',JSArguments ()))))"
 
 
 testExpr :: String -> String

@@ -123,6 +123,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'void'       { VoidToken {} }
      'while'      { WhileToken {} }
      'with'       { WithToken {} }
+     'yield'      { YieldToken {} }
 
 
      'ident'      { IdentifierToken {} }
@@ -484,6 +485,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
                   | Literal                  { $1 {- 'PrimaryExpression2' -} }
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
                   | ObjectLiteral            { $1 {- 'PrimaryExpression4' -} }
+                  | GeneratorExpression      { $1 }
                   | TemplateLiteral          { mkJSTemplateLiteral Nothing $1 {- 'PrimaryExpression6' -} }
                   | LParen Expression RParen { AST.JSExpressionParen $1 $2 $3 }
 
@@ -495,6 +497,12 @@ Identifier : 'ident' { AST.JSIdentifier (mkJSAnnot $1) (tokenLiteral $1) }
            | 'get'   { AST.JSIdentifier (mkJSAnnot $1) "get" }
            | 'set'   { AST.JSIdentifier (mkJSAnnot $1) "set" }
            | 'from'  { AST.JSIdentifier (mkJSAnnot $1) "from" }
+           | 'yield' { AST.JSIdentifier (mkJSAnnot $1) "yield" }
+
+-- Must follow Identifier; when ambiguous, `yield` as a keyword should take
+-- precedence over `yield` as an identifier name.
+Yield :: { AST.JSAnnot }
+Yield : 'yield' { mkJSAnnot $1 }
 
 
 SpreadExpression :: { AST.JSExpression }
@@ -858,6 +866,7 @@ ConditionalExpressionNoIn : LogicalOrExpressionNoIn { $1 {- 'ConditionalExpressi
 --        LeftHandSideExpression AssignmentOperator AssignmentExpression
 AssignmentExpression :: { AST.JSExpression }
 AssignmentExpression : ConditionalExpression { $1 {- 'AssignmentExpression1' -} }
+                     | YieldExpression { $1 }
                      | LeftHandSideExpression AssignmentOperator AssignmentExpression
                        { AST.JSAssignExpression $1 $2 $3 {- 'AssignmentExpression2' -} }
                      | SpreadExpression { $1 }
@@ -867,6 +876,7 @@ AssignmentExpression : ConditionalExpression { $1 {- 'AssignmentExpression1' -} 
 --        LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn
 AssignmentExpressionNoIn :: { AST.JSExpression }
 AssignmentExpressionNoIn : ConditionalExpressionNoIn { $1 {- 'AssignmentExpressionNoIn1' -} }
+                         | YieldExpression { $1 }
                          | LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn
                            { AST.JSAssignExpression $1 $2 $3 {- 'AssignmentExpressionNoIn1' -} }
 
@@ -1193,6 +1203,38 @@ LambdaExpression : Function LParen RParen FunctionBody
                  | Function LParen FormalParameterList RParen FunctionBody
                     { AST.JSFunctionExpression $1 AST.JSIdentNone $2 $3 $4 $5           {- 'LambdaExpression2' -} }
 
+-- GeneratorDeclaration :
+--         function * BindingIdentifier ( FormalParameters ) { GeneratorBody }
+--         function * ( FormalParameters ) { GeneratorBody }
+GeneratorDeclaration :: { AST.JSStatement }
+GeneratorDeclaration : NamedGeneratorExpression MaybeSemi  { expressionToStatement $1 $2 }
+
+-- GeneratorExpression :
+--         function * BindingIdentifieropt ( FormalParameters ) { GeneratorBody }
+-- GeneratorBody :
+--         FunctionBody
+GeneratorExpression :: { AST.JSExpression }
+GeneratorExpression : NamedGeneratorExpression { $1 }
+                    | Function '*' LParen RParen FunctionBody
+                        { AST.JSGeneratorExpression $1 (mkJSAnnot $2) AST.JSIdentNone $3 AST.JSLNil $4 $5 }
+                    | Function '*' LParen FormalParameterList RParen FunctionBody
+                        { AST.JSGeneratorExpression $1 (mkJSAnnot $2) AST.JSIdentNone $3 $4 $5 $6 }
+
+NamedGeneratorExpression :: { AST.JSExpression }
+NamedGeneratorExpression : Function '*' Identifier LParen RParen FunctionBody
+                             { AST.JSGeneratorExpression $1 (mkJSAnnot $2) (identName $3) $4 AST.JSLNil $5 $6 }
+                         | Function '*' Identifier LParen FormalParameterList RParen FunctionBody
+                             { AST.JSGeneratorExpression $1 (mkJSAnnot $2) (identName $3) $4 $5 $6 $7 }
+
+-- YieldExpression :
+--         yield
+--         yield [no LineTerminator here] AssignmentExpression
+--         yield [no LineTerminator here] * AssignmentExpression
+YieldExpression :: { AST.JSExpression }
+YieldExpression : Yield { AST.JSYieldExpression $1 Nothing }
+                | Yield AssignmentExpression { AST.JSYieldExpression $1 (Just $2) }
+                | Yield '*' AssignmentExpression { AST.JSYieldFromExpression $1 (mkJSAnnot $2) $3 }
+
 
 IdentifierOpt :: { AST.JSIdent }
 IdentifierOpt : Identifier { identName $1     {- 'IdentifierOpt1' -} }
@@ -1299,7 +1341,7 @@ ImportSpecifier : IdentifierName
 -- [x]       LexicalDeclaration
 -- [ ]    HoistableDeclaration :
 -- [x]       FunctionDeclaration
--- [ ]       GeneratorDeclaration
+-- [x]       GeneratorDeclaration
 -- [ ]       AsyncFunctionDeclaration
 -- [ ]       AsyncGeneratorDeclaration
 -- [ ]    export default HoistableDeclaration[Default]
@@ -1314,6 +1356,8 @@ ExportDeclaration : ExportClause FromClause AutoSemi
                          { AST.JSExport $1 $2         {- 'ExportDeclaration3' -} }
                   | FunctionDeclaration AutoSemi
                          { AST.JSExport $1 $2         {- 'ExportDeclaration4' -} }
+                  | GeneratorDeclaration AutoSemi
+                         { AST.JSExport $1 $2         {- 'ExportDeclaration5' -} }
 
 -- ExportClause :
 --           { }
@@ -1364,6 +1408,7 @@ blockToStatement (AST.JSBlock a b c) s = AST.JSStatementBlock a b c s
 
 expressionToStatement :: AST.JSExpression -> AST.JSSemi -> AST.JSStatement
 expressionToStatement (AST.JSFunctionExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSFunction a b c d e f s
+expressionToStatement (AST.JSGeneratorExpression a b c@(AST.JSIdentName{}) d e f g) s = AST.JSGenerator a b c d e f g s
 expressionToStatement (AST.JSAssignExpression lhs op rhs) s = AST.JSAssignStatement lhs op rhs s
 expressionToStatement (AST.JSMemberExpression e l a r) s = AST.JSMethodCall e l a r s
 expressionToStatement exp s = AST.JSExpressionStatement exp s

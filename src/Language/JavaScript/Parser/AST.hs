@@ -143,6 +143,7 @@ data JSStatement
     | JSForOf !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVarOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
+    | JSGenerator !JSAnnot !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi  -- ^fn,*,name, lb,parameter list,rb,block,autosemi
     | JSIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^if,(,expr,),stmt
     | JSIfElse !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSAnnot !JSStatement -- ^if,(,expr,),stmt,else,rest
     | JSLabelled !JSIdent !JSAnnot !JSStatement -- ^identifier,colon,stmt
@@ -182,6 +183,7 @@ data JSExpression
     | JSExpressionTernary !JSExpression !JSAnnot !JSExpression !JSAnnot !JSExpression -- ^cond, ?, trueval, :, falseval
     | JSArrowExpression !JSArrowParameterList !JSAnnot !JSStatement -- ^parameter list,arrow,block`
     | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
+    | JSGeneratorExpression !JSAnnot !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^fn,*,name,lb, parameter list,rb,block`
     | JSMemberDot !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, name
     | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
     | JSMemberNew !JSAnnot !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- ^new, name, lb, args, rb
@@ -192,6 +194,8 @@ data JSExpression
     | JSTemplateLiteral !(Maybe JSExpression) !JSAnnot !String ![JSTemplatePart] -- ^optional tag, lquot, head, parts
     | JSUnaryExpression !JSUnaryOp !JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
+    | JSYieldExpression !JSAnnot !(Maybe JSExpression) -- ^yield, optional expr
+    | JSYieldFromExpression !JSAnnot !JSAnnot !JSExpression -- ^yield, *, expr
     deriving (Data, Eq, Show, Typeable)
 
 data JSArrowParameterList
@@ -364,6 +368,7 @@ instance ShowStripped JSStatement where
     ss (JSForOf _ _lb x1s _i x2 _rb x3) = "JSForOf " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSForVarOf _ _lb _v x1 _i x2 _rb x3) = "JSForVarOf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSFunction _ n _lb pl _rb x3 _) = "JSFunction " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
+    ss (JSGenerator _ _ n _lb pl _rb x3 _) = "JSGenerator " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
     ss (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
@@ -395,6 +400,7 @@ instance ShowStripped JSExpression where
     ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary (" ++ ss x1 ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
     ss (JSArrowExpression ps _ e) = "JSArrowExpression (" ++ ss ps ++ ") => " ++ ss e
     ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
+    ss (JSGeneratorExpression _ _ n _lb pl _rb x3) = "JSGeneratorExpression " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
     ss (JSHexInteger _ s) = "JSHexInteger " ++ singleQuote s
     ss (JSOctal _ s) = "JSOctal " ++ singleQuote s
     ss (JSIdentifier _ s) = "JSIdentifier " ++ singleQuote s
@@ -410,6 +416,9 @@ instance ShowStripped JSExpression where
     ss (JSStringLiteral _ s) = "JSStringLiteral " ++ s
     ss (JSUnaryExpression op x) = "JSUnaryExpression (" ++ ss op ++ "," ++ ss x ++ ")"
     ss (JSVarInitExpression x1 x2) = "JSVarInitExpression (" ++ ss x1 ++ ") " ++ ss x2
+    ss (JSYieldExpression _ Nothing) = "JSYieldExpression ()"
+    ss (JSYieldExpression _ (Just x)) = "JSYieldExpression (" ++ ss x ++ ")"
+    ss (JSYieldFromExpression _ _ x) = "JSYieldFromExpression (" ++ ss x ++ ")"
     ss (JSSpreadExpression _ x1) = "JSSpreadExpression (" ++ ss x1 ++ ")"
     ss (JSTemplateLiteral Nothing _ s ps) = "JSTemplateLiteral (()," ++ singleQuote s ++ "," ++ ss ps ++ ")"
     ss (JSTemplateLiteral (Just t) _ s ps) = "JSTemplateLiteral ((" ++ ss t ++ ")," ++ singleQuote s ++ "," ++ ss ps ++ ")"
