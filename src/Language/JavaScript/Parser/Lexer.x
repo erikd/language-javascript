@@ -561,6 +561,7 @@ keywordNames =
     , ( "void", VoidToken )
     , ( "while", WhileToken )
     , ( "with", WithToken )
+    , ( "yield", YieldToken )
     -- TODO: no idea if these are reserved or not, but they are needed
     --       handled in parser, in the Identifier rule
     , ( "as", AsToken ) -- not reserved
@@ -601,7 +602,7 @@ keywordNames =
     , ( "public",      FutureToken )
     , ( "static",      FutureToken )
     -- ( "strict",     FutureToken )  *** not any more
-    , ( "yield",       FutureToken)
+    -- ( "yield",       FutureToken) **** an actual token, used in productions
    ]
 }
 

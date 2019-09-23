@@ -82,6 +82,9 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "function ([a, ...b]) {}"
         testRT "function ({a, b: c}) {}"
 
+        testRT "/*a*/function/*b*/*/*c*/f/*d*/(/*e*/)/*f*/{/*g*/yield/*h*/a/*i*/}/*j*/"
+        testRT "function*(a, b) { yield a ; yield b ; }"
+
         testRT "/*a*/`<${/*b*/x/*c*/}>`/*d*/"
         testRT "`\\${}`"
         testRT "`\n\n`"
@@ -127,6 +130,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "var x=1;let y=2;"
         testRT "var [x, y]=z;"
         testRT "let {x: [y]}=z;"
+        testRT "let yield=1"
 
     it "module" $ do
         testRTModule "import  def  from 'mod'"
@@ -143,6 +147,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRTModule "export   {}  from \"mod\";"
         testRTModule "export const a = 1 ; "
         testRTModule "export function f () {  } ; "
+        testRTModule "export function * f () {  } ; "
 
 
 testRT :: String -> Expectation

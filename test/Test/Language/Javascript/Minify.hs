@@ -122,6 +122,11 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr "( [ a , b ] ) => a + b" `shouldBe` "([a,b])=>a+b"
         minifyExpr "( { a , b , } ) => a + b" `shouldBe` "({a,b})=>a+b"
 
+    it "generator" $ do
+        minifyExpr " function * ( ) { } " `shouldBe` "function*(){}"
+        minifyExpr " function * ( a ) { yield * a ; } " `shouldBe` "function*(a){yield*a}"
+        minifyExpr " function * ( a , b ) { yield a + b ; } " `shouldBe` "function*(a,b){yield a+b}"
+
     it "calls" $ do
         minifyExpr " a ( ) " `shouldBe` "a()"
         minifyExpr " b ( ) ( ) " `shouldBe` "b()()"
@@ -217,6 +222,11 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " function f ( [ a , b ] ) { return a + b ; } ; " `shouldBe` "function f([a,b]){return a+b}"
         minifyStmt " function f ( { a , b , } ) { return a + b ; } ; " `shouldBe` "function f({a,b}){return a+b}"
 
+    it "generator" $ do
+        minifyStmt " function * f ( ) { } ; " `shouldBe` "function*f(){}"
+        minifyStmt " function * f ( a ) { yield * a ; } ; " `shouldBe` "function*f(a){yield*a}"
+        minifyStmt " function * f ( a , b ) { yield a + b ; } ; " `shouldBe` "function*f(a,b){yield a+b}"
+
     it "with" $ do
         minifyStmt " with ( x ) { } ; " `shouldBe` "with(x){}"
         minifyStmt " with ({ first: 'John' }) { foo ('Hello '+first); }" `shouldBe` "with({first:'John'})foo('Hello '+first)"
@@ -300,6 +310,7 @@ testMinifyModule = describe "Minify modules:" $ do
         minifyModule " export { } from \"mod\" ; " `shouldBe` "export{}from\"mod\""
         minifyModule " export const a = 1 ; " `shouldBe` "export const a=1"
         minifyModule " export function f () {  } ; " `shouldBe` "export function f(){}"
+        minifyModule " export function * f () {  } ; " `shouldBe` "export function*f(){}"
 
 -- -----------------------------------------------------------------------------
 -- Minify test helpers.

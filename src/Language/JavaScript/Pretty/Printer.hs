@@ -83,6 +83,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSExpressionPostfix    xs op)                  = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> "?" |> v1 |> c |> ":" |> v2
     (|>) pacc (JSFunctionExpression   annot n lb x2s rb x3)   = pacc |> annot |> "function" |> n |> lb |> "(" |> x2s |> rb |> ")" |> x3
+    (|>) pacc (JSGeneratorExpression  annot s n lb x2s rb x3) = pacc |> annot |> "function" |> s |> "*" |> n |> lb |> "(" |> x2s |> rb |> ")" |> x3
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
     (|>) pacc (JSMemberExpression     e lb a rb)              = pacc |> e |> lb |> "(" |> a |> rb |> ")"
     (|>) pacc (JSMemberNew            a lb n rb s)            = pacc |> a |> "new" |> lb |> "(" |> n |> rb |> ")" |> s
@@ -92,6 +93,8 @@ instance RenderJS JSExpression where
     (|>) pacc (JSTemplateLiteral      t a h ps)               = pacc |> t |> a |> h |> ps
     (|>) pacc (JSUnaryExpression      op x)                   = pacc |> op |> x
     (|>) pacc (JSVarInitExpression    x1 x2)                  = pacc |> x1 |> x2
+    (|>) pacc (JSYieldExpression      y x)                    = pacc |> y |> "yield" |> x
+    (|>) pacc (JSYieldFromExpression  y s x)                  = pacc |> y |> "yield" |> s |> "*" |> x
     (|>) pacc (JSSpreadExpression     a e)                    = pacc |> a |> "..." |> e
 
 instance RenderJS JSArrowParameterList where
@@ -238,6 +241,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForOf af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForVarOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSFunction af n alb x2s arb x3 s)           = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
+    (|>) pacc (JSGenerator af as n alb x2s arb x3 s)       = pacc |> af |> "function" |> as |> "*" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s
     (|>) pacc (JSIfElse annot alb x1 arb x2s ea x3s)       = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> ea |> "else" |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v

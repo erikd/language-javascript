@@ -119,6 +119,12 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "function x([a]){}"  `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSArrayLiteral [JSIdentifier 'a']) (JSBlock [])))"
         testStmt "function x({a}){}"  `shouldBe` "Right (JSAstStatement (JSFunction 'x' (JSObjectLiteral [JSPropertyIdentRef 'a']) (JSBlock [])))"
 
+    it "generator" $ do
+        testStmt "function* x(){}"       `shouldBe` "Right (JSAstStatement (JSGenerator 'x' () (JSBlock [])))"
+        testStmt "function* x(a){}"      `shouldBe` "Right (JSAstStatement (JSGenerator 'x' (JSIdentifier 'a') (JSBlock [])))"
+        testStmt "function* x(a,b){}"    `shouldBe` "Right (JSAstStatement (JSGenerator 'x' (JSIdentifier 'a',JSIdentifier 'b') (JSBlock [])))"
+        testStmt "function* x(a,...b){}" `shouldBe` "Right (JSAstStatement (JSGenerator 'x' (JSIdentifier 'a',JSSpreadExpression (JSIdentifier 'b')) (JSBlock [])))"
+
 
 testStmt :: String -> String
 testStmt str = showStrippedMaybe (parseUsing parseStatement str "src")
