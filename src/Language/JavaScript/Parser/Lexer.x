@@ -15,6 +15,7 @@ module Language.JavaScript.Parser.Lexer
     , alexError
     , runAlex
     , alexTestTokeniser
+    , setInTemplate
     ) where
 
 import Language.JavaScript.Parser.LexerUtils
@@ -199,8 +200,9 @@ $ZWJ  = [\x200d]
 tokens :-
 
 -- State: 0 is regex allowed, 1 is / or /= allowed
+-- 2 is a special state for parsing characters inside templates
 
-<0> () ; -- { registerStates lexToken reg divide }
+<0> () ; -- { registerStates lexToken reg divide template }
 
 -- Skip Whitespace
 <reg,divide> $white_char+   { adapt (mkString wsToken) }
@@ -256,8 +258,8 @@ tokens :-
 
 <reg,divide> "`" @TemplateCharacters "`" { adapt (mkString' NoSubstitutionTemplateToken) }
 <reg,divide> "`" @TemplateCharacters "${" { adapt (mkString' TemplateHeadToken) }
-<reg,divide> "}" @TemplateCharacters "${" { adapt (mkString' TemplateMiddleToken) }
-<reg,divide> "}" @TemplateCharacters "`" { adapt (mkString' TemplateTailToken) }
+<template>   @TemplateCharacters "${" { adapt (mkString' TemplateMiddleToken) }
+<template>   @TemplateCharacters "`" { adapt (mkString' TemplateTailToken) }
 
 
 
@@ -387,8 +389,11 @@ lexToken = do
     lt  <- getLastToken
     case lt of
         TailToken {} -> alexEOF
-        _other ->
-            case alexScan inp (classifyToken lt) of
+        _other -> do
+            isInTmpl <- getInTemplate
+            let state = if isInTmpl then template else classifyToken lt
+            setInTemplate False -- the inTemplate condition only needs to last for one token
+            case alexScan inp state of
                 AlexEOF        -> do
                     tok <- tailToken
                     setLastToken tok
@@ -490,6 +495,12 @@ addComment c = Alex $ \s ->  Right (s{alex_ust=(alex_ust s){comment=c:(  comment
 
 setComment :: [Token] -> Alex ()
 setComment cs = Alex $ \s -> Right (s{alex_ust=(alex_ust s){comment=cs }}, ())
+
+getInTemplate :: Alex Bool
+getInTemplate = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, inTemplate ust)
+
+setInTemplate :: Bool -> Alex ()
+setInTemplate it = Alex $ \s -> Right (s{alex_ust=(alex_ust s){inTemplate=it}}, ())
 
 alexEOF :: Alex Token
 alexEOF = return (EOFToken tokenPosnEmpty [])

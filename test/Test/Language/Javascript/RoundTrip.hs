@@ -88,6 +88,8 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "/*a*/`<${/*b*/x/*c*/}>`/*d*/"
         testRT "`\\${}`"
         testRT "`\n\n`"
+        testRT "{}+``"
+        -- ^ https://github.com/erikd/language-javascript/issues/104
 
 
     it "statement" $ do

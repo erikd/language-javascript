@@ -9,6 +9,7 @@ module Language.JavaScript.Parser.Grammar7
     ) where
 
 import Data.Char
+import Data.Functor (($>))
 import Language.JavaScript.Parser.Lexer
 import Language.JavaScript.Parser.ParserMonad
 import Language.JavaScript.Parser.SrcLocation
@@ -513,8 +514,16 @@ TemplateLiteral : 'tmplnosub'              { JSUntaggedTemplate (mkJSAnnot $1) (
                 | 'tmplhead' TemplateParts { JSUntaggedTemplate (mkJSAnnot $1) (tokenLiteral $1) $2 }
 
 TemplateParts :: { [AST.JSTemplatePart] }
-TemplateParts : Expression 'tmplmiddle' TemplateParts { AST.JSTemplatePart $1 (mkJSAnnot $2) (tokenLiteral $2) : $3 }
-              | Expression 'tmpltail'                 { AST.JSTemplatePart $1 (mkJSAnnot $2) (tokenLiteral $2) : [] }
+TemplateParts : TemplateExpression RBrace 'tmplmiddle' TemplateParts { AST.JSTemplatePart $1 $2 ('}' : tokenLiteral $3) : $4 }
+              | TemplateExpression RBrace 'tmpltail'                 { AST.JSTemplatePart $1 $2 ('}' : tokenLiteral $3) : [] }
+
+-- This production only exists to ensure that inTemplate is set to True before
+-- a tmplmiddle or tmpltail token is lexed. Since the lexer is always one token
+-- ahead of the parser, setInTemplate needs to be called during a reduction
+-- that is *two* tokens behind tmplmiddle/tmpltail. Accordingly,
+-- TemplateExpression is always followed by an RBrace, which is lexed normally.
+TemplateExpression :: { AST.JSExpression }
+TemplateExpression : Expression {% setInTemplate True \$> $1 }
 
 -- ArrayLiteral :                                                        See 11.1.4
 --        [ Elisionopt ]
