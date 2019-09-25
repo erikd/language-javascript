@@ -153,6 +153,7 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRTModule "export const a = 1 ; "
         testRTModule "export function f () {  } ; "
         testRTModule "export function * f () {  } ; "
+        testRTModule "export   class Foo\nextends Bar\n{ get a () { return 1 ; }  static b ( x,y ) {} ; }   ; "
 
 
 testRT :: String -> Expectation

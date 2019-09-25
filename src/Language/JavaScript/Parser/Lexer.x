@@ -533,6 +533,7 @@ keywordNames =
     , ( "case", CaseToken )
     , ( "catch", CatchToken )
 
+    , ( "class", ClassToken )
     , ( "const", ConstToken ) -- not a keyword, nominally a future reserved word, but actually in use
 
     , ( "continue", ContinueToken )
@@ -544,6 +545,7 @@ keywordNames =
 
     , ( "enum", EnumToken )  -- not a keyword,  nominally a future reserved word, but actually in use
     , ( "export", ExportToken )
+    , ( "extends", ExtendsToken )
 
     , ( "false", FalseToken ) -- boolean literal
 
@@ -562,6 +564,7 @@ keywordNames =
 
     , ( "of", OfToken )
     , ( "return", ReturnToken )
+    , ( "static", StaticToken )
     , ( "switch", SwitchToken )
     , ( "this", ThisToken )
     , ( "throw", ThrowToken )
@@ -591,11 +594,11 @@ keywordNames =
 
 
     -- Future Reserved Words
-    , ( "class",    FutureToken )
+    -- ( "class",    FutureToken ) **** an actual token, used in productions
     -- ( "code",    FutureToken ) **** not any more
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
-    , ( "extends",  FutureToken )
+    -- ( "extends",  FutureToken ) **** an actual token, used in productions
     , ( "super",    FutureToken )
 
 
@@ -611,7 +614,7 @@ keywordNames =
     , ( "private",     FutureToken )
     , ( "protected",   FutureToken )
     , ( "public",      FutureToken )
-    , ( "static",      FutureToken )
+    -- ( "static",      FutureToken ) **** an actual token, used in productions
     -- ( "strict",     FutureToken )  *** not any more
     -- ( "yield",       FutureToken) **** an actual token, used in productions
    ]

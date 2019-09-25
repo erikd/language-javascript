@@ -89,6 +89,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'break'      { BreakToken {} }
      'case'       { CaseToken {} }
      'catch'      { CatchToken {} }
+     'class'      { ClassToken {} }
      'const'      { ConstToken {} }
      'continue'   { ContinueToken {} }
      'debugger'   { DebuggerToken {} }
@@ -98,6 +99,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'else'       { ElseToken {} }
      'enum'       { EnumToken {} }
      'export'     { ExportToken {} }
+     'extends'    { ExtendsToken {} }
      'false'      { FalseToken {} }
      'finally'    { FinallyToken {} }
      'for'        { ForToken {} }
@@ -114,6 +116,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'of'         { OfToken {} }
      'return'     { ReturnToken {} }
      'set'        { SetToken {} }
+     'static'     { StaticToken {} }
      'switch'     { SwitchToken {} }
      'this'       { ThisToken {} }
      'throw'      { ThrowToken {} }
@@ -330,6 +333,7 @@ IdentifierName : Identifier {$1}
              | 'break'      { AST.JSIdentifier (mkJSAnnot $1) "break" }
              | 'case'       { AST.JSIdentifier (mkJSAnnot $1) "case" }
              | 'catch'      { AST.JSIdentifier (mkJSAnnot $1) "catch" }
+             | 'class'      { AST.JSIdentifier (mkJSAnnot $1) "class" }
              | 'const'      { AST.JSIdentifier (mkJSAnnot $1) "const" }
              | 'continue'   { AST.JSIdentifier (mkJSAnnot $1) "continue" }
              | 'debugger'   { AST.JSIdentifier (mkJSAnnot $1) "debugger" }
@@ -339,6 +343,7 @@ IdentifierName : Identifier {$1}
              | 'else'       { AST.JSIdentifier (mkJSAnnot $1) "else" }
              | 'enum'       { AST.JSIdentifier (mkJSAnnot $1) "enum" }
              | 'export'     { AST.JSIdentifier (mkJSAnnot $1) "export" }
+             | 'extends'    { AST.JSIdentifier (mkJSAnnot $1) "extends" }
              | 'false'      { AST.JSIdentifier (mkJSAnnot $1) "false" }
              | 'finally'    { AST.JSIdentifier (mkJSAnnot $1) "finally" }
              | 'for'        { AST.JSIdentifier (mkJSAnnot $1) "for" }
@@ -351,6 +356,7 @@ IdentifierName : Identifier {$1}
              | 'null'       { AST.JSIdentifier (mkJSAnnot $1) "null" }
              | 'of'         { AST.JSIdentifier (mkJSAnnot $1) "of" }
              | 'return'     { AST.JSIdentifier (mkJSAnnot $1) "return" }
+             | 'static'     { AST.JSIdentifier (mkJSAnnot $1) "static" }
              | 'switch'     { AST.JSIdentifier (mkJSAnnot $1) "switch" }
              | 'this'       { AST.JSIdentifier (mkJSAnnot $1) "this" }
              | 'throw'      { AST.JSIdentifier (mkJSAnnot $1) "throw" }
@@ -435,6 +441,15 @@ Function : 'function' { mkJSAnnot $1 {- 'Function' -} }
 New :: { AST.JSAnnot }
 New : 'new' { mkJSAnnot $1 }
 
+Class :: { AST.JSAnnot }
+Class : 'class' { mkJSAnnot $1 }
+
+Extends :: { AST.JSAnnot }
+Extends : 'extends' { mkJSAnnot $1 }
+
+Static :: { AST.JSAnnot }
+Static : 'static' { mkJSAnnot $1 }
+
 
 Eof :: { AST.JSAnnot }
 Eof : 'tail' { mkJSAnnot $1 {- 'Eof' -} }
@@ -486,6 +501,7 @@ PrimaryExpression : 'this'                   { AST.JSLiteral (mkJSAnnot $1) "thi
                   | Literal                  { $1 {- 'PrimaryExpression2' -} }
                   | ArrayLiteral             { $1 {- 'PrimaryExpression3' -} }
                   | ObjectLiteral            { $1 {- 'PrimaryExpression4' -} }
+                  | ClassExpression          { $1 }
                   | GeneratorExpression      { $1 }
                   | TemplateLiteral          { mkJSTemplateLiteral Nothing $1 {- 'PrimaryExpression6' -} }
                   | LParen Expression RParen { AST.JSExpressionParen $1 $2 $3 }
@@ -1272,6 +1288,44 @@ FormalParameterList : AssignmentExpression                           { AST.JSLOn
 FunctionBody :: { AST.JSBlock }
 FunctionBody : Block                    { $1    {- 'FunctionBody1' -} }
 
+-- ClassDeclaration :
+--         class BindingIdentifier ClassTail
+--         class ClassTail
+-- ClassExpression :
+--         class BindingIdentifieropt ClassTail
+-- ClassTail :
+--         ClassHeritageopt { ClassBodyopt }
+ClassDeclaration :: { AST.JSStatement }
+ClassDeclaration : Class Identifier ClassHeritage LBrace ClassBody RBrace { AST.JSClass $1 (identName $2) $3 $4 $5 $6 AST.JSSemiAuto }
+
+ClassExpression :: { AST.JSExpression }
+ClassExpression : Class Identifier ClassHeritage LBrace ClassBody RBrace { AST.JSClassExpression $1 (identName $2)  $3 $4 $5 $6 }
+                | Class            ClassHeritage LBrace ClassBody RBrace { AST.JSClassExpression $1 AST.JSIdentNone $2 $3 $4 $5 }
+
+-- ClassHeritage :
+--         extends LeftHandSideExpression
+ClassHeritage :: { AST.JSClassHeritage }
+ClassHeritage : Extends LeftHandSideExpression { AST.JSExtends $1 $2 }
+              |                                { AST.JSExtendsNone }
+
+-- ClassBody :
+--         ClassElementList
+-- ClassElementList :
+--         ClassElement
+--         ClassElementList ClassElement
+ClassBody :: { [AST.JSClassElement] }
+ClassBody :                        { [] }
+          | ClassBody ClassElement { $1 ++ [$2] }
+
+-- ClassElement :
+--         MethodDefinition
+--         static MethodDefinition
+--         ;
+ClassElement :: { AST.JSClassElement }
+ClassElement : MethodDefinition        { AST.JSClassInstanceMethod $1 }
+             | Static MethodDefinition { AST.JSClassStaticMethod $1 $2 }
+             | Semi                    { AST.JSClassSemi $1 }
+
 -- Program :                                                                  See clause 14
 --        SourceElementsopt
 
@@ -1357,7 +1411,7 @@ ImportSpecifier : IdentifierName
 -- [ ]    export Declaration
 -- [ ]    Declaration :
 -- [ ]       HoistableDeclaration
--- [ ]       ClassDeclaration
+-- [x]       ClassDeclaration
 -- [x]       LexicalDeclaration
 -- [ ]    HoistableDeclaration :
 -- [x]       FunctionDeclaration
@@ -1378,6 +1432,8 @@ ExportDeclaration : ExportClause FromClause AutoSemi
                          { AST.JSExport $1 $2         {- 'ExportDeclaration4' -} }
                   | GeneratorDeclaration AutoSemi
                          { AST.JSExport $1 $2         {- 'ExportDeclaration5' -} }
+                  | ClassDeclaration AutoSemi
+                         { AST.JSExport $1 $2         {- 'ExportDeclaration6' -} }
 
 -- ExportClause :
 --           { }
@@ -1431,6 +1487,7 @@ expressionToStatement (AST.JSFunctionExpression a b@(AST.JSIdentName{}) c d e f)
 expressionToStatement (AST.JSGeneratorExpression a b c@(AST.JSIdentName{}) d e f g) s = AST.JSGenerator a b c d e f g s
 expressionToStatement (AST.JSAssignExpression lhs op rhs) s = AST.JSAssignStatement lhs op rhs s
 expressionToStatement (AST.JSMemberExpression e l a r) s = AST.JSMethodCall e l a r s
+expressionToStatement (AST.JSClassExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSClass a b c d e f s
 expressionToStatement exp s = AST.JSExpressionStatement exp s
 
 
