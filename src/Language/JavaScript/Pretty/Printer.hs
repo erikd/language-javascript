@@ -77,6 +77,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
+    (|>) pacc (JSClassExpression      annot n h lb xs rb)     = pacc |> annot |> "class" |> n |> h |> lb |> "{" |> xs |> rb |> "}"
     (|>) pacc (JSCommaExpression      le c re)                = pacc |> le |> c |> "," |> re
     (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"
@@ -224,6 +225,7 @@ instance RenderJS [JSSwitchParts] where
 instance RenderJS JSStatement where
     (|>) pacc (JSStatementBlock alb blk arb s)             = pacc |> alb |> "{" |> blk |> arb |> "}" |> s
     (|>) pacc (JSBreak annot mi s)                         = pacc |> annot |> "break" |> mi |> s
+    (|>) pacc (JSClass annot n h lb xs rb s)               = pacc |> annot |> "class" |> n |> h |> lb |> "{" |> xs |> rb |> "}" |> s
     (|>) pacc (JSContinue annot mi s)                      = pacc |> annot |> "continue" |> mi |> s
     (|>) pacc (JSConstant annot xs s)                      = pacc |> annot |> "const" |> xs |> s
     (|>) pacc (JSDoWhile ad x1 aw alb x2 arb x3)           = pacc |> ad |> "do" |> x1 |> aw |> "while" |> alb |> "(" |> x2 |> arb |> ")" |> x3
@@ -361,5 +363,17 @@ instance RenderJS [JSTemplatePart] where
 
 instance RenderJS JSTemplatePart where
     (|>) pacc (JSTemplatePart e a s) = pacc |> e |> a |> s
+
+instance RenderJS JSClassHeritage where
+    (|>) pacc (JSExtends a e) = pacc |> a |> "extends" |> e
+    (|>) pacc JSExtendsNone   = pacc
+
+instance RenderJS [JSClassElement] where
+    (|>) = foldl' (|>)
+
+instance RenderJS JSClassElement where
+    (|>) pacc (JSClassInstanceMethod m) = pacc |> m
+    (|>) pacc (JSClassStaticMethod a m) = pacc |> a |> "static" |> m
+    (|>) pacc (JSClassSemi a)           = pacc |> a |> ";"
 
 -- EOF

@@ -25,6 +25,8 @@ module Language.JavaScript.Parser.AST
     , JSCommaTrailingList (..)
     , JSArrowParameterList (..)
     , JSTemplatePart (..)
+    , JSClassHeritage (..)
+    , JSClassElement (..)
 
     -- Modules
     , JSModuleItem (..)
@@ -128,6 +130,7 @@ data JSStatement
     = JSStatementBlock !JSAnnot ![JSStatement] !JSAnnot !JSSemi     -- ^lbrace, stmts, rbrace, autosemi
     | JSBreak !JSAnnot !JSIdent !JSSemi        -- ^break,optional identifier, autosemi
     | JSLet   !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
+    | JSClass !JSAnnot !JSIdent !JSClassHeritage !JSAnnot ![JSClassElement] !JSAnnot !JSSemi -- ^class, name, optional extends clause, lb, body, rb, autosemi
     | JSConstant !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^const, decl, autosemi
     | JSContinue !JSAnnot !JSIdent !JSSemi     -- ^continue, optional identifier,autosemi
     | JSDoWhile !JSAnnot !JSStatement !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSSemi -- ^do,stmt,while,lb,expr,rb,autosemi
@@ -177,6 +180,7 @@ data JSExpression
     | JSCallExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot  -- ^expr, bl, args, rb
     | JSCallExpressionDot !JSExpression !JSAnnot !JSExpression  -- ^expr, dot, expr
     | JSCallExpressionSquare !JSExpression !JSAnnot !JSExpression !JSAnnot  -- ^expr, [, expr, ]
+    | JSClassExpression !JSAnnot !JSIdent !JSClassHeritage !JSAnnot ![JSClassElement] !JSAnnot -- ^class, optional identifier, optional extends clause, lb, body, rb
     | JSCommaExpression !JSExpression !JSAnnot !JSExpression          -- ^expression components
     | JSExpressionBinary !JSExpression !JSBinOp !JSExpression -- ^lhs, op, rhs
     | JSExpressionParen !JSAnnot !JSExpression !JSAnnot -- ^lb,expression,rb
@@ -339,6 +343,17 @@ data JSTemplatePart
     = JSTemplatePart !JSExpression !JSAnnot !String -- ^expr, rb, suffix
     deriving (Data, Eq, Show, Typeable)
 
+data JSClassHeritage
+    = JSExtends !JSAnnot !JSExpression
+    | JSExtendsNone
+    deriving (Data, Eq, Show, Typeable)
+
+data JSClassElement
+    = JSClassInstanceMethod !JSMethodDefinition
+    | JSClassStaticMethod !JSAnnot !JSMethodDefinition
+    | JSClassSemi !JSAnnot
+    deriving (Data, Eq, Show, Typeable)
+
 -- -----------------------------------------------------------------------------
 -- | Show the AST elements stripped of their JSAnnot data.
 
@@ -358,6 +373,7 @@ instance ShowStripped JSStatement where
     ss (JSStatementBlock _ xs _ _) = "JSStatementBlock " ++ ss xs
     ss (JSBreak _ JSIdentNone s) = "JSBreak" ++ commaIf (ss s)
     ss (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ singleQuote n ++ commaIf (ss s)
+    ss (JSClass _ n h _lb xs _rb _) = "JSClass " ++ ssid n ++ " (" ++ ss h ++ ") " ++ ss xs
     ss (JSContinue _ JSIdentNone s) = "JSContinue" ++ commaIf (ss s)
     ss (JSContinue _ (JSIdentName _ n) s) = "JSContinue " ++ singleQuote n ++ commaIf (ss s)
     ss (JSConstant _ xs _as) = "JSConstant " ++ ss xs
@@ -399,6 +415,7 @@ instance ShowStripped JSExpression where
     ss (JSCallExpression ex _ xs _) = "JSCallExpression ("++ ss ex ++ ",JSArguments " ++ ss xs ++ ")"
     ss (JSCallExpressionDot ex _os xs) = "JSCallExpressionDot (" ++ ss ex ++ "," ++ ss xs ++ ")"
     ss (JSCallExpressionSquare ex _os xs _cs) = "JSCallExpressionSquare (" ++ ss ex ++ "," ++ ss xs ++ ")"
+    ss (JSClassExpression _ n h _lb xs _rb) = "JSClassExpression " ++ ssid n ++ " (" ++ ss h ++ ") " ++ ss xs
     ss (JSDecimal _ s) = "JSDecimal " ++ singleQuote s
     ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
     ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary (" ++ ss op ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
@@ -579,6 +596,15 @@ instance ShowStripped JSArrayElement where
 
 instance ShowStripped JSTemplatePart where
     ss (JSTemplatePart e _ s) = "(" ++ ss e ++ "," ++ singleQuote s ++ ")"
+
+instance ShowStripped JSClassHeritage where
+    ss JSExtendsNone = ""
+    ss (JSExtends _ x) = ss x
+
+instance ShowStripped JSClassElement where
+    ss (JSClassInstanceMethod m) = ss m
+    ss (JSClassStaticMethod _ m) = "JSClassStaticMethod (" ++ ss m ++ ")"
+    ss (JSClassSemi _) = "JSClassSemi"
 
 instance ShowStripped a => ShowStripped (JSCommaList a) where
     ss xs = "(" ++ commaJoin (map ss $ fromCommaList xs) ++ ")"

@@ -41,6 +41,7 @@ fixSpace = fix spaceAnnot
 fixStmt :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
 fixStmt a s (JSStatementBlock _lb ss _rb _) = fixStatementBlock a s ss
 fixStmt a s (JSBreak _ i _) = JSBreak a (fixSpace i) s
+fixStmt a s (JSClass _ n h _ ms _ _) = JSClass a (fixSpace n) (fixSpace h) emptyAnnot (fixEmpty ms) emptyAnnot s
 fixStmt a s (JSConstant _ ss _) = JSConstant a (fixVarList ss) s
 fixStmt a s (JSContinue _ i _) = JSContinue a (fixSpace i) s
 fixStmt a s (JSDoWhile _ st _ _ e _ _) = JSDoWhile a (mkStatementBlock noSemi st) emptyAnnot emptyAnnot (fixEmpty e) emptyAnnot s
@@ -157,6 +158,7 @@ instance MinifyJS JSExpression where
     fix a (JSCallExpression       ex _ xs _)          = JSCallExpression (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
     fix a (JSCallExpressionSquare ex _ xs _)          = JSCallExpressionSquare (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
+    fix a (JSClassExpression      _ n h _ ms _)       = JSClassExpression a (fixSpace n) (fixSpace h) emptyAnnot (fixEmpty ms) emptyAnnot
     fix a (JSCommaExpression      le _ re)            = JSCommaExpression (fix a le) emptyAnnot (fixEmpty re)
     fix a (JSExpressionBinary     lhs op rhs)         = fixBinOpExpression a op lhs rhs
     fix _ (JSExpressionParen      _ e _)              = JSExpressionParen emptyAnnot (fixEmpty e) emptyAnnot
@@ -413,6 +415,18 @@ instance MinifyJS JSVarInitializer where
 
 instance MinifyJS JSTemplatePart where
     fix _ (JSTemplatePart e _ s) = JSTemplatePart (fixEmpty e) emptyAnnot s
+
+
+instance MinifyJS JSClassHeritage where
+    fix _ JSExtendsNone = JSExtendsNone
+    fix a (JSExtends _ e) = JSExtends a (fixSpace e)
+
+
+instance MinifyJS [JSClassElement] where
+    fix _ [] = []
+    fix a (JSClassInstanceMethod m:t) = JSClassInstanceMethod (fix a m) : fixEmpty t
+    fix a (JSClassStaticMethod _ m:t) = JSClassStaticMethod a (fixSpace m) : fixEmpty t
+    fix a (JSClassSemi _:t) = fix a t
 
 
 spaceAnnot :: JSAnnot

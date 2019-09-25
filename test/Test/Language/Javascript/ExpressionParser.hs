@@ -190,6 +190,10 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "yield a + b" `shouldBe` "Right (JSAstExpression (JSYieldExpression (JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b'))))"
         testExpr "yield* g()"  `shouldBe` "Right (JSAstExpression (JSYieldFromExpression (JSMemberExpression (JSIdentifier 'g',JSArguments ()))))"
 
+    it "class expression" $ do
+        testExpr "class Foo extends Bar { a(x,y) {} *b() {} }" `shouldBe` "Right (JSAstExpression (JSClassExpression 'Foo' (JSIdentifier 'Bar') [JSMethodDefinition (JSIdentifier 'a') (JSIdentifier 'x',JSIdentifier 'y') (JSBlock []),JSGeneratorMethodDefinition (JSIdentifier 'b') () (JSBlock [])]))"
+        testExpr "class { static get [a]() {}; }" `shouldBe` "Right (JSAstExpression (JSClassExpression '' () [JSClassStaticMethod (JSPropertyAccessor JSAccessorGet (JSPropertyComputed (JSIdentifier 'a')) () (JSBlock [])),JSClassSemi]))"
+
 
 testExpr :: String -> String
 testExpr str = showStrippedMaybe (parseUsing parseExpression str "src")

@@ -159,6 +159,14 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " ` a + b + ${ c + d } + ... ` " `shouldBe` "` a + b + ${c+d} + ... `"
         minifyExpr " tagger () ` a + b ` " `shouldBe` "tagger()` a + b `"
 
+    it "class" $ do
+        minifyExpr " class   Foo   {\n  a() {\n    return 0;\n  };\n  static [ b ] ( x ) {}\n } " `shouldBe` "class Foo{a(){return 0}static[b](x){}}"
+        minifyExpr " class { static get a() { return 0; } static set a(v) {} } " `shouldBe` "class{static get a(){return 0}static set a(v){}}"
+        minifyExpr " class   { ; ; ; } " `shouldBe` "class{}"
+        minifyExpr " class Foo extends Bar {} " `shouldBe` "class Foo extends Bar{}"
+        minifyExpr " class extends (getBase()) {} " `shouldBe` "class extends(getBase()){}"
+        minifyExpr " class extends [ Bar1, Bar2 ][getBaseIndex()] {} " `shouldBe` "class extends[Bar1,Bar2][getBaseIndex()]{}"
+
 
 testMinifyStmt :: Spec
 testMinifyStmt = describe "Minify statements:" $ do
@@ -265,6 +273,11 @@ testMinifyStmt = describe "Minify statements:" $ do
     it "string concatenation" $
         minifyStmt " f (\"ab\"+\"cd\") " `shouldBe` "f('abcd')"
 
+    it "class" $ do
+        minifyStmt " class   Foo   {\n  a() {\n    return 0;\n  }\n  static b ( x ) {}\n } " `shouldBe` "class Foo{a(){return 0}static b(x){}}"
+        minifyStmt " class Foo extends Bar {} " `shouldBe` "class Foo extends Bar{}"
+        minifyStmt " class Foo extends (getBase()) {} " `shouldBe` "class Foo extends(getBase()){}"
+        minifyStmt " class Foo extends [ Bar1, Bar2 ][getBaseIndex()] {} " `shouldBe` "class Foo extends[Bar1,Bar2][getBaseIndex()]{}"
 
 testMinifyProg :: Spec
 testMinifyProg = describe "Minify programs:" $ do
