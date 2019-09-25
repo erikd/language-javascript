@@ -565,6 +565,7 @@ keywordNames =
     , ( "of", OfToken )
     , ( "return", ReturnToken )
     , ( "static", StaticToken )
+    , ( "super", SuperToken )
     , ( "switch", SwitchToken )
     , ( "this", ThisToken )
     , ( "throw", ThrowToken )
@@ -599,7 +600,7 @@ keywordNames =
     -- ( "const",   FutureToken ) **** an actual token, used in productions
     -- enum                    **** an actual token, used in productions
     -- ( "extends",  FutureToken ) **** an actual token, used in productions
-    , ( "super",    FutureToken )
+    -- ( "super",    FutureToken ) **** an actual token, used in productions
 
 
     -- Strict mode FutureReservedWords
