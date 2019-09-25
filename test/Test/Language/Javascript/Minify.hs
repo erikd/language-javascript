@@ -43,6 +43,9 @@ testMinifyExpr = describe "Minify expressions:" $ do
         minifyExpr " { 'str' : true , 42 : false , } " `shouldBe` "{'str':true,42:false}"
         minifyExpr " { x , } " `shouldBe` "{x}"
         minifyExpr " { [ x + y ] : 1 } " `shouldBe` "{[x+y]:1}"
+        minifyExpr " { a ( x, y ) { } } " `shouldBe` "{a(x,y){}}"
+        minifyExpr " { [ x + y ] ( ) { } } " `shouldBe` "{[x+y](){}}"
+        minifyExpr " { * a ( x, y ) { } } " `shouldBe` "{*a(x,y){}}"
 
     it "parentheses" $ do
         minifyExpr " ( 'hello' ) " `shouldBe` "('hello')"

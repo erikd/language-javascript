@@ -17,6 +17,7 @@ module Language.JavaScript.Parser.AST
     , JSPropertyName (..)
     , JSObjectPropertyList
     , JSAccessor (..)
+    , JSMethodDefinition (..)
     , JSIdent (..)
     , JSVarInitializer (..)
     , JSArrayElement (..)
@@ -287,9 +288,15 @@ data JSVarInitializer
     deriving (Data, Eq, Show, Typeable)
 
 data JSObjectProperty
-    = JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot ![JSExpression] !JSAnnot !JSBlock -- ^(get|set), name, lb, params, rb, block
-    | JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
+    = JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
     | JSPropertyIdentRef !JSAnnot !String
+    | JSObjectMethod !JSMethodDefinition
+    deriving (Data, Eq, Show, Typeable)
+
+data JSMethodDefinition
+    = JSMethodDefinition !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- name, lb, params, rb, block
+    | JSGeneratorMethodDefinition !JSAnnot !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^*, name, lb, params, rb, block
+    | JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^get/set, name, lb, params, rb, block
     deriving (Data, Eq, Show, Typeable)
 
 data JSPropertyName
@@ -482,8 +489,13 @@ instance ShowStripped JSIdent where
 
 instance ShowStripped JSObjectProperty where
     ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
-    ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
     ss (JSPropertyIdentRef _ s) = "JSPropertyIdentRef " ++ singleQuote s
+    ss (JSObjectMethod m) = ss m
+
+instance ShowStripped JSMethodDefinition where
+    ss (JSMethodDefinition x1 _lb1 x2s _rb1 x3) = "JSMethodDefinition (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
+    ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
+    ss (JSGeneratorMethodDefinition _ x1 _lb1 x2s _rb1 x3) = "JSGeneratorMethodDefinition (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
 
 instance ShowStripped JSPropertyName where
     ss (JSPropertyIdent _ s) = "JSIdentifier " ++ singleQuote s

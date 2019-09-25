@@ -272,9 +272,14 @@ instance RenderJS JSBlock where
     (|>) pacc (JSBlock alb ss arb) = pacc |> alb |> "{" |> ss |> arb |> "}"
 
 instance RenderJS JSObjectProperty where
-    (|>) pacc (JSPropertyAccessor     s n alp ps arp b)       = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
     (|>) pacc (JSPropertyNameandValue n c vs)                 = pacc |> n |> c |> ":" |> vs
     (|>) pacc (JSPropertyIdentRef     a s)                    = pacc |> a |> s
+    (|>) pacc (JSObjectMethod         m)                      = pacc |> m
+
+instance RenderJS JSMethodDefinition where
+    (|>) pacc (JSMethodDefinition          n alp ps arp b)   = pacc |> n |> alp |> "(" |> ps |> arp |> ")" |> b
+    (|>) pacc (JSGeneratorMethodDefinition s n alp ps arp b) = pacc |> s |> "*" |> n |> alp |> "(" |> ps |> arp |> ")" |> b
+    (|>) pacc (JSPropertyAccessor          s n alp ps arp b) = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
 
 instance RenderJS JSPropertyName where
     (|>) pacc (JSPropertyIdent a s)  = pacc |> a |> s

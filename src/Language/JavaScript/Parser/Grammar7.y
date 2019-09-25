@@ -576,16 +576,27 @@ PropertyNameandValueList : PropertyAssignment                                { A
 --        PropertyName : AssignmentExpression
 --        get PropertyName() { FunctionBody }
 --        set PropertyName( PropertySetParameterList ) { FunctionBody }
--- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 PropertyAssignment :: { AST.JSObjectProperty }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
                    | IdentifierName { identifierToProperty $1 }
-                   -- Should be "get" in next, but is not a Token
-                   | 'get' PropertyName LParen RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorGet (mkJSAnnot $1)) $2 $3 [] $4 $5 }
-                   -- Should be "set" in next, but is not a Token
-                   | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
-                       { AST.JSPropertyAccessor (AST.JSAccessorSet (mkJSAnnot $1)) $2 $3 [$4] $5 $6 }
+                   | MethodDefinition { AST.JSObjectMethod $1 }
+
+-- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
+MethodDefinition :: { AST.JSMethodDefinition }
+MethodDefinition : PropertyName LParen RParen FunctionBody
+                     { AST.JSMethodDefinition $1 $2 AST.JSLNil $3 $4 }
+                 | PropertyName LParen FormalParameterList RParen FunctionBody
+                     { AST.JSMethodDefinition $1 $2 $3 $4 $5 }
+                 | '*' PropertyName LParen RParen FunctionBody
+                     { AST.JSGeneratorMethodDefinition (mkJSAnnot $1) $2 $3 AST.JSLNil $4 $5 }
+                 | '*' PropertyName LParen FormalParameterList RParen FunctionBody
+                     { AST.JSGeneratorMethodDefinition (mkJSAnnot $1) $2 $3 $4 $5 $6 }
+                 -- Should be "get" in next, but is not a Token
+                 | 'get' PropertyName LParen RParen FunctionBody
+                     { AST.JSPropertyAccessor (AST.JSAccessorGet (mkJSAnnot $1)) $2 $3 AST.JSLNil $4 $5 }
+                 -- Should be "set" in next, but is not a Token
+                 | 'set' PropertyName LParen PropertySetParameterList RParen FunctionBody
+                     { AST.JSPropertyAccessor (AST.JSAccessorSet (mkJSAnnot $1)) $2 $3 (AST.JSLOne $4) $5 $6 }
 
 -- PropertyName :                                                        See 11.1.5
 --        IdentifierName

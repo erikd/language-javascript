@@ -361,9 +361,14 @@ instance MinifyJS JSBlock where
 
 
 instance MinifyJS JSObjectProperty where
-    fix a (JSPropertyAccessor     s n _ ps _ b) = JSPropertyAccessor (fix a s) (fixSpace n) emptyAnnot (map fixEmpty ps) emptyAnnot (fixEmpty b)
     fix a (JSPropertyNameandValue n _ vs)       = JSPropertyNameandValue (fix a n) emptyAnnot (map fixEmpty vs)
     fix a (JSPropertyIdentRef     _ s)          = JSPropertyIdentRef a s
+    fix a (JSObjectMethod         m)            = JSObjectMethod (fix a m)
+
+instance MinifyJS JSMethodDefinition where
+    fix a (JSMethodDefinition          n _ ps _ b)   = JSMethodDefinition                     (fix a n)    emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty b)
+    fix _ (JSGeneratorMethodDefinition _ n _ ps _ b) = JSGeneratorMethodDefinition emptyAnnot (fixEmpty n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty b)
+    fix a (JSPropertyAccessor          s n _ ps _ b) = JSPropertyAccessor          (fix a s)  (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty b)
 
 instance MinifyJS JSPropertyName where
     fix a (JSPropertyIdent _ s)  = JSPropertyIdent a s
