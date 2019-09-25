@@ -117,6 +117,7 @@ import qualified Language.JavaScript.Parser.AST as AST
      'return'     { ReturnToken {} }
      'set'        { SetToken {} }
      'static'     { StaticToken {} }
+     'super'      { SuperToken {} }
      'switch'     { SwitchToken {} }
      'this'       { ThisToken {} }
      'throw'      { ThrowToken {} }
@@ -357,6 +358,7 @@ IdentifierName : Identifier {$1}
              | 'of'         { AST.JSIdentifier (mkJSAnnot $1) "of" }
              | 'return'     { AST.JSIdentifier (mkJSAnnot $1) "return" }
              | 'static'     { AST.JSIdentifier (mkJSAnnot $1) "static" }
+             | 'super'      { AST.JSIdentifier (mkJSAnnot $1) "super" }
              | 'switch'     { AST.JSIdentifier (mkJSAnnot $1) "switch" }
              | 'this'       { AST.JSIdentifier (mkJSAnnot $1) "this" }
              | 'throw'      { AST.JSIdentifier (mkJSAnnot $1) "throw" }
@@ -449,6 +451,9 @@ Extends : 'extends' { mkJSAnnot $1 }
 
 Static :: { AST.JSAnnot }
 Static : 'static' { mkJSAnnot $1 }
+
+Super :: { AST.JSExpression }
+Super : 'super' { AST.JSLiteral (mkJSAnnot $1) "super" }
 
 
 Eof :: { AST.JSAnnot }
@@ -641,6 +646,8 @@ MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression1' -} }
                  | MemberExpression LSquare Expression RSquare { AST.JSMemberSquare $1 $2 $3 $4 {- 'MemberExpression3' -} }
                  | MemberExpression Dot IdentifierName         { AST.JSMemberDot $1 $2 $3       {- 'MemberExpression4' -} }
                  | MemberExpression TemplateLiteral            { mkJSTemplateLiteral (Just $1) $2 }
+                 | Super LSquare Expression RSquare            { AST.JSMemberSquare $1 $2 $3 $4 }
+                 | Super Dot IdentifierName                    { AST.JSMemberDot $1 $2 $3 }
                  | New MemberExpression Arguments              { mkJSMemberNew $1 $2 $3         {- 'MemberExpression5' -} }
 
 -- NewExpression :                                              See 11.2
@@ -658,6 +665,8 @@ NewExpression : MemberExpression    { $1                        {- 'NewExpressio
 CallExpression :: { AST.JSExpression }
 CallExpression : MemberExpression Arguments
                     { mkJSMemberExpression $1 $2 {- 'CallExpression1' -} }
+               | Super Arguments
+                    { mkJSCallExpression $1 $2 }
                | CallExpression Arguments
                     { mkJSCallExpression $1 $2 {- 'CallExpression2' -} }
                | CallExpression LSquare Expression RSquare

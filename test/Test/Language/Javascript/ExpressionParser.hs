@@ -193,6 +193,7 @@ testExpressionParser = describe "Parse expressions:" $ do
     it "class expression" $ do
         testExpr "class Foo extends Bar { a(x,y) {} *b() {} }" `shouldBe` "Right (JSAstExpression (JSClassExpression 'Foo' (JSIdentifier 'Bar') [JSMethodDefinition (JSIdentifier 'a') (JSIdentifier 'x',JSIdentifier 'y') (JSBlock []),JSGeneratorMethodDefinition (JSIdentifier 'b') () (JSBlock [])]))"
         testExpr "class { static get [a]() {}; }" `shouldBe` "Right (JSAstExpression (JSClassExpression '' () [JSClassStaticMethod (JSPropertyAccessor JSAccessorGet (JSPropertyComputed (JSIdentifier 'a')) () (JSBlock [])),JSClassSemi]))"
+        testExpr "class Foo extends Bar { a(x,y) { super(x); } }" `shouldBe` "Right (JSAstExpression (JSClassExpression 'Foo' (JSIdentifier 'Bar') [JSMethodDefinition (JSIdentifier 'a') (JSIdentifier 'x',JSIdentifier 'y') (JSBlock [JSCallExpression (JSLiteral 'super',JSArguments (JSIdentifier 'x')),JSSemicolon])]))"
 
 
 testExpr :: String -> String
