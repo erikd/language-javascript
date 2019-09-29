@@ -1,5 +1,20 @@
 # ChangeLog for `language-javascript`
 
+## 0.6.0.13 -- 2019-09-29
+
++ Add support for (Ryan Hendrickson):
+  - Destructuring in var declarations
+  - `const` in for statements
+  - ES6 property shorthand syntax
+  - Template literals
+  - Computed property names
+  - Bare import declarations
+  - Exotic parameter syntaxes
+  - Generators and `yield`
+  - Method definitions
+  - classes
+ `- super` keyword
+
 ## 0.6.0.13 -- 2019-06-17
 
 + Add support for (Cyril Sobierajewicz):
