@@ -1,6 +1,6 @@
 # ChangeLog for `language-javascript`
 
-## 0.6.0.13 -- 2019-09-29
+## 0.7.0.0 -- 2019-10-10
 
 + Add support for (Ryan Hendrickson):
   - Destructuring in var declarations
