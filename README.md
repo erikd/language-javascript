@@ -14,7 +14,7 @@ There are currently two versions:
 (https://github.com/erikd/language-javascript/tree/master) branch of this
 github repository.
 
-* 0.6 series : This has a vastly different and improved AST which makes if far
+* 0.6 and 0.7 series : This has a vastly different and improved AST which makes if far
 more difficult to build an non-sensical Javascript AST. This code is in the
 [new-ast](https://github.com/erikd/language-javascript/tree/new-ast) branch of
 this github repository.
