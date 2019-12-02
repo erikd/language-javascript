@@ -23,6 +23,11 @@ this github repository.
 How to build
 ------------
 
+Make sure your locale supports UTF-8. For example, on most Unix-like platforms,
+you can type:
+
+    export LC_ALL=en_US.UTF-8
+
 Library:
 
     cabal clean && cabal configure && cabal build
