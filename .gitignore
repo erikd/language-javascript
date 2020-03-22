@@ -2,22 +2,12 @@
 *.hi
 *.o
 *~
-/dist/*
-/parse.txt
-/src/Language/JavaScript/Parser/Grammar5.hs
-/src/Language/JavaScript/Parser/Lexer.info
-/unicode/uc-ll.htm
-/unicode/uc-lm.htm
-/unicode/uc-lo.htm
-/unicode/uc-lt.htm
-/unicode/uc-lu.htm
-/unicode/uc-mc.htm
-/unicode/uc-mn.htm
-/unicode/uc-nd.htm
-/unicode/uc-nl.htm
-/unicode/uc-nl.htm
-/unicode/uc-pc.htm
-cabal.sandbox.config
+dist/
+dist-newstyle/
+parse.txt
+src/Language/JavaScript/Parser/Grammar5.hs
+src/Language/JavaScript/Parser/Lexer.info
+unicode/*.htm
 
 # stack
-/.stack-work/
+.stack-work/

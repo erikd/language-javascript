@@ -1,9 +1,11 @@
+{-# LANGUAGE CPP #-}
 module Test.Language.Javascript.ProgramParser
     ( testProgramParser
     ) where
 
-
+#if ! MIN_VERSION_base(4,13,0)
 import Control.Applicative ((<$>))
+#endif
 import Test.Hspec
 
 import Language.JavaScript.Parser
