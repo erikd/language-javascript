@@ -69,6 +69,9 @@ testLexer = describe "Lexer:" $ do
         testLex "in\n"     `shouldBe` "[InToken,WsToken]"
         testLex "of\n"     `shouldBe` "[OfToken,WsToken]"
 
+    it "function" $ do
+        testLex "async function\n"     `shouldBe` "[AsyncToken,WsToken,FunctionToken,WsToken]"
+
 
 testLex :: String -> String
 testLex str =

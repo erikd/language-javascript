@@ -59,6 +59,7 @@ fixStmt a s (JSForConstIn _ _ _ e1 op e2 _ st) = JSForConstIn a emptyAnnot space
 fixStmt a s (JSForConstOf _ _ _ e1 op e2 _ st) = JSForConstOf a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSForOf _ _ e1 op e2 _ st) = JSForOf a emptyAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
 fixStmt a s (JSForVarOf _ _ _ e1 op e2 _ st) = JSForVarOf a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
+fixStmt a s (JSAsyncFunction _ _ n _ ps _ blk _) = JSAsyncFunction a spaceAnnot (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSFunction _ n _ ps _ blk _) = JSFunction a (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSGenerator _ _ n _ ps _ blk _) = JSGenerator a emptyAnnot (fixEmpty n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixIfElseBlock emptyAnnot s st)
@@ -157,6 +158,7 @@ instance MinifyJS JSExpression where
     fix _ (JSArrayLiteral         _ xs _)             = JSArrayLiteral emptyAnnot (map fixEmpty xs) emptyAnnot
     fix a (JSArrowExpression ps _ ss)                 = JSArrowExpression (fix a ps) emptyAnnot (fixStmt emptyAnnot noSemi ss)
     fix a (JSAssignExpression     lhs op rhs)         = JSAssignExpression (fix a lhs) (fixEmpty op) (fixEmpty rhs)
+    fix a (JSAwaitExpression      _ ex)               = JSAwaitExpression a (fixSpace ex)
     fix a (JSCallExpression       ex _ xs _)          = JSCallExpression (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
     fix a (JSCallExpressionSquare ex _ xs _)          = JSCallExpressionSquare (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot

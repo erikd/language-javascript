@@ -76,6 +76,7 @@ instance RenderJS JSExpression where
     (|>) pacc (JSArrayLiteral         als xs ars)             = pacc |> als |> "[" |> xs |> ars |> "]"
     (|>) pacc (JSArrowExpression      xs a x)                 = pacc |> xs |> a |> "=>" |> x
     (|>) pacc (JSAssignExpression     lhs op rhs)             = pacc |> lhs |> op |> rhs
+    (|>) pacc (JSAwaitExpression      a e)                    = pacc |> a |> "await" |> e
     (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
@@ -244,6 +245,7 @@ instance RenderJS JSStatement where
     (|>) pacc (JSForConstOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "const" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForOf af alb x1s i x2 arb x3)             = pacc |> af |> "for" |> alb |> "(" |> x1s |> i |> x2 |> arb |> ")" |> x3
     (|>) pacc (JSForVarOf af alb v x1 i x2 arb x3)         = pacc |> af |> "for" |> alb |> "(" |> "var" |> v |> x1 |> i |> x2 |> arb |> ")" |> x3
+    (|>) pacc (JSAsyncFunction aa af n alb x2s arb x3 s)   = pacc |> aa |> "async" |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSFunction af n alb x2s arb x3 s)           = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSGenerator af as n alb x2s arb x3 s)       = pacc |> af |> "function" |> as |> "*" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s

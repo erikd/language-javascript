@@ -146,6 +146,7 @@ data JSStatement
     | JSForConstOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
     | JSForOf !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,expr,in,expr,rb,stmt
     | JSForVarOf !JSAnnot !JSAnnot !JSAnnot !JSExpression !JSBinOp !JSExpression !JSAnnot !JSStatement -- ^for,lb,var,vardecl,in,expr,rb,stmt
+    | JSAsyncFunction !JSAnnot !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi  -- ^fn,name, lb,parameter list,rb,block,autosemi
     | JSGenerator !JSAnnot !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi  -- ^fn,*,name, lb,parameter list,rb,block,autosemi
     | JSIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^if,(,expr,),stmt
@@ -177,6 +178,7 @@ data JSExpression
     -- | Non Terminals
     | JSArrayLiteral !JSAnnot ![JSArrayElement] !JSAnnot -- ^lb, contents, rb
     | JSAssignExpression !JSExpression !JSAssignOp !JSExpression -- ^lhs, assignop, rhs
+    | JSAwaitExpression !JSAnnot !JSExpression -- ^await, expr
     | JSCallExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot  -- ^expr, bl, args, rb
     | JSCallExpressionDot !JSExpression !JSAnnot !JSExpression  -- ^expr, dot, expr
     | JSCallExpressionSquare !JSExpression !JSAnnot !JSExpression !JSAnnot  -- ^expr, [, expr, ]
@@ -391,6 +393,7 @@ instance ShowStripped JSStatement where
     ss (JSForOf _ _lb x1s _i x2 _rb x3) = "JSForOf " ++ ss x1s ++ " (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSForVarOf _ _lb _v x1 _i x2 _rb x3) = "JSForVarOf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
     ss (JSFunction _ n _lb pl _rb x3 _) = "JSFunction " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
+    ss (JSAsyncFunction _ _ n _lb pl _rb x3 _) = "JSAsyncFunction " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
     ss (JSGenerator _ _ n _lb pl _rb x3 _) = "JSGenerator " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
     ss (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
     ss (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
@@ -412,6 +415,7 @@ instance ShowStripped JSStatement where
 instance ShowStripped JSExpression where
     ss (JSArrayLiteral _lb xs _rb) = "JSArrayLiteral " ++ ss xs
     ss (JSAssignExpression lhs op rhs) = "JSOpAssign (" ++ ss op ++ "," ++ ss lhs ++ "," ++ ss rhs ++ ")"
+    ss (JSAwaitExpression _ e) = "JSAwaitExpresson " ++ ss e
     ss (JSCallExpression ex _ xs _) = "JSCallExpression ("++ ss ex ++ ",JSArguments " ++ ss xs ++ ")"
     ss (JSCallExpressionDot ex _os xs) = "JSCallExpressionDot (" ++ ss ex ++ "," ++ ss xs ++ ")"
     ss (JSCallExpressionSquare ex _os xs _cs) = "JSCallExpressionSquare (" ++ ss ex ++ "," ++ ss xs ++ ")"
