@@ -1,5 +1,8 @@
 # ChangeLog for `language-javascript`
 
+## 0.7.1.0 -- 2020-03-22
++ Add support for `async` function specifiers and `await` keyword.
+
 ## 0.7.0.0 -- 2019-10-10
 
 + Add support for (Ryan Hendrickson):
