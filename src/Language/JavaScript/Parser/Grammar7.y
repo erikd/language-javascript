@@ -86,6 +86,8 @@ import qualified Language.JavaScript.Parser.AST as AST
 
      'as'         { AsToken {} }
      'autosemi'   { AutoSemiToken {} }
+     'async'      { AsyncToken {} }
+     'await'      { AwaitToken {} }
      'break'      { BreakToken {} }
      'case'       { CaseToken {} }
      'catch'      { CatchToken {} }
@@ -331,6 +333,8 @@ OpAssign : '*='     { AST.JSTimesAssign  (mkJSAnnot $1) }
 -- TODO: make this include any reserved word too, including future ones
 IdentifierName :: { AST.JSExpression }
 IdentifierName : Identifier {$1}
+             | 'async'      { AST.JSIdentifier (mkJSAnnot $1) "async" }
+             | 'await'      { AST.JSIdentifier (mkJSAnnot $1) "await" }
              | 'break'      { AST.JSIdentifier (mkJSAnnot $1) "break" }
              | 'case'       { AST.JSIdentifier (mkJSAnnot $1) "case" }
              | 'catch'      { AST.JSIdentifier (mkJSAnnot $1) "catch" }
@@ -406,6 +410,12 @@ For : 'for' { mkJSAnnot $1 }
 
 Continue :: { AST.JSAnnot }
 Continue : 'continue' { mkJSAnnot $1 }
+
+Async :: { AST.JSAnnot }
+Async : 'async' { mkJSAnnot $1 }
+
+Await :: { AST.JSAnnot }
+Await : 'await' { mkJSAnnot $1 }
 
 Break :: { AST.JSAnnot }
 Break : 'break' { mkJSAnnot $1 }
@@ -657,6 +667,10 @@ NewExpression :: { AST.JSExpression }
 NewExpression : MemberExpression    { $1                        {- 'NewExpression1' -} }
               | New NewExpression   { AST.JSNewExpression $1 $2 {- 'NewExpression2' -} }
 
+AwaitExpression :: { AST.JSExpression }
+AwaitExpression
+  : Await Expression { AST.JSAwaitExpression $1 $2 }
+
 -- CallExpression :                                             See 11.2
 --        MemberExpression Arguments
 --        CallExpression Arguments
@@ -696,6 +710,7 @@ ArgumentList : AssignmentExpression                    { AST.JSLOne $1          
 LeftHandSideExpression :: { AST.JSExpression }
 LeftHandSideExpression : NewExpression  { $1 {- 'LeftHandSideExpression1' -} }
                        | CallExpression { $1 {- 'LeftHandSideExpression12' -} }
+                       | AwaitExpression { $1 {- 'LeftHandSideExpression13' -} }
 
 -- PostfixExpression :                                          See 11.3
 --        LeftHandSideExpression
@@ -976,20 +991,23 @@ Statement : StatementNoEmpty   { $1 {- 'Statement1' -} }
           | EmptyStatement     { $1 {- 'Statement2' -} }
 
 StatementNoEmpty :: { AST.JSStatement }
-StatementNoEmpty : StatementBlock      { $1 {- 'StatementNoEmpty1' -} }
-                 | VariableStatement   { $1 {- 'StatementNoEmpty2' -} }
-                 | ExpressionStatement { $1 {- 'StatementNoEmpty4' -} }
-                 | IfStatement         { $1 {- 'StatementNoEmpty5' -} }
-                 | IterationStatement  { $1 {- 'StatementNoEmpty6' -} }
-                 | ContinueStatement   { $1 {- 'StatementNoEmpty7' -} }
-                 | BreakStatement      { $1 {- 'StatementNoEmpty8' -} }
-                 | ReturnStatement     { $1 {- 'StatementNoEmpty9' -} }
-                 | WithStatement       { $1 {- 'StatementNoEmpty10' -} }
-                 | LabelledStatement   { $1 {- 'StatementNoEmpty11' -} }
-                 | SwitchStatement     { $1 {- 'StatementNoEmpty12' -} }
-                 | ThrowStatement      { $1 {- 'StatementNoEmpty13' -} }
-                 | TryStatement        { $1 {- 'StatementNoEmpty14' -} }
-                 | DebuggerStatement   { $1 {- 'StatementNoEmpty15' -} }
+StatementNoEmpty
+  : IfStatement             { $1 {- 'StatementNoEmpty5' -} }
+  | ContinueStatement       { $1 {- 'StatementNoEmpty7' -} }
+  | BreakStatement          { $1 {- 'StatementNoEmpty8' -} }
+  | ReturnStatement         { $1 {- 'StatementNoEmpty9' -} }
+  | WithStatement           { $1 {- 'StatementNoEmpty10' -} }
+  | LabelledStatement       { $1 {- 'StatementNoEmpty11' -} }
+  | SwitchStatement         { $1 {- 'StatementNoEmpty12' -} }
+  | ThrowStatement          { $1 {- 'StatementNoEmpty13' -} }
+  | TryStatement            { $1 {- 'StatementNoEmpty14' -} }
+  | StatementBlock          { $1 {- 'StatementNoEmpty1' -} }
+  | VariableStatement       { $1 {- 'StatementNoEmpty2' -} }
+  | IterationStatement      { $1 {- 'StatementNoEmpty6' -} }
+  | ExpressionStatement     { $1 {- 'StatementNoEmpty4' -} }
+  | AsyncFunctionStatement  { $1 {- 'StatementNoEmpty15' -} }
+  | DebuggerStatement       { $1 {- 'StatementNoEmpty15' -} }
+
 
 
 StatementBlock :: { AST.JSStatement }
@@ -1208,7 +1226,10 @@ DebuggerStatement : 'debugger' MaybeSemi { AST.JSExpressionStatement (AST.JSLite
 -- FunctionDeclaration :                                                      See clause 13
 --        function Identifier ( FormalParameterListopt ) { FunctionBody }
 FunctionDeclaration :: { AST.JSStatement }
-FunctionDeclaration : NamedFunctionExpression MaybeSemi  {  expressionToStatement $1 $2              {- 'FunctionDeclaration1' -} }
+FunctionDeclaration : NamedFunctionExpression MaybeSemi { expressionToStatement $1 $2                {- 'FunctionDeclaration1' -} }
+
+AsyncFunctionStatement :: { AST.JSStatement }
+AsyncFunctionStatement : Async NamedFunctionExpression MaybeSemi {  expressionToAsyncFunction $1 $2 $3  {- 'AsyncFunctionStatement1' -} }
 
 -- FunctionExpression :                                                       See clause 13
 --        function Identifieropt ( FormalParameterListopt ) { FunctionBody }
@@ -1499,6 +1520,9 @@ expressionToStatement (AST.JSMemberExpression e l a r) s = AST.JSMethodCall e l 
 expressionToStatement (AST.JSClassExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSClass a b c d e f s
 expressionToStatement exp s = AST.JSExpressionStatement exp s
 
+expressionToAsyncFunction :: AST.JSAnnot -> AST.JSExpression -> AST.JSSemi -> AST.JSStatement
+expressionToAsyncFunction aa (AST.JSFunctionExpression a b@(AST.JSIdentName{}) c d e f) s = AST.JSAsyncFunction aa a b c d e f s
+expressionToAsyncFunction _aa _exp _s = error "Bad async function."
 
 mkJSCallExpression :: AST.JSExpression -> JSArguments -> AST.JSExpression
 mkJSCallExpression e (JSArguments l arglist r) = AST.JSCallExpression e l arglist r

@@ -529,7 +529,9 @@ keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
-    [ ( "break", BreakToken )
+    [ ( "async", AsyncToken )
+    , ( "await", AwaitToken )
+    , ( "break", BreakToken )
     , ( "case", CaseToken )
     , ( "catch", CatchToken )
 

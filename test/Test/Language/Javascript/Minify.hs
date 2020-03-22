@@ -232,6 +232,7 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " function f ( a = 1 , b = 2 ) { return a + b ; } ; " `shouldBe` "function f(a=1,b=2){return a+b}"
         minifyStmt " function f ( [ a , b ] ) { return a + b ; } ; " `shouldBe` "function f([a,b]){return a+b}"
         minifyStmt " function f ( { a , b , } ) { return a + b ; } ; " `shouldBe` "function f({a,b}){return a+b}"
+        minifyStmt " async function f ( ) { } " `shouldBe` "async function f(){}"
 
     it "generator" $ do
         minifyStmt " function * f ( ) { } ; " `shouldBe` "function*f(){}"
@@ -278,6 +279,9 @@ testMinifyStmt = describe "Minify statements:" $ do
         minifyStmt " class Foo extends Bar {} " `shouldBe` "class Foo extends Bar{}"
         minifyStmt " class Foo extends (getBase()) {} " `shouldBe` "class Foo extends(getBase()){}"
         minifyStmt " class Foo extends [ Bar1, Bar2 ][getBaseIndex()] {} " `shouldBe` "class Foo extends[Bar1,Bar2][getBaseIndex()]{}"
+
+    it "miscellaneous" $
+        minifyStmt " let r = await p ; " `shouldBe` "let r=await p"
 
 testMinifyProg :: Spec
 testMinifyProg = describe "Minify programs:" $ do
