@@ -1,5 +1,5 @@
 
-{-# LANGUAGE FlexibleInstances, NoOverloadedStrings, TypeSynonymInstances #-}
+{-# LANGUAGE CPP, FlexibleInstances, NoOverloadedStrings, TypeSynonymInstances #-}
 
 module Language.JavaScript.Pretty.Printer
     ( -- * Printing
@@ -10,8 +10,10 @@ module Language.JavaScript.Pretty.Printer
 
 import Blaze.ByteString.Builder (Builder, toLazyByteString)
 import Data.List
+#if ! MIN_VERSION_base(4,13,0)
 import Data.Monoid (mempty)
 import Data.Semigroup ((<>))
+#endif
 import Data.Text.Lazy (Text)
 import Language.JavaScript.Parser.AST
 import Language.JavaScript.Parser.SrcLocation
