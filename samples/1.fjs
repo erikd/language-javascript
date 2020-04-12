@@ -35,6 +35,12 @@ const length = reduce((b) => (a) => b + 1)(0)
 
 const sum = reduce((b) => (a) => b + a)(0)
 
+// i want this to break
+const breakPlease = new Array()
+
+// then this
+console.log("egg")
+
 // every module must have a main function
 const main = () => {
   

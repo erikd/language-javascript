@@ -372,7 +372,6 @@ classifyToken aToken =
         NullToken {}         -> divide
         TrueToken {}         -> divide
         FalseToken {}        -> divide
-        ThisToken {}         -> divide
         OctalToken {}        -> divide
         DecimalToken {}      -> divide
         HexIntegerToken {}   -> divide
@@ -441,7 +440,6 @@ lexCont cont =
                 ltok <- getLastToken
                 case ltok of
                     BreakToken {} -> maybeAutoSemi tok
-                    ContinueToken {} -> maybeAutoSemi tok
                     ReturnToken {} -> maybeAutoSemi tok
                     _otherwise -> lexLoop
             _other -> do
@@ -529,56 +527,37 @@ keywords = Map.fromList keywordNames
 
 keywordNames :: [(String, TokenPosn -> String -> [CommentAnnotation] -> Token)]
 keywordNames =
-    [ ( "async", AsyncToken )
-    , ( "await", AwaitToken )
-    , ( "break", BreakToken )
+    [ ( "break", BreakToken )
     , ( "case", CaseToken )
     , ( "catch", CatchToken )
 
-    , ( "class", ClassToken )
     , ( "const", ConstToken ) -- not a keyword, nominally a future reserved word, but actually in use
 
-    , ( "continue", ContinueToken )
     , ( "debugger", DebuggerToken )
     , ( "default", DefaultToken )
-    , ( "delete", DeleteToken )
-    , ( "do", DoToken )
     , ( "else", ElseToken )
 
     , ( "enum", EnumToken )  -- not a keyword,  nominally a future reserved word, but actually in use
     , ( "export", ExportToken )
-    , ( "extends", ExtendsToken )
 
     , ( "false", FalseToken ) -- boolean literal
 
-    , ( "finally", FinallyToken )
-    , ( "for", ForToken )
-    , ( "function", FunctionToken )
     , ( "from", FromToken )
     , ( "if", IfToken )
     , ( "import", ImportToken )
     , ( "in", InToken )
     , ( "instanceof", InstanceofToken )
-    , ( "let", LetToken )
-    , ( "new", NewToken )
 
     , ( "null", NullToken ) -- null literal
 
     , ( "of", OfToken )
     , ( "return", ReturnToken )
-    , ( "static", StaticToken )
-    , ( "super", SuperToken )
     , ( "switch", SwitchToken )
-    , ( "this", ThisToken )
     , ( "throw", ThrowToken )
     , ( "true", TrueToken )
-    , ( "try", TryToken )
     , ( "typeof", TypeofToken )
-    , ( "var", VarToken )
     , ( "void", VoidToken )
-    , ( "while", WhileToken )
     , ( "with", WithToken )
-    , ( "yield", YieldToken )
     -- TODO: no idea if these are reserved or not, but they are needed
     --       handled in parser, in the Identifier rule
     , ( "as", AsToken ) -- not reserved

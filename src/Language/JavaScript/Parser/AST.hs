@@ -207,13 +207,9 @@ data JSExpression
     JSExpressionTernary !JSExpression !JSAnnot !JSExpression !JSAnnot !JSExpression
   | -- | parameter list,arrow,block`
     JSArrowExpression !JSArrowParameterList !JSAnnot !JSStatement
-  | -- | fn,name,lb, parameter list,rb,block`
-    JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock
   | -- | fn,*,name,lb, parameter list,rb,block`
     JSMemberDot !JSExpression !JSAnnot !JSExpression
   | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
-  | -- | new, name, lb, args, rb
-    JSMemberNew !JSAnnot !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot
   | -- | firstpart, lb, expr, rb
     JSMemberSquare !JSExpression !JSAnnot !JSExpression !JSAnnot
   | -- | lbrace contents rbrace
@@ -438,7 +434,6 @@ instance ShowStripped JSExpression where
   ss (JSExpressionPostfix xs op) = "JSExpressionPostfix (" ++ ss op ++ "," ++ ss xs ++ ")"
   ss (JSExpressionTernary x1 _q x2 _c x3) = "JSExpressionTernary (" ++ ss x1 ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
   ss (JSArrowExpression ps _ e) = "JSArrowExpression (" ++ ss ps ++ ") => " ++ ss e
-  ss (JSFunctionExpression _ n _lb pl _rb x3) = "JSFunctionExpression " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
   ss (JSHexInteger _ s) = "JSHexInteger " ++ singleQuote s
   ss (JSOctal _ s) = "JSOctal " ++ singleQuote s
   ss (JSIdentifier _ s) = "JSIdentifier " ++ singleQuote s
@@ -446,7 +441,6 @@ instance ShowStripped JSExpression where
   ss (JSLiteral _ s) = "JSLiteral " ++ singleQuote s
   ss (JSMemberDot x1s _d x2) = "JSMemberDot (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
   ss (JSMemberExpression e _ a _) = "JSMemberExpression (" ++ ss e ++ ",JSArguments " ++ ss a ++ ")"
-  ss (JSMemberNew _a n _ s _) = "JSMemberNew (" ++ ss n ++ ",JSArguments " ++ ss s ++ ")"
   ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
   ss (JSObjectLiteral _lb xs _rb) = "JSObjectLiteral " ++ ss xs
   ss (JSRegEx _ s) = "JSRegEx " ++ singleQuote s

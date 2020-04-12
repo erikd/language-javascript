@@ -1530,9 +1530,6 @@ mkJSCallExpression e (JSArguments l arglist r) = AST.JSCallExpression e l arglis
 mkJSMemberExpression :: AST.JSExpression -> JSArguments -> AST.JSExpression
 mkJSMemberExpression e (JSArguments l arglist r) = AST.JSMemberExpression e l arglist r
 
-mkJSMemberNew :: AST.JSAnnot -> AST.JSExpression -> JSArguments -> AST.JSExpression
-mkJSMemberNew a e (JSArguments l arglist r) = AST.JSMemberNew a e l arglist r
-
 parseError :: Token -> Alex a
 parseError = alexError . show
 

@@ -87,10 +87,8 @@ instance RenderJS JSExpression where
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"
     (|>) pacc (JSExpressionPostfix    xs op)                  = pacc |> xs |> op
     (|>) pacc (JSExpressionTernary    cond h v1 c v2)         = pacc |> cond |> h |> "?" |> v1 |> c |> ":" |> v2
-    (|>) pacc (JSFunctionExpression   annot n lb x2s rb x3)   = pacc |> annot |> "function" |> n |> lb |> "(" |> x2s |> rb |> ")" |> x3
     (|>) pacc (JSMemberDot            xs dot n)               = pacc |> xs |> "." |> dot |> n
     (|>) pacc (JSMemberExpression     e lb a rb)              = pacc |> e |> lb |> "(" |> a |> rb |> ")"
-    (|>) pacc (JSMemberNew            a lb n rb s)            = pacc |> a |> "new" |> lb |> "(" |> n |> rb |> ")" |> s
     (|>) pacc (JSMemberSquare         xs als e ars)           = pacc |> xs |> als |> "[" |> e |> ars |> "]"
     (|>) pacc (JSObjectLiteral        alb xs arb)             = pacc |> alb |> "{" |> xs |> arb |> "}"
     (|>) pacc (JSTemplateLiteral      t a h ps)               = pacc |> t |> a |> h |> ps

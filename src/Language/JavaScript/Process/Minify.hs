@@ -143,10 +143,8 @@ instance MinifyJS JSExpression where
     fix _ (JSExpressionParen      _ e _)              = JSExpressionParen emptyAnnot (fixEmpty e) emptyAnnot
     fix a (JSExpressionPostfix    e op)               = JSExpressionPostfix (fix a e) (fixEmpty op)
     fix a (JSExpressionTernary    cond _ v1 _ v2)     = JSExpressionTernary (fix a cond) emptyAnnot (fixEmpty v1) emptyAnnot (fixEmpty v2)
-    fix a (JSFunctionExpression   _ n _ x2s _ x3)     = JSFunctionExpression a (fixSpace n) emptyAnnot (fixEmpty x2s) emptyAnnot (fixEmpty x3)
     fix a (JSMemberDot            xs _ n)             = JSMemberDot (fix a xs) emptyAnnot (fixEmpty n)
     fix a (JSMemberExpression     e _ args _)         = JSMemberExpression (fix a e) emptyAnnot (fixEmpty args) emptyAnnot
-    fix a (JSMemberNew            _ n _ s _)          = JSMemberNew a (fix spaceAnnot n) emptyAnnot (fixEmpty s) emptyAnnot
     fix a (JSMemberSquare         xs _ e _)           = JSMemberSquare (fix a xs) emptyAnnot (fixEmpty e) emptyAnnot
     fix _ (JSObjectLiteral        _ xs _)             = JSObjectLiteral emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSTemplateLiteral      t _ s ps)           = JSTemplateLiteral (fmap (fix a) t) emptyAnnot s (map fixEmpty ps)
