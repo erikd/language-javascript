@@ -45,14 +45,12 @@ fixStmt :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
 fixStmt a s (JSStatementBlock _lb ss _rb _) = fixStatementBlock a s ss
 fixStmt a s (JSBreak _ i _) = JSBreak a (fixSpace i) s
 fixStmt a s (JSConstant _ ss _) = JSConstant a (fixVarList ss) s
-fixStmt a s (JSFunction _ n _ ps _ blk _) = JSFunction a (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixIfElseBlock emptyAnnot s st)
 fixStmt a s (JSIfElse _ _ e _ (JSEmptyStatement _) _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (JSEmptyStatement emptyAnnot) emptyAnnot (fixStmt spaceAnnot s sf)
 fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (mkStatementBlock noSemi st) emptyAnnot (fixIfElseBlock spaceAnnot s sf)
 fixStmt a s (JSLabelled e _ st) = JSLabelled (fix a e) emptyAnnot (fixStmtE s st)
 fixStmt _ _ (JSEmptyStatement _) = JSEmptyStatement emptyAnnot
 fixStmt a s (JSExpressionStatement e _) = JSExpressionStatement (fix a e) s
-fixStmt a s (JSMethodCall e _ args _ _) = JSMethodCall (fix a e) emptyAnnot (fixEmpty args) emptyAnnot s
 fixStmt a s (JSReturn _ me _) = JSReturn a (fixSpace me) s
 fixStmt a s (JSSwitch _ _ e _ _ sps _ _) = JSSwitch a emptyAnnot (fixEmpty e) emptyAnnot emptyAnnot (fixSwitchParts sps) emptyAnnot s
 fixStmt a s (JSThrow _ e _) = JSThrow a (fixSpace e) s
@@ -99,7 +97,6 @@ fixStatementList trailingSemi =
     fixList a s [x] = [fixStmt a s x]
     fixList _ s (JSStatementBlock _ blk _ _:xs) = fixList emptyAnnot semi (filter (not . isRedundant) blk) ++ fixList emptyAnnot s xs
     fixList a s (JSConstant _ vs1 _:JSConstant _ vs2 _: xs) = fixList a s (JSConstant spaceAnnot (concatCommaList vs1 vs2) s : xs)
-    fixList a s (x1@JSFunction{}:x2@JSFunction{}:xs) = fixStmt a noSemi x1 : fixList newlineAnnot s (x2:xs)
     fixList a s (x:xs) = fixStmt a semi x : fixList emptyAnnot s xs
 
 concatCommaList :: JSCommaList a -> JSCommaList a -> JSCommaList a
@@ -137,7 +134,6 @@ instance MinifyJS JSExpression where
     fix a (JSCallExpression       ex _ xs _)          = JSCallExpression (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
     fix a (JSCallExpressionSquare ex _ xs _)          = JSCallExpressionSquare (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
-    fix a (JSClassExpression      _ n h _ ms _)       = JSClassExpression a (fixSpace n) (fixSpace h) emptyAnnot (fixEmpty ms) emptyAnnot
     fix a (JSCommaExpression      le _ re)            = JSCommaExpression (fix a le) emptyAnnot (fixEmpty re)
     fix a (JSExpressionBinary     lhs op rhs)         = fixBinOpExpression a op lhs rhs
     fix _ (JSExpressionParen      _ e _)              = JSExpressionParen emptyAnnot (fixEmpty e) emptyAnnot
@@ -311,11 +307,6 @@ instance MinifyJS JSTryCatch where
     fix a (JSCatchIf _ _ x1 _ ex _ x3) = JSCatchIf a emptyAnnot (fixEmpty x1) spaceAnnot (fixSpace ex) emptyAnnot (fixEmpty x3)
 
 
-instance MinifyJS JSTryFinally where
-    fix a (JSFinally _ x) = JSFinally a (fixEmpty x)
-    fix _ JSNoFinally     = JSNoFinally
-
-
 fixSwitchParts :: [JSSwitchParts] -> [JSSwitchParts]
 fixSwitchParts parts =
     case parts of
@@ -338,23 +329,12 @@ instance MinifyJS JSBlock where
 instance MinifyJS JSObjectProperty where
     fix a (JSPropertyNameandValue n _ vs)       = JSPropertyNameandValue (fix a n) emptyAnnot (map fixEmpty vs)
     fix a (JSPropertyIdentRef     _ s)          = JSPropertyIdentRef a s
-    fix a (JSObjectMethod         m)            = JSObjectMethod (fix a m)
-
-instance MinifyJS JSMethodDefinition where
-    fix a (JSMethodDefinition          n _ ps _ b)   = JSMethodDefinition                     (fix a n)    emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty b)
-    fix _ (JSGeneratorMethodDefinition _ n _ ps _ b) = JSGeneratorMethodDefinition emptyAnnot (fixEmpty n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty b)
-    fix a (JSPropertyAccessor          s n _ ps _ b) = JSPropertyAccessor          (fix a s)  (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty b)
 
 instance MinifyJS JSPropertyName where
     fix a (JSPropertyIdent _ s)  = JSPropertyIdent a s
     fix a (JSPropertyString _ s) = JSPropertyString a s
     fix a (JSPropertyNumber _ s) = JSPropertyNumber a s
     fix _ (JSPropertyComputed _ x _) = JSPropertyComputed emptyAnnot (fixEmpty x) emptyAnnot
-
-instance MinifyJS JSAccessor where
-    fix a (JSAccessorGet _) = JSAccessorGet a
-    fix a (JSAccessorSet _) = JSAccessorSet a
-
 
 instance MinifyJS JSArrayElement where
     fix _ (JSArrayElement e) = JSArrayElement (fixEmpty e)
@@ -390,26 +370,11 @@ instance MinifyJS JSTemplatePart where
     fix _ (JSTemplatePart e _ s) = JSTemplatePart (fixEmpty e) emptyAnnot s
 
 
-instance MinifyJS JSClassHeritage where
-    fix _ JSExtendsNone   = JSExtendsNone
-    fix a (JSExtends _ e) = JSExtends a (fixSpace e)
-
-
-instance MinifyJS [JSClassElement] where
-    fix _ [] = []
-    fix a (JSClassInstanceMethod m:t) = JSClassInstanceMethod (fix a m) : fixEmpty t
-    fix a (JSClassStaticMethod _ m:t) = JSClassStaticMethod a (fixSpace m) : fixEmpty t
-    fix a (JSClassSemi _:t) = fix a t
-
-
 spaceAnnot :: JSAnnot
 spaceAnnot = JSAnnot tokenPosnEmpty [WhiteSpace tokenPosnEmpty " "]
 
 emptyAnnot :: JSAnnot
 emptyAnnot = JSNoAnnot
-
-newlineAnnot :: JSAnnot
-newlineAnnot = JSAnnot tokenPosnEmpty [WhiteSpace tokenPosnEmpty "\n"]
 
 semi :: JSSemi
 semi = JSSemi emptyAnnot

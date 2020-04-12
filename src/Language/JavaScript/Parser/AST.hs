@@ -9,7 +9,6 @@ module Language.JavaScript.Parser.AST
     JSSemi (..),
     JSAssignOp (..),
     JSTryCatch (..),
-    JSTryFinally (..),
     JSStatement (..),
     JSBlock (..),
     JSSwitchParts (..),
@@ -17,8 +16,6 @@ module Language.JavaScript.Parser.AST
     JSObjectProperty (..),
     JSPropertyName (..),
     JSObjectPropertyList,
-    JSAccessor (..),
-    JSMethodDefinition (..),
     JSIdent (..),
     JSVarInitializer (..),
     JSArrayElement (..),
@@ -26,8 +23,6 @@ module Language.JavaScript.Parser.AST
     JSCommaTrailingList (..),
     JSArrowParameterList (..),
     JSTemplatePart (..),
-    JSClassHeritage (..),
-    JSClassElement (..),
     -- Modules
     JSModuleItem (..),
     JSImportDeclaration (..),
@@ -157,8 +152,6 @@ data JSStatement
     JSBreak !JSAnnot !JSIdent !JSSemi
   | -- | const, decl, autosemi
     JSConstant !JSAnnot !(JSCommaList JSExpression) !JSSemi
-  | -- | fn,name, lb,parameter list,rb,block,autosemi
-    JSFunction !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock !JSSemi
   | -- | if,(,expr,),stmt
     JSIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement
   | -- | if,(,expr,),stmt,else,rest
@@ -167,7 +160,6 @@ data JSStatement
     JSLabelled !JSIdent !JSAnnot !JSStatement
   | JSEmptyStatement !JSAnnot
   | JSExpressionStatement !JSExpression !JSSemi
-  | JSMethodCall !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSSemi
   | -- | optional expression,autosemi
     JSReturn !JSAnnot !(Maybe JSExpression) !JSSemi
   | -- | switch,lb,expr,rb,caseblock,autosemi
@@ -193,8 +185,6 @@ data JSExpression
     JSCallExpressionDot !JSExpression !JSAnnot !JSExpression
   | -- | expr, [, expr, ]
     JSCallExpressionSquare !JSExpression !JSAnnot !JSExpression !JSAnnot
-  | -- | class, optional identifier, optional extends clause, lb, body, rb
-    JSClassExpression !JSAnnot !JSIdent !JSClassHeritage !JSAnnot ![JSClassElement] !JSAnnot
   | -- | expression components
     JSCommaExpression !JSExpression !JSAnnot !JSExpression
   | -- | lhs, op, rhs
@@ -293,12 +283,6 @@ data JSTryCatch
     JSCatchIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSExpression !JSAnnot !JSBlock
   deriving (Data, Eq, Show, Typeable)
 
-data JSTryFinally
-  = -- | finally,block
-    JSFinally !JSAnnot !JSBlock
-  | JSNoFinally
-  deriving (Data, Eq, Show, Typeable)
-
 data JSBlock
   = -- | lbrace, stmts, rbrace
     JSBlock !JSAnnot ![JSStatement] !JSAnnot
@@ -321,15 +305,6 @@ data JSObjectProperty
   = -- | name, colon, value
     JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression]
   | JSPropertyIdentRef !JSAnnot !String
-  | JSObjectMethod !JSMethodDefinition
-  deriving (Data, Eq, Show, Typeable)
-
-data JSMethodDefinition
-  = JSMethodDefinition !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- name, lb, params, rb, block
-  | -- | *, name, lb, params, rb, block
-    JSGeneratorMethodDefinition !JSAnnot !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock
-  | -- | get/set, name, lb, params, rb, block
-    JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock
   deriving (Data, Eq, Show, Typeable)
 
 data JSPropertyName
@@ -341,12 +316,6 @@ data JSPropertyName
   deriving (Data, Eq, Show, Typeable)
 
 type JSObjectPropertyList = JSCommaTrailingList JSObjectProperty
-
--- | Accessors for JSObjectProperty is either 'get' or 'set'.
-data JSAccessor
-  = JSAccessorGet !JSAnnot
-  | JSAccessorSet !JSAnnot
-  deriving (Data, Eq, Show, Typeable)
 
 data JSIdent
   = JSIdentName !JSAnnot !String
@@ -378,17 +347,6 @@ data JSTemplatePart
     JSTemplatePart !JSExpression !JSAnnot !String
   deriving (Data, Eq, Show, Typeable)
 
-data JSClassHeritage
-  = JSExtends !JSAnnot !JSExpression
-  | JSExtendsNone
-  deriving (Data, Eq, Show, Typeable)
-
-data JSClassElement
-  = JSClassInstanceMethod !JSMethodDefinition
-  | JSClassStaticMethod !JSAnnot !JSMethodDefinition
-  | JSClassSemi !JSAnnot
-  deriving (Data, Eq, Show, Typeable)
-
 -- -----------------------------------------------------------------------------
 
 -- | Show the AST elements stripped of their JSAnnot data.
@@ -409,13 +367,11 @@ instance ShowStripped JSStatement where
   ss (JSBreak _ JSIdentNone s) = "JSBreak" ++ commaIf (ss s)
   ss (JSBreak _ (JSIdentName _ n) s) = "JSBreak " ++ singleQuote n ++ commaIf (ss s)
   ss (JSConstant _ xs _as) = "JSConstant " ++ ss xs
-  ss (JSFunction _ n _lb pl _rb x3 _) = "JSFunction " ++ ssid n ++ " " ++ ss pl ++ " (" ++ ss x3 ++ ")"
   ss (JSIf _ _lb x1 _rb x2) = "JSIf (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
   ss (JSIfElse _ _lb x1 _rb x2 _e x3) = "JSIfElse (" ++ ss x1 ++ ") (" ++ ss x2 ++ ") (" ++ ss x3 ++ ")"
   ss (JSLabelled x1 _c x2) = "JSLabelled (" ++ ss x1 ++ ") (" ++ ss x2 ++ ")"
   ss (JSEmptyStatement _) = "JSEmptyStatement"
   ss (JSExpressionStatement l s) = ss l ++ (let x = ss s in if not (null x) then ',' : x else "")
-  ss (JSMethodCall e _ a _ s) = "JSMethodCall (" ++ ss e ++ ",JSArguments " ++ ss a ++ (let x = ss s in if not (null x) then ")," ++ x else ")")
   ss (JSReturn _ (Just me) s) = "JSReturn " ++ ss me ++ " " ++ ss s
   ss (JSReturn _ Nothing s) = "JSReturn " ++ ss s
   ss (JSSwitch _ _lp x _rp _lb x2 _rb _) = "JSSwitch (" ++ ss x ++ ") " ++ ss x2
@@ -426,7 +382,6 @@ instance ShowStripped JSExpression where
   ss (JSCallExpression ex _ xs _) = "JSCallExpression (" ++ ss ex ++ ",JSArguments " ++ ss xs ++ ")"
   ss (JSCallExpressionDot ex _os xs) = "JSCallExpressionDot (" ++ ss ex ++ "," ++ ss xs ++ ")"
   ss (JSCallExpressionSquare ex _os xs _cs) = "JSCallExpressionSquare (" ++ ss ex ++ "," ++ ss xs ++ ")"
-  ss (JSClassExpression _ n h _lb xs _rb) = "JSClassExpression " ++ ssid n ++ " (" ++ ss h ++ ") " ++ ss xs
   ss (JSDecimal _ s) = "JSDecimal " ++ singleQuote s
   ss (JSCommaExpression l _ r) = "JSExpression [" ++ ss l ++ "," ++ ss r ++ "]"
   ss (JSExpressionBinary x2 op x3) = "JSExpressionBinary (" ++ ss op ++ "," ++ ss x2 ++ "," ++ ss x3 ++ ")"
@@ -500,10 +455,6 @@ instance ShowStripped JSTryCatch where
   ss (JSCatch _ _lb x1 _rb x3) = "JSCatch (" ++ ss x1 ++ "," ++ ss x3 ++ ")"
   ss (JSCatchIf _ _lb x1 _ ex _rb x3) = "JSCatch (" ++ ss x1 ++ ") if " ++ ss ex ++ " (" ++ ss x3 ++ ")"
 
-instance ShowStripped JSTryFinally where
-  ss (JSFinally _ x) = "JSFinally (" ++ ss x ++ ")"
-  ss JSNoFinally = "JSFinally ()"
-
 instance ShowStripped JSIdent where
   ss (JSIdentName _ s) = "JSIdentifier " ++ singleQuote s
   ss JSIdentNone = "JSIdentNone"
@@ -511,22 +462,12 @@ instance ShowStripped JSIdent where
 instance ShowStripped JSObjectProperty where
   ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
   ss (JSPropertyIdentRef _ s) = "JSPropertyIdentRef " ++ singleQuote s
-  ss (JSObjectMethod m) = ss m
-
-instance ShowStripped JSMethodDefinition where
-  ss (JSMethodDefinition x1 _lb1 x2s _rb1 x3) = "JSMethodDefinition (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
-  ss (JSPropertyAccessor s x1 _lb1 x2s _rb1 x3) = "JSPropertyAccessor " ++ ss s ++ " (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
-  ss (JSGeneratorMethodDefinition _ x1 _lb1 x2s _rb1 x3) = "JSGeneratorMethodDefinition (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"
 
 instance ShowStripped JSPropertyName where
   ss (JSPropertyIdent _ s) = "JSIdentifier " ++ singleQuote s
   ss (JSPropertyString _ s) = "JSIdentifier " ++ singleQuote s
   ss (JSPropertyNumber _ s) = "JSIdentifier " ++ singleQuote s
   ss (JSPropertyComputed _ x _) = "JSPropertyComputed (" ++ ss x ++ ")"
-
-instance ShowStripped JSAccessor where
-  ss (JSAccessorGet _) = "JSAccessorGet"
-  ss (JSAccessorSet _) = "JSAccessorSet"
 
 instance ShowStripped JSBlock where
   ss (JSBlock _ xs _) = "JSBlock " ++ ss xs
@@ -601,15 +542,6 @@ instance ShowStripped JSArrayElement where
 instance ShowStripped JSTemplatePart where
   ss (JSTemplatePart e _ s) = "(" ++ ss e ++ "," ++ singleQuote s ++ ")"
 
-instance ShowStripped JSClassHeritage where
-  ss JSExtendsNone = ""
-  ss (JSExtends _ x) = ss x
-
-instance ShowStripped JSClassElement where
-  ss (JSClassInstanceMethod m) = ss m
-  ss (JSClassStaticMethod _ m) = "JSClassStaticMethod (" ++ ss m ++ ")"
-  ss (JSClassSemi _) = "JSClassSemi"
-
 instance ShowStripped a => ShowStripped (JSCommaList a) where
   ss xs = "(" ++ commaJoin (map ss $ fromCommaList xs) ++ ")"
 
@@ -633,10 +565,6 @@ fromCommaList JSLNil = []
 
 singleQuote :: String -> String
 singleQuote s = '\'' : (s ++ "'")
-
-ssid :: JSIdent -> String
-ssid (JSIdentName _ s) = singleQuote s
-ssid JSIdentNone = "''"
 
 commaIf :: String -> String
 commaIf "" = ""

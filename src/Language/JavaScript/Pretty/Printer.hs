@@ -81,7 +81,6 @@ instance RenderJS JSExpression where
     (|>) pacc (JSCallExpression       ex lb xs rb)            = pacc |> ex |> lb |> "(" |> xs |> rb |> ")"
     (|>) pacc (JSCallExpressionDot    ex os xs)               = pacc |> ex |> os |> "." |> xs
     (|>) pacc (JSCallExpressionSquare ex als xs ars)          = pacc |> ex |> als |> "[" |> xs |> ars |> "]"
-    (|>) pacc (JSClassExpression      annot n h lb xs rb)     = pacc |> annot |> "class" |> n |> h |> lb |> "{" |> xs |> rb |> "}"
     (|>) pacc (JSCommaExpression      le c re)                = pacc |> le |> c |> "," |> re
     (|>) pacc (JSExpressionBinary     lhs op rhs)             = pacc |> lhs |> op |> rhs
     (|>) pacc (JSExpressionParen      alp e arp)              = pacc |> alp |> "(" |> e |> arp |> ")"
@@ -209,10 +208,6 @@ instance RenderJS JSTryCatch where
 instance RenderJS [JSTryCatch] where
     (|>) = foldl' (|>)
 
-instance RenderJS JSTryFinally where
-    (|>) pacc (JSFinally      annot x) = pacc |> annot |> "finally" |> x
-    (|>) pacc JSNoFinally              = pacc
-
 instance RenderJS JSSwitchParts where
     (|>) pacc (JSCase    annot x1 c x2s) = pacc |> annot |> "case" |> x1 |> c |> ":" |> x2s
     (|>) pacc (JSDefault annot c xs)     = pacc |> annot |> "default" |> c |> ":" |> xs
@@ -225,12 +220,10 @@ instance RenderJS JSStatement where
     (|>) pacc (JSBreak annot mi s)                         = pacc |> annot |> "break" |> mi |> s
     (|>) pacc (JSConstant annot xs s)                      = pacc |> annot |> "const" |> xs |> s
     (|>) pacc (JSEmptyStatement a)                         = pacc |> a |> ";"
-    (|>) pacc (JSFunction af n alb x2s arb x3 s)           = pacc |> af |> "function" |> n |> alb |> "(" |> x2s |> arb |> ")" |> x3 |> s
     (|>) pacc (JSIf annot alb x1 arb x2s)                  = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s
     (|>) pacc (JSIfElse annot alb x1 arb x2s ea x3s)       = pacc |> annot |> "if" |> alb |> "(" |> x1 |> arb |> ")" |> x2s |> ea |> "else" |> x3s
     (|>) pacc (JSLabelled l c v)                           = pacc |> l |> c |> ":" |> v
     (|>) pacc (JSExpressionStatement l s)                  = pacc |> l |> s
-    (|>) pacc (JSMethodCall e lp a rp s)                   = pacc |> e |> lp |> "(" |> a |> rp |> ")" |> s
     (|>) pacc (JSReturn annot me s)                        = pacc |> annot |> "return" |> me |> s
     (|>) pacc (JSSwitch annot alp x arp alb x2 arb s)      = pacc |> annot |> "switch" |> alp |> "(" |> x |> arp |> ")" |> alb |> "{" |> x2 |> arb |> "}" |> s
     (|>) pacc (JSThrow annot x s)                          = pacc |> annot |> "throw" |> x |> s
@@ -252,22 +245,12 @@ instance RenderJS JSBlock where
 instance RenderJS JSObjectProperty where
     (|>) pacc (JSPropertyNameandValue n c vs) = pacc |> n |> c |> ":" |> vs
     (|>) pacc (JSPropertyIdentRef     a s)    = pacc |> a |> s
-    (|>) pacc (JSObjectMethod         m)      = pacc |> m
-
-instance RenderJS JSMethodDefinition where
-    (|>) pacc (JSMethodDefinition          n alp ps arp b)   = pacc |> n |> alp |> "(" |> ps |> arp |> ")" |> b
-    (|>) pacc (JSGeneratorMethodDefinition s n alp ps arp b) = pacc |> s |> "*" |> n |> alp |> "(" |> ps |> arp |> ")" |> b
-    (|>) pacc (JSPropertyAccessor          s n alp ps arp b) = pacc |> s |> n |> alp |> "(" |> ps |> arp |> ")" |> b
 
 instance RenderJS JSPropertyName where
     (|>) pacc (JSPropertyIdent a s)  = pacc |> a |> s
     (|>) pacc (JSPropertyString a s) = pacc |> a |> s
     (|>) pacc (JSPropertyNumber a s) = pacc |> a |> s
     (|>) pacc (JSPropertyComputed lb x rb) = pacc |> lb |> "[" |> x |> rb |> "]"
-
-instance RenderJS JSAccessor where
-    (|>) pacc (JSAccessorGet annot) = pacc |> annot |> "get"
-    (|>) pacc (JSAccessorSet annot) = pacc |> annot |> "set"
 
 instance RenderJS JSArrayElement where
     (|>) pacc (JSArrayElement e) = pacc |> e
@@ -339,17 +322,5 @@ instance RenderJS [JSTemplatePart] where
 
 instance RenderJS JSTemplatePart where
     (|>) pacc (JSTemplatePart e a s) = pacc |> e |> a |> s
-
-instance RenderJS JSClassHeritage where
-    (|>) pacc (JSExtends a e) = pacc |> a |> "extends" |> e
-    (|>) pacc JSExtendsNone   = pacc
-
-instance RenderJS [JSClassElement] where
-    (|>) = foldl' (|>)
-
-instance RenderJS JSClassElement where
-    (|>) pacc (JSClassInstanceMethod m) = pacc |> m
-    (|>) pacc (JSClassStaticMethod a m) = pacc |> a |> "static" |> m
-    (|>) pacc (JSClassSemi a)           = pacc |> a |> ";"
 
 -- EOF
