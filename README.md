@@ -1,3 +1,18 @@
+# smash things
+
+things to try:
+
+`cabal new-run lang-face` - reads `samples/1.fjs` and checks it's correct
+(limited) JS.
+
+`node samples/run.js` - run file created by above in `node` because who needs
+an interpreter.
+
+# things to do next
+
+make more things break it, like using console.log or methods like [1,2,3].map
+
+
 Parser for JavaScript
 ---------------------
 
