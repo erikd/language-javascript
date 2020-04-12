@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP, FlexibleInstances #-}
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Language.JavaScript.Process.Minify
     ( -- * Minify
@@ -6,12 +7,12 @@ module Language.JavaScript.Process.Minify
     ) where
 
 #if ! MIN_VERSION_base(4,13,0)
-import Control.Applicative ((<$>))
+import           Control.Applicative                    ((<$>))
 #endif
 
-import Language.JavaScript.Parser.AST
-import Language.JavaScript.Parser.SrcLocation
-import Language.JavaScript.Parser.Token
+import           Language.JavaScript.Parser.AST
+import           Language.JavaScript.Parser.SrcLocation
+import           Language.JavaScript.Parser.Token
 
 -- ---------------------------------------------------------------------
 
@@ -43,46 +44,23 @@ fixSpace = fix spaceAnnot
 fixStmt :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
 fixStmt a s (JSStatementBlock _lb ss _rb _) = fixStatementBlock a s ss
 fixStmt a s (JSBreak _ i _) = JSBreak a (fixSpace i) s
-fixStmt a s (JSClass _ n h _ ms _ _) = JSClass a (fixSpace n) (fixSpace h) emptyAnnot (fixEmpty ms) emptyAnnot s
 fixStmt a s (JSConstant _ ss _) = JSConstant a (fixVarList ss) s
-fixStmt a s (JSContinue _ i _) = JSContinue a (fixSpace i) s
-fixStmt a s (JSDoWhile _ st _ _ e _ _) = JSDoWhile a (mkStatementBlock noSemi st) emptyAnnot emptyAnnot (fixEmpty e) emptyAnnot s
-fixStmt a s (JSFor _ _ el1 _ el2 _ el3 _ st) = JSFor a emptyAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForIn _ _ e1 op e2 _ st) = JSForIn a emptyAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForVar _ _ _ el1 _ el2 _ el3 _ st) = JSForVar a emptyAnnot spaceAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForVarIn _ _ _ e1 op e2 _ st) = JSForVarIn a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForLet _ _ _ el1 _ el2 _ el3 _ st) = JSForLet a emptyAnnot spaceAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForLetIn _ _ _ e1 op e2 _ st) = JSForLetIn a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForLetOf _ _ _ e1 op e2 _ st) = JSForLetOf a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForConst _ _ _ el1 _ el2 _ el3 _ st) = JSForConst a emptyAnnot spaceAnnot (fixEmpty el1) emptyAnnot (fixEmpty el2) emptyAnnot (fixEmpty el3) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForConstIn _ _ _ e1 op e2 _ st) = JSForConstIn a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForConstOf _ _ _ e1 op e2 _ st) = JSForConstOf a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForOf _ _ e1 op e2 _ st) = JSForOf a emptyAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSForVarOf _ _ _ e1 op e2 _ st) = JSForVarOf a emptyAnnot spaceAnnot (fixEmpty e1) (fixSpace op) (fixSpace e2) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSAsyncFunction _ _ n _ ps _ blk _) = JSAsyncFunction a spaceAnnot (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSFunction _ n _ ps _ blk _) = JSFunction a (fixSpace n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
-fixStmt a s (JSGenerator _ _ n _ ps _ blk _) = JSGenerator a emptyAnnot (fixEmpty n) emptyAnnot (fixEmpty ps) emptyAnnot (fixEmpty blk) s
 fixStmt a s (JSIf _ _ e _ st) = JSIf a emptyAnnot (fixEmpty e) emptyAnnot (fixIfElseBlock emptyAnnot s st)
 fixStmt a s (JSIfElse _ _ e _ (JSEmptyStatement _) _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (JSEmptyStatement emptyAnnot) emptyAnnot (fixStmt spaceAnnot s sf)
 fixStmt a s (JSIfElse _ _ e _ st _ sf) = JSIfElse a emptyAnnot (fixEmpty e) emptyAnnot (mkStatementBlock noSemi st) emptyAnnot (fixIfElseBlock spaceAnnot s sf)
 fixStmt a s (JSLabelled e _ st) = JSLabelled (fix a e) emptyAnnot (fixStmtE s st)
-fixStmt a s (JSLet _ xs _) = JSLet a (fixVarList xs) s
 fixStmt _ _ (JSEmptyStatement _) = JSEmptyStatement emptyAnnot
 fixStmt a s (JSExpressionStatement e _) = JSExpressionStatement (fix a e) s
-fixStmt a s (JSAssignStatement lhs op rhs _) = JSAssignStatement (fix a lhs) (fixEmpty op) (fixEmpty rhs) s
 fixStmt a s (JSMethodCall e _ args _ _) = JSMethodCall (fix a e) emptyAnnot (fixEmpty args) emptyAnnot s
 fixStmt a s (JSReturn _ me _) = JSReturn a (fixSpace me) s
 fixStmt a s (JSSwitch _ _ e _ _ sps _ _) = JSSwitch a emptyAnnot (fixEmpty e) emptyAnnot emptyAnnot (fixSwitchParts sps) emptyAnnot s
 fixStmt a s (JSThrow _ e _) = JSThrow a (fixSpace e) s
-fixStmt a _ (JSTry _ b tc tf) = JSTry a (fixEmpty b) (map fixEmpty tc) (fixEmpty tf)
-fixStmt a s (JSVariable _ ss _) = JSVariable a (fixVarList ss) s
-fixStmt a s (JSWhile _ _ e _ st) = JSWhile a emptyAnnot (fixEmpty e) emptyAnnot (fixStmt a s st)
-fixStmt a s (JSWith _ _ e _ st _) = JSWith a emptyAnnot (fixEmpty e) emptyAnnot (fixStmtE noSemi st) s
 
 
 fixIfElseBlock :: JSAnnot -> JSSemi -> JSStatement -> JSStatement
 fixIfElseBlock _ _ (JSStatementBlock _ [] _ _) = JSEmptyStatement emptyAnnot
-fixIfElseBlock a s st = fixStmt a s st
+fixIfElseBlock a s st                          = fixStmt a s st
 
 fixStmtE :: JSSemi -> JSStatement -> JSStatement
 fixStmtE = fixStmt emptyAnnot
@@ -102,9 +80,9 @@ fixStatementBlock a s ss =
         [sx] -> fixStmt a s sx
         sss -> JSStatementBlock emptyAnnot (fixStatementList noSemi sss) emptyAnnot s
   where
-    isEmpty (JSEmptyStatement _) = True
+    isEmpty (JSEmptyStatement _)        = True
     isEmpty (JSStatementBlock _ [] _ _) = True
-    isEmpty _ = False
+    isEmpty _                           = False
 
 -- Force semi-colons between statements, and make sure the last statement in a
 -- block has no semi-colon.
@@ -113,15 +91,14 @@ fixStatementList trailingSemi =
     fixList emptyAnnot trailingSemi . filter (not . isRedundant)
   where
     isRedundant (JSStatementBlock _ [] _ _) = True
-    isRedundant (JSEmptyStatement _) = True
-    isRedundant _ = False
+    isRedundant (JSEmptyStatement _)        = True
+    isRedundant _                           = False
 
     fixList _ _ [] = []
     fixList a s [JSStatementBlock _ blk _ _] = fixList a s blk
     fixList a s [x] = [fixStmt a s x]
     fixList _ s (JSStatementBlock _ blk _ _:xs) = fixList emptyAnnot semi (filter (not . isRedundant) blk) ++ fixList emptyAnnot s xs
     fixList a s (JSConstant _ vs1 _:JSConstant _ vs2 _: xs) = fixList a s (JSConstant spaceAnnot (concatCommaList vs1 vs2) s : xs)
-    fixList a s (JSVariable _ vs1 _:JSVariable _ vs2 _: xs) = fixList a s (JSVariable spaceAnnot (concatCommaList vs1 vs2) s : xs)
     fixList a s (x1@JSFunction{}:x2@JSFunction{}:xs) = fixStmt a noSemi x1 : fixList newlineAnnot s (x2:xs)
     fixList a s (x:xs) = fixStmt a semi x : fixList emptyAnnot s xs
 
@@ -157,8 +134,6 @@ instance MinifyJS JSExpression where
     -- Non-Terminals
     fix _ (JSArrayLiteral         _ xs _)             = JSArrayLiteral emptyAnnot (map fixEmpty xs) emptyAnnot
     fix a (JSArrowExpression ps _ ss)                 = JSArrowExpression (fix a ps) emptyAnnot (fixStmt emptyAnnot noSemi ss)
-    fix a (JSAssignExpression     lhs op rhs)         = JSAssignExpression (fix a lhs) (fixEmpty op) (fixEmpty rhs)
-    fix a (JSAwaitExpression      _ ex)               = JSAwaitExpression a (fixSpace ex)
     fix a (JSCallExpression       ex _ xs _)          = JSCallExpression (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSCallExpressionDot    ex _ xs)            = JSCallExpressionDot (fix a ex) emptyAnnot (fixEmpty xs)
     fix a (JSCallExpressionSquare ex _ xs _)          = JSCallExpressionSquare (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
@@ -169,18 +144,14 @@ instance MinifyJS JSExpression where
     fix a (JSExpressionPostfix    e op)               = JSExpressionPostfix (fix a e) (fixEmpty op)
     fix a (JSExpressionTernary    cond _ v1 _ v2)     = JSExpressionTernary (fix a cond) emptyAnnot (fixEmpty v1) emptyAnnot (fixEmpty v2)
     fix a (JSFunctionExpression   _ n _ x2s _ x3)     = JSFunctionExpression a (fixSpace n) emptyAnnot (fixEmpty x2s) emptyAnnot (fixEmpty x3)
-    fix a (JSGeneratorExpression  _ _ n _ x2s _ x3)   = JSGeneratorExpression a emptyAnnot (fixEmpty n) emptyAnnot (fixEmpty x2s) emptyAnnot (fixEmpty x3)
     fix a (JSMemberDot            xs _ n)             = JSMemberDot (fix a xs) emptyAnnot (fixEmpty n)
     fix a (JSMemberExpression     e _ args _)         = JSMemberExpression (fix a e) emptyAnnot (fixEmpty args) emptyAnnot
     fix a (JSMemberNew            _ n _ s _)          = JSMemberNew a (fix spaceAnnot n) emptyAnnot (fixEmpty s) emptyAnnot
     fix a (JSMemberSquare         xs _ e _)           = JSMemberSquare (fix a xs) emptyAnnot (fixEmpty e) emptyAnnot
-    fix a (JSNewExpression        _ e)                = JSNewExpression a (fixSpace e)
     fix _ (JSObjectLiteral        _ xs _)             = JSObjectLiteral emptyAnnot (fixEmpty xs) emptyAnnot
     fix a (JSTemplateLiteral      t _ s ps)           = JSTemplateLiteral (fmap (fix a) t) emptyAnnot s (map fixEmpty ps)
     fix a (JSUnaryExpression      op x)               = let (ta, fop) = fixUnaryOp a op in JSUnaryExpression fop (fix ta x)
     fix a (JSVarInitExpression    x1 x2)              = JSVarInitExpression (fix a x1) (fixEmpty x2)
-    fix a (JSYieldExpression      _ x)                = JSYieldExpression a (fixSpace x)
-    fix a (JSYieldFromExpression  _ _ x)              = JSYieldFromExpression a emptyAnnot (fixEmpty x)
     fix a (JSSpreadExpression     _ e)                = JSSpreadExpression a (fixEmpty e)
 
 instance MinifyJS JSArrowParameterList where
@@ -189,8 +160,8 @@ instance MinifyJS JSArrowParameterList where
 
 fixVarList :: JSCommaList JSExpression -> JSCommaList JSExpression
 fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
-fixVarList (JSLOne a) = JSLOne (fixSpace a)
-fixVarList JSLNil = JSLNil
+fixVarList (JSLOne a)      = JSLOne (fixSpace a)
+fixVarList JSLNil          = JSLNil
 
 fixBinOpExpression :: JSAnnot -> JSBinOp -> JSExpression -> JSExpression -> JSExpression
 fixBinOpExpression a (JSBinOpPlus _) lhs rhs = fixBinOpPlus a lhs rhs
@@ -218,16 +189,16 @@ stringLitConcat xall (_:yss) =
 normalizeToSQ :: String -> String
 normalizeToSQ str =
     case str of
-        [] -> []
+        []         -> []
         ('\'' : _) -> str
         ('"' : xs) -> '\'' : convertSQ xs
-        other -> other -- Should not happen.
+        other      -> other -- Should not happen.
   where
-    convertSQ [] = []
-    convertSQ [_] = "'"
-    convertSQ ('\'':xs) = '\\' : '\'' : convertSQ xs
+    convertSQ []             = []
+    convertSQ [_]            = "'"
+    convertSQ ('\'':xs)      = '\\' : '\'' : convertSQ xs
     convertSQ ('\\':'\"':xs) = '"' : convertSQ xs
-    convertSQ (x:xs) = x : convertSQ xs
+    convertSQ (x:xs)         = x : convertSQ xs
 
 
 instance MinifyJS JSBinOp where
@@ -272,7 +243,7 @@ fixUnaryOp :: JSAnnot -> JSUnaryOp -> (JSAnnot, JSUnaryOp)
 fixUnaryOp a (JSUnaryOpDelete _) = (spaceAnnot, JSUnaryOpDelete a)
 fixUnaryOp a (JSUnaryOpTypeof _) = (spaceAnnot, JSUnaryOpTypeof a)
 fixUnaryOp a (JSUnaryOpVoid   _) = (spaceAnnot, JSUnaryOpVoid a)
-fixUnaryOp a x = (emptyAnnot, fix a x)
+fixUnaryOp a x                   = (emptyAnnot, fix a x)
 
 
 instance MinifyJS JSAssignOp where
@@ -298,11 +269,11 @@ instance MinifyJS JSImportDeclaration where
     fix _ (JSImportDeclaration imps from _) = JSImportDeclaration (fixEmpty imps) (fix annot from) noSemi
         where
         annot = case imps of
-                    JSImportClauseDefault {} -> spaceAnnot
-                    JSImportClauseNameSpace {} -> spaceAnnot
-                    JSImportClauseNamed {} -> emptyAnnot
+                    JSImportClauseDefault {}          -> spaceAnnot
+                    JSImportClauseNameSpace {}        -> spaceAnnot
+                    JSImportClauseNamed {}            -> emptyAnnot
                     JSImportClauseDefaultNameSpace {} -> spaceAnnot
-                    JSImportClauseDefaultNamed {} -> emptyAnnot
+                    JSImportClauseDefaultNamed {}     -> emptyAnnot
     fix a (JSImportDeclarationBare _ m _) = JSImportDeclarationBare a m noSemi
 
 instance MinifyJS JSImportClause where
@@ -344,14 +315,14 @@ instance MinifyJS JSTryCatch where
 
 instance MinifyJS JSTryFinally where
     fix a (JSFinally _ x) = JSFinally a (fixEmpty x)
-    fix _ JSNoFinally = JSNoFinally
+    fix _ JSNoFinally     = JSNoFinally
 
 
 fixSwitchParts :: [JSSwitchParts] -> [JSSwitchParts]
 fixSwitchParts parts =
     case parts of
-        [] -> []
-        [x] -> [fixPart noSemi x]
+        []     -> []
+        [x]    -> [fixPart noSemi x]
         (x:xs) -> fixPart semi x : fixSwitchParts xs
   where
     fixPart s (JSCase _ e _ ss) = JSCase emptyAnnot (fixCase e) emptyAnnot (fixStatementList s ss)
@@ -359,7 +330,7 @@ fixSwitchParts parts =
 
 fixCase :: JSExpression -> JSExpression
 fixCase (JSStringLiteral _ s) = JSStringLiteral emptyAnnot s
-fixCase e = fix spaceAnnot e
+fixCase e                     = fix spaceAnnot e
 
 
 instance MinifyJS JSBlock where
@@ -405,7 +376,7 @@ instance MinifyJS a => MinifyJS (JSCommaTrailingList a) where
 
 instance MinifyJS JSIdent where
     fix a (JSIdentName _ n) = JSIdentName a n
-    fix _ JSIdentNone = JSIdentNone
+    fix _ JSIdentNone       = JSIdentNone
 
 
 instance MinifyJS (Maybe JSExpression) where
@@ -414,7 +385,7 @@ instance MinifyJS (Maybe JSExpression) where
 
 instance MinifyJS JSVarInitializer where
     fix a (JSVarInit _ x) = JSVarInit a (fix emptyAnnot x)
-    fix _ JSVarInitNone = JSVarInitNone
+    fix _ JSVarInitNone   = JSVarInitNone
 
 
 instance MinifyJS JSTemplatePart where
@@ -422,7 +393,7 @@ instance MinifyJS JSTemplatePart where
 
 
 instance MinifyJS JSClassHeritage where
-    fix _ JSExtendsNone = JSExtendsNone
+    fix _ JSExtendsNone   = JSExtendsNone
     fix a (JSExtends _ e) = JSExtends a (fixSpace e)
 
 
