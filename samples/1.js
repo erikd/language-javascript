@@ -19,7 +19,8 @@ const arr = [1,2,3,4]
 
 const spreadArr = [...arr, 5,6,7]
 
-const added = spreadArr.map(a => a + 1)
+// i don't want this either because it's a method
+// const added = spreadArr.map(a => a + 1)
 
 // f :: b -> a -> b
 const reduce = (f) => (b) => (as) => {
@@ -36,10 +37,7 @@ const length = reduce((b) => (a) => b + 1)(0)
 const sum = reduce((b) => (a) => b + a)(0)
 
 // i want this to break
-const breakPlease = new Array()
-
-// then this
-console.log("egg")
+// const breakPlease = new Array()
 
 // why 
 // sfsdf

@@ -1,4 +1,6 @@
 import Language.JavaScript.Parser.Parser
+import Language.JavaScript.Process.Minify
+import Typechecker.Typechecker
 
 {-
   this is stupid, we've banned module.exports
@@ -16,5 +18,7 @@ main = do
   case response of
     Left e -> print e
     Right a -> do
+      let ast = minifyJS a
+      print (getTypes ast)
       writeFile "./samples/1.js" (file <> extraShit)
-      print a
+      print ast
