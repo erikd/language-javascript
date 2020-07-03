@@ -145,6 +145,8 @@ testExpressionParser = describe "Parse expressions:" $ do
         testExpr "(a, ...b) => b"   `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSSpreadExpression (JSIdentifier 'b'))) => JSIdentifier 'b'))"
         testExpr "(a,b=1) => a + b" `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSIdentifier 'a',JSOpAssign ('=',JSIdentifier 'b',JSDecimal '1'))) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
         testExpr "([a,b]) => a + b" `shouldBe` "Right (JSAstExpression (JSArrowExpression ((JSArrayLiteral [JSIdentifier 'a',JSComma,JSIdentifier 'b'])) => JSExpressionBinary ('+',JSIdentifier 'a',JSIdentifier 'b')))"
+        testExpr "{f:()=>{},y:2}"   `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'f') [JSArrowExpression (()) => JSStatementBlock []],JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '2']]))"
+        testExpr "{f:x=>x,y:2}"     `shouldBe` "Right (JSAstExpression (JSObjectLiteral [JSPropertyNameandValue (JSIdentifier 'f') [JSArrowExpression (JSIdentifier 'x') => JSIdentifier 'x'],JSPropertyNameandValue (JSIdentifier 'y') [JSDecimal '2']]))"
 
     it "generator expression" $ do
         testExpr "function*(){}"        `shouldBe` "Right (JSAstExpression (JSGeneratorExpression '' () (JSBlock [])))"
