@@ -21,6 +21,8 @@ testStatementParser = describe "Parse statements:" $ do
         testStmt "{}"           `shouldBe` "Right (JSAstStatement (JSStatementBlock []))"
         testStmt "{x=1}"        `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')]))"
         testStmt "{x=1;y=2}"    `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon,JSOpAssign ('=',JSIdentifier 'y',JSDecimal '2')]))"
+        testStmt "{()=>{};``}"  `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSArrowExpression (()) => JSBlock [],JSSemicolon,JSTemplateLiteral ((),'``',[])]))"
+        testStmt "{x=>x;``}"    `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSArrowExpression (JSIdentifier 'x') => JSIdentifier 'x',JSSemicolon,JSTemplateLiteral ((),'``',[])]))"
         testStmt "{{}}"         `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSStatementBlock []]))"
         testStmt "{{{}}}"       `shouldBe` "Right (JSAstStatement (JSStatementBlock [JSStatementBlock [JSStatementBlock []]]))"
 

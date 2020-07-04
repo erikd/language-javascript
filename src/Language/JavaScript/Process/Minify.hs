@@ -156,7 +156,7 @@ instance MinifyJS JSExpression where
 
     -- Non-Terminals
     fix _ (JSArrayLiteral         _ xs _)             = JSArrayLiteral emptyAnnot (map fixEmpty xs) emptyAnnot
-    fix a (JSArrowExpression ps _ ss)                 = JSArrowExpression (fix a ps) emptyAnnot (fixStmt emptyAnnot noSemi ss)
+    fix a (JSArrowExpression ps _ fb)                 = JSArrowExpression (fix a ps) emptyAnnot (fixEmpty fb)
     fix a (JSAssignExpression     lhs op rhs)         = JSAssignExpression (fix a lhs) (fixEmpty op) (fixEmpty rhs)
     fix a (JSAwaitExpression      _ ex)               = JSAwaitExpression a (fixSpace ex)
     fix a (JSCallExpression       ex _ xs _)          = JSCallExpression (fix a ex) emptyAnnot (fixEmpty xs) emptyAnnot
@@ -186,6 +186,10 @@ instance MinifyJS JSExpression where
 instance MinifyJS JSArrowParameterList where
     fix _ (JSUnparenthesizedArrowParameter p)         = JSUnparenthesizedArrowParameter (fixEmpty p)
     fix _ (JSParenthesizedArrowParameterList _ ps _)  = JSParenthesizedArrowParameterList emptyAnnot (fixEmpty ps) emptyAnnot
+
+instance MinifyJS JSConciseBody where
+    fix _ (JSConciseExpressionBody e) = JSConciseExpressionBody (fixEmpty e)
+    fix _ (JSConciseFunctionBody b) = JSConciseFunctionBody (fixEmpty b)
 
 fixVarList :: JSCommaList JSExpression -> JSCommaList JSExpression
 fixVarList (JSLCons h _ v) = JSLCons (fixVarList h) emptyAnnot (fixEmpty v)
