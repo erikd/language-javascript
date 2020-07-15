@@ -611,6 +611,7 @@ PropertyAssignment :: { AST.JSObjectProperty }
 PropertyAssignment : PropertyName Colon AssignmentExpression { AST.JSPropertyNameandValue $1 $2 [$3] }
                    | IdentifierName { identifierToProperty $1 }
                    | MethodDefinition { AST.JSObjectMethod $1 }
+                   | SpreadExpression { spreadExpressionToProperty $1 }
 
 -- TODO: not clear if get/set are keywords, or just used in a specific context. Puzzling.
 MethodDefinition :: { AST.JSMethodDefinition }
@@ -1563,6 +1564,9 @@ propName (AST.JSHexInteger a s) = AST.JSPropertyNumber a s
 propName (AST.JSOctal a s) = AST.JSPropertyNumber a s
 propName (AST.JSStringLiteral a s) = AST.JSPropertyString a s
 propName x = error $ "Cannot convert '" ++ show x ++ "' to a JSPropertyName."
+
+spreadExpressionToProperty :: AST.JSExpression -> AST.JSObjectProperty
+spreadExpressionToProperty (AST.JSSpreadExpression d e) = AST.JSObjectSpread d e
 
 identifierToProperty :: AST.JSExpression -> AST.JSObjectProperty
 identifierToProperty (AST.JSIdentifier a s) = AST.JSPropertyIdentRef a s
