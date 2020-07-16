@@ -513,7 +513,7 @@ instance ShowStripped JSObjectProperty where
     ss (JSPropertyNameandValue x1 _colon x2s) = "JSPropertyNameandValue (" ++ ss x1 ++ ") " ++ ss x2s
     ss (JSPropertyIdentRef _ s) = "JSPropertyIdentRef " ++ singleQuote s
     ss (JSObjectMethod m) = ss m
-    ss (JSObjectSpread _ellipsis e) = "JSObjectSpread " ++ ss e
+    ss (JSObjectSpread _ x1) = "JSObjectSpread (" ++ ss x1 ++ ")"
 
 instance ShowStripped JSMethodDefinition where
     ss (JSMethodDefinition x1 _lb1 x2s _rb1 x3) = "JSMethodDefinition (" ++ ss x1 ++ ") " ++ ss x2s ++ " (" ++ ss x3 ++ ")"

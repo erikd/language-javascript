@@ -1567,10 +1567,11 @@ propName x = error $ "Cannot convert '" ++ show x ++ "' to a JSPropertyName."
 
 spreadExpressionToProperty :: AST.JSExpression -> AST.JSObjectProperty
 spreadExpressionToProperty (AST.JSSpreadExpression d e) = AST.JSObjectSpread d e
+spreadExpressionToProperty x = error $ "Cannot convert '" ++ show x ++ "' to a JSSpreadExpression."
 
 identifierToProperty :: AST.JSExpression -> AST.JSObjectProperty
 identifierToProperty (AST.JSIdentifier a s) = AST.JSPropertyIdentRef a s
-identifierToProperty x = error $ "Cannot convert '" ++ show x ++ "' to a JSObjectProperty."
+identifierToProperty x = error $ "Cannot convert '" ++ show x ++ "' to a JSPropertyIdentRef."
 
 toArrowParameterList :: AST.JSExpression -> Token -> Alex AST.JSArrowParameterList
 toArrowParameterList (AST.JSIdentifier a s)          = const . return $ AST.JSUnparenthesizedArrowParameter (AST.JSIdentName a s)
