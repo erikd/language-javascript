@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 
 module Language.JavaScript.Parser.AST
     ( JSExpression (..)
@@ -44,8 +45,10 @@ module Language.JavaScript.Parser.AST
     , showStripped
     ) where
 
+import Control.DeepSeq (NFData)
 import Data.Data
 import Data.List
+import GHC.Generics (Generic)
 import Language.JavaScript.Parser.SrcLocation (TokenPosn (..))
 import Language.JavaScript.Parser.Token
 
@@ -55,7 +58,7 @@ data JSAnnot
     = JSAnnot !TokenPosn ![CommentAnnotation] -- ^Annotation: position and comment/whitespace information
     | JSAnnotSpace -- ^A single space character
     | JSNoAnnot -- ^No annotation
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 
 data JSAST
@@ -64,7 +67,7 @@ data JSAST
     | JSAstStatement !JSStatement !JSAnnot
     | JSAstExpression !JSExpression !JSAnnot
     | JSAstLiteral !JSExpression !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 -- Shift AST
 -- https://github.com/shapesecurity/shift-spec/blob/83498b92c436180cc0e2115b225a68c08f43c53e/spec.idl#L229-L234
@@ -72,12 +75,12 @@ data JSModuleItem
     = JSModuleImportDeclaration !JSAnnot !JSImportDeclaration -- ^import,decl
     | JSModuleExportDeclaration !JSAnnot !JSExportDeclaration -- ^export,decl
     | JSModuleStatementListItem !JSStatement
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSImportDeclaration
     = JSImportDeclaration !JSImportClause !JSFromClause !JSSemi -- ^imports, module, semi
     | JSImportDeclarationBare !JSAnnot !String !JSSemi -- ^module, module, semi
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSImportClause
     = JSImportClauseDefault !JSIdent -- ^default
@@ -85,21 +88,21 @@ data JSImportClause
     | JSImportClauseNamed !JSImportsNamed -- ^named imports
     | JSImportClauseDefaultNameSpace !JSIdent !JSAnnot !JSImportNameSpace -- ^default, comma, namespace
     | JSImportClauseDefaultNamed !JSIdent !JSAnnot !JSImportsNamed -- ^default, comma, named imports
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSFromClause
     = JSFromClause !JSAnnot !JSAnnot !String -- ^ from, string literal, string literal contents
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 -- | Import namespace, e.g. '* as whatever'
 data JSImportNameSpace
     = JSImportNameSpace !JSBinOp !JSAnnot !JSIdent -- ^ *, as, ident
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 -- | Named imports, e.g. '{ foo, bar, baz as quux }'
 data JSImportsNamed
     = JSImportsNamed !JSAnnot !(JSCommaList JSImportSpecifier) !JSAnnot -- ^lb, specifiers, rb
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 -- |
 -- Note that this data type is separate from ExportSpecifier because the
@@ -107,7 +110,7 @@ data JSImportsNamed
 data JSImportSpecifier
     = JSImportSpecifier !JSIdent -- ^ident
     | JSImportSpecifierAs !JSIdent !JSAnnot !JSIdent -- ^ident, as, ident
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSExportDeclaration
     -- = JSExportAllFrom
@@ -115,16 +118,16 @@ data JSExportDeclaration
     | JSExportLocals JSExportClause !JSSemi -- ^exports, autosemi
     | JSExport !JSStatement !JSSemi -- ^body, autosemi
     -- | JSExportDefault
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSExportClause
     = JSExportClause !JSAnnot !(JSCommaList JSExportSpecifier) !JSAnnot -- ^lb, specifiers, rb
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSExportSpecifier
     = JSExportSpecifier !JSIdent -- ^ident
     | JSExportSpecifierAs !JSIdent !JSAnnot !JSIdent -- ^ident1, as, ident2
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSStatement
     = JSStatementBlock !JSAnnot ![JSStatement] !JSAnnot !JSSemi     -- ^lbrace, stmts, rbrace, autosemi
@@ -163,7 +166,7 @@ data JSStatement
     | JSVariable !JSAnnot !(JSCommaList JSExpression) !JSSemi -- ^var, decl, autosemi
     | JSWhile !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement -- ^while,lb,expr,rb,stmt
     | JSWith !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSStatement !JSSemi -- ^with,lb,expr,rb,stmt list
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSExpression
     -- | Terminals
@@ -203,12 +206,12 @@ data JSExpression
     | JSVarInitExpression !JSExpression !JSVarInitializer -- ^identifier, initializer
     | JSYieldExpression !JSAnnot !(Maybe JSExpression) -- ^yield, optional expr
     | JSYieldFromExpression !JSAnnot !JSAnnot !JSExpression -- ^yield, *, expr
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSArrowParameterList
     = JSUnparenthesizedArrowParameter !JSIdent
     | JSParenthesizedArrowParameterList !JSAnnot !(JSCommaList JSExpression) !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSBinOp
     = JSBinOpAnd !JSAnnot
@@ -235,7 +238,7 @@ data JSBinOp
     | JSBinOpStrictNeq !JSAnnot
     | JSBinOpTimes !JSAnnot
     | JSBinOpUrsh !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSUnaryOp
     = JSUnaryOpDecr !JSAnnot
@@ -247,12 +250,12 @@ data JSUnaryOp
     | JSUnaryOpTilde !JSAnnot
     | JSUnaryOpTypeof !JSAnnot
     | JSUnaryOpVoid !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSSemi
     = JSSemi !JSAnnot
     | JSSemiAuto
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSAssignOp
     = JSAssign !JSAnnot
@@ -267,50 +270,50 @@ data JSAssignOp
     | JSBwAndAssign !JSAnnot
     | JSBwXorAssign !JSAnnot
     | JSBwOrAssign !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSTryCatch
     = JSCatch !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSBlock -- ^catch,lb,ident,rb,block
     | JSCatchIf !JSAnnot !JSAnnot !JSExpression !JSAnnot !JSExpression !JSAnnot !JSBlock -- ^catch,lb,ident,if,expr,rb,block
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSTryFinally
     = JSFinally !JSAnnot !JSBlock -- ^finally,block
     | JSNoFinally
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSBlock
     = JSBlock !JSAnnot ![JSStatement] !JSAnnot -- ^lbrace, stmts, rbrace
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSSwitchParts
     = JSCase !JSAnnot !JSExpression !JSAnnot ![JSStatement]    -- ^expr,colon,stmtlist
     | JSDefault !JSAnnot !JSAnnot ![JSStatement] -- ^colon,stmtlist
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSVarInitializer
     = JSVarInit !JSAnnot !JSExpression -- ^ assignop, initializer
     | JSVarInitNone
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSObjectProperty
     = JSPropertyNameandValue !JSPropertyName !JSAnnot ![JSExpression] -- ^name, colon, value
     | JSPropertyIdentRef !JSAnnot !String
     | JSObjectMethod !JSMethodDefinition
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSMethodDefinition
     = JSMethodDefinition !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- name, lb, params, rb, block
     | JSGeneratorMethodDefinition !JSAnnot !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^*, name, lb, params, rb, block
     | JSPropertyAccessor !JSAccessor !JSPropertyName !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^get/set, name, lb, params, rb, block
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSPropertyName
     = JSPropertyIdent !JSAnnot !String
     | JSPropertyString !JSAnnot !String
     | JSPropertyNumber !JSAnnot !String
     | JSPropertyComputed !JSAnnot !JSExpression !JSAnnot -- ^lb, expr, rb
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 type JSObjectPropertyList = JSCommaTrailingList JSObjectProperty
 
@@ -318,43 +321,43 @@ type JSObjectPropertyList = JSCommaTrailingList JSObjectProperty
 data JSAccessor
     = JSAccessorGet !JSAnnot
     | JSAccessorSet !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSIdent
     = JSIdentName !JSAnnot !String
     | JSIdentNone
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSArrayElement
     = JSArrayElement !JSExpression
     | JSArrayComma !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSCommaList a
     = JSLCons !(JSCommaList a) !JSAnnot !a -- ^head, comma, a
     | JSLOne !a -- ^ single element (no comma)
     | JSLNil
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSCommaTrailingList a
     = JSCTLComma !(JSCommaList a) !JSAnnot -- ^list, trailing comma
     | JSCTLNone !(JSCommaList a) -- ^list
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSTemplatePart
     = JSTemplatePart !JSExpression !JSAnnot !String -- ^expr, rb, suffix
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSClassHeritage
     = JSExtends !JSAnnot !JSExpression
     | JSExtendsNone
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 data JSClassElement
     = JSClassInstanceMethod !JSMethodDefinition
     | JSClassStaticMethod !JSAnnot !JSMethodDefinition
     | JSClassSemi !JSAnnot
-    deriving (Data, Eq, Show, Typeable)
+    deriving (Data, Eq, Generic, NFData, Show, Typeable)
 
 -- -----------------------------------------------------------------------------
 -- | Show the AST elements stripped of their JSAnnot data.
