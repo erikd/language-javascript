@@ -332,6 +332,7 @@ instance RenderJS JSExportDeclaration where
     (|>) pacc (JSExport x1 s) = pacc |> x1 |> s
     (|>) pacc (JSExportLocals xs semi) = pacc |> xs |> semi
     (|>) pacc (JSExportFrom xs from semi) = pacc |> xs |> from |> semi
+    (|>) pacc (JSExportAllFrom star from semi) = pacc |> star |> from |> semi
 
 instance RenderJS JSExportClause where
     (|>) pacc (JSExportClause alb JSLNil arb) = pacc |> alb |> "{" |> arb |> "}"

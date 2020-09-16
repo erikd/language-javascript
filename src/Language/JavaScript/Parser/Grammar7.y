@@ -1434,7 +1434,7 @@ ImportSpecifier : IdentifierName
                     { AST.JSImportSpecifierAs (identName $1) $2 (identName $3) }
 
 -- ExportDeclaration :                                                        See 15.2.3
--- [ ]    export * FromClause ;
+-- [x]    export * FromClause ;
 -- [x]    export ExportClause FromClause ;
 -- [x]    export ExportClause ;
 -- [x]    export VariableStatement
@@ -1452,7 +1452,9 @@ ImportSpecifier : IdentifierName
 -- [ ]    export default ClassDeclaration[Default]
 -- [ ]    export default [lookahead ∉ { function, class }] AssignmentExpression[In] ;
 ExportDeclaration :: { AST.JSExportDeclaration }
-ExportDeclaration : ExportClause FromClause AutoSemi
+ExportDeclaration : Mul FromClause AutoSemi
+                         { AST.JSExportAllFrom $1 $2 $3 {- 'ExportDeclaration0' -} }
+                  | ExportClause FromClause AutoSemi
                          { AST.JSExportFrom $1 $2 $3  {- 'ExportDeclaration1' -} }
                   | ExportClause AutoSemi
                          { AST.JSExportLocals $1 $2   {- 'ExportDeclaration2' -} }
