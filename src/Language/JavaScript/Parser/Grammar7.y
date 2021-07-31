@@ -148,6 +148,9 @@ import qualified Language.JavaScript.Parser.AST as AST
 
      'tail'       { TailToken {} }
 
+     'target'     { TargetToken {} }
+     'meta'       { MetaToken {} }
+
 
 %%
 
@@ -465,6 +468,12 @@ Static : 'static' { mkJSAnnot $1 }
 Super :: { AST.JSExpression }
 Super : 'super' { AST.JSLiteral (mkJSAnnot $1) "super" }
 
+Target :: { AST.JSExpression }
+Target : 'target' { AST.JSLiteral (mkJSAnnot $1) "target" }
+
+Meta :: { AST.JSExpression }
+Meta : 'meta' { AST.JSLiteral (mkJSAnnot $1) "meta" }
+
 
 Eof :: { AST.JSAnnot }
 Eof : 'tail' { mkJSAnnot $1 {- 'Eof' -} }
@@ -644,6 +653,10 @@ PropertyName : IdentifierName { propName $1 {- 'PropertyName1' -} }
 PropertySetParameterList :: { AST.JSExpression }
 PropertySetParameterList : AssignmentExpression { $1 {- 'PropertySetParameterList' -} }
 
+MetaProperty :: { AST.JSExpression }
+MetaProperty : New Dot Target { AST.JSMetaProperty (AST.JSLiteral $1 "new") $2 $3 }
+             | Import Dot Meta { AST.JSMetaProperty (AST.JSLiteral $1 "import") $2 $3 }
+
 -- MemberExpression :                                           See 11.2
 --        PrimaryExpression
 --        FunctionExpression
@@ -658,6 +671,7 @@ MemberExpression : PrimaryExpression   { $1 {- 'MemberExpression1' -} }
                  | MemberExpression TemplateLiteral            { mkJSTemplateLiteral (Just $1) $2 }
                  | Super LSquare Expression RSquare            { AST.JSMemberSquare $1 $2 $3 $4 }
                  | Super Dot IdentifierName                    { AST.JSMemberDot $1 $2 $3 }
+                 | MetaProperty                                { $1 }
                  | New MemberExpression Arguments              { mkJSMemberNew $1 $2 $3         {- 'MemberExpression5' -} }
 
 -- NewExpression :                                              See 11.2

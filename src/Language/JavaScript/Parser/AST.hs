@@ -192,6 +192,7 @@ data JSExpression
     | JSFunctionExpression !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^fn,name,lb, parameter list,rb,block`
     | JSGeneratorExpression !JSAnnot !JSAnnot !JSIdent !JSAnnot !(JSCommaList JSExpression) !JSAnnot !JSBlock -- ^fn,*,name,lb, parameter list,rb,block`
     | JSMemberDot !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, name
+    | JSMetaProperty !JSExpression !JSAnnot !JSExpression -- ^firstpart, dot, secondpart
     | JSMemberExpression !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- expr, lb, args, rb
     | JSMemberNew !JSAnnot !JSExpression !JSAnnot !(JSCommaList JSExpression) !JSAnnot -- ^new, name, lb, args, rb
     | JSMemberSquare !JSExpression !JSAnnot !JSExpression !JSAnnot -- ^firstpart, lb, expr, rb
@@ -435,6 +436,7 @@ instance ShowStripped JSExpression where
     ss (JSLiteral _ []) = "JSLiteral ''"
     ss (JSLiteral _ s) = "JSLiteral " ++ singleQuote s
     ss (JSMemberDot x1s _d x2 ) = "JSMemberDot (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
+    ss (JSMetaProperty _a _d _b ) = "JSMetaProperty (" ++ ss _a ++ "," ++ ss _b ++ ")"
     ss (JSMemberExpression e _ a _) = "JSMemberExpression (" ++ ss e ++ ",JSArguments " ++ ss a ++ ")"
     ss (JSMemberNew _a n _ s _) = "JSMemberNew (" ++ ss n ++ ",JSArguments " ++ ss s ++ ")"
     ss (JSMemberSquare x1s _lb x2 _rb) = "JSMemberSquare (" ++ ss x1s ++ "," ++ ss x2 ++ ")"
