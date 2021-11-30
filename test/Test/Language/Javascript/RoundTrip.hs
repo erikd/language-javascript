@@ -136,6 +136,9 @@ testRoundTrip = describe "Roundtrip:" $ do
         testRT "var [x, y]=z;"
         testRT "let {x: [y]}=z;"
         testRT "let yield=1"
+        testRT "return x"
+        testRT "return /**/ x"
+        testRT "return /*\n*/ x"
 
     it "module" $ do
         testRTModule "import  def  from 'mod'"

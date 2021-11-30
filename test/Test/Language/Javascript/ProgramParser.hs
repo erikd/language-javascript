@@ -18,11 +18,23 @@ testProgramParser = describe "Program parser:" $ do
     it "function" $ do
         testProg "function a(){}"     `shouldBe` "Right (JSAstProgram [JSFunction 'a' () (JSBlock [])])"
         testProg "function a(b,c){}"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [])])"
+
     it "comments" $ do
         testProg "//blah\nx=1;//foo\na"   `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1'),JSSemicolon,JSIdentifier 'a'])"
         testProg "/*x=1\ny=2\n*/z=2;//foo\na"  `shouldBe` "Right (JSAstProgram [JSOpAssign ('=',JSIdentifier 'z',JSDecimal '2'),JSSemicolon,JSIdentifier 'a'])"
         testProg "/* */\nfunction f() {\n/*  */\n}\n" `shouldBe` "Right (JSAstProgram [JSFunction 'f' () (JSBlock [])])"
         testProg "/* **/\nfunction f() {\n/*  */\n}\n" `shouldBe` "Right (JSAstProgram [JSFunction 'f' () (JSBlock [])])"
+
+    it "function with comments" $ do
+        testProg "function a(){/* return */}"     `shouldBe` "Right (JSAstProgram [JSFunction 'a' () (JSBlock [])])"
+        testProg "function a(b,c/*d*/){}"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [])])"
+
+    it "return with comments" $ do
+        testProg "function a(b,c){ return \n 4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
+        testProg "function a(b,c){ return // 4\n }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ])])"
+        testProg "function a(b,c){ return /* 4*/\n }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ])])"
+        testProg "function a(b,c){ return //\n 4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
+        testProg "function a(b,c){ return /*\n*/ 4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
 
     it "if" $ do
         testProg "if(x);x=1"        `shouldBe` "Right (JSAstProgram [JSIf (JSIdentifier 'x') (JSEmptyStatement),JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')])"

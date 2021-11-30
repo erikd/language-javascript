@@ -15,6 +15,15 @@ testLexer = describe "Lexer:" $ do
         testLex "// 𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡 "    `shouldBe` "[CommentToken]"
         testLex "/* 𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡 */"  `shouldBe` "[CommentToken]"
 
+    it "return mixed with comments" $ do
+        testLex "return 1"  `shouldBe` "[ReturnToken,WsToken,DecimalToken 1]"
+        testLex "return \n 1"  `shouldBe` "[ReturnToken,WsToken,DecimalToken 1]"
+        testLex "return //hello"  `shouldBe` "[ReturnToken,WsToken,CommentToken]"
+        testLex "return /*hello*/"  `shouldBe` "[ReturnToken,WsToken,CommentToken]"
+        testLex "return //hello\n 1"  `shouldBe` "[ReturnToken,WsToken,CommentToken,WsToken,DecimalToken 1]"
+        testLex "return /*hello*/\n 1"  `shouldBe` "[ReturnToken,WsToken,CommentToken,WsToken,DecimalToken 1]"
+        testLex "return /*hello 1*/\n"  `shouldBe` "[ReturnToken,WsToken,CommentToken,WsToken]"
+
     it "numbers" $ do
         testLex "123"       `shouldBe` "[DecimalToken 123]"
         testLex "037"       `shouldBe` "[OctalToken 037]"
