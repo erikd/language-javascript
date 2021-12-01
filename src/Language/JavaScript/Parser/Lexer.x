@@ -432,13 +432,17 @@ lexCont cont =
   where
     lexLoop = do
         tok <- lexToken
+        ltok <- getLastToken
         case tok of
             CommentToken {} -> do
                 addComment tok
-                lexLoop
+                case ltok of
+                    BreakToken {} -> maybeAutoSemi tok
+                    ContinueToken {} -> maybeAutoSemi tok
+                    ReturnToken {} -> maybeAutoSemi tok
+                    _otherwise -> lexLoop
             WsToken {} -> do
                 addComment tok
-                ltok <- getLastToken
                 case ltok of
                     BreakToken {} -> maybeAutoSemi tok
                     ContinueToken {} -> maybeAutoSemi tok
@@ -453,6 +457,10 @@ lexCont cont =
     -- If the token is a WsToken and it contains a newline, convert it to an
     -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
     maybeAutoSemi (WsToken sp tl cmt) =
+        if any (== '\n') tl
+            then cont $ AutoSemiToken sp tl cmt
+            else lexLoop
+    maybeAutoSemi (CommentToken sp tl cmt) =
         if any (== '\n') tl
             then cont $ AutoSemiToken sp tl cmt
             else lexLoop
@@ -483,6 +491,7 @@ getLastToken = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, previousToken ust)
 
 setLastToken :: Token -> Alex ()
 setLastToken (WsToken {}) = Alex $ \s -> Right (s, ())
+setLastToken (CommentToken {}) = Alex $ \s -> Right (s, ())
 setLastToken tok          = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
 
 getComment :: Alex [Token]

@@ -33,8 +33,14 @@ testProgramParser = describe "Program parser:" $ do
         testProg "function a(b,c){ return \n 4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
         testProg "function a(b,c){ return // 4\n }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ])])"
         testProg "function a(b,c){ return /* 4*/\n }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ])])"
+
+    it "return with comments and trailing expression" $ do
         testProg "function a(b,c){ return //\n 4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
         testProg "function a(b,c){ return /*\n*/ 4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
+
+    it "return without spaces and but comments and trailing expression" $ do
+        testProg "function a(b,c){ return//\n4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
+        testProg "function a(b,c){ return/*\n*/4 }"  `shouldBe` "Right (JSAstProgram [JSFunction 'a' (JSIdentifier 'b',JSIdentifier 'c') (JSBlock [JSReturn ,JSDecimal '4'])])"
 
     it "if" $ do
         testProg "if(x);x=1"        `shouldBe` "Right (JSAstProgram [JSIf (JSIdentifier 'x') (JSEmptyStatement),JSOpAssign ('=',JSIdentifier 'x',JSDecimal '1')])"
@@ -103,4 +109,3 @@ testProg str = showStrippedMaybe (parseUsing parseProgram str "src")
 
 testFileUtf8 :: FilePath -> IO String
 testFileUtf8 fileName = showStripped <$> parseFileUtf8 fileName
-
