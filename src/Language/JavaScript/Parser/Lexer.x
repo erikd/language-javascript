@@ -431,6 +431,7 @@ lexCont cont =
     lexLoop
   where
     lexLoop = do
+        let maybeAutoSemi = tryInsertAutoSemi cont lexLoop
         tok <- lexToken
         ltok <- getLastToken
         case tok of
@@ -454,17 +455,18 @@ lexCont cont =
                 setComment []
                 cont tok'
 
-    -- If the token is a WsToken and it contains a newline, convert it to an
-    -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
-    maybeAutoSemi (WsToken sp tl cmt) =
-        if any (== '\n') tl
-            then cont $ AutoSemiToken sp tl cmt
-            else lexLoop
-    maybeAutoSemi (CommentToken sp tl cmt) =
-        if any (== '\n') tl
-            then cont $ AutoSemiToken sp tl cmt
-            else lexLoop
-    maybeAutoSemi _ = lexLoop
+-- If the token is a WsToken and it contains a newline, convert it to an
+-- AutoSemiToken and call the continuation, otherwise, just lexLoop.
+tryInsertAutoSemi :: (Token -> Alex a) -> Alex a -> Token -> Alex a
+tryInsertAutoSemi cont loop (WsToken sp tl cmt) =
+    if any (== '\n') tl
+        then cont $ AutoSemiToken sp tl cmt
+        else loop
+tryInsertAutoSemi cont loop (CommentToken sp tl cmt) =
+    if any (== '\n') tl
+        then cont $ AutoSemiToken sp tl cmt
+        else loop
+tryInsertAutoSemi _ loop _ = loop
 
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
