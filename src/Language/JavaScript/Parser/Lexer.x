@@ -14,6 +14,7 @@ module Language.JavaScript.Parser.Lexer
     , lexCont
     , alexError
     , runAlex
+    , happyTestTokeniser
     , alexTestTokeniser
     , setInTemplate
     ) where
@@ -425,49 +426,61 @@ alexTestTokeniser input =
                             xs -> reverse xs
             _ -> loop (tok:acc)
 
+-- Test variant of alexTestTokeniser
+-- that tokenizes using the same rules as those used by the happy parser
+happyTestTokeniser :: String -> Either String [Token]
+happyTestTokeniser input = runAlex input $ loop []
+  where
+    loop :: [Token] -> Alex [Token]
+    loop acc = genericLexStep (loop . (:acc)) (loop acc) (\_ ->
+                        return $ case acc of
+                            [] -> []
+                            (TailToken{}:xs) -> reverse xs
+                            xs -> reverse xs)
+
 -- This is called by the Happy parser.
 lexCont :: (Token -> Alex a) -> Alex a
-lexCont cont =
-    lexLoop
+lexCont cont = lexLoop
   where
-    lexLoop = do
-        let maybeAutoSemi = tryInsertAutoSemi cont lexLoop
-        tok <- lexToken
-        ltok <- getLastToken
-        case tok of
-            CommentToken {} -> do
-                addComment tok
-                case ltok of
-                    BreakToken {} -> maybeAutoSemi tok
-                    ContinueToken {} -> maybeAutoSemi tok
-                    ReturnToken {} -> maybeAutoSemi tok
-                    _otherwise -> lexLoop
-            WsToken {} -> do
-                addComment tok
-                case ltok of
-                    BreakToken {} -> maybeAutoSemi tok
-                    ContinueToken {} -> maybeAutoSemi tok
-                    ReturnToken {} -> maybeAutoSemi tok
-                    _otherwise -> lexLoop
-            _other -> do
-                cs <- getComment
-                let tok' = tok{ tokenComment=(toCommentAnnotation cs) }
-                setComment []
-                cont tok'
+    lexLoop = genericLexStep cont lexLoop (addCommentAnnotation cont)
 
--- If the token is a WsToken and it contains a newline, convert it to an
--- AutoSemiToken and call the continuation, otherwise, just lexLoop.
-tryInsertAutoSemi :: (Token -> Alex a) -> Alex a -> Token -> Alex a
-tryInsertAutoSemi cont loop (WsToken sp tl cmt) =
-    if any (== '\n') tl
-        then cont $ AutoSemiToken sp tl cmt
-        else loop
-tryInsertAutoSemi cont loop (CommentToken sp tl cmt) =
-    if any (== '\n') tl
-        then cont $ AutoSemiToken sp tl cmt
-        else loop
-tryInsertAutoSemi _ loop _ = loop
+genericLexStep :: (Token -> Alex a) -> Alex a -> (Token -> Alex a) -> Alex a
+genericLexStep cont lexLoop eof = do
+    tok <- lexToken
+    ltok <- getLastToken
+    case tok of
+        CommentToken {} -> do
+            addComment tok
+            case ltok of
+                BreakToken {} -> maybeAutoSemi tok
+                ContinueToken {} -> maybeAutoSemi tok
+                ReturnToken {} -> maybeAutoSemi tok
+                _otherwise -> lexLoop
+        WsToken {} -> do
+            addComment tok
+            case ltok of
+                BreakToken {} -> maybeAutoSemi tok
+                ContinueToken {} -> maybeAutoSemi tok
+                ReturnToken {} -> maybeAutoSemi tok
+                _otherwise -> lexLoop
+        EOFToken {} -> eof tok
+        _other -> addCommentAnnotation cont tok
+    where
+        -- If the token is a WsToken or CommentToken and it contains a newline, convert it to an
+        -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
+        maybeAutoSemi (WsToken sp tl cmt)      | hasNewline tl = cont $ AutoSemiToken sp tl cmt
+        maybeAutoSemi (CommentToken sp tl cmt) | hasNewline tl = cont $ AutoSemiToken sp tl cmt
+        maybeAutoSemi _ = lexLoop
 
+        hasNewline :: String -> Bool
+        hasNewline = any (== '\n')
+
+addCommentAnnotation :: (Token -> Alex a) -> Token -> Alex a
+addCommentAnnotation cont tok = do
+    cs <- getComment
+    let tok' = tok{ tokenComment=(toCommentAnnotation cs) }
+    setComment []
+    cont tok'
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
 toCommentAnnotation [] = []
