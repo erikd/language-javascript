@@ -167,10 +167,10 @@ testLexer = describe "Lexer:" $ do
 
 
 alexTestLex :: String -> String
-alexTestLex = genericTestLex alexTestTokeniser
+alexTestLex = genericTestLex alexTestTokenizer
 
 happyTestLex :: String -> String
-happyTestLex = genericTestLex happyTestTokeniser
+happyTestLex = genericTestLex happyTestTokenizer
 
 genericTestLex :: (String -> Either String [Token]) -> String -> String
 genericTestLex lexer str =

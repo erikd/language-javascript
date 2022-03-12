@@ -14,8 +14,8 @@ module Language.JavaScript.Parser.Lexer
     , lexCont
     , alexError
     , runAlex
-    , happyTestTokeniser
-    , alexTestTokeniser
+    , happyTestTokenizer
+    , alexTestTokenizer
     , setInTemplate
     ) where
 
@@ -412,8 +412,8 @@ lexToken = do
                     return tok
 
 -- For tesing.
-alexTestTokeniser :: String -> Either String [Token]
-alexTestTokeniser input =
+alexTestTokenizer :: String -> Either String [Token]
+alexTestTokenizer input =
     runAlex input $ loop []
   where
     loop acc = do
@@ -426,10 +426,10 @@ alexTestTokeniser input =
                             xs -> reverse xs
             _ -> loop (tok:acc)
 
--- Test variant of alexTestTokeniser
+-- Test variant of alexTestTokenizer
 -- that tokenizes using the same rules as those used by the happy parser
-happyTestTokeniser :: String -> Either String [Token]
-happyTestTokeniser input = runAlex input $ loop []
+happyTestTokenizer :: String -> Either String [Token]
+happyTestTokenizer input = runAlex input $ loop []
   where
     loop :: [Token] -> Alex [Token]
     loop acc = genericLexStep (loop . (:acc)) (loop acc) (\_ ->
