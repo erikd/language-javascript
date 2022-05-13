@@ -71,7 +71,6 @@ Test-Suite testsuite
                  , QuickCheck >= 2
                  , hspec
                  , array            >= 0.3
-                 , utf8-light       >= 0.4
                  , containers       >= 0.2
                  , mtl              >= 1.1
                  , utf8-string      >= 0.3.7 && < 2
