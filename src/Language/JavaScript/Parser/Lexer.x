@@ -14,7 +14,8 @@ module Language.JavaScript.Parser.Lexer
     , lexCont
     , alexError
     , runAlex
-    , alexTestTokeniser
+    , happyTestTokenizer
+    , alexTestTokenizer
     , setInTemplate
     ) where
 
@@ -411,8 +412,8 @@ lexToken = do
                     return tok
 
 -- For tesing.
-alexTestTokeniser :: String -> Either String [Token]
-alexTestTokeniser input =
+alexTestTokenizer :: String -> Either String [Token]
+alexTestTokenizer input =
     runAlex input $ loop []
   where
     loop acc = do
@@ -425,39 +426,61 @@ alexTestTokeniser input =
                             xs -> reverse xs
             _ -> loop (tok:acc)
 
+-- Test variant of alexTestTokenizer
+-- that tokenizes using the same rules as those used by the happy parser
+happyTestTokenizer :: String -> Either String [Token]
+happyTestTokenizer input = runAlex input $ loop []
+  where
+    loop :: [Token] -> Alex [Token]
+    loop acc = genericLexStep (loop . (:acc)) (loop acc) (\_ ->
+                        return $ case acc of
+                            [] -> []
+                            (TailToken{}:xs) -> reverse xs
+                            xs -> reverse xs)
+
 -- This is called by the Happy parser.
 lexCont :: (Token -> Alex a) -> Alex a
-lexCont cont =
-    lexLoop
+lexCont cont = lexLoop
   where
-    lexLoop = do
-        tok <- lexToken
-        case tok of
-            CommentToken {} -> do
-                addComment tok
-                lexLoop
-            WsToken {} -> do
-                addComment tok
-                ltok <- getLastToken
-                case ltok of
-                    BreakToken {} -> maybeAutoSemi tok
-                    ContinueToken {} -> maybeAutoSemi tok
-                    ReturnToken {} -> maybeAutoSemi tok
-                    _otherwise -> lexLoop
-            _other -> do
-                cs <- getComment
-                let tok' = tok{ tokenComment=(toCommentAnnotation cs) }
-                setComment []
-                cont tok'
+    lexLoop = genericLexStep cont lexLoop (addCommentAnnotation cont)
 
-    -- If the token is a WsToken and it contains a newline, convert it to an
-    -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
-    maybeAutoSemi (WsToken sp tl cmt) =
-        if any (== '\n') tl
-            then cont $ AutoSemiToken sp tl cmt
-            else lexLoop
-    maybeAutoSemi _ = lexLoop
+genericLexStep :: (Token -> Alex a) -> Alex a -> (Token -> Alex a) -> Alex a
+genericLexStep cont lexLoop eof = do
+    tok <- lexToken
+    ltok <- getLastToken
+    case tok of
+        CommentToken {} -> do
+            addComment tok
+            case ltok of
+                BreakToken {} -> maybeAutoSemi tok
+                ContinueToken {} -> maybeAutoSemi tok
+                ReturnToken {} -> maybeAutoSemi tok
+                _otherwise -> lexLoop
+        WsToken {} -> do
+            addComment tok
+            case ltok of
+                BreakToken {} -> maybeAutoSemi tok
+                ContinueToken {} -> maybeAutoSemi tok
+                ReturnToken {} -> maybeAutoSemi tok
+                _otherwise -> lexLoop
+        EOFToken {} -> eof tok
+        _other -> addCommentAnnotation cont tok
+    where
+        -- If the token is a WsToken or CommentToken and it contains a newline, convert it to an
+        -- AutoSemiToken and call the continuation, otherwise, just lexLoop.
+        maybeAutoSemi (WsToken sp tl cmt)      | hasNewline tl = cont $ AutoSemiToken sp tl cmt
+        maybeAutoSemi (CommentToken sp tl cmt) | hasNewline tl = cont $ AutoSemiToken sp tl cmt
+        maybeAutoSemi _ = lexLoop
 
+        hasNewline :: String -> Bool
+        hasNewline = any (== '\n')
+
+addCommentAnnotation :: (Token -> Alex a) -> Token -> Alex a
+addCommentAnnotation cont tok = do
+    cs <- getComment
+    let tok' = tok{ tokenComment=(toCommentAnnotation cs) }
+    setComment []
+    cont tok'
 
 toCommentAnnotation :: [Token] -> [CommentAnnotation]
 toCommentAnnotation [] = []
@@ -483,6 +506,7 @@ getLastToken = Alex $ \s@AlexState{alex_ust=ust} -> Right (s, previousToken ust)
 
 setLastToken :: Token -> Alex ()
 setLastToken (WsToken {}) = Alex $ \s -> Right (s, ())
+setLastToken (CommentToken {}) = Alex $ \s -> Right (s, ())
 setLastToken tok          = Alex $ \s -> Right (s{alex_ust=(alex_ust s){previousToken=tok}}, ())
 
 getComment :: Alex [Token]
