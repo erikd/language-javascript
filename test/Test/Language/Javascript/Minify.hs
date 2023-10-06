@@ -117,9 +117,9 @@ testMinifyExpr = describe "Minify expressions:" $ do
 
         minifyExpr "a => {}" `shouldBe` "a=>{}"
         minifyExpr "(a) => {}" `shouldBe` "(a)=>{}"
-        minifyExpr "( a ) => { a + 2 }" `shouldBe` "(a)=>a+2"
+        minifyExpr "( a ) => { a + 2 }" `shouldBe` "(a)=>{a+2}"
         minifyExpr "(a, b) => a + b" `shouldBe` "(a,b)=>a+b"
-        minifyExpr "() => { 42 }" `shouldBe` "()=>42"
+        minifyExpr "() => { 42 }" `shouldBe` "()=>{42}"
         minifyExpr "(a, ...b) => b" `shouldBe` "(a,...b)=>b"
         minifyExpr "(a = 1, b = 2) => a + b" `shouldBe` "(a=1,b=2)=>a+b"
         minifyExpr "( [ a , b ] ) => a + b" `shouldBe` "([a,b])=>a+b"

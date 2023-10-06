@@ -104,6 +104,10 @@ instance RenderJS JSExpression where
 instance RenderJS JSArrowParameterList where
     (|>) pacc (JSUnparenthesizedArrowParameter p)             = pacc |> p
     (|>) pacc (JSParenthesizedArrowParameterList lb ps rb)    = pacc |> lb |> "(" |> ps |> ")" |> rb
+
+instance RenderJS JSConciseBody where
+    (|>) pacc (JSConciseExpressionBody e) = pacc |> e
+    (|>) pacc (JSConciseFunctionBody b)   = pacc |> b
 -- -----------------------------------------------------------------------------
 -- Need an instance of RenderJS for every component of every JSExpression or JSAnnot
 -- constuctor.
